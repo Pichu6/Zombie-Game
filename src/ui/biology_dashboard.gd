@@ -40,6 +40,8 @@ var mini_3d_viewport_container: SubViewportContainer
 var mini_3d_viewport: SubViewport
 var _chk_turntable: CheckBox
 var _slider_cam: HSlider
+var lbl_part_selection: Label
+var btn_selected_part_actions: Button
 var context_menu: PopupMenu
 var submenu_aid: PopupMenu
 var submenu_sim: PopupMenu
@@ -690,6 +692,21 @@ func _setup_workplace_and_cascade_inspector() -> void:
 		paperdoll.part_context_menu.connect(_on_paperdoll_context_menu)
 	sil_vbox.add_child(paperdoll)
 
+	lbl_part_selection = Label.new()
+	lbl_part_selection.name = "PartSelectionHint"
+	lbl_part_selection.text = "Seleccioná una zona del cuerpo para inspeccionarla."
+	lbl_part_selection.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl_part_selection.add_theme_font_size_override("font_size", 12)
+	sil_vbox.add_child(lbl_part_selection)
+
+	btn_selected_part_actions = Button.new()
+	btn_selected_part_actions.name = "SelectedPartActions"
+	btn_selected_part_actions.text = "Acciones de esta zona ▾"
+	btn_selected_part_actions.disabled = true
+	btn_selected_part_actions.tooltip_text = "Seleccioná una zona del cuerpo. También podés usar clic derecho sobre ella."
+	btn_selected_part_actions.pressed.connect(_on_selected_part_actions_pressed)
+	sil_vbox.add_child(btn_selected_part_actions)
+
 	# Barra de Velocidad de Movimiento debajo de la silueta
 	var move_card = PanelContainer.new()
 	var move_style = StyleBoxFlat.new()
@@ -983,6 +1000,7 @@ func _setup_workplace_and_cascade_inspector() -> void:
 	context_menu = PopupMenu.new()
 	context_menu.name = "PaperdollContextMenu"
 	context_menu.exclusive = false
+	context_menu.add_separator("Zona del cuerpo")
 
 	submenu_aid = PopupMenu.new()
 	submenu_aid.name = "SubmenuAid"
@@ -1013,7 +1031,7 @@ func _setup_workplace_and_cascade_inspector() -> void:
 	submenu_sim.add_item("✨ Sanar Completamente", 4)
 	submenu_sim.id_pressed.connect(_on_context_menu_action)
 	context_menu.add_child(submenu_sim)
-	context_menu.add_submenu_node_item("🧪 Simulación Clínica", submenu_sim)
+	context_menu.add_submenu_node_item("🧪 Laboratorio (depuración)", submenu_sim)
 
 	submenu_equip = PopupMenu.new()
 	submenu_equip.name = "SubmenuEquip"
@@ -1222,7 +1240,7 @@ func _build_tier3_inspector_ui(parent: Control) -> void:
 	container_inspector_part.add_child(lbl_inspector_part_vitals)
 
 	lbl_inspector_clinical_hint = Label.new()
-	lbl_inspector_clinical_hint.text = "💡 Interacciones médicas y vendajes disponibles mediante Click Derecho en la silueta anatómica."
+	lbl_inspector_clinical_hint.text = "💡 Usá «Acciones de esta zona» bajo la silueta o hacé clic derecho sobre el cuerpo."
 	lbl_inspector_clinical_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lbl_inspector_clinical_hint.add_theme_font_size_override("font_size", 12)
 	lbl_inspector_clinical_hint.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0, 0.85))
@@ -1954,10 +1972,31 @@ func _create_card_container(title_text: String, parent: Control) -> PanelContain
 # GESTIÓN DEL INSPECTOR CONTEXTUAL (NIVEL 3 Y NIVEL 4)
 # -----------------------------------------------------------------------------
 func _on_paperdoll_part_selected(part_type: int) -> void:
+	_menu_target_part = -1
+	if context_menu:
+		context_menu.hide()
 	active_inspected_part = part_type
 	active_inspected_item_id = ""
 	_refresh_contextual_inspector()
 	_on_telemetry_updated()
+
+func _on_selected_part_actions_pressed() -> void:
+	if not character or not character.body or not character.body.body_parts.has(active_inspected_part):
+		return
+	var button_rect = btn_selected_part_actions.get_global_rect()
+	_on_paperdoll_context_menu(active_inspected_part, button_rect.position + Vector2(0, button_rect.size.y))
+
+func _update_part_selection_controls() -> void:
+	if not lbl_part_selection or not btn_selected_part_actions:
+		return
+	var part: BodyPartClass = character.body.body_parts.get(active_inspected_part) if character and character.body else null
+	btn_selected_part_actions.disabled = part == null
+	if part:
+		lbl_part_selection.text = "Zona seleccionada: %s" % part.display_name
+		btn_selected_part_actions.tooltip_text = "Abrir acciones sobre %s. También disponible con clic derecho." % part.display_name
+	else:
+		lbl_part_selection.text = "Seleccioná una zona del cuerpo para inspeccionarla."
+		btn_selected_part_actions.tooltip_text = "Primero seleccioná una zona del cuerpo."
 
 func _on_paperdoll_part_hovered(_part_type: int) -> void:
 	pass
@@ -1971,7 +2010,7 @@ func _on_paperdoll_backpack_selected() -> void:
 	_on_telemetry_updated()
 
 func _on_paperdoll_context_menu(part_type: int, global_pos: Vector2) -> void:
-	_menu_target_part = part_type
+	_menu_target_part = -1
 	if part_type < 0:
 		if context_menu and context_menu.visible:
 			context_menu.hide()
@@ -1985,6 +2024,8 @@ func _on_paperdoll_context_menu(part_type: int, global_pos: Vector2) -> void:
 	if not part:
 		return
 
+	_menu_target_part = part_type
+	context_menu.set_item_text(0, part.display_name)
 	var bpm = b.cardio.heart_rate_bpm if b.cardio else 75.0
 	var bleed = part.get_current_bleed_rate(bpm)
 	var has_bleed = bleed > 0.01
@@ -2269,6 +2310,7 @@ func _on_paperdoll_layer_mode_changed(_new_mode: int) -> void:
 	_on_telemetry_updated()
 
 func _refresh_contextual_inspector() -> void:
+	_update_part_selection_controls()
 	if not character or not character.body:
 		return
 	var b: BodySystemClass = character.body
