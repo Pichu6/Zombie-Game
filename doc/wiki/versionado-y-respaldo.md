@@ -21,7 +21,7 @@ No se ignoran globalmente todos los ZIP ni todos los archivos grandes: un format
 
 Antes de excluir archivos se compararon original, copia local y manifiesto SHA-256: 2.141 archivos, 1.775.944.611 bytes coincidentes. No se borraron los originales del paquete CC.
 
-Los archivos excluidos necesitan respaldo en otra unidad o servicio. El respaldo local está en el mismo disco. El commit inicial publicado también los contiene, pero no debe tratarse como archivo externo permanente si se limpia el historial. No purgar copias locales ni objetos LFS antiguos hasta disponer de ese respaldo independiente.
+Los archivos excluidos necesitan respaldo en otra unidad o servicio. El respaldo local está en el mismo disco. El historial inicial se conserva solo como referencia local de recuperación; ya no forma parte de main publicado y no sustituye el respaldo independiente. No purgar copias locales ni objetos LFS antiguos hasta disponer de ese respaldo independiente.
 
 ## Recuperación y comprobación
 
@@ -35,7 +35,7 @@ Al agregar contenido, revisar `git status`, las dependencias, `git check-attr fi
 
 ## Historial publicado
 
-La exclusión mediante un commit normal limpia la versión actual, pero el commit inicial `9dbf972` sigue conservando el paquete CC. Reducir también el historial publicado requiere sustituir la rama remota con un historial limpio; es una operación distinta que debe aprobarse explícitamente. Los objetos LFS ya almacenados en GitHub no se liberan necesariamente al reescribir una rama.
+Con autorización del usuario se reemplazó `origin/main` mediante `--force-with-lease`, comprobando antes el commit remoto esperado. La nueva raíz es `65c6cd4`, con el mismo árbol de archivos que la versión verificada. El paquete CC, `.backups` y `.godot` no forman parte de este historial. La rama local `codex/archive-before-history-cleanup` conserva el historial anterior para recuperación: no publicarla ni usar `git push --all` o `--mirror`. Los archivos locales originales y el respaldo por hashes se conservaron. Esta operación no acredita que GitHub haya liberado los objetos LFS antiguos; no se solicitó su purga.
 
 ## Verificación de la separación — 2026-09-06
 
