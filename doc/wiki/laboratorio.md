@@ -20,4 +20,14 @@ Cambiar o quitar la selección elimina el destino de un menú anterior y cierra 
 
 La prueba nueva y las existentes `test_ux_refinements_and_biomechanics.gd` y `test_clinical_logic_and_paperdoll.gd` alcanzaron sus marcadores finales de éxito. Se conservaron las expectativas de las pruebas existentes. Siguen los avisos de liberación de recursos previamente documentados.
 
-Revisión visual mediante render real del laboratorio a 1600×900 y 1920×1080: nombre de zona, botón y encabezado del menú legibles. Capturas locales en `.backups/laboratory-selection.png` y `.backups/laboratory-actions-menu.png`. Se observa recorte de controles de la columna derecha en el layout general; queda pendiente revisar sus tamaños mínimos y adaptación a ventana. No se considera completo un rediseño de toda la pantalla.
+Revisión visual mediante render real del laboratorio a 1600×900 y 1920×1080: nombre de zona, botón y encabezado del menú legibles. Capturas locales en `.backups/laboratory-selection.png` y `.backups/laboratory-actions-menu.png`. En esa primera revisión se observó recorte de controles de la columna derecha; se corrigió en la iteración siguiente, documentada abajo. No se considera completo un rediseño de toda la pantalla.
+
+## Adaptación de paneles a la ventana — 2026-09-06
+
+Implementado: el panel de simulación permanece dentro de la ventana con ancho mínimo de 370 píxeles. El divisor utiliza la distribución del contenedor y deja de recalcular una posición que no contemplaba los mínimos de los hijos. El usuario puede seguir arrastrándolo.
+
+Los campos de formato de reloj, sustrato y vegetación colocan su selector debajo de la etiqueta. Las descripciones e información clínica admiten varias líneas; los valores numéricos de las filas se mantienen en una sola. Las barras superior e inferior pueden distribuir controles entre filas, manteniendo juntos etiqueta, slider y valor de cada control biométrico.
+
+El área de trabajo dispone de desplazamiento horizontal y vertical automático. A 1280×720 hace falta desplazarla para acceder al inspector y los controles inferiores; el panel de simulación tiene su propio desplazamiento vertical. Es acceso completo mediante scroll, no una versión móvil ni una promesa de mostrar todas las columnas simultáneamente.
+
+Verificación: render real a 1920×1080, 1600×900 y 1280×720; inspección visual de 1600 y 1280. La prueba `tools/test_laboratory_layout.gd` verifica ambos paneles dentro de la ventana, ancho del contenido derecho, valores sin fragmentar y posibilidad de desplazarse hasta el final del contenido. Marcador: `LABORATORY_LAYOUT_OK`. También pasaron selección/acciones, UX/biomecánica y lógica clínica/paperdoll. Persisten los avisos de recursos sin liberar ya documentados. Capturas y logs en `.backups/layout-*`, fuera de Git.

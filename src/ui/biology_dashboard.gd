@@ -487,23 +487,23 @@ func _setup_workplace_and_cascade_inspector() -> void:
 	main_hbox.offset_top = 10.0
 	main_hbox.offset_right = -12.0
 	main_hbox.offset_bottom = -10.0
-	main_hbox.split_offset = 580
+	main_hbox.split_offset = 0
 	main_hbox.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(main_hbox)
 
-	# Ajuste dinámico del divisor para garantizar 350px al dock derecho sin desbordamiento
-	main_hbox.resized.connect(func():
-		var total_w = main_hbox.size.x
-		if total_w > 800:
-			var half = total_w * 0.5
-			main_hbox.split_offset = int(half - 350.0)
-	)
+	# A scrollable workspace prevents its intrinsic width from pushing the dock
+	# outside the window. At normal widths the bars remain hidden.
+	var workspace_scroll = ScrollContainer.new()
+	workspace_scroll.name = "WorkspaceScroll"
+	workspace_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	workspace_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	main_hbox.add_child(workspace_scroll)
 
 	var left_main_vbox = VBoxContainer.new()
 	left_main_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left_main_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	left_main_vbox.add_theme_constant_override("separation", 8)
-	main_hbox.add_child(left_main_vbox)
+	workspace_scroll.add_child(left_main_vbox)
 
 	var panel_style = StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.07, 0.09, 0.13, 0.96)
@@ -520,9 +520,10 @@ func _setup_workplace_and_cascade_inspector() -> void:
 	top_creation_bar.add_theme_stylebox_override("panel", panel_style)
 	left_main_vbox.add_child(top_creation_bar)
 
-	var top_hbox = HBoxContainer.new()
-	top_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	top_hbox.add_theme_constant_override("separation", 12)
+	var top_hbox = HFlowContainer.new()
+	top_hbox.alignment = FlowContainer.ALIGNMENT_BEGIN
+	top_hbox.add_theme_constant_override("h_separation", 12)
+	top_hbox.add_theme_constant_override("v_separation", 6)
 	top_creation_bar.add_child(top_hbox)
 
 	btn_arch_skinny = Button.new()
@@ -545,7 +546,6 @@ func _setup_workplace_and_cascade_inspector() -> void:
 	top_hbox.add_child(btn_arch_fat)
 	btn_arch_fat.pressed.connect(func(): if character: character.set_character_archetype("fat"))
 
-	top_hbox.add_child(VSeparator.new())
 
 	var lbl_h = Label.new()
 	lbl_h.text = "Altura:"
@@ -592,11 +592,20 @@ func _setup_workplace_and_cascade_inspector() -> void:
 	top_hbox.add_child(label_fat_val)
 	slider_fat.value_changed.connect(_on_biometrics_slider_changed)
 
-	top_hbox.add_child(VSeparator.new())
 	label_weight_val = Label.new()
 	label_weight_val.text = "70.3 kg"
 	label_weight_val.add_theme_color_override("font_color", Color(0.4, 1.0, 0.7))
 	top_hbox.add_child(label_weight_val)
+
+	# Wrap complete biometric fields instead of separating labels and sliders.
+	for controls in [[lbl_h, slider_height, label_height_val], [lbl_m, slider_muscle, label_muscle_val], [lbl_f, slider_fat, label_fat_val]]:
+		var field = HBoxContainer.new()
+		field.add_theme_constant_override("separation", 8)
+		top_hbox.add_child(field)
+		for control in controls:
+			control.reparent(field)
+
+	top_hbox.move_child(label_weight_val, -1)
 
 	# --- B. ÁREA DE TRABAJO EN 3 COLUMNAS:
 	#   1. Izquierda: Telemetría unificada (Anatomía, Percepción Somática y Fisiología)
@@ -788,8 +797,9 @@ func _setup_workplace_and_cascade_inspector() -> void:
 		bottom_vbox.add_child(panel_sensory)
 
 	# Fila 2: Controles agrupados con demarcación clara
-	var hbox_ctrls = HBoxContainer.new()
-	hbox_ctrls.add_theme_constant_override("separation", 8)
+	var hbox_ctrls = HFlowContainer.new()
+	hbox_ctrls.add_theme_constant_override("h_separation", 8)
+	hbox_ctrls.add_theme_constant_override("v_separation", 6)
 	bottom_vbox.add_child(hbox_ctrls)
 
 	# Grupo Posturas
@@ -846,8 +856,9 @@ func _setup_workplace_and_cascade_inspector() -> void:
 
 
 	# Fila 3: Acciones Fisiológicas
-	var hbox_actions = HBoxContainer.new()
-	hbox_actions.add_theme_constant_override("separation", 8)
+	var hbox_actions = HFlowContainer.new()
+	hbox_actions.add_theme_constant_override("h_separation", 8)
+	hbox_actions.add_theme_constant_override("v_separation", 6)
 	bottom_vbox.add_child(hbox_actions)
 
 	var lbl_a_tag = Label.new()
@@ -925,7 +936,7 @@ func _setup_workplace_and_cascade_inspector() -> void:
 	# --- D. PANEL DERECHO (OPCIONES DE SIMULACIÓN SANDBOX Y VISOR 3D) ---
 	var right_panel = PanelContainer.new()
 	right_panel.name = "RightSimulationDock"
-	right_panel.custom_minimum_size = Vector2(330, 0)
+	right_panel.custom_minimum_size = Vector2(370, 0)
 	right_panel.size_flags_horizontal = Control.SIZE_FILL
 	right_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	right_panel.add_theme_stylebox_override("panel", panel_style)
@@ -1045,6 +1056,8 @@ func _setup_workplace_and_cascade_inspector() -> void:
 	add_child(context_menu)
 	context_menu.id_pressed.connect(_on_context_menu_action)
 
+	_fit_panel_text(right_panel)
+	_fit_panel_text(col_inspector_panel)
 	if left_panel_container: left_panel_container.visible = false
 	if right_panel_container: right_panel_container.visible = false
 
@@ -1052,6 +1065,17 @@ func _setup_workplace_and_cascade_inspector() -> void:
 # -----------------------------------------------------------------------------
 # NIVEL 1: RESUMEN SUPERIOR
 # -----------------------------------------------------------------------------
+# Text must not impose the width of an entire telemetry sentence on its panel.
+func _fit_panel_text(node: Node) -> void:
+	if node is Label and not node.get_parent() is HBoxContainer:
+		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	elif node is OptionButton:
+		node.fit_to_longest_item = false
+		node.clip_text = true
+		node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for child in node.get_children():
+		_fit_panel_text(child)
+
 func _build_unified_biomedical_card(parent: Control) -> void:
 	var panel = _create_card_container("🧬 FISIOLOGÍA, ANATOMÍA Y EQUIPAMIENTO", parent)
 	var vbox = panel.get_child(0)
@@ -1550,7 +1574,7 @@ func _build_card_clock(parent: Control) -> void:
 	lbl_clock_display.add_theme_color_override("font_color", Color(0.4, 1.0, 0.6))
 	vbox.add_child(lbl_clock_display)
 
-	var hbox_mode = HBoxContainer.new()
+	var hbox_mode = VBoxContainer.new()
 	vbox.add_child(hbox_mode)
 
 	var lbl_mode = Label.new()
@@ -1649,7 +1673,7 @@ func _build_card_environment_terrains(parent: Control) -> void:
 	slider_env_slope.value_changed.connect(_on_env_slope_changed)
 	vbox.add_child(slider_env_slope)
 
-	var hbox_sub = HBoxContainer.new()
+	var hbox_sub = VBoxContainer.new()
 	vbox.add_child(hbox_sub)
 	var lbl_sub = Label.new()
 	lbl_sub.text = "Sustrato / Suelo:"
@@ -1672,7 +1696,7 @@ func _build_card_environment_terrains(parent: Control) -> void:
 	lbl_substrate_specs.add_theme_color_override("font_color", Color(0.4, 0.9, 0.8))
 	vbox.add_child(lbl_substrate_specs)
 
-	var hbox_veg = HBoxContainer.new()
+	var hbox_veg = VBoxContainer.new()
 	vbox.add_child(hbox_veg)
 	var lbl_veg = Label.new()
 	lbl_veg.text = "Vegetación / Obstáculos:"
