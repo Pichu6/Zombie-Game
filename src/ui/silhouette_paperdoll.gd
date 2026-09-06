@@ -34,6 +34,9 @@ enum LayerMode {
 
 # Estado de Selección e Interacción Clínica
 var scan_hold: bool = false
+var interior_depth: float = 0.35
+var heartbeat_phase: float = 0.0
+var _hover_canvas_position: Vector2 = Vector2.ZERO
 var _picking_images: Array[Image] = []
 var selected_part_type: int = -1
 var hovered_part_type: int = -1
@@ -451,6 +454,8 @@ func _setup_2d_internal_layers() -> void:
 # -----------------------------------------------------------------------------
 func _process(delta: float) -> void:
 	_pulse_time += delta
+	if body_ref and body_ref.cardio:
+		heartbeat_phase = fposmod(heartbeat_phase + delta * body_ref.cardio.heart_rate_bpm / 60.0, 1.0)
 	_update_scan_shader()
 	
 	# Detectar alerta de pie prolongado
@@ -955,6 +960,8 @@ func _draw_backpack_badge() -> void:
 # -----------------------------------------------------------------------------
 func _on_canvas_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
+		_hover_canvas_position = event.position
+		_canvas_control.queue_redraw()
 		var pos = event.position
 		var found_type: int = -1
 
@@ -1051,6 +1058,11 @@ func _update_scan_shader() -> void:
 	_base_mat.set_shader_parameter("selected_region", selected_index)
 	_base_mat.set_shader_parameter("scan_mode", int(active_layer_mode))
 	_base_mat.set_shader_parameter("scan_hold", scan_hold)
+	_base_mat.set_shader_parameter("interior_depth", interior_depth)
+	_base_mat.set_shader_parameter("cursor_uv", (_hover_canvas_position - _cached_content_rect.position) / _cached_content_rect.size)
+	_base_mat.set_shader_parameter("heartbeat_phase", heartbeat_phase)
+	if body_ref:
+		_base_mat.set_shader_parameter("muscle_effort", clampf(body_ref.exertion_factor, 0.0, 1.0))
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event is InputEventKey: return
@@ -1107,7 +1119,7 @@ func _draw_scan_callout() -> void:
 	if not body_ref or not _part_polygons.has(id): return
 	var part = body_ref.body_parts.get(id)
 	if not part: return
-	var point = _get_polygon_centroid(_part_polygons[id])
+	var point = _hover_canvas_position if hovered_part_type >= 0 and _cached_content_rect.has_point(_hover_canvas_position) else _get_polygon_centroid(_part_polygons[id])
 	var side = 1.0 if point.x >= _canvas_control.size.x * 0.5 else -1.0
 	var elbow = point + Vector2(side * 55, -25)
 	var end = elbow + Vector2(side * 65, 0)

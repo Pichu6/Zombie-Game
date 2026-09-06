@@ -19,7 +19,7 @@ func _run() -> void:
 				if child is Control and child.visible:
 					_check(child.get_global_rect().end.x <= ui.size.x + 1, "Page column is clipped")
 					_check(child.get_global_rect().end.y <= ui.size.y + 1, "Page column exceeds window height")
-	print("LABORATORY_LAYOUT_OK: all four workspaces at 1920, 1600 and 1280")
+	print("LABORATORY_LAYOUT_OK: all three workspaces at 1920, 1600 and 1280")
 	scene.queue_free()
 	await process_frame
 	quit(0)

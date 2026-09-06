@@ -16,6 +16,10 @@ uniform int hover_region = -1;
 uniform int selected_region = -1;
 uniform int scan_mode = 0;
 uniform bool scan_hold = false;
+uniform float interior_depth = 0.35;
+uniform vec2 cursor_uv = vec2(-1.0);
+uniform float heartbeat_phase = 0.0;
+uniform float muscle_effort = 0.0;
 float region_mask(vec2 uv, vec4 region) {
 	vec2 local = (uv - region.xy) / max(region.zw, vec2(0.001));
 	return 1.0 - smoothstep(0.35, 1.05, length(local));
@@ -36,8 +40,13 @@ void fragment() {
 		if (i == selected_region) { selected = mask; }
 		injury = max(injury, mask * damage_levels[i]);
 	}
-	float lens = scan_hold ? 1.0 : hover;
+	float cursor_lens = (hover_region >= 0) ? 1.0 - smoothstep(0.035, 0.12, length((UV - cursor_uv) * vec2(1.0, 1.7778))) : 0.0;
+	float lens = scan_hold ? 1.0 : max(interior_depth, cursor_lens);
 	vec3 interior = texture(scan_bones, UV).rgb * vec3(0.46, 0.86, 1.0);
+	if (scan_mode == 0) {
+		interior += texture(scan_muscles, UV).rgb * vec3(0.32 + muscle_effort * 0.8, 0.18, 0.12);
+		interior += texture(scan_vessels, UV).rgb * vec3(0.5, 0.1, 0.14);
+	}
 	if (scan_mode == 1) { interior = texture(scan_muscles, UV).rgb * vec3(1.0, 0.55, 0.38); }
 	if (scan_mode == 3) { interior = texture(scan_vessels, UV).rgb * vec3(1.0, 0.3, 0.38); }
 	if (scan_mode == 4) { interior = texture(scan_nerves, UV).rgb * vec3(0.9, 0.76, 1.0); }
@@ -48,5 +57,13 @@ void fragment() {
 	surface = mix(surface, skin * 0.15 + interior * 0.95, lens * 0.92);
 	float pulse = 0.72 + 0.28 * sin(TIME * 3.2);
 	surface += vec3(1.0, 0.22, 0.09) * injury * pulse * 0.7;
+		// Stylized heart indicator, not anatomical 3D geometry. One contraction per BPM cycle.
+	float beat = exp(-pow((heartbeat_phase - 0.12) / 0.085, 2.0));
+	vec2 heart_uv = (UV - vec2(0.545, 0.292)) / (vec2(0.022, 0.023) * (1.0 + beat * 0.16));
+	heart_uv.y = -heart_uv.y;
+	float heart_base = dot(heart_uv, heart_uv) - 0.72;
+	float heart_shape = heart_base * heart_base * heart_base - heart_uv.x * heart_uv.x * heart_uv.y * heart_uv.y * heart_uv.y;
+	float heart = 1.0 - smoothstep(-0.04, 0.04, heart_shape);
+	surface += vec3(1.0, 0.12, 0.18) * heart * (0.35 + beat * 0.85) * max(lens, 0.35);
 	COLOR = vec4(surface, body * overall_alpha);
 }

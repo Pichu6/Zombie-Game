@@ -4,11 +4,14 @@ var ui
 var pages: TabContainer
 var readings: Label
 var session_status: Label
+var general_info: Label
 var diagnosis: Label
 var zone_title: Label
 var findings: VBoxContainer
 var catalog_list: ItemList
 var catalog_description: Label
+var equipped_list: VBoxContainer
+var _equipment_signature = ""
 var chosen_item: String = "backpack_school"
 var _elapsed = 0.0
 var _findings_signature = ""
@@ -38,7 +41,7 @@ func setup(dashboard) -> void:
 	var analysis = _page("Análisis")
 	var equipment = _page("Ítems y assets")
 	var simulation = _page("Simulación")
-	var character_page = _page("Biometría")
+
 	var legacy = ui.find_child("WorkplaceSplit", true, false)
 	var workspace = ui.find_child("WorkspaceScroll", true, false).get_child(0)
 	var creation = workspace.get_child(0)
@@ -46,32 +49,61 @@ func setup(dashboard) -> void:
 	var dock = ui.find_child("RightSimulationDock", true, false)
 	var inspector = ui.panel_item_card.get_parent()
 	var scanner = ui.paperdoll.get_parent()
-	scanner.reparent(analysis)
+	var analysis_stack = VBoxContainer.new()
+	analysis_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	analysis.add_child(analysis_stack)
+	creation.reparent(analysis_stack)
+	creation.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var regions = HBoxContainer.new()
+	regions.name = "MedicalRegions"
+	regions.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	regions.add_theme_constant_override("separation", 16)
+	analysis_stack.add_child(regions)
+	var general = _medical_column(regions, "General", 205)
+	general.add_child(_label("01 / ESTADO GENERAL", 12, Color("77979e")))
+	general_info = _label("", 16, Color("aec3c7"))
+	general.add_child(general_info)
+	scanner.reparent(regions)
 	scanner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scanner.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scanner.get_node("SilHeaderStatusCard").hide()
-	ui.paperdoll.custom_minimum_size = Vector2(350, 360)
-	ui.paperdoll.get_canvas_control().custom_minimum_size = Vector2(260, 280)
-	scanner.add_child(_label("HOVER  inspección local     X  interior     ALT + 1…6  capas", 12, Color("72949c")))
+	ui.paperdoll.custom_minimum_size = Vector2(280, 180)
+	ui.paperdoll.get_canvas_control().custom_minimum_size = Vector2(240, 180)
+	ui.paperdoll._layer_bar.hide()
+	var depth_row = HBoxContainer.new()
+	scanner.add_child(depth_row)
+	var depth_label = _label("Interior", 13, Color("9adcd3"))
+	depth_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	depth_row.add_child(depth_label)
+	var depth = HSlider.new()
+	depth.min_value = 0
+	depth.max_value = 1
+	depth.step = 0.01
+	depth.value = ui.paperdoll.interior_depth
+	depth.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	depth.tooltip_text = "Superficie ← → Interior. Mantené X para máxima profundidad."
+	depth.value_changed.connect(func(value): ui.paperdoll.interior_depth = value)
+	depth_row.add_child(depth)
+	scanner.add_child(_label("Mouse: lupa · Clic: fijar zona · X: interior", 12, Color("72949c")))
 	var report_scroll = ScrollContainer.new()
-	report_scroll.custom_minimum_size.x = 350
+	report_scroll.custom_minimum_size.x = 215
 	report_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	report_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	analysis.add_child(report_scroll)
+	regions.add_child(report_scroll)
 	var report = VBoxContainer.new()
 	report.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	report.add_theme_constant_override("separation", 16)
 	report_scroll.add_child(report)
-	report.add_child(_label("01 / DIAGNÓSTICO LOCAL", 12, Color("77979e")))
-	zone_title = _label("Seleccioná una zona", 24, Color("d1efe8"))
+	report.add_child(_label("02 / DIAGNÓSTICO LOCAL", 12, Color("77979e")))
+	zone_title = _label("Seleccioná una zona", 20, Color("d1efe8"))
 	report.add_child(zone_title)
 	diagnosis = _label("", 16, Color("aec3c7"))
 	report.add_child(diagnosis)
 	report.add_child(HSeparator.new())
-	report.add_child(_label("02 / HALLAZGOS DEL CUERPO", 12, Color("77979e")))
+	general.add_child(_label("HALLAZGOS DEL CUERPO", 12, Color("77979e")))
 	findings = VBoxContainer.new()
 	findings.add_theme_constant_override("separation", 8)
-	report.add_child(findings)
+	general.add_child(findings)
 	var open_equipment = Button.new()
 	open_equipment.text = "Equipamiento y archivos →"
 	open_equipment.pressed.connect(func(): pages.current_tab = 1)
@@ -86,9 +118,8 @@ func setup(dashboard) -> void:
 	sim_scroll.add_child(sim_body)
 	dock.reparent(sim_body)
 	dock.custom_minimum_size.x = 0
-	bottom.reparent(sim_body)
-	creation.reparent(character_page)
-	creation.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom.reparent(analysis_stack)
+
 	var catalog_column = VBoxContainer.new()
 	catalog_column.custom_minimum_size.x = 280
 	equipment.add_child(catalog_column)
@@ -121,7 +152,15 @@ func setup(dashboard) -> void:
 	equip.text = "Equipar ítem seleccionado"
 	equip.pressed.connect(_equip_catalog_item)
 	item_details.add_child(equip)
-	inspector.reparent(item_details)
+	var gear = _medical_column(regions, "Equipment", 290)
+	gear.add_child(_label("03 / EQUIPO Y CONFIGURACIÓN", 12, Color("77979e")))
+	var browse = Button.new()
+	browse.text = "Abrir catálogo →"
+	browse.pressed.connect(func(): pages.current_tab = 1)
+	gear.add_child(browse)
+	equipped_list = VBoxContainer.new()
+	gear.add_child(equipped_list)
+	inspector.reparent(gear)
 	inspector.custom_minimum_size.x = 0
 	ui.lbl_inspector_part_title.hide()
 	ui.lbl_inspector_part_vitals.hide()
@@ -144,6 +183,19 @@ func setup(dashboard) -> void:
 	legacy.hide()
 	_update_catalog_description()
 	_update_report()
+
+func _medical_column(parent: Control, title: String, width: float) -> VBoxContainer:
+	var scroll = ScrollContainer.new()
+	scroll.name = title
+	scroll.custom_minimum_size.x = width
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	parent.add_child(scroll)
+	var column = VBoxContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_theme_constant_override("separation", 14)
+	scroll.add_child(column)
+	return column
 
 func _page(title: String) -> HBoxContainer:
 	var page = HBoxContainer.new()
@@ -173,8 +225,39 @@ func _process(delta: float) -> void:
 func _update_report() -> void:
 	if not ui or not ui.character or not ui.character.body: return
 	var body = ui.character.body
+	var equipped_ids = body.equipped_items.keys()
+	if body.equipped_backpack_id != "": equipped_ids.append(body.equipped_backpack_id)
+	equipped_ids.sort()
+	var equipment_signature = str(equipped_ids)
+	if equipment_signature != _equipment_signature:
+		_equipment_signature = equipment_signature
+		for child in equipped_list.get_children():
+			equipped_list.remove_child(child)
+			child.queue_free()
+		for item_id in equipped_ids:
+			var button = Button.new()
+			button.text = Catalog.get_definition(item_id).name
+			button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+			button.tooltip_text = button.text
+			button.pressed.connect(func(): _inspect_equipped(item_id))
+			equipped_list.add_child(button)
 	session_status.text = "SIMULACIÓN · " + ui.current_action_name
 	readings.text = "%d BPM     /     %.2f L sangre     /     %.1f °C     /     Agua %.0f%%     /     Dolor %.0f%%" % [body.cardio.heart_rate_bpm, body.cardio.total_blood_ml / 1000.0, body.thermo.core_temperature, body.hydration.current_water_ml / maxf(body.hydration.max_water_ml,1.0) * 100.0, body.total_pain]
+	general_info.text = "CIRCULACIÓN
+%d BPM · %.2f L sangre
+
+TEMPERATURA
+%.1f °C
+
+HIDRATACIÓN
+%.0f%%
+
+RESERVA DE ESFUERZO
+%.0f%%
+Esfuerzo actual %.0f%%
+
+DOLOR GLOBAL
+%.0f%%" % [body.cardio.heart_rate_bpm, body.cardio.total_blood_ml / 1000.0, body.thermo.core_temperature, body.hydration.current_water_ml / maxf(body.hydration.max_water_ml, 1.0) * 100.0, body.stamina / maxf(body.max_stamina, 1.0) * 100.0, body.exertion_factor * 100.0, body.total_pain]
 	var part_id = ui.paperdoll.hovered_part_type
 	if part_id < 0: part_id = ui.active_inspected_part
 	var part = body.body_parts.get(part_id)
@@ -248,3 +331,9 @@ func _equip_catalog_item() -> void:
 	ui._select_equipped_item(chosen_item)
 	ui._refresh_contextual_inspector()
 	preload("res://src/items/equipment_visuals.gd").sync(ui.character)
+
+func _inspect_equipped(item_id: String) -> void:
+	var definition = Catalog.get_definition(item_id)
+	var covered = definition.simulation.get("covered_parts", [])
+	ui.paperdoll.select_part(2 if definition.category == "container" else (int(covered[0]) if not covered.is_empty() else ui.active_inspected_part))
+	ui._select_equipped_item(item_id)

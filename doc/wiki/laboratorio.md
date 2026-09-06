@@ -61,3 +61,13 @@ Siete pruebas terminaron con marcador de éxito y sin errores de script: layout 
 Verificación geométrica a 1920×1080, 1600×900 y 1280×720; render real revisado a 1600×900, incluyendo X-ray y mochila equipada. Las imágenes de lesiones son estados sintéticos de la instancia de prueba, no cambios persistidos en el personaje. Registros e imágenes en `.backups/station-*` y `.backups/final-*`.
 
 Godot sigue informando recursos sin liberar al cierre. Esta iteración no resuelve todas las inconsistencias fisiológicas ya auditadas ni completa calidad, crafting, inventario de componentes o todos los modelos faltantes.
+
+## Análisis en cuatro áreas — segunda iteración, 2026-09-06
+
+Reemplaza la distribución de la sección anterior: Análisis reúne estado médico general a la izquierda, silueta e informe local en el centro, equipo/configuración a la derecha y acciones del personaje abajo. Altura y composición corporal están en Análisis; se elimina Biometría. Se mantienen Catálogo y Simulación como pestañas separadas. El equipo dispone de acceso a todos los ítems equipados, además de la selección por zona.
+
+El control visible Interior regula la mezcla de capas; X permite ver el interior momentáneamente. Las pestañas de capas se ocultan, conservando los atajos avanzados existentes. La lupa y el marcador siguen la posición del cursor; la selección por clic permanece al retirarlo.
+
+El indicador estilizado del corazón contrae una vez por ciclo de BPM, integrando la fase para evitar saltos cuando cambia el pulso. Su cadencia usa segundos de presentación, sin multiplicar por la aceleración del reloj. Es un indicador gráfico 2D, no geometría cardíaca ni un diagnóstico anatómico. Los músculos cambian de tono con el esfuerzo global real; la reserva de esfuerzo se muestra numéricamente. No existe todavía fatiga individual por músculo y no se presenta como implementada. La composición continúa siendo 2D con profundidad visual; el visor del catálogo conserva el personaje y los ítems 3D reales.
+
+Verificación: estación/catálogo (incluye cadencia de pulso, profundidad y ubicación de acciones), selección, clínica/paperdoll, UX/biomecánica y layout de las tres pestañas a 1920×1080, 1600×900 y 1280×720. Render Vulkan inspeccionado a 1600×900. Persisten avisos de recursos sin liberar al cierre y un aviso de material nulo del renderer dummy en la prueba clínica; las pruebas completaron sus marcadores sin errores de script.

@@ -9,7 +9,7 @@ func _run() -> void:
 	var ui = scene.find_child("UI", true, false)
 	var character = scene.find_child("HumanCharacter", true, false)
 	_check(ui.laboratory_workspace != null, "Analysis station exists")
-	_check(ui.laboratory_workspace.pages.get_tab_count() == 4, "Analysis and configuration are separated")
+	_check(ui.laboratory_workspace.pages.get_tab_count() == 3, "Analysis and configuration are separated")
 	for id in Catalog.all_ids(): _check(Catalog.validate(id).is_empty(), "Catalog references must resolve: " + id)
 	character.body.equip_backpack("backpack_school")
 	Visuals.sync(character)
@@ -52,6 +52,15 @@ func _run() -> void:
 	_check(paper.active_layer_mode == 2, "Alt+3 selects skeletal layer")
 	ui.laboratory_workspace._update_report()
 	_check(ui.laboratory_workspace.diagnosis.text.contains("Fractura"), "Medical report follows actual injury")
+	paper.interior_depth = 0.72
+	paper._update_scan_shader()
+	_check(is_equal_approx(paper._base_mat.get_shader_parameter("interior_depth"), 0.72), "Visible depth reaches shader")
+	paper.heartbeat_phase = 0.0
+	character.body.cardio.heart_rate_bpm = 120.0
+	paper._process(0.125)
+	_check(is_equal_approx(paper.heartbeat_phase, 0.25), "Heartbeat cadence uses actual BPM")
+	_check(not paper._layer_bar.visible, "Layers integrated without tab strip")
+	_check(ui.laboratory_workspace.pages.get_tab_control(0).is_ancestor_of(ui.btn_posture_sit), "Character actions belong to Analysis")
 	print("STATION_AND_CATALOG_OK")
 	scene.queue_free()
 	await process_frame
