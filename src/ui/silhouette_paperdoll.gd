@@ -33,6 +33,8 @@ enum LayerMode {
 }
 
 # Estado de Selección e Interacción Clínica
+var scan_hold: bool = false
+var _picking_images: Array[Image] = []
 var selected_part_type: int = -1
 var hovered_part_type: int = -1
 var highlighted_part_types: Array[int] = []
@@ -107,6 +109,15 @@ func _ready() -> void:
 	_setup_3d_hologram_viewport()
 	_setup_2d_internal_layers()
 	_update_layout()
+	for file in ["silhouette_normal", "silhouette_fat", "silhouette_skinny", "silhouette_muscle"]:
+		var texture: Texture2D = load("res://assets/ui/paperdoll/" + file + ".jpg")
+		var img = texture.get_image()
+		if img.is_compressed(): img.decompress()
+		_picking_images.append(img)
+	_base_mat.set_shader_parameter("scan_bones", load("res://assets/ui/paperdoll/body_skeletal.jpg"))
+	_base_mat.set_shader_parameter("scan_muscles", load("res://assets/ui/paperdoll/body_muscular.jpg"))
+	_base_mat.set_shader_parameter("scan_vessels", load("res://assets/ui/paperdoll/body_circulatory.jpg"))
+	_base_mat.set_shader_parameter("scan_nerves", load("res://assets/ui/paperdoll/body_nervous.jpg"))
 
 # -----------------------------------------------------------------------------
 # 1. SWITCHER DE CAPAS PROMINENTE (BARRA SUPERIOR AMPLIA Y ESTILIZADA)
@@ -212,6 +223,10 @@ func _setup_canvas_hierarchy() -> void:
 	_canvas_control.draw.connect(_on_canvas_draw)
 	_canvas_control.gui_input.connect(_on_canvas_gui_input)
 	_canvas_control.resized.connect(_update_layout)
+	_canvas_control.mouse_exited.connect(func():
+		hovered_part_type = -1
+		part_hovered.emit(-1)
+	)
 	add_child(_canvas_control)
 
 func _get_content_rect() -> Rect2:
@@ -436,6 +451,7 @@ func _setup_2d_internal_layers() -> void:
 # -----------------------------------------------------------------------------
 func _process(delta: float) -> void:
 	_pulse_time += delta
+	_update_scan_shader()
 	
 	# Detectar alerta de pie prolongado
 	if body_ref:
@@ -502,25 +518,12 @@ func _process(delta: float) -> void:
 			if part.is_tourniquet_applied:
 				has_tourniquet = true
 
-		# Translucidez reactiva en modo BASE:
-		# Por defecto es sólido y opaco (1.0). Cuando hay lesiones internas activas
-		# o se inspecciona/highlightea una lesión interna, la base se vuelve suavemente
-		# translúcida y trasluce las estructuras internas como un objeto blando retroiluminado.
 		if active_layer_mode == LayerMode.BASE:
-			var has_internal_trauma = has_fracture or has_active_bleed or has_tourniquet or (pain > 25.0) or (highlighted_part_types.size() > 0)
-			if has_internal_trauma:
-				_target_base_alpha = 0.65
-				_target_skeletal_alpha = 0.60 if has_fracture else 0.0
-				_target_cardio_alpha = 0.65 if has_active_bleed else 0.0
-				_target_nervous_alpha = 0.45 if (pain > 25.0) else 0.0
-				_target_muscular_alpha = 0.45 if (pain > 20.0 and not has_fracture) else 0.0
-			else:
-				_target_base_alpha = 1.0
-				_target_skeletal_alpha = 0.0
-				_target_cardio_alpha = 0.0
-				_target_nervous_alpha = 0.0
-				_target_muscular_alpha = 0.0
-
+			_target_base_alpha = 1.0
+			_target_skeletal_alpha = 0.0
+			_target_cardio_alpha = 0.0
+			_target_nervous_alpha = 0.0
+			_target_muscular_alpha = 0.0
 		if _muscular_rect and _muscular_rect.material:
 			_muscular_rect.material.set_shader_parameter("muscle_pain", clamp(pain, 0.0, 100.0))
 			var exertion: float = 0.0
@@ -733,101 +736,11 @@ func _on_canvas_draw() -> void:
 	if not _canvas_control:
 		return
 
-	# Marco exterior de la silueta
-	if _cached_content_rect.size.x > 0:
-		_canvas_control.draw_rect(_cached_content_rect, Color(0.04, 0.12, 0.18, 0.35), false, 1.0)
-
-	# Resaltar partes anatómicas
-	for p_type in _part_polygons.keys():
-		var poly: PackedVector2Array = _part_polygons[p_type]
-		var is_sel = (p_type == selected_part_type)
-		var is_hov = (p_type == hovered_part_type)
-		var is_multi = highlighted_part_types.has(p_type)
-		var status_col = _get_part_clinical_color(p_type)
-		var has_damage = (status_col != Color.TRANSPARENT)
-
-		if is_sel:
-			_canvas_control.draw_colored_polygon(poly, Color(0.2, 0.8, 1.0, 0.18))
-		elif is_hov:
-			_canvas_control.draw_colored_polygon(poly, Color(0.4, 0.9, 1.0, 0.12))
-		elif is_multi:
-			_canvas_control.draw_colored_polygon(poly, Color(0.2, 0.9, 1.0, 0.24))
-		elif has_damage:
-			_canvas_control.draw_colored_polygon(poly, status_col)
-
-		var border_col = Color.TRANSPARENT
-		var border_w = 1.0
-
-		if is_sel:
-			border_col = Color(1.0, 1.0, 1.0, 0.95)
-			border_w = 2.4
-		elif is_multi:
-			border_col = Color(0.2, 0.9, 1.0, 0.95)
-			border_w = 2.0
-		elif is_hov:
-			border_col = Color(0.5, 0.85, 1.0, 0.85)
-			border_w = 1.8
-		elif has_damage:
-			border_col = status_col.lightened(0.2)
-			border_w = 1.4
-
-		if border_col != Color.TRANSPARENT:
-			var poly_closed = poly.duplicate()
-			poly_closed.append(poly[0])
-			_canvas_control.draw_polyline(poly_closed, border_col, border_w, true)
-
-	# Pulso visual para partes con condiciones activas
-	for part_type in _part_polygons:
-		var poly = _part_polygons[part_type]
-		var pulse_color: Color = Color.TRANSPARENT
-		var should_pulse: bool = false
-		
-		if body_ref:
-			var part = body_ref.body_parts.get(part_type)
-			if part and not part.is_severed:
-				# Dolor > 20%: pulso rojo suave
-				if part.pain_level > 20.0:
-					var intensity = clampf(part.pain_level / 100.0, 0.2, 0.8)
-					var pulse = (sin(_pulse_time * 4.0) + 1.0) * 0.5 * intensity
-					pulse_color = Color(1.0, 0.1, 0.1, pulse * 0.4)
-					should_pulse = true
-				
-				# Hemorragia activa: rojo brillante
-				var bpm = body_ref.cardio.heart_rate_bpm if body_ref.cardio else 75.0
-				if part.get_current_bleed_rate(bpm) > 0.0:
-					var bleed_pulse = (sin(_pulse_time * 6.0) + 1.0) * 0.5
-					pulse_color = Color(0.9, 0.0, 0.0, bleed_pulse * 0.6)
-					should_pulse = true
-				
-				# Fractura: amarillo pulsante
-				if part.has_fracture:
-					var frac_pulse = (sin(_pulse_time * 3.0) + 1.0) * 0.5
-					pulse_color = Color(1.0, 0.9, 0.0, frac_pulse * 0.35)
-					should_pulse = true
-				
-				# Torniquete: azul sólido
-				if part.is_tourniquet_applied:
-					pulse_color = Color(0.2, 0.4, 1.0, 0.35)
-					should_pulse = true
-			
-			# Pies parpadeando naranja por tiempo parado prolongado (>45 min)
-			if _standing_alert_active:
-				if part_type == BodyPartClass.PartType.LEFT_FOOT or part_type == BodyPartClass.PartType.RIGHT_FOOT:
-					var foot_pulse = (sin(_pulse_time * 5.0) + 1.0) * 0.5
-					pulse_color = Color(1.0, 0.6, 0.0, foot_pulse * 0.5)
-					should_pulse = true
-		
-		if should_pulse:
-			_canvas_control.draw_colored_polygon(poly, pulse_color)
-			# Efecto objeto blando iluminado desde el interior (subsurface soft glow)
-			var centroid = _get_polygon_centroid(poly)
-			var glow_r = 24.0 + sin(_pulse_time * 3.5) * 4.0
-			var glow_col = Color(pulse_color.r, pulse_color.g, pulse_color.b, pulse_color.a * 0.35)
-			_canvas_control.draw_circle(centroid, glow_r, glow_col)
-
+	# Selection and trauma are rendered inside the silhouette shader, not as boxes.
 	_draw_pinpoint_clinical_markers()
 	_draw_equipment_overlays()
 	_draw_backpack_badge()
+	_draw_scan_callout()
 
 func _get_polygon_centroid(poly: PackedVector2Array) -> Vector2:
 	if poly.is_empty():
@@ -1050,17 +963,11 @@ func _on_canvas_gui_input(event: InputEvent) -> void:
 			is_backpack_hovered = over_bp
 			if _canvas_control: _canvas_control.queue_redraw()
 
-		if not over_bp:
-			for p_type in _part_polygons.keys():
-				var poly: PackedVector2Array = _part_polygons[p_type]
-				if Geometry2D.is_point_in_polygon(pos, poly):
-					found_type = p_type
-					break
+		if not over_bp: found_type = get_part_at_canvas_pos(pos)
 
 		if found_type != hovered_part_type:
 			hovered_part_type = found_type
-			if hovered_part_type != -1:
-				part_hovered.emit(hovered_part_type)
+			part_hovered.emit(hovered_part_type)
 			if _canvas_control: _canvas_control.queue_redraw()
 
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -1070,16 +977,11 @@ func _on_canvas_gui_input(event: InputEvent) -> void:
 			accept_event()
 			return
 
-		for p_type in _part_polygons.keys():
-			var poly: PackedVector2Array = _part_polygons[p_type]
-			if Geometry2D.is_point_in_polygon(pos, poly):
-				if selected_part_type == p_type:
-					select_part(-1)
-				else:
-					select_part(p_type)
-				accept_event()
-				return
-
+		var picked = get_part_at_canvas_pos(pos)
+		if picked >= 0:
+			select_part(-1 if picked == selected_part_type else picked)
+			accept_event()
+			return
 		# Clic en el fondo vacío del lienzo deselecciona la parte activa
 		select_part(-1)
 		accept_event()
@@ -1097,12 +999,72 @@ func get_canvas_control() -> Control:
 	return _canvas_control
 
 func get_part_at_canvas_pos(pos: Vector2) -> int:
-	for p_type in _part_polygons.keys():
-		var poly: PackedVector2Array = _part_polygons[p_type]
-		if Geometry2D.is_point_in_polygon(pos, poly):
-			return p_type
-	return -1
+	if not _cached_content_rect.has_point(pos): return -1
+	var uv = (pos - _cached_content_rect.position) / _cached_content_rect.size
+	if not _picking_images.is_empty():
+		var colors: Array[Color] = []
+		for img in _picking_images:
+			colors.append(img.get_pixel(clampi(int(uv.x * img.get_width()), 0, img.get_width() - 1), clampi(int(uv.y * img.get_height()), 0, img.get_height() - 1)))
+		var color = colors[0].lerp(colors[1], clampf((_display_fat - 0.18) / 0.22, 0, 1))
+		color = color.lerp(colors[2], clampf((0.18 - _display_fat) / 0.12, 0, 1))
+		color = color.lerp(colors[3], clampf((_display_muscle - 0.45) / 0.25, 0, 1))
+		if maxf(color.r, maxf(color.g, color.b)) < 0.10: return -1
+	for p_type in _part_polygons:
+		if Geometry2D.is_point_in_polygon(pos, _part_polygons[p_type]): return p_type
+	# Morphs can extend beyond the reference polygons; choose the closest region
+	# only after confirming that the pointer is on the actual body texture.
+	var closest = -1
+	var distance = INF
+	for p_type in _part_polygons:
+		var d = pos.distance_squared_to(_get_polygon_centroid(_part_polygons[p_type]))
+		if d < distance:
+			distance = d
+			closest = p_type
+	return closest
 
+func _update_scan_shader() -> void:
+	if not _base_mat or _part_polygons.size() != 17: return
+	var regions = PackedVector4Array()
+	var damage = PackedFloat32Array()
+	var hover_index = -1
+	var selected_index = -1
+	for part_id in _part_polygons:
+		var points: PackedVector2Array = _part_polygons[part_id]
+		var bounds = Rect2(points[0], Vector2.ZERO)
+		for point in points: bounds = bounds.expand(point)
+		var center = (bounds.get_center() - _cached_content_rect.position) / _cached_content_rect.size
+		var radius = bounds.size / _cached_content_rect.size * 0.65
+		if part_id == hovered_part_type: hover_index = regions.size()
+		if part_id == selected_part_type: selected_index = regions.size()
+		regions.append(Vector4(center.x, center.y, radius.x, radius.y))
+		var intensity = 0.0
+		if body_ref:
+			var part = body_ref.body_parts.get(part_id)
+			if part:
+				intensity = maxf((100.0 - part.integrity) / 100.0, part.pain_level / 100.0)
+				if part.has_fracture or part.get_current_bleed_rate(75.0) > 0.01: intensity = maxf(intensity, 0.8)
+				intensity = maxf(intensity, part.infection_level / 100.0)
+		damage.append(clampf(intensity, 0, 1))
+	_base_mat.set_shader_parameter("scan_regions", regions)
+	_base_mat.set_shader_parameter("damage_levels", damage)
+	_base_mat.set_shader_parameter("hover_region", hover_index)
+	_base_mat.set_shader_parameter("selected_region", selected_index)
+	_base_mat.set_shader_parameter("scan_mode", int(active_layer_mode))
+	_base_mat.set_shader_parameter("scan_hold", scan_hold)
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not event is InputEventKey: return
+	if event.keycode == KEY_X and not event.pressed:
+		scan_hold = false
+		return
+	var focus = get_viewport().gui_get_focus_owner()
+	if focus is LineEdit or focus is TextEdit: return
+	if event.keycode == KEY_X:
+		scan_hold = event.pressed
+		get_viewport().set_input_as_handled()
+	elif event.pressed and not event.echo and event.alt_pressed and event.keycode >= KEY_1 and event.keycode <= KEY_6:
+		set_layer_mode(event.keycode - KEY_1)
+		get_viewport().set_input_as_handled()
 func set_body_system(b: BodySystemClass) -> void:
 	body_ref = b
 	if body_ref:
@@ -1134,3 +1096,25 @@ func set_highlighted_parts(parts: Array) -> void:
 func clear_highlighted_parts() -> void:
 	highlighted_part_types.clear()
 	if _canvas_control: _canvas_control.queue_redraw()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		scan_hold = false
+		hovered_part_type = -1
+
+func _draw_scan_callout() -> void:
+	var id = hovered_part_type if hovered_part_type >= 0 else selected_part_type
+	if not body_ref or not _part_polygons.has(id): return
+	var part = body_ref.body_parts.get(id)
+	if not part: return
+	var point = _get_polygon_centroid(_part_polygons[id])
+	var side = 1.0 if point.x >= _canvas_control.size.x * 0.5 else -1.0
+	var elbow = point + Vector2(side * 55, -25)
+	var end = elbow + Vector2(side * 65, 0)
+	var color = Color(0.4, 0.78, 0.8, 0.75)
+	if part.has_fracture or part.pain_level > 20: color = Color(1.0, 0.57, 0.32, 0.85)
+	_canvas_control.draw_arc(point, 5, 0, TAU, 20, color, 1, true)
+	_canvas_control.draw_polyline(PackedVector2Array([point, elbow, end]), color, 1, true)
+	var label_position = end + Vector2(6 if side > 0 else -155, -5)
+	label_position.x = clampf(label_position.x, 4, maxf(4, _canvas_control.size.x - 164))
+	_canvas_control.draw_string(ThemeDB.fallback_font, label_position, part.display_name, HORIZONTAL_ALIGNMENT_LEFT, 160, 12, color)

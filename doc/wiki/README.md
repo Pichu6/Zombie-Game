@@ -27,3 +27,7 @@ Ver [qué entra en Git, Git LFS y el respaldo separado](versionado-y-respaldo.md
 ## Laboratorio
 
 Ver [selección corporal y acciones](laboratorio.md) para el recorrido implementado, pruebas y límites.
+
+## Catálogo de ítems
+
+Ver [definiciones, representación y sistemas pendientes](catalogo-items.md).

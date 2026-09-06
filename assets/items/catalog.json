@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "items": {
+    "backpack_school": {
+      "icon_path": "res://assets/items/backpack_school/icon.svg",
+      "model_path": "res://assets/items/backpack_school/model.tscn",
+      "material_paths": ["res://assets/items/backpack_school/canvas.tres"],
+      "texture_paths": [],
+      "asset_status": "procedural_prototype",
+      "components": [
+        {"id":"shell", "material":"canvas", "role":"containment"},
+        {"id":"straps", "material":"webbing", "role":"load_support"},
+        {"id":"buckles", "material":"polymer", "role":"fastening"}
+      ],
+      "quality": {"grade":"standard", "status":"metadata_only"}
+    }
+  },
+  "components": {
+    "canvas": {"name":"Lona", "status":"metadata_only"},
+    "webbing": {"name":"Cinta tejida", "status":"metadata_only"},
+    "polymer": {"name":"Polímero", "status":"metadata_only"}
+  }
+}

@@ -259,7 +259,7 @@ func test_makehuman_3d_asset_bridge(dashboard, b: BodySystemClass) -> void:
 	# Probar botón de adjuntar asset 3D
 	assert(dashboard.btn_attach_3d_asset != null, "btn_attach_3d_asset debe existir")
 	dashboard._on_attach_3d_asset_pressed()
-	assert(dashboard.lbl_item_asset_status.text.contains("model normal.fbx"), "Status debe confirmar rig MakeHuman model normal.fbx")
-	assert(dashboard.lbl_item_asset_status.text.contains("sidebag_tactical.glb"), "Status debe indicar el archivo 3D real de la malla")
+	assert(dashboard.line_item_mesh_path.text == "", "Un modelo pendiente no debe inventar una ruta")
+	assert(dashboard.lbl_item_asset_status.text.contains("Falta"), "Adjuntar sin archivo debe informar el recurso faltante")
 	
 	print("  -> OK: Puente de templates, slider de carga de bolso y archivo real validados.")

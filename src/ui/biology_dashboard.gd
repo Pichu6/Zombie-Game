@@ -22,6 +22,7 @@ const MasterLoader = preload("res://src/entities/character_master_loader.gd")
 var clock: SimulationClockClass
 
 # Widget de la Silueta 2D
+var laboratory_workspace: Control
 var paperdoll: SilhouettePaperdollClass
 
 # Nodos del Workplace Redimensionable
@@ -239,6 +240,9 @@ func _ready() -> void:
 	_update_posture_display()
 	_on_telemetry_updated()
 	_refresh_contextual_inspector()
+	laboratory_workspace = preload("res://src/ui/laboratory_workspace.gd").new()
+	add_child(laboratory_workspace)
+	laboratory_workspace.setup(self)
 
 func _process(delta: float) -> void:
 	var sim_speed: float = character.simulation_speed if character else 1.0
@@ -2847,10 +2851,10 @@ func _update_card_for_backpack(b: BodySystemClass) -> void:
 		var tpl = ClothingDatabaseClass.get_item_visual_template(b.equipped_backpack_id)
 		var sock = tpl.get("socket_bone", "mixamorig_Spine2")
 		var ov = tpl.get("overlay_type", "backpack_harness")
-		var mesh_file = "%s.glb" % b.equipped_backpack_id
+		var mesh_file = preload("res://src/items/item_catalog.gd").get_definition(b.equipped_backpack_id).visual.model_path
 		if lbl_item_socket_bone: lbl_item_socket_bone.text = "Rig Base: %s | Socket: %s | Overlay: %s" % [base_rig_file, sock, ov]
 		if line_item_mesh_path: line_item_mesh_path.text = mesh_file
-		if lbl_item_asset_status: lbl_item_asset_status.text = "Estado: Template 3D sincronizado con socket '%s' del rig '%s'" % [sock, base_rig_file]
+		if lbl_item_asset_status: lbl_item_asset_status.text = ("Archivo disponible: " + mesh_file) if mesh_file != "" else "Modelo 3D pendiente: asigná un archivo real."
 
 		if paperdoll:
 			var typed_bp: Array[int] = [int(BodyPartClass.PartType.TORSO_UPPER), int(BodyPartClass.PartType.TORSO_LOWER)]
@@ -2896,10 +2900,10 @@ func _render_item_card_data(item: Dictionary) -> void:
 	var tpl = ClothingDatabaseClass.get_item_visual_template(item_id)
 	var sock = tpl.get("socket_bone", "mixamorig_Spine1")
 	var ov = tpl.get("overlay_type", "generic")
-	var mesh_file = "%s.glb" % item_id
+	var mesh_file = preload("res://src/items/item_catalog.gd").get_definition(item_id).visual.model_path
 	if lbl_item_socket_bone: lbl_item_socket_bone.text = "Rig Base: %s | Socket: %s | Overlay: %s" % [base_rig_file, sock, ov]
 	if line_item_mesh_path: line_item_mesh_path.text = mesh_file
-	if lbl_item_asset_status: lbl_item_asset_status.text = "Estado: Template 3D sincronizado con socket '%s' del rig '%s'" % [sock, base_rig_file]
+	if lbl_item_asset_status: lbl_item_asset_status.text = ("Archivo disponible: " + mesh_file) if mesh_file != "" else "Modelo 3D pendiente: asigná un archivo real."
 
 	var typed_parts: Array[int] = []
 	for p in covered:
@@ -2908,43 +2912,12 @@ func _render_item_card_data(item: Dictionary) -> void:
 		paperdoll.set_highlighted_parts(typed_parts)
 
 func _on_attach_3d_asset_pressed() -> void:
-	if not line_item_mesh_path or not lbl_item_asset_status:
-		return
-	var sock = "mixamorig_Spine2"
-	if lbl_item_socket_bone and "Socket:" in lbl_item_socket_bone.text:
-		var parts = lbl_item_socket_bone.text.split("|")
-		for p in parts:
-			if "Socket:" in p:
-				sock = p.replace("Socket:", "").strip_edges()
-
-	var base_rig_file = MasterLoader.BASE_MODEL_PATH.get_file()
-	var mesh_file = line_item_mesh_path.text.get_file()
-	if mesh_file == "":
-		mesh_file = "asset.glb"
-
-	var attached = false
-	if character:
-		var skels = character.find_children("*", "Skeleton3D", true, false)
-		if skels.size() > 0:
-			var skel: Skeleton3D = skels[0]
-			var bone_idx = skel.find_bone(sock)
-			if bone_idx >= 0:
-				var att_name = "Attach_" + sock
-				var att: BoneAttachment3D = skel.get_node_or_null(att_name)
-				if not att:
-					att = BoneAttachment3D.new()
-					att.name = att_name
-					att.bone_name = sock
-					skel.add_child(att)
-				attached = true
-
-	if attached:
-		lbl_item_asset_status.text = "✅ Archivo '%s' acoplado al socket '%s' del rig '%s' (Skeleton3D MakeHuman)" % [mesh_file, sock, base_rig_file]
-		lbl_item_asset_status.add_theme_color_override("font_color", Color(0.3, 1.0, 0.5))
-	else:
-		lbl_item_asset_status.text = "ℹ️ Template registrado: '%s' -> Socket '%s' en '%s' (Listo para acoplar)" % [mesh_file, sock, base_rig_file]
-		lbl_item_asset_status.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
-
+	if not character or not line_item_mesh_path or not lbl_item_asset_status: return
+	var item_id = selected_equipped_item_id
+	if item_id == "": item_id = character.body.equipped_backpack_id
+	var result = preload("res://src/items/equipment_visuals.gd").attach(character, item_id, line_item_mesh_path.text.strip_edges())
+	lbl_item_asset_status.text = result.message
+	lbl_item_asset_status.add_theme_color_override("font_color", Color(0.4, 0.9, 0.7) if result.ok else Color(1.0, 0.65, 0.4))
 # -----------------------------------------------------------------------------
 # BOTONES CLÍNICOS DE PRIMEROS AUXILIOS Y TEST
 # -----------------------------------------------------------------------------

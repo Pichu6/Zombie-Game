@@ -337,6 +337,7 @@ func apply_biometrics(p_height: float, p_muscle: float, p_fat: float) -> void:
 	biometrics_changed.emit(body.height_meters, body.muscle_mass_pct, body.body_fat_pct, body.total_weight_kg)
 
 func _process(delta: float) -> void:
+	preload("res://src/items/equipment_visuals.gd").sync(self)
 	if body:
 		body.update(delta * simulation_speed)
 

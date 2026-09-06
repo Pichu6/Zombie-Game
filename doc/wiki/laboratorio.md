@@ -31,3 +31,33 @@ Los campos de formato de reloj, sustrato y vegetación colocan su selector debaj
 El área de trabajo dispone de desplazamiento horizontal y vertical automático. A 1280×720 hace falta desplazarla para acceder al inspector y los controles inferiores; el panel de simulación tiene su propio desplazamiento vertical. Es acceso completo mediante scroll, no una versión móvil ni una promesa de mostrar todas las columnas simultáneamente.
 
 Verificación: render real a 1920×1080, 1600×900 y 1280×720; inspección visual de 1600 y 1280. La prueba `tools/test_laboratory_layout.gd` verifica ambos paneles dentro de la ventana, ancho del contenido derecho, valores sin fragmentar y posibilidad de desplazarse hasta el final del contenido. Marcador: `LABORATORY_LAYOUT_OK`. También pasaron selección/acciones, UX/biomecánica y lógica clínica/paperdoll. Persisten los avisos de recursos sin liberar ya documentados. Capturas y logs en `.backups/layout-*`, fuera de Git.
+
+## Estación de análisis y escáner local — 2026-09-06
+
+Dirección solicitada por el usuario: una lectura integrada y concisa del cuerpo, similar al diagnóstico de una máquina, con visualización interior al hover y equipamiento separado del informe médico. Esta iteración reemplaza la disposición visible de cuatro columnas por cuatro espacios: Análisis, Ítems y assets, Simulación y Biometría.
+
+`src/ui/laboratory_workspace.gd` compone la nueva presentación y lee la simulación existente. La cabecera resume pulso, sangre, temperatura, reserva de agua y dolor. El informe muestra integridad, dolor, lesiones/tratamientos, masa local y aislamiento de la zona apuntada; las alertas locales permiten seleccionar la zona afectada. Al retirar el mouse se vuelve a la selección fijada. Los controles clínicos y de configuración existentes se reutilizan: no se duplicaron sus fórmulas.
+
+El refactor es incremental: `BiologyDashboard` todavía construye controles que luego se reorganizan, y conserva parte del layout antiguo oculto como soporte de compatibilidad. Separar construcción y controlador completamente sigue pendiente; no se presenta como arquitectura final.
+
+### Escáner
+
+- Hover: ventana interior suave sobre una zona, limitada al contorno visible del cuerpo.
+- Clic: selección persistente. Clic derecho: acciones rápidas sobre el objetivo señalado, sin cambiar automáticamente el inspector.
+- Mantener X: interior completo; soltarla o perder foco restaura la vista.
+- Alt+1…6: Base, Muscular, Huesos, Vascular, Nervios y Todo. En Base, el interior momentáneo usa huesos como referencia.
+- Las lesiones iluminan localmente la superficie con un pulso suave. Se retiraron los rellenos y bordes poligonales cuadrados; se conservan marcadores clínicos y una guía fina hacia la zona.
+
+La selección comprueba la luminancia de las texturas de somatotipo antes de asignar una zona. Los 17 polígonos siguen delimitando regiones lógicas; las áreas ampliadas por morph se asignan por cercanía solo si el mouse está sobre el cuerpo visible. El shader usa regiones elípticas suaves y máscaras de contorno. Es una representación ilustrativa 2D compuesta, no un raycast sobre órganos ni una simulación volumétrica de tejido.
+
+### Ítems y assets
+
+El catálogo, componentes, estado de calidad y primer modelo procedural se describen en [catálogo de ítems](catalogo-items.md). El editor muestra rutas reales y distingue modelos pendientes. El montaje no confirma éxito sin geometría cargada.
+
+### Validación de esta iteración
+
+Siete pruebas terminaron con marcador de éxito y sin errores de script: layout de las cuatro pestañas, estación/catálogo, selección, clínica/paperdoll, UX/biomecánica, assets del personaje y caminata de dos horas. Se actualizaron las expectativas de layout para la nueva organización y la prueba que aceptaba un nombre de modelo ficticio.
+
+Verificación geométrica a 1920×1080, 1600×900 y 1280×720; render real revisado a 1600×900, incluyendo X-ray y mochila equipada. Las imágenes de lesiones son estados sintéticos de la instancia de prueba, no cambios persistidos en el personaje. Registros e imágenes en `.backups/station-*` y `.backups/final-*`.
+
+Godot sigue informando recursos sin liberar al cierre. Esta iteración no resuelve todas las inconsistencias fisiológicas ya auditadas ni completa calidad, crafting, inventario de componentes o todos los modelos faltantes.

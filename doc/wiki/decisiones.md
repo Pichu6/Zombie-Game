@@ -30,3 +30,9 @@ Este orden es una propuesta técnica; no significa que los pasos estén terminad
 ## Actualización del estado de conservación — 2026-09-06
 
 Autoría y autenticación ya comprobadas; el primer commit se publicó en GitHub. La separación de contenido y sus límites se documentan en [versionado y respaldo](versionado-y-respaldo.md). El estado anterior de repositorio vacío describe el comienzo de esta etapa. Sigue faltando un respaldo independiente para los paquetes que se excluyen del repositorio de desarrollo.
+
+## Dirección de UI y assets — confirmada por el usuario, 2026-09-06
+
+El usuario solicita una UI de análisis integrada, clara y útil, evitando regiones cuadradas y columnas aisladas. Quiere hover con transparencia/interior, overlays mediante teclas y daño que ilumine localmente la base. Acepta un refactor y propone separar diagnóstico médico de configuración de ítems.
+
+Para ítems solicita representación en silueta, icono, referencias a modelos/materiales/texturas reales y catálogo que contemple componentes, calidad y sistemas de simulación. Quiere probar generación de assets 3D. La primera implementación usa una mochila procedural y declara expresamente lo pendiente; esto no confirma que desgaste, crafting o todos los modelos estén implementados.
