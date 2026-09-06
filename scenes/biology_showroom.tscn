@@ -1,0 +1,725 @@
+[gd_scene load_steps=7 format=3 uid="uid://c7x1y8w9v0b1"]
+
+[ext_resource type="Script" path="res://src/entities/human_character.gd" id="1_human"]
+[ext_resource type="Script" path="res://src/ui/orbit_camera.gd" id="2_camera"]
+[ext_resource type="Script" path="res://src/ui/biology_dashboard.gd" id="3_ui"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+sky_top_color = Color(0.12, 0.15, 0.2, 1)
+sky_horizon_color = Color(0.05, 0.06, 0.08, 1)
+ground_bottom_color = Color(0.03, 0.03, 0.04, 1)
+ground_horizon_color = Color(0.05, 0.06, 0.08, 1)
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 2
+ambient_light_color = Color(0.38, 0.36, 0.34, 1)
+ambient_light_energy = 1.0
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_Pedestal"]
+albedo_color = Color(0.08, 0.09, 0.11, 1)
+metallic = 0.2
+roughness = 0.7
+
+[node name="BiologyShowroom" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="StudioLights" type="Node3D" parent="."]
+
+[node name="KeyLight" type="DirectionalLight3D" parent="StudioLights"]
+transform = Transform3D(0.965926, -0.148453, 0.211309, 0, 0.819152, 0.573576, -0.258819, -0.554032, 0.79124, 1, 4, 4)
+light_color = Color(1, 0.97, 0.94, 1)
+light_energy = 1.2
+shadow_enabled = true
+shadow_bias = 0.05
+shadow_normal_bias = 2.5
+shadow_blur = 3.0
+shadow_opacity = 0.35
+directional_shadow_blend_splits = true
+
+[node name="FillLight" type="DirectionalLight3D" parent="StudioLights"]
+transform = Transform3D(0.819152, 0.246803, -0.517638, 0, 0.902403, 0.430887, 0.573576, -0.352962, 0.739207, -2.5, 3, 3.5)
+light_color = Color(0.9, 0.95, 1, 1)
+light_energy = 0.8
+
+[node name="RimLight" type="SpotLight3D" parent="StudioLights"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 3.5, -2.5)
+light_color = Color(0.8, 0.9, 1, 1)
+light_energy = 2.0
+spot_range = 8.0
+spot_angle = 50.0
+
+[node name="StudioPedestal" type="CSGCylinder3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+radius = 2.5
+height = 0.1
+sides = 32
+material = SubResource("Mat_Pedestal")
+
+[node name="GridRing" type="CSGTorus3D" parent="StudioPedestal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+inner_radius = 2.3
+outer_radius = 2.35
+sides = 32
+
+[node name="HumanCharacter" type="Node3D" parent="."]
+script = ExtResource("1_human")
+
+[node name="VisualRoot" type="Node3D" parent="HumanCharacter"]
+
+[node name="OrbitCamera" type="Node3D" parent="." node_paths=PackedStringArray("target_node")]
+script = ExtResource("2_camera")
+target_node = NodePath("../HumanCharacter")
+distance = 2.8
+
+[node name="Camera3D" type="Camera3D" parent="OrbitCamera"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 1.5, 2.8)
+current = true
+fov = 48.0
+
+[node name="UI" type="Control" parent="." node_paths=PackedStringArray("character")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_ui")
+character = NodePath("../HumanCharacter")
+
+[node name="LeftPanel" type="PanelContainer" parent="UI"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 384.0
+offset_bottom = -24.0
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="UI/LeftPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="UI/LeftPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🧬 BIOMETRÍA HUMANA"
+
+[node name="ArchetypeBox" type="HBoxContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnArchSkinny" type="Button" parent="UI/LeftPanel/Margin/VBox/ArchetypeBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🦴 Flaco"
+
+[node name="BtnArchNormal" type="Button" parent="UI/LeftPanel/Margin/VBox/ArchetypeBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🧍 Normal"
+
+[node name="BtnArchMuscle" type="Button" parent="UI/LeftPanel/Margin/VBox/ArchetypeBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💪 Musculoso"
+
+[node name="BtnArchFat" type="Button" parent="UI/LeftPanel/Margin/VBox/ArchetypeBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🍔 Gordo"
+
+[node name="Sep1" type="HSeparator" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HeightBox" type="VBoxContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/LeftPanel/Margin/VBox/HeightBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/LeftPanel/Margin/VBox/HeightBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Altura (Inmutable):"
+
+[node name="LabelHeightVal" type="Label" parent="UI/LeftPanel/Margin/VBox/HeightBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1.78 m"
+
+[node name="SliderHeight" type="HSlider" parent="UI/LeftPanel/Margin/VBox/HeightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.5
+max_value = 2.05
+step = 0.01
+value = 1.78
+
+[node name="MuscleBox" type="VBoxContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/LeftPanel/Margin/VBox/MuscleBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/LeftPanel/Margin/VBox/MuscleBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Masa Muscular:"
+
+[node name="LabelMuscleVal" type="Label" parent="UI/LeftPanel/Margin/VBox/MuscleBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "50%"
+
+[node name="SliderMuscle" type="HSlider" parent="UI/LeftPanel/Margin/VBox/MuscleBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+value = 50.0
+
+[node name="FatBox" type="VBoxContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/LeftPanel/Margin/VBox/FatBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/LeftPanel/Margin/VBox/FatBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Grasa Corporal:"
+
+[node name="LabelFatVal" type="Label" parent="UI/LeftPanel/Margin/VBox/FatBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "20%"
+
+[node name="SliderFat" type="HSlider" parent="UI/LeftPanel/Margin/VBox/FatBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+value = 20.0
+
+[node name="WeightBox" type="HBoxContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/LeftPanel/Margin/VBox/WeightBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Peso Total Calculado:"
+
+[node name="LabelWeightVal" type="Label" parent="UI/LeftPanel/Margin/VBox/WeightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+text = "75.0 kg"
+
+[node name="SepNutrition" type="HSeparator" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="NutritionTitle" type="Label" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+text = "🍽️ Nutrición y Metabolismo:"
+
+[node name="HBoxCaloricBalance" type="HBoxContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/LeftPanel/Margin/VBox/HBoxCaloricBalance"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Balance Calórico Hoy:"
+
+[node name="LabelCaloricBalanceVal" type="Label" parent="UI/LeftPanel/Margin/VBox/HBoxCaloricBalance"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 1, 0.6, 1)
+text = "+0 kcal"
+
+[node name="HBoxHunger" type="HBoxContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/LeftPanel/Margin/VBox/HBoxHunger"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Nivel de Apetito:"
+
+[node name="LabelHungerVal" type="Label" parent="UI/LeftPanel/Margin/VBox/HBoxHunger"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0% (Saciado)"
+
+[node name="GridDiet" type="GridContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="BtnEatHealthy" type="Button" parent="UI/LeftPanel/Margin/VBox/GridDiet"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🥗 Comer Sano"
+
+[node name="BtnEatJunk" type="Button" parent="UI/LeftPanel/Margin/VBox/GridDiet"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🍔 Chatarra"
+
+[node name="BtnDrinkWater" type="Button" parent="UI/LeftPanel/Margin/VBox/GridDiet"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💧 Beber Agua"
+
+[node name="BtnFast" type="Button" parent="UI/LeftPanel/Margin/VBox/GridDiet"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "⏳ Ayunar"
+
+[node name="Sep2" type="HSeparator" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="AnatomyTitle" type="Label" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "🦴 Partes Anatómicas:"
+
+[node name="ScrollAnatomy" type="ScrollContainer" parent="UI/LeftPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContainerParts" type="VBoxContainer" parent="UI/LeftPanel/Margin/VBox/ScrollAnatomy"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="RightPanel" type="PanelContainer" parent="UI"]
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -454.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="UI/RightPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="UI/RightPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🫀 MONITOR DE FISIOLOGÍA"
+
+[node name="Sep1" type="HSeparator" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="StatusBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/StatusBox"]
+layout_mode = 2
+text = "Estado Vital:"
+
+[node name="LabelStatusVal" type="Label" parent="UI/RightPanel/Margin/VBox/StatusBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 2
+text = "VITALIDAD ÓPTIMA"
+
+[node name="BloodBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/BloodBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/BloodBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🩸 Volemia (Sangre):"
+
+[node name="LabelBloodVal" type="Label" parent="UI/RightPanel/Margin/VBox/BloodBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "5000 mL / 5000 mL"
+
+[node name="BarBlood" type="ProgressBar" parent="UI/RightPanel/Margin/VBox/BloodBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 5000.0
+value = 5000.0
+show_percentage = false
+
+[node name="BpmBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/BpmBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💓 Frecuencia Cardíaca:"
+
+[node name="LabelBpmVal" type="Label" parent="UI/RightPanel/Margin/VBox/BpmBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+text = "70 BPM"
+
+[node name="TempBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/TempBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🌡️ Temperatura Central:"
+
+[node name="LabelTempVal" type="Label" parent="UI/RightPanel/Margin/VBox/TempBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
+text = "37.0 °C"
+
+[node name="WaterBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/WaterBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/WaterBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💧 Hidratación (Agua):"
+
+[node name="LabelWaterVal" type="Label" parent="UI/RightPanel/Margin/VBox/WaterBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2500 mL / 2500 mL"
+
+[node name="BarWater" type="ProgressBar" parent="UI/RightPanel/Margin/VBox/WaterBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 2500.0
+value = 2500.0
+show_percentage = false
+
+[node name="GlycogenBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/GlycogenBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/GlycogenBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🥩 Glucógeno Muscular:"
+
+[node name="LabelGlycogenVal" type="Label" parent="UI/RightPanel/Margin/VBox/GlycogenBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.4, 1)
+text = "100% (2000 kcal)"
+
+[node name="BarGlycogen" type="ProgressBar" parent="UI/RightPanel/Margin/VBox/GlycogenBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="MoistureBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/MoistureBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/MoistureBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💦 Humedad Piel / Ropa:"
+
+[node name="LabelMoistureVal" type="Label" parent="UI/RightPanel/Margin/VBox/MoistureBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.8, 1, 1)
+text = "Cuerpo Seco (0%)"
+
+[node name="BarMoisture" type="ProgressBar" parent="UI/RightPanel/Margin/VBox/MoistureBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100.0
+value = 0.0
+show_percentage = false
+
+[node name="PainBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/PainBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "⚡ Nivel de Dolor:"
+
+[node name="LabelPainVal" type="Label" parent="UI/RightPanel/Margin/VBox/PainBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 / 100"
+
+[node name="Sep2" type="HSeparator" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="AnimBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/AnimBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "🎬 Locomoción Progresiva:"
+
+[node name="Grid" type="GridContainer" parent="UI/RightPanel/Margin/VBox/AnimBox"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="BtnAnimIdle" type="Button" parent="UI/RightPanel/Margin/VBox/AnimBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🧘 Reposo"
+
+[node name="BtnAnimWalk" type="Button" parent="UI/RightPanel/Margin/VBox/AnimBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🚶 Caminar"
+
+[node name="BtnAnimRun" type="Button" parent="UI/RightPanel/Margin/VBox/AnimBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🏃 Carrera"
+
+[node name="BtnAnimSprint" type="Button" parent="UI/RightPanel/Margin/VBox/AnimBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "⚡ Sprint"
+
+[node name="BtnAnimCrouch" type="Button" parent="UI/RightPanel/Margin/VBox/AnimBox/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🧎 Agacharse"
+
+[node name="DeathBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/DeathBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "💀 Colapso / Muerte / Reseteo:"
+
+[node name="GridDeath" type="GridContainer" parent="UI/RightPanel/Margin/VBox/DeathBox"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="BtnDeathFallFlat" type="Button" parent="UI/RightPanel/Margin/VBox/DeathBox/GridDeath"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💀 Caer Seco"
+
+[node name="BtnDeathBwd" type="Button" parent="UI/RightPanel/Margin/VBox/DeathBox/GridDeath"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💀 Caer Atrás"
+
+[node name="BtnResetVitality" type="Button" parent="UI/RightPanel/Margin/VBox/DeathBox/GridDeath"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🔄 Resetear"
+
+[node name="ExertionBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/ExertionBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/ExertionBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "⚡ Esfuerzo Físico (0% a 100%):"
+
+[node name="LabelExertionVal" type="Label" parent="UI/RightPanel/Margin/VBox/ExertionBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reposo (0%)"
+
+[node name="SliderExertion" type="HSlider" parent="UI/RightPanel/Margin/VBox/ExertionBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+[node name="SepClimate" type="HSeparator" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="ClimateBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="TitleClimate" type="Label" parent="UI/RightPanel/Margin/VBox/ClimateBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+text = "🌤️ Entorno y Clima:"
+
+[node name="HBoxTemp" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/ClimateBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/ClimateBox/HBoxTemp"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Temperatura Ambiente:"
+
+[node name="LabelAmbientTempVal" type="Label" parent="UI/RightPanel/Margin/VBox/ClimateBox/HBoxTemp"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.5, 1)
+text = "⛅ 22°C (Templado)"
+
+[node name="SliderAmbientTemp" type="HSlider" parent="UI/RightPanel/Margin/VBox/ClimateBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = -10.0
+max_value = 50.0
+step = 1.0
+value = 22.0
+
+[node name="HBoxStress" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/ClimateBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/ClimateBox/HBoxStress"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Estrés Térmico:"
+
+[node name="LabelThermalStatusVal" type="Label" parent="UI/RightPanel/Margin/VBox/ClimateBox/HBoxStress"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "⚖️ En Equilibrio Térmico"
+
+[node name="HBoxSweat" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/ClimateBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/ClimateBox/HBoxSweat"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Tasa de Sudor:"
+
+[node name="LabelSweatRateVal" type="Label" parent="UI/RightPanel/Margin/VBox/ClimateBox/HBoxSweat"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0.0 mL/min (0 mL/h)"
+
+[node name="TimeScaleBox" type="VBoxContainer" parent="UI/RightPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/TimeScaleBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/TimeScaleBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+text = "⏩ Velocidad Simulación:"
+
+[node name="LabelTimeScaleVal" type="Label" parent="UI/RightPanel/Margin/VBox/TimeScaleBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+text = "1x (Tiempo Real)"
+
+[node name="SliderTimeScale" type="HSlider" parent="UI/RightPanel/Margin/VBox/TimeScaleBox"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 200.0
+step = 1.0
+value = 1.0
+
+[node name="TimerBox" type="HBoxContainer" parent="UI/RightPanel/Margin/VBox/TimeScaleBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/RightPanel/Margin/VBox/TimeScaleBox/TimerBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+text = "⏱️ Tiempo en Movimiento:"
+
+[node name="LabelMovementTimerVal" type="Label" parent="UI/RightPanel/Margin/VBox/TimeScaleBox/TimerBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 1.0, 0.6, 1)
+text = "00:00.0"
+
+[node name="HelpLabel" type="Label" parent="UI"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -42.0
+offset_right = 300.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.65, 0.65, 0.65, 0.85)
+theme_override_font_sizes/font_size = 13
+text = "🖱️ Clic Derecho / Central + Arrastrar para rotar 360° | Rueda para Zoom | [F11] Pantalla Completa"
+horizontal_alignment = 1

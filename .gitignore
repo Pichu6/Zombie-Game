@@ -1,0 +1,16 @@
+# Godot generated cache; source .import and .uid metadata stay in Git.
+/.godot/
+# Local recovery copies, verification checkouts and external source packages.
+/.backups/
+/char_human/rig/CC Character Base/
+/_local_assets/
+# Generated exports: source assets belong in assets/ or char_human/.
+/build/
+/dist/
+/exports/
+# Local credentials and OS metadata.
+.env
+.env.*
+!.env.example
+Thumbs.db
+Desktop.ini
