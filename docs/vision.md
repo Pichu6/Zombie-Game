@@ -41,7 +41,7 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 - **Possession:** click a survivor to play them directly. Tier 0: direct WASD control; Tier 1: iso zoom-in; Tier 2: over-the-shoulder 3rd person. Camera and control code is mode-agnostic from day one. Possession gives control, not power: the body still sets speed, strength and stamina. Proposal.
 - **Why possess:** the AI is cautious and average on purpose, and panics or refuses in specific situations (a dark basement, an open yard with dead in sight, a live wire). Proposal.
 - **Map:** small and hand-made; every building enterable; breachable walls. Decided.
-- **Sandbox settings** (Zomboid style): zombie speed, time scale, later population, infection timing, utility shutoff and loot. **Settings change numbers, never rules**, so player and survivor parity always holds. Decided.
+- **Sandbox settings** (Zomboid style): zombie speed, time scale, population, utility shutoff, loot, and **the virus itself** (Plague Inc style): transmission routes and their chances, incubation time, symptoms, lethality, time from death to reactivation, and whether a cure exists. Presets: a realistic default ("necrobiotic syndrome", see [threats](design/threats.md)) plus faster or harsher variants. Decided (2026-10-05). **Settings change numbers, never rules**, so player and survivor parity always holds. Decided.
 - **Zombie speed default:** body-driven (mostly slow; fresh lean bodies faster; fat or broken ones slower). Options: always slow, body-driven, fast. Decided.
 - **Multiplayer:** the end goal; single player first, then co-op, then multiplayer. Decided.
 

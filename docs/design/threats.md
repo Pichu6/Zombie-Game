@@ -33,6 +33,10 @@ Walker physiology (Proposal):
 - It guards its food: distant noise does not distract it; a living person nearby does. Without an abdomen, eating is useless.
 - It does not run: poor coordination, incomplete balance, little power. Fresh ones shove, grab or speed up for a short stretch.
 
+## Virus as a sandbox setting
+
+Decided (2026-10-05): the player can set the virus parameters before a game, Plague Inc style. Necrobiotic syndrome (above) is the default preset. Parameters are numbers on the same model, never new rules: transmission routes (bite, scratch, blood, saliva, airborne particles) and their chances, incubation range, symptom timing, lethality, time from death to reactivation, walker speed (see below) and whether a cure exists. Player and survivors face the same virus. Later, swapping the threat for other kinds (living infected, parasites) stays a module composition, as stated at the top.
+
 ## Course of infection
 
 Timings vary by individual; example of "about a month". Proposal.
