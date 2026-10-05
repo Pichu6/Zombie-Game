@@ -45,6 +45,12 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 - **Zombie speed default:** body-driven (mostly slow; fresh lean bodies faster; fat or broken ones slower). Options: always slow, body-driven, fast. Decided.
 - **Multiplayer:** the end goal; single player first, then co-op, then multiplayer. Decided.
 
+## Setting and scale
+
+- **Era:** present day, modern world. Decided (2026-10-05).
+- **Scale:** it must *feel* big enough for big-picture play, without being a 1:1 real city. Decided as intent; numbers are a Proposal: the final target is one small town, compressed (real building sizes, fewer of them), roughly a few hundred buildings and a few thousand residents in the census. Each tier grows the map: a block (Tier 0), a few buildings (Tier 1), a neighbourhood (Tier 2), the town (Tier 3).
+- **One zoom, three lenses:** the player moves continuously from **manager** (big picture: the town or district map, census, sectors, group and base, as in Infection Free Zone or Cities: Skylines) through **isometric** (tactical, Zomboid style) to **immersion** (2nd/3rd person, as in Ghost Recon or The Last of Us), on the same world and the same survivor. Decided (2026-10-05). Tiers: iso in Tier 0–1, manager view grows with map size, 3rd person in Tier 2.
+
 ## Scope by tier
 
 Nothing is deleted; every idea is scheduled. Details inside each tier are Proposals.
@@ -66,5 +72,5 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-- Era, region, tone and level of graphic violence.
-- Exact scale of the town and populations beyond Tier 1.
+- Region: a real place (like Infection Free Zone's real maps) or a realistic fictional town modelled on a real region? Recommendation: fictional town modelled on a real region, which fits the hand-made map.
+- Tone and level of graphic violence.

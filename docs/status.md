@@ -31,4 +31,4 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 - Engine stack ([0002](decisions/0002-engine-stack.md)).
 - Clothing via GPU wrap, and whether tight clothing hides the skin under it ([0003](decisions/0003-clothing-wrap.md)). Not needed until Tier 1–2.
 - Quality formula ([0006](decisions/0006-crafting-quality.md)).
-- Era, region, tone and level of graphic violence ([vision](vision.md)).
+- Region (real or fictional) and tone ([vision](vision.md), [0011](decisions/0011-setting-scale-lenses.md)).
