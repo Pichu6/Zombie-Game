@@ -28,4 +28,4 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Waiting on the user
 
-- Tone and level of graphic violence ([vision](vision.md#open-questions)). Everything else was answered in [0014](decisions/0014-open-questions-answered.md).
+- Nothing blocking. All open questions are answered ([0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md)); only tuning numbers remain.

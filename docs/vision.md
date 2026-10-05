@@ -82,7 +82,6 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-All earlier questions were answered on 2026-10-05 ([0014](decisions/0014-open-questions-answered.md)). Still open:
+All earlier questions were answered on 2026-10-05 ([0014](decisions/0014-open-questions-answered.md); tone in [0015](decisions/0015-tone-realistic-damage.md): realistic, not gore). Still open:
 
-- Tone and level of graphic violence.
 - Ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).

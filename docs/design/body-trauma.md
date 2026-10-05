@@ -1,6 +1,6 @@
 # Body: trauma, surgery, infection and decay
 
-Part of [body.md](body.md). Wounds live in the part tree as a list per part, with affected layers. Bleeding, pain and infection come from each wound and lower capabilities. Field surgery solves what bandaging cannot, with noise and risk. Corpses do not disappear: they rot in phases, attract flies, spread smell and end as a visible skeleton. Almost everything is a Proposal; only decay down to the visible skeleton is Decided.
+Part of [body.md](body.md). Wounds live in the part tree as a list per part, with affected layers. Bleeding, pain and infection come from each wound and lower capabilities. Field surgery solves what bandaging cannot, with noise and risk. Corpses do not disappear: they rot in phases, attract flies, spread smell and end as a visible skeleton. Almost everything is a Proposal; decay down to the visible skeleton and the realistic, not gore tone are Decided.
 
 Provenance: **Decided** = the user confirmed it. **Proposal** = unconfirmed. **Open** = unanswered question.
 
@@ -11,6 +11,25 @@ Provenance: **Decided** = the user confirmed it. **Proposal** = unconfirmed. **O
 - Each wound accumulates bleeding, pain and infection. **Proposal**.
 - Full chain to close first: impact → injury → effect → action limit → presentation → save. **Proposal**.
 - Damage readable at a glance, as in Project Zomboid. **Proposal**.
+
+## One damage system
+
+Tone Decided ([0015](../decisions/0015-tone-realistic-damage.md)): realistic, not gore. Shared model Proposal.
+
+Bodies and buildings are both assemblies of layered parts, so they share one damage resolver:
+
+- **Input:** a load with energy or force, contact area, sharpness and direction (a blade, a bullet, a bite, a fall, a crushing wall, a car).
+- **Per layer:** each layer has material numbers (thickness, strength, toughness, how it tears or snaps), whether it is skin, fat, muscle, bone, organ, or plaster, stud, brick, glass. The load is spent layer by layer: it deforms, cuts, penetrates or breaks, then passes what is left inward.
+- **Output:** wounds on the body part (type, depth, layers) or damage on the building part (cracks, holes, broken joint), plus sound, debris or blood. The same rules for player, pops and zombies.
+- **Separation:** when a part's connection fails (a joint, a cut through bone, a wall stud), it becomes its own assembly: a severed limb is an object with its own decay; a fallen wall section is rubble that can pin and crush.
+- **Crushing:** the building load graph (solved from the roof down) passes force into whoever is under a failing part, through the same resolver.
+
+**Realistic, not gore**, in practice:
+
+- Severe outcomes need real forces. A knife does not cut a body in half; a collapsing floor, a vehicle or machinery can. Melee amputation needs a heavy edge, skill and several blows.
+- The view shows what the state says: a cut plane reveals the layers in cross-section, an open fracture shows bone, rot exposes tissue layer by layer. No extra blood or flying parts beyond what the physics produced.
+- Wounds stay readable for diagnosis (where, how deep, which layers), which is gameplay: it tells you what killed you.
+- A sandbox or accessibility setting can tone down the visuals without changing the simulation. Proposal.
 
 ## Field surgery
 

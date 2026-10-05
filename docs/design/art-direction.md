@@ -14,7 +14,7 @@ Labels: **Decided** (the user confirmed it in the prototype), **Proposal** (not 
 | Clear, integrated body analysis: transparency, targeted inspection, signals of the simulated state. | Decided |
 | Items with an icon, an on-body representation and references to real models and materials. | Decided |
 | Do not switch to semi-realism to justify a prototype. | Decided |
-| Era, region, cultural clothing, tone and graphic violence. | Open |
+| Era (present day), region (real Earth), tone: realistic, not gore ([0015](../decisions/0015-tone-realistic-damage.md)). Cultural clothing still open. | Decided |
 | Visible population density and graphic scope. | Open |
 | Do not infer a military setting from references or a single item. | Proposal |
 
