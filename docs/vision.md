@@ -2,9 +2,9 @@
 
 **How long can you really survive?** Everyone thinks they would survive a zombie outbreak like in the movies. Real life has hundreds of things they ignore that would kill them: a scratch that gets infected, bad water, dehydration, no sleep, cold, a sprained ankle, carrying too much, the noise you make, food that spoils, panic. Each one is a body or world system, and each one is a believable way to die.
 
-You play one survivor in real time, as in Project Zomboid. When you find or recruit others, a commander layer opens up, like XCOM: you manage the group and the building from above, and drop into any survivor to play them directly. Every person, yours or not, is a simulated human body under the same rules as you. The dead are not generic monsters: each zombie is a specific former person, with their body, wounds and clothes. Some used to be yours.
+Under it runs **one outbreak simulation of the whole world**, real Earth by default. A virus starts somewhere, the news arrives, supply chains keep running until they break, and about 7 days later it reaches your town. You can watch and steer it from the globe (Macro), manage its local effects as a city (City), or live it as one person (Individual), in real time, as in Project Zomboid. Every person, yours or not, is a simulated human body under the same rules as you. The dead are not generic monsters: each zombie is a specific former person, with their body, wounds and clothes. Some used to be yours.
 
-Labels: **Decided** (the user confirmed it), **Proposal** (not confirmed), **Open** (pending question). Full concept and its history: [concept v2](research/concept-v2.md). Decision record: [0010](decisions/0010-concept-v2.md).
+Labels: **Decided** (the user confirmed it), **Proposal** (not confirmed), **Open** (pending question). Full concept and its history: [concept v2](research/concept-v2.md). Decision records: [0010](decisions/0010-concept-v2.md), [0012](decisions/0012-world-simulation-layers.md). World layer design: [world simulation](design/world-simulation.md).
 
 ## The core choice
 
@@ -26,10 +26,13 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 | --- | --- | --- |
 | Realistic survival | The content is the realistic ways to die that other games ignore. After a death you know which ignored thing killed you. | Decided |
 | One body model | Player, every survivor and every zombie share one body model, one action set and one set of survival rules. The AI only chooses what to do. | Decided |
-| Survivor first, commander later | Start alone in real time; the XCOM-like commander layer unlocks with other survivors. | Decided |
+| One world, three layers | Macro (globe: watch, laws and edicts), City (isometric RTS over the local zone) and Individual (play one pop) are views over one simulation. A hand wound or a power plant exists once and shows in every layer. See [0012](decisions/0012-world-simulation-layers.md). | Decided |
+| Play style chosen in setup | No main mode: micro → macro (start as one survivor, the XCOM-like commander layer opens with others), macro → micro, one layer only, or spectator. | Decided |
+| Entangled and calibrated | Infection reaches people, jobs, supply chains and infrastructure. Outbreaks can fail; the default is calibrated on real pandemics and how people react. | Decided |
 | Finite world | People, loot and zombies don't respawn. | Decided |
 | Everything built is scavengable and craftable | Walls, floors, houses, pipe networks, power lines, car engines, vehicles, tools and items are all assemblies of real parts that can be scavenged and crafted, all tied by one quality (Q) system. Q comes from parts, capped by skill and tool. What you can see and do depends on job knowledge (electrician, plumber, mechanic). Everything takes real time (Haven & Hearth). See [0010](decisions/0010-concept-v2.md). | Decided |
 | Living infrastructure | Power, water, light and noise as real networks that keep bodies alive and leak signals. | Proposal |
+| Real behaviour | People talk by voice, radio and phone with real propagation. Options depend on knowledge, items and their quality. Every item and resource has quality, condition and states. Doors, walls and fortifications break part by part. | Decided |
 | Single state per survivor | Pain, fear, load and job persist when you possess or release a body. | Decided |
 | Realism | Visual realism and fluid animation; readable physiology. | Decided |
 
@@ -40,16 +43,23 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 - **Command layer:** squad orders (go, hold, follow, attack, retreat) and a job board with priorities. Proposal.
 - **Possession:** click a survivor to play them directly. Tier 0: direct WASD control; Tier 1: iso zoom-in; Tier 2: over-the-shoulder 3rd person. Camera and control code is mode-agnostic from day one. Possession gives control, not power: the body still sets speed, strength and stamina. Proposal.
 - **Why possess:** the AI is cautious and average on purpose, and panics or refuses in specific situations (a dark basement, an open yard with dead in sight, a live wire). Proposal.
-- **Map:** the world is a sandbox too: a generated map, with a zoom from the **globe** down to the **local zone** (Infection Free Zone style). Decided as the goal (2026-10-05); it replaces the earlier "small hand-made map" as the end state. Every building enterable; breachable walls. Timing decided (2026-10-05): hand-made map for Tier 0–1, a template-based generator in Tier 2, real-world globe pick in Tier 3; the global outbreak layer, being only numbers, can come early. The map data is designed from the start so a generator can fill it.
+- **Setup:** create the world from parameters (real Earth by default, generated worlds in sandbox), then the outbreak (origin and virus numbers), the scenario and the character. Decided.
+- **Character:** pick a pop or create one, Project Zomboid style (civilian, police, military, nurse, custom). Starting weapons follow real custody rules by default. Every pop has a TTRPG-style lifepath behind them. Decided.
+- **Warning week:** about 7 days from first news to arrival (realistic for the virus settings), all live play by default: work, buy, prepare, hear the news. Decided.
+- **Fog:** playing an individual, the layers above show what that character believes, and a pop's dossier can be wrong. Decided.
+- **Orders follow role:** an individual takes jobs at a power plant; only someone with authority orders one. A build order creates real jobs and material demand that pops answer, like zoning in Cities: Skylines. Decided.
+- **Map:** the world is a sandbox too, with a zoom from the **globe** down to the **local zone** (Infection Free Zone style). Every building enterable; breachable walls. Timing decided (2026-10-05): hand-made map for Tier 0–1, a template-based generator in Tier 2, real-world globe pick in Tier 3; the global outbreak layer, being only numbers, can come early. The map data is designed from the start so a generator can fill it.
 - **Sandbox settings** (Zomboid style): zombie speed, time scale, population, utility shutoff, loot, and **the virus itself** (Plague Inc style): transmission routes and their chances, incubation time, symptoms, lethality, time from death to reactivation, and whether a cure exists. Presets: a realistic default ("necrobiotic syndrome", see [threats](design/threats.md)) plus faster or harsher variants. Decided (2026-10-05). **Settings change numbers, never rules**, so player and survivor parity always holds. Decided.
-- **Zombie speed default:** body-driven (mostly slow; fresh lean bodies faster; fat or broken ones slower). Options: always slow, body-driven, fast. Decided.
+- **Zombie speed default:** body-driven (mostly slow; fresh lean bodies faster; fat or broken ones slower). Options: always slow, body-driven, fast. Zombies don't tire by default. Decided.
+- **Origins:** selectable, Plague Inc style. Origins that change rules, not only numbers, are DLC. Decided.
 - **Multiplayer:** the end goal; single player first, then co-op, then multiplayer. Decided.
 
 ## Setting and scale
 
 - **Era:** present day, modern world. Decided (2026-10-05).
-- **Scale:** it must *feel* big enough for big-picture play, without being a 1:1 real city. Decided as intent; numbers are a Proposal: the final target is one small town, compressed (real building sizes, fewer of them), roughly a few hundred buildings and a few thousand residents in the census. Each tier grows the map: a block (Tier 0), a few buildings (Tier 1), a neighbourhood (Tier 2), the town (Tier 3).
-- **One zoom, three lenses:** the player moves continuously from **manager** (big picture: the town or district map, census, sectors, group and base, as in Infection Free Zone or Cities: Skylines) through **isometric** (tactical, Zomboid style) to **immersion** (2nd/3rd person, as in Ghost Recon or The Last of Us), on the same world and the same survivor. Decided (2026-10-05). Tiers: iso in Tier 0–1, manager view grows with map size, 3rd person in Tier 2.
+- **World:** real Earth by default; the local zone is a real region. Decided (2026-10-05).
+- **Local scale:** it must *feel* big enough for big-picture play, without being a 1:1 real city. Decided as intent; numbers are a Proposal: the final target is one small town, compressed (real building sizes, fewer of them), roughly a few hundred buildings and a few thousand residents in the census. Each tier grows the map: a block (Tier 0), a few buildings (Tier 1), a neighbourhood (Tier 2), the town (Tier 3).
+- **Three layers** (supersedes "three lenses" in [0011](decisions/0011-setting-scale-lenses.md)): Macro, City and Individual, with isometric and over-the-shoulder cameras in Individual. Taking a different body uses a GTA V-style switch that hides the loading. Decided (switch style: Proposal). Tiers: iso in Tier 0–1, City grows with map size, 3rd person in Tier 2.
 
 ## Scope by tier
 
@@ -72,5 +82,23 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-- Region: a real place (like Infection Free Zone's real maps) or a realistic fictional town modelled on a real region? Recommendation: fictional town modelled on a real region, which fits the hand-made map.
-- Tone and level of graphic violence.
+Recommendations are Proposals; details in [world simulation](design/world-simulation.md) and [research/global-sim](research/global-sim.md).
+
+**World simulation**
+
+1. Movement speed between towns: real speeds on paths, body speed inside the local zone? Recommended: yes.
+2. Outbreak odds (will it fizzle?) shown while playing an individual? Recommended: hidden; shown in the god view and after death.
+3. Arrival time: drawn narrowly around day 7, or widely? Recommended: narrow.
+4. Default origin? Recommended: hidden bite, 1–2 days to turn (a slow, visible shambler almost always fizzles).
+5. Default start role? Recommended: civilian, with Responder (real local health officer or mayor) as an option.
+6. Pause while giving orders in City and Macro? Recommended: yes.
+7. Instant build? Recommended: sandbox only.
+8. Do orders need working communications to reach people? Recommended: yes.
+9. Community presets that break realism: rejected outside Sandbox, tagged inside? Recommended: yes.
+
+**Earlier**
+
+10. Engine stack ([0002](decisions/0002-engine-stack.md)).
+11. Clothing via GPU wrap ([0003](decisions/0003-clothing-wrap.md)).
+12. Quality formula ([0006](decisions/0006-crafting-quality.md)).
+13. Tone and level of graphic violence.

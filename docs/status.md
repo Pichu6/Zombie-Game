@@ -18,17 +18,15 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Where we are
 
-- **Have:** the decided concept, design docs distilled from the prototype, recorded decisions, and the clothing research (tools tested on a synthetic body).
+- **Have:** the decided concept, design docs distilled from the prototype, recorded decisions, the clothing research, and the world simulation design ([0012](decisions/0012-world-simulation-layers.md), [world simulation](design/world-simulation.md)): one outbreak simulation of real Earth, played as Macro, City or Individual, with the play style chosen in setup.
 - **Don't have:** any engine code. The repo is not on GitHub yet (the user's account is locked by a 2FA issue); history is in local git.
 
 ## Next step
 
-1. Plan Tier 0: module layout of the sim core, first systems (body, room graph, power and noise), and the 2D debug view.
-2. Push the repo to GitHub once the account is back.
+1. Answer the open questions in [vision](vision.md#open-questions).
+2. Write one-page specs for the Tier 0 units (contract rule 10), then plan Tier 0: sim core layout, body, room graph, power and noise, the 2D debug view. No test slice of the world layers yet.
+3. Push the repo to GitHub once the account is back.
 
 ## Waiting on the user
 
-- Engine stack ([0002](decisions/0002-engine-stack.md)).
-- Clothing via GPU wrap, and whether tight clothing hides the skin under it ([0003](decisions/0003-clothing-wrap.md)). Not needed until Tier 1–2.
-- Quality formula ([0006](decisions/0006-crafting-quality.md)).
-- Region (real or fictional) and tone ([vision](vision.md), [0011](decisions/0011-setting-scale-lenses.md)).
+- The open questions in [vision](vision.md#open-questions): nine on the world simulation (each has a recommendation), plus engine stack, clothing, quality formula and tone.

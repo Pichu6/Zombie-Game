@@ -11,6 +11,14 @@ Shared project vocabulary for design documents and new-engine code. It keeps the
 - **Sector**: a portion of the map loaded, saved and simulated as one unit.
 - **Simulation level (hot / warm / cold)**: full detail near the player, network calculation in the district, statistics elsewhere.
 - **Utility network** (red de servicios): power and water as graphs of nodes and edges, recalculated only when they change.
+- **Lazy census**: everyone in the world who has never been touched by the simulation; regenerated from the world seed on demand, costing no memory.
+- **Record**: a compact saved person, made when the simulation first touches someone (met, hired, bitten).
+- **Embodied bubble**: the people near the player's body who run the full body simulation.
+- **Macro / City / Individual layers**: the three gameplay layers over one world simulation (globe, isometric city, one person).
+- **Edict**: a law or order that may only change a rate, capacity, allocation, condition, use-of-force threshold or broadcast; checked by the same validator as scenarios and sandbox sliders.
+- **Project**: the record created by a build order; it posts jobs and material requests and holds the escrowed money.
+- **Lifepath**: a pop's past, sampled term by term backwards from who they are today, TTRPG style.
+- **Dossier**: the inspector seen through a character's knowledge; each fact shows its source and age and can be wrong.
 
 ## Objects
 
