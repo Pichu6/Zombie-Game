@@ -95,6 +95,9 @@ std::size_t SiteMap::cell_index(const Cell& c) const {
 Floor SiteMap::floor(const Cell& c) const { return in_bounds(c) ? floors_[cell_index(c)] : Floor::None; }
 
 std::size_t SiteMap::edge_index(const EdgeRef& e) const {
+  const bool ok = e.vertical ? (e.x >= 0 && e.x <= width_ && e.y >= 0 && e.y < height_)
+                             : (e.x >= 0 && e.x < width_ && e.y >= 0 && e.y <= height_);
+  if (!ok) throw std::out_of_range("map: edge out of range");
   const auto lv = static_cast<std::size_t>(level_index(e.z));
   if (e.vertical) return (lv * height_ + e.y) * (width_ + 1) + e.x;
   return (lv * (height_ + 1) + e.y) * width_ + e.x;

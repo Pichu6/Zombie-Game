@@ -5,6 +5,7 @@
 #include <deque>
 #include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -99,10 +100,12 @@ class Locations {
   EntityId parent_of(EntityId entity) const;  // kWorld if unknown
   bool contains(EntityId entity) const { return parent_.contains(entity); }
   const std::map<EntityId, EntityId>& all() const { return parent_; }
-  void restore(std::map<EntityId, EntityId> parents) { parent_ = std::move(parents); }
+  const std::set<EntityId>& children(EntityId parent) const;  // derived index, in id order
+  void restore(std::map<EntityId, EntityId> parents);
 
  private:
   std::map<EntityId, EntityId> parent_;
+  std::map<EntityId, std::set<EntityId>> children_;
 };
 
 }  // namespace zs

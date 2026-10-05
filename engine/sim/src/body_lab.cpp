@@ -80,7 +80,7 @@ void keep_supplied(Lab& lab, EntityId id, bool feed, bool water) {
   const Body& b = bodies.get(id);
   if (!b.alive || b.activity.asleep) return;
   if (water) {
-    const double deficit_ul = bodies.water_deficit_fraction(b) * bodies.mass_kg(b) * 1e6;
+    const double deficit_ul = bodies.water_deficit_fraction(b) * static_cast<double>(b.water_normal_ul);
     if (deficit_ul > 0) bodies.drink(*lab.world, id, lab.tap, static_cast<std::int64_t>(deficit_ul) + 1, 0);
   }
   if (feed && bodies.needs(b).hunger >= 0.3) bodies.eat(*lab.world, id, lab.pantry, 2'500'000, 0);
@@ -131,10 +131,10 @@ Result no_water_critical_day(std::uint64_t seed) {
     daily_routine(lab, id, light);
     keep_supplied(lab, id, true, false);
     advance(lab, kHour);
-    if (lab.bodies->water_deficit_fraction(lab.bodies->get(id)) >= 0.08)
+    if (lab.bodies->water_deficit_fraction(lab.bodies->get(id)) >= 0.35)
       day = static_cast<double>(lab.world->clock.tick) / kTicksPerGameDay;
   }
-  return make("no water, light work: first reaches 8 % deficit", "day 2-4 (Sawka et al. 2007; Adolph 1947)", day,
+  return make("no water, light work: loses 35 % of its water (~8.6 % of mass)", "day 2-4 (Sawka et al. 2007; Adolph 1947)", day,
               day >= 2 && day <= 4, "days");
 }
 

@@ -82,6 +82,45 @@ TEST_CASE("body lab: capabilities (A1, A3)") {
   check(lean_outruns_heavy());
 }
 
+TEST_CASE("body: without water every body dies of dehydration, fat or lean (review fix)") {
+  BodySpec woman;
+  woman.sex = Sex::Female;
+  woman.mass_kg = 62;
+  woman.height_m = 1.65;
+  woman.fat_fraction = 0.26;
+  Lab lab = make_lab(1, {BodySpec{}, woman, BodySpec{Sex::Male, 30, 1.75, 110, 1 - 54.0 / 110, 23, false}});
+  std::vector<EntityId> ids;
+  for (const auto& [id, b] : lab.bodies->all()) ids.push_back(id);
+  Activity light;
+  light.met = 2.0;
+  for (int h = 0; h < 12 * 24; ++h) {
+    for (EntityId id : ids) {
+      daily_routine(lab, id, light);
+      keep_supplied(lab, id, true, false);
+    }
+    advance(lab, kTicksPerGameHour);
+  }
+  for (EntityId id : ids) {
+    const Body& b = lab.bodies->get(id);
+    CHECK_FALSE(b.alive);
+    CHECK(b.death_cause == DeathCause::Dehydration);
+  }
+}
+
+TEST_CASE("body: a small muscle-deep cut in the thigh clots by itself (review fix)") {
+  Lab lab = make_lab(1, {BodySpec{}});
+  const EntityId id = lab.bodies->all().begin()->first;
+  Wound w;
+  w.region = Region::ThighL;
+  w.depth = Depth::Muscle;
+  w.length_mm = 20;
+  lab.bodies->add_wound(*lab.world, id, w, 0);
+  advance(lab, 3 * kTicksPerGameHour);
+  const Body& b = lab.bodies->get(id);
+  CHECK(lab.bodies->bleed_ml_per_min(b) < 0.05);  // 6 time constants: almost closed
+  CHECK(lab.bodies->blood_loss_fraction(b) < 0.05);
+}
+
 TEST_CASE("body: creation conserves the spec mass and mints only in setup") {
   Lab lab = make_lab(1, {BodySpec{}});
   const Body& b = lab.bodies->all().begin()->second;
@@ -172,7 +211,7 @@ TEST_CASE("body: golden hash (same on every compiler)") {
     script_hour(lab, h % 24);
     lab.world->run_ticks(kTicksPerGameHour);
   }
-  const std::uint64_t golden = 548785228937489870ULL;
+  const std::uint64_t golden = 8969566372112856544ULL;
   CHECK(lab.world->state_hash() == golden);
   MESSAGE("body golden hash: " << lab.world->state_hash());
 }

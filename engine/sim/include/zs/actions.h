@@ -102,7 +102,7 @@ Cell unpack_cell(std::int64_t v);
 
 enum class Reason : std::uint8_t {
   Ok, UnknownProcess, WrongTarget, Dead, Unconscious, CannotMove, CannotUseHands, NoTool, MissingItem,
-  MissingStock, NoRoute, TargetGone, InUse, Full, Interrupted, Asleep
+  MissingStock, NoRoute, TargetGone, InUse, Full, Interrupted, Asleep, TooHeavy
 };
 const char* to_string(Reason r);
 
@@ -129,6 +129,8 @@ struct Action {
   double total_s = 0;
   EntityId tool = 0;
   EntityId held = 0;      // an item extracted into the hands during the work phase (Take)
+  bool close_behind = false;  // a door opened on the way, closed after stepping through
+  EdgeRef opened{};
 };
 
 struct Actor {
@@ -198,6 +200,8 @@ class Actors : public System {
   std::vector<Cell> reach_cells(const World& w, const ProcessDef& p, const Actor& a, EntityId target) const;
   std::optional<EntityId> carried_with(const World& w, const Actor& a, Prop prop, double min) const;
   std::int64_t carried_stock(const World& w, const Actor& a, ResourceId r) const;
+  // A carried part of `family` (what a slot accepts) with prop >= 0.5, best first.
+  std::optional<EntityId> fitting_part(const World& w, const Actor& a, const std::string& family, Prop prop) const;
   double work_time(const World& w, const Actor& a, const ProcessDef& p, double tool_factor) const;
 
   void start_next(World& w, Actor& a);

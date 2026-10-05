@@ -55,13 +55,13 @@ TEST_CASE("load at day 2 and play on matches the uninterrupted run (A1)") {
 
 TEST_CASE("golden hash of the scripted demo run (A1; pinned on Linux, must match on Windows)") {
   auto w = run(1, 14 * kTicksPerGameDay);
-  CHECK(w->state_hash() == 0x1f0ffe82089cdb0eULL);
+  CHECK(w->state_hash() == 0xdb28323507a4a3aeULL);
 }
 
 TEST_CASE("every saved format version still loads (A1)") {
   // fixtures/save_vN.zsav: demo seed 1, one game day, written by zs_headless --days 1 --save
   // with the build of that format version.
-  for (const char* file : {"/save_v1.zsav", "/save_v2.zsav"}) {
+  for (const char* file : {"/save_v1.zsav", "/save_v2.zsav", "/save_v3.zsav"}) {
     CAPTURE(file);
     auto w = demo::make_world(1);
     w->load(read_file(std::string(ZS_FIXTURES_DIR) + file));

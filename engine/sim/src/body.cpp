@@ -24,7 +24,10 @@ constexpr double kKidneyTauS = 45 * 60.0;         // excess water excreted (auth
 constexpr double kBoundWaterPerGlycogen = 3.0;    // g water stored with each g glycogen (Olsson and Saltin 1970)
 constexpr double kBloodRefillLPerDay = 1.5;       // plasma refill from body water (authored, tune)
 constexpr double kDeathBloodLoss = 0.45;          // past ATLS class IV (> 40 %)
-constexpr double kDeathWaterDeficit = 0.15;       // of body mass (Adolph 1947; to check)
+// Water deficit is a share of the body's own mobile pool (like blood): for the 75 kg reference body,
+// 0.35 of the pool is ~8.6 % of body mass and 0.65 is ~16 % (Adolph 1947 lethal band; to check).
+constexpr double kCriticalWaterDeficit = 0.35;
+constexpr double kDeathWaterDeficit = 0.65;
 constexpr double kStarvationMuscleLeft = 0.6;     // lean loss beyond ~40 % is lethal (Keys 1950; Hall)
 constexpr double kSleepRiseTauH = 18.2, kSleepFallTauH = 4.2;  // Borbely (1982) two-process model
 constexpr double kWakeAtS = 0.1, kInvoluntarySleepAtS = 0.98;
@@ -77,7 +80,7 @@ bool region_moving(const Body& b, Region r) {
   if (b.activity.asleep) return false;
   if (is_leg(r)) return b.activity.speed_mps > 0;
   if (is_arm(r)) return b.activity.met >= 2.5 || b.activity.speed_mps > 2.2;
-  return false;
+  return b.activity.speed_mps > 2.2 || b.activity.met >= 5;  // trunk, neck and head
 }
 
 bool open_wound(const Wound& w) { return w.type != WoundType::Contusion && w.type != WoundType::Fracture; }
@@ -218,7 +221,8 @@ Bodies::Bodies(World& w) : world_ledger_(&w.ledger) {
   L_.glycogen_burn = l.add_conversion({L_.glycogen_mg, L_.spent_j, 1, kGlycogenJPerMg});
   L_.fat_burn = l.add_conversion({L_.fat_mg, L_.spent_j, 2, kFatJPer2mg});
   L_.muscle_burn = l.add_conversion({L_.muscle_mg, L_.spent_j, 5, kLeanJPer5mg});
-  L_.glycogen_to_muscle = l.add_conversion({L_.glycogen_mg, L_.muscle_mg, 1, 2});
+  L_.glycogen_to_muscle = l.add_conversion({L_.glycogen_mg, L_.muscle_mg, 1, 1});
+  L_.water_to_muscle = l.add_conversion({L_.water_ul, L_.muscle_mg, 1, 1});  // wet muscle is mostly water
   L_.water_to_blood = l.add_conversion({L_.water_ul, L_.blood_ul, 1, 1});
 }
 
@@ -228,13 +232,13 @@ EntityId Bodies::create(World& w, const BodySpec& spec, const std::string& label
   b.label = label;
   b.spec = spec;
   b.owner = w.ledger.add_owner("body:" + label);
-  b.vo2max = spec.vo2max;
+  b.vo2max = std::clamp(spec.vo2max, 15.0, 75.0);
   const double h = spec.height_m, m = spec.mass_kg;
   const double blood_l = spec.sex == Sex::Male ? 0.3669 * h * h * h + 0.03219 * m + 0.6041   // Nadler (1962)
                                                : 0.3561 * h * h * h + 0.03308 * m + 0.1833;
   const double fat_kg = spec.fat_fraction * m;
   const double muscle_kg = (spec.sex == Sex::Male ? 0.5 : 0.45) * (m - fat_kg);  // skeletal muscle share of FFM
-  const double water_kg = 0.2 * (m - fat_kg);  // mobile water pool, held by lean tissue (authored share)
+  const double water_kg = 0.3 * (m - fat_kg);  // mobile water pool, held by lean tissue (authored share)
   const double glycogen_kg = 0.1 + 0.012 * muscle_kg;  // liver ~100 g + ~12 g per kg muscle
   const double structure_kg = m - fat_kg - muscle_kg - water_kg - blood_l - glycogen_kg;
   if (structure_kg <= 0) throw std::invalid_argument("body spec leaves no structure mass");
@@ -277,6 +281,7 @@ EntityId Bodies::add_wound(World& w, EntityId body, Wound wound, EventId cause) 
   wound.cause = cause;
   const double days = wound.type == WoundType::Fracture ? 42 : kHealDays[static_cast<int>(wound.depth)];
   wound.heal_tick = w.clock.tick + static_cast<std::int64_t>(days * kTicksPerGameDay);
+  w.locations.place(wound.id, body);  // dressings go on the wound, so they stay with the body
   b.wounds.push_back(wound);
   w.emit(EventType::NewWound, body, cause, static_cast<std::int64_t>(wound.id), static_cast<std::int64_t>(wound.region));
   return wound.id;
@@ -334,8 +339,17 @@ double water_target_ul(const Body& b, double glycogen_mg) {
 double Bodies::water_deficit_fraction(const Body& b) const {
   const double glycogen = static_cast<double>(world_ledger_->balance(b.owner, L_.glycogen_mg));
   const double water = static_cast<double>(world_ledger_->balance(b.owner, L_.water_ul));
-  const double deficit_g = std::max(0.0, water_target_ul(b, glycogen) - water) / 1000.0;
-  return deficit_g / (mass_kg(b) * 1000.0 + deficit_g);
+  return std::max(0.0, water_target_ul(b, glycogen) - water) / static_cast<double>(b.water_normal_ul);
+}
+
+double Bodies::core_temp_c(const Body& b) const {
+  double fever = 0;  // derived from the wounds, never stored
+  for (const Wound& w : b.wounds) {
+    if (!w.infection_visible) continue;
+    if (w.infection == Infection::Spreading) fever = std::max(fever, 1.0);
+    if (w.infection == Infection::Systemic) fever = std::max(fever, 2.0);
+  }
+  return 37 + fever;
 }
 
 double Bodies::bleed_ml_per_min(const Body& b) const {
@@ -368,10 +382,10 @@ Capabilities Bodies::capabilities(const Body& b, std::int64_t now) const {
                                        : lerp_band(loss, 0.40, 0.5, kDeathBloodLoss, 0.1);
   const double sleep_f = b.spec.walker ? 1.0 : lerp_band(b.sleep_pressure, 0.6, 1.0, 1.0, 0.4);
   const double d = water_deficit_fraction(b);
-  const double water_f = d < 0.05   ? lerp_band(d, 0.02, 1.0, 0.05, 0.9)
-                         : d < 0.10 ? lerp_band(d, 0.05, 0.9, 0.10, 0.4)
-                                    : lerp_band(d, 0.10, 0.4, kDeathWaterDeficit, 0.1);
-  const double fever_f = clamp01(1 - 0.15 * std::max(0.0, b.core_temp_c - 38));
+  const double water_f = d < 0.20   ? lerp_band(d, 0.08, 1.0, 0.20, 0.9)
+                         : d < 0.40 ? lerp_band(d, 0.20, 0.9, 0.40, 0.4)
+                                    : lerp_band(d, 0.40, 0.4, kDeathWaterDeficit, 0.1);
+  const double fever_f = clamp01(1 - 0.15 * std::max(0.0, core_temp_c(b) - 38));
   const double total_pain = pain(b, now);
   double head_f = 1;
   for (const Wound& w : b.wounds)
@@ -388,7 +402,7 @@ Capabilities Bodies::capabilities(const Body& b, std::int64_t now) const {
     legs_pain_keep *= 1 - region_pain(b, r, now);
   const double awake = c.consciousness < 0.3 ? 0.0 : std::min(1.0, c.consciousness / 0.6);
   c.moving = clamp01(0.5 * (left + right) * limb_factor(b, Region::Pelvis) * (1 - 0.4 * (1 - legs_pain_keep)) *
-                     lerp_band(loss, 0.30, 1.0, kDeathBloodLoss, 0.2) * (0.5 + 0.5 * b.exertion) * awake);
+                     blood_f * (0.5 + 0.5 * b.exertion) * awake);
   auto arm = [&](Region u, Region f, Region h) {
     const double pain_keep = (1 - region_pain(b, u, now)) * (1 - region_pain(b, f, now)) * (1 - region_pain(b, h, now));
     return clamp01(limb_factor(b, u) * limb_factor(b, f) * limb_factor(b, h) * (1 - 0.5 * (1 - pain_keep)) * awake);
@@ -404,7 +418,7 @@ Needs Bodies::needs(const Body& b) const {
   const double glycogen = static_cast<double>(world_ledger_->balance(b.owner, L_.glycogen_mg));
   const double stomach = static_cast<double>(world_ledger_->balance(b.owner, L_.food_j));
   n.hunger = clamp01(0.9 - 0.9 * glycogen / static_cast<double>(b.glycogen_max_mg) - stomach / 3e6);
-  n.thirst = clamp01(water_deficit_fraction(b) / 0.05);
+  n.thirst = clamp01(water_deficit_fraction(b) / 0.2);
   n.tiredness = clamp01((b.sleep_pressure - 0.3) / 0.6);
   n.exhaustion = clamp01(1 - b.exertion);
   return n;
@@ -425,13 +439,13 @@ double age_factor(double age) { return age > 50 ? std::max(0.5, 1 - 0.005 * (age
 }  // namespace
 
 double Bodies::walk_speed(const Body& b, std::int64_t now) const {
-  const double limit = 0.9 * grams(b, L_.muscle_mg) / 1000.0;  // before the moving factor: applied once below
+  const double limit = carry_limit_kg(b, now);
   return 1.35 * dm::sqrt(b.spec.height_m / 1.75) * age_factor(b.spec.age) * capabilities(b, now).moving *
          load_factor(b.activity.carried_kg, limit);
 }
 
 double Bodies::run_speed(const Body& b, std::int64_t now) const {
-  const double limit = 0.9 * grams(b, L_.muscle_mg) / 1000.0;
+  const double limit = carry_limit_kg(b, now);
   const double fat_f = std::max(0.3, 1 - 1.2 * std::max(0.0, fat_fraction(b) - 0.15));
   return std::max(0.0, 2.5 + 0.06 * (b.vo2max - 35)) * dm::sqrt(b.spec.height_m / 1.75) * age_factor(b.spec.age) *
          fat_f * capabilities(b, now).moving * load_factor(b.activity.carried_kg, limit);
@@ -447,7 +461,7 @@ double Bodies::push_force_n(const Body& b, std::int64_t now) const {
                          : b.posture == Posture::Sit ? 0.5 : 0.2;
   const Capabilities c = capabilities(b, now);
   return (4 * mass_kg(b) + 6 * grams(b, L_.muscle_mg) / 1000.0) * posture * c.consciousness *
-         std::max(c.moving, 0.3);
+         1.0;
 }
 
 double Bodies::footstep_db(const Body& b, double speed_mps, double floor_db) const {
@@ -466,15 +480,15 @@ double Bodies::expenditure_w(const Body& b) const {
   double p;
   if (a.asleep) {
     p = 0.95 * bmr_w;
-  } else if (a.speed_mps > 2.2) {
-    p = 1.5 * m + 4.0 * (m + a.carried_kg) * a.speed_mps;  // running: ~4 J/kg/m net (authored)
   } else if (a.speed_mps > 0) {
     const double W = m, L = a.carried_kg, V = a.speed_mps, G = a.grade_pct;  // Pandolf et al. (1977), eta = 1
     p = 1.5 * W + 2.0 * (W + L) * (L / W) * (L / W) + (W + L) * (1.5 * V * V + 0.35 * V * G);
+    // Above ~2 m/s people switch to the cheaper gait: running at ~4 J/kg/m net (authored).
+    if (V >= 2.0) p = std::min(p, 1.5 * W + 4.0 * (W + L) * V + (W + L) * 0.35 * V * G);
   } else {
     p = bmr_w * std::max(1.0, a.met);
   }
-  return std::max(p, bmr_w * 0.95) + bmr_w * 0.13 * std::max(0.0, b.core_temp_c - 37);  // fever cost
+  return std::max(p, bmr_w * 0.95) + bmr_w * 0.13 * std::max(0.0, core_temp_c(b) - 37);  // fever cost
 }
 
 std::vector<std::string> Bodies::trait_labels(const Body& b) const {
@@ -547,11 +561,12 @@ void Bodies::metabolism(World& w, Body& b, double dt) {
   const double power = expenditure_w(b);
   double need_j = power * dt;
   auto burn = [&](ConversionId c, int slot, double j, double j_per_batch) {
+    const double carry_before = b.carry[slot];
     const std::int64_t want = flow(b.carry[slot], j / j_per_batch);
     const std::int64_t done = l.convert(t, b.owner, L_.metabolised, c, want, 0);
-    if (done < want) {
+    if (done < want) {  // the store ran out: pass on exactly what was not burnt
       b.carry[slot] = 0;
-      return j - static_cast<double>(done) * j_per_batch;
+      return std::max(0.0, j + (carry_before - static_cast<double>(done)) * j_per_batch);
     }
     return 0.0;
   };
@@ -584,7 +599,7 @@ void Bodies::water(World& w, Body& b, double dt) {
   l.transfer(t, b.owner, L_.excreted, L_.water_ul, flow(b.carry[kWaterLoss], loss_ul), 0);
   // Plasma refill from body water while not badly dehydrated.
   const std::int64_t blood = l.balance(b.owner, L_.blood_ul);
-  if (blood < b.blood_normal_ul && water_deficit_fraction(b) < 0.08) {
+  if (blood < b.blood_normal_ul && water_deficit_fraction(b) < kCriticalWaterDeficit) {
     const double refill = std::min(static_cast<double>(b.blood_normal_ul - blood), kBloodRefillLPerDay * 1e6 * dt / 86400.0);
     l.convert(t, b.owner, b.owner, L_.water_to_blood, flow(b.carry[kRefill], refill), 0);
   }
@@ -622,11 +637,12 @@ void Bodies::sleep_and_exertion(World& w, Body& b, double dt) {
 
 void Bodies::wounds_step(World& w, Body& b, double dt) {
   const std::int64_t now = w.clock.tick;
-  double fever = 0;
   for (Wound& wd : b.wounds) {
     // Clotting: grows toward its cap at rest, breaks down while the region moves.
     const RegionInfo& ri = kRegions[static_cast<int>(wd.region)];
-    const double cap = (wd.depth >= Depth::Muscle && ri.vessel_weight >= 1.4 && !wd.dressed) ? 0.6 : 1.0;
+    // Only a deep wound in a high-vessel region keeps bleeding without a dressing; longer ones more.
+    const double cap = (wd.depth == Depth::Deep && ri.vessel_weight >= 1.4 && !wd.dressed)
+                           ? 1 - 0.4 * std::min(1.0, wd.length_mm / 80.0) : 1.0;
     if (region_moving(b, wd.region)) wd.clot *= 0.8;
     else wd.clot += (cap - wd.clot) * (1 - dm::exp(-dt / 60.0 / kClotTauMin[static_cast<int>(wd.depth)]));
     if (wd.clot > cap - 1e-3) wd.clot = cap;  // settled: a fully clotted wound stops bleeding exactly
@@ -649,9 +665,13 @@ void Bodies::wounds_step(World& w, Body& b, double dt) {
       } else {
         // Exit set per stage: {resolve, get worse}, per day (authored, tune).
         const double day = 86400.0;
-        const double rates_by_stage[3][2] = {{0.25, 0.35}, {0.10, 0.35}, {0.05, 0.5}};
+        // Most local infections resolve; cleaning and a dressing still slow a local one (spec 12 rule 4).
+        const double rates_by_stage[3][2] = {{0.4, 0.2}, {0.2, 0.25}, {0.05, 0.5}};
         const auto* r = rates_by_stage[static_cast<int>(wd.infection) - 1];
-        const double rates[2] = {r[0] / day, r[1] / day};
+        double worse = r[1];
+        if (wd.infection == Infection::Local)
+          worse *= (wd.cleaned == Cleaned::No ? 1.0 : 0.5) * (wd.dressed ? 0.7 : 1.0);
+        const double rates[2] = {r[0] / day, worse / day};
         if (auto hit = resolve_exit_set(w.rng, wd.id, rates, dt)) {
           if (*hit == 0) {
             wd.infection = Infection::Resolved;
@@ -666,12 +686,9 @@ void Bodies::wounds_step(World& w, Body& b, double dt) {
           }
         }
       }
-      if (wd.infection == Infection::Spreading) fever = std::max(fever, 1.0);
-      if (wd.infection == Infection::Systemic) fever = std::max(fever, 2.0);
       if (wd.infection != Infection::Resolved) wd.heal_tick += kBodyStepTicks;  // no healing while infected
     }
   }
-  b.core_temp_c = 37 + fever;
   // Healing: closed and gone.
   for (std::size_t i = 0; i < b.wounds.size();) {
     if (now >= b.wounds[i].heal_tick) {
@@ -692,9 +709,10 @@ void Bodies::daily_drift(World& w, Body& b) {
   b.vo2max = std::clamp(b.vo2max, 15.0, 75.0);
   const std::int64_t muscle = l.balance(b.owner, L_.muscle_mg);
   if (b.heavy_minutes_today >= 30) {
-    l.convert(t, b.owner, b.owner, L_.glycogen_to_muscle, muscle / 2000, 0);  // +0.1 %/day
+    const std::int64_t gain = l.convert(t, b.owner, b.owner, L_.glycogen_to_muscle, muscle / 2000, 0);  // +0.1 %/day
+    l.convert(t, b.owner, b.owner, L_.water_to_muscle, gain, 0);
   } else if (b.active_minutes_today < 20) {
-    l.convert(t, b.owner, L_.metabolised, L_.muscle_burn, muscle / 1000 / 5, 0);  // disuse -0.1 %/day
+    l.convert(t, b.owner, L_.metabolised, L_.muscle_burn, muscle / 2000 / 5, 0);  // disuse -0.05 %/day
   }
   b.active_minutes_today = 0;
   b.heavy_minutes_today = 0;
@@ -705,7 +723,8 @@ void Bodies::check_death(World& w, Body& b, EventId cause) {
   if (blood_loss_fraction(b) >= kDeathBloodLoss) die(w, b, DeathCause::Exsanguination, cause);
   else if (water_deficit_fraction(b) >= kDeathWaterDeficit) die(w, b, DeathCause::Dehydration, cause);
   else if (static_cast<double>(w.ledger.balance(b.owner, L_.muscle_mg)) <
-           kStarvationMuscleLeft * static_cast<double>(b.muscle_start_mg))
+               kStarvationMuscleLeft * static_cast<double>(b.muscle_start_mg) &&
+           fat_fraction(b) < 0.03)  // starvation is lean loss with the fat store gone
     die(w, b, DeathCause::Starvation, cause);
 }
 
@@ -732,7 +751,7 @@ void Bodies::save(ArchiveWriter& a) const {
     a.f64(b.activity.grade_pct);
     a.f64(b.activity.carried_kg);
     a.boolean(b.activity.asleep);
-    for (double v : {b.sleep_pressure, b.exertion, b.vo2max, b.core_temp_c, b.fear, b.morale,
+    for (double v : {b.sleep_pressure, b.exertion, b.vo2max, b.fear, b.morale,
                      b.active_minutes_today, b.heavy_minutes_today})
       a.f64(v);
     for (double c : b.carry) a.f64(c);
@@ -754,7 +773,7 @@ void Bodies::load(ArchiveReader& a) {
     b.activity.grade_pct = a.f64();
     b.activity.carried_kg = a.f64();
     b.activity.asleep = a.boolean();
-    for (double* v : {&b.sleep_pressure, &b.exertion, &b.vo2max, &b.core_temp_c, &b.fear, &b.morale,
+    for (double* v : {&b.sleep_pressure, &b.exertion, &b.vo2max, &b.fear, &b.morale,
                       &b.active_minutes_today, &b.heavy_minutes_today})
       *v = a.f64();
     for (double& c : b.carry) c = a.f64();

@@ -48,9 +48,7 @@ bool Assemblies::mount(World& w, EntityId parent, std::size_t slot, EntityId par
   const SlotDef& s = defs_.at(p.def).slots.at(slot);
   if (p.slots[slot] != 0) return false;
   if (defs_.at(instances_.at(part).def).family != s.accepts) return false;
-  for (const auto& [id, inst] : instances_)
-    for (EntityId mounted : inst.slots)
-      if (mounted == part) return false;  // already mounted somewhere
+  if (instances_.contains(w.locations.parent_of(part))) return false;  // already mounted somewhere
   if (!w.locations.place(part, parent)) return false;
   p.slots[slot] = part;
   return true;

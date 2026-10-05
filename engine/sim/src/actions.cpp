@@ -114,6 +114,7 @@ const char* to_string(Reason r) {
     case Reason::Full: return "no room";
     case Reason::Interrupted: return "interrupted";
     case Reason::Asleep: return "asleep";
+    case Reason::TooHeavy: return "too heavy to carry";
   }
   return "?";
 }
@@ -281,8 +282,8 @@ std::optional<Cell> Actors::cell_of(const World& w, EntityId e) const {
 
 std::vector<EntityId> Actors::carried(const World& w, EntityId body) const {
   std::vector<EntityId> out;
-  for (const auto& [e, parent] : w.locations.all())
-    if (parent == body && items_.exists(e)) out.push_back(e);
+  for (EntityId e : w.locations.children(body))
+    if (items_.exists(e)) out.push_back(e);
   return out;
 }
 
@@ -313,6 +314,20 @@ std::optional<EntityId> Actors::carried_with(const World& w, const Actor& a, Pro
   return best;
 }
 
+std::optional<EntityId> Actors::fitting_part(const World& w, const Actor& a, const std::string& family, Prop prop) const {
+  std::optional<EntityId> best;
+  double best_v = 0;
+  for (EntityId e : carried(w, a.body)) {
+    if (items_.def(items_.get(e).def).family != family) continue;  // the slot decides what fits
+    const double v = items_.prop(e, prop);
+    if (v >= 0.5 && (!best || v > best_v)) {
+      best = e;
+      best_v = v;
+    }
+  }
+  return best;
+}
+
 std::int64_t Actors::carried_stock(const World& w, const Actor& a, ResourceId r) const {
   std::int64_t total = 0;
   for (EntityId e : carried(w, a.body))
@@ -335,8 +350,9 @@ bool Actors::target_matches(const World& w, const ProcessDef& p, const Actor& a,
     case TargetKind::Item: {
       if (!items_.exists(target)) return false;
       if (!p.target_match.empty() && items_.def(items_.get(target).def).family != p.target_match) return false;
+      // Loose = lying on a floor or at a map object; not mounted, not built into the map, not in hands.
       const EntityId parent = w.locations.parent_of(target);
-      return !items_.exists(parent);  // loose, not mounted in something
+      return floor_cell(parent).has_value() || object_index_.contains(parent);
     }
     case TargetKind::Edge: {
       auto it = edge_of_.find(target);
@@ -404,6 +420,7 @@ Actors::Found Actors::check(const World& w, const Actor& a, const ProcessDef& p,
   }
   for (const UseNeed& u : p.uses)
     if (!u.optional && !carried_with(w, a, u.prop, u.min)) return {Reason::MissingItem};
+  if (p.primitive == Primitive::Sleep && b.activity.asleep) return {Reason::Asleep};
   for (const StockNeed& s : p.stocks) {
     const auto r = resource_id(w.ledger, s.resource);
     if (!r) return {Reason::MissingStock};
@@ -416,8 +433,11 @@ Actors::Found Actors::check(const World& w, const Actor& a, const ProcessDef& p,
     if (have < s.amount) return {Reason::MissingStock};
   }
   for (const Effect& e : p.effects) {
-    if (e.op == EffectOp::Take && w.locations.parent_of(target) == a.body) return {Reason::WrongTarget};
+    if (e.op == EffectOp::Take &&
+        a.carried_kg + static_cast<double>(items_.mass_g(target)) / 1000.0 > bodies_.carry_limit_kg(b, w.clock.tick))
+      return {Reason::TooHeavy};
     if (e.op == EffectOp::Board) {
+      if (!fitting_part(w, a, "plank", Prop::FlatBoard)) return {Reason::MissingItem};
       const Edge& ed = map_.edge(edge_of_.at(target));
       if (ed.barricade != 0) {
         bool room = false;
@@ -426,7 +446,7 @@ Actors::Found Actors::check(const World& w, const Actor& a, const ProcessDef& p,
         for (std::size_t i = 0; i < d.slots.size(); ++i)
           if (d.slots[i].accepts == "plank" && bar.slots[i] == 0) room = true;
         if (!room) return {Reason::Full};
-      } else if (!carried_with(w, a, Prop::Fastener, 0.5)) {
+      } else if (!fitting_part(w, a, "fasteners", Prop::Fastener)) {
         return {Reason::MissingItem};  // the first board needs nails
       }
     }
@@ -506,7 +526,10 @@ void Actors::start(World& w, Actor& a, const Command& c, EventId cause) {
     return;
   }
   const auto pi = static_cast<std::size_t>(c.a);
-  if (pi >= processes_.size()) return;
+  if (pi >= processes_.size()) {
+    w.emit(EventType::ActionRefused, a.body, cause, c.a, static_cast<std::int64_t>(Reason::UnknownProcess));
+    return;
+  }
   const ProcessDef& p = processes_[pi];
   const auto target = static_cast<EntityId>(c.b);
   const Found f = check(w, a, p, target);
@@ -632,7 +655,7 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
       const EdgeRef ref = edge_of_.at(target);
       EntityId bar = map_.edge(ref).barricade;
       if (bar == 0) {
-        bar = items_.create(w, *items_.find_def("barricade"), 50, floor_at(Cell{ref.z, ref.x, ref.y}));
+        bar = items_.create(w, *items_.find_def("barricade"), 50, target);  // part of the opening, not loose
         map_.set_barricade(ref, bar);
       }
       const ItemDef& d = items_.def(items_.get(bar).def);
@@ -640,8 +663,8 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
       for (std::size_t i = 0; i < d.slots.size(); ++i) {
         if (items_.get(bar).slots[i] != 0) continue;
         const Prop need = d.slots[i].accepts == "plank" ? Prop::FlatBoard : Prop::Fastener;
-        if (auto item = carried_with(w, a, need, 0.5)) {
-          items_.mount(w, bar, i, *item);
+        if (auto item = fitting_part(w, a, d.slots[i].accepts, need)) {
+          if (!items_.mount(w, bar, i, *item)) throw std::logic_error("barricade: checked part did not fit");
           if (need == Prop::FlatBoard) break;  // one board per action
         }
       }
@@ -690,8 +713,10 @@ void Actors::step_move(World& w, Actor& a) {
       return;
     }
     if (!ed.open && !ed.breached && ed.kind != EdgeKind::None) {
-      map_.set_open(e, true);  // closed, unlocked door: open it on the way
+      map_.set_open(e, true);  // closed, unlocked door: open it on the way, close it behind
       act.door_wait_s = 2.0;   // estimate
+      act.close_behind = true;
+      act.opened = e;
       return;
     }
   }
@@ -702,6 +727,10 @@ void Actors::step_move(World& w, Actor& a) {
     act.step_m -= length;
     a.pos = next;
     ++act.path_next;
+    if (act.close_behind) {
+      map_.set_open(act.opened, false);
+      act.close_behind = false;
+    }
   }
 }
 
@@ -738,6 +767,7 @@ void Actors::update(World& w) {
       a.queue.clear();
       continue;
     }
+    if (w.clock.is_body_step()) recompute_carried(w, a);  // catches moves made outside the executor
     if (a.action.phase == Phase::Idle) start_next(w, a);
     Action& act = a.action;
     if (act.phase != Phase::Idle) {
@@ -760,7 +790,7 @@ void Actors::update(World& w) {
         if (p->primitive == Primitive::Sleep) {
           if (!b.activity.asleep) finish(w, a);
         } else {
-          if (act.held == 0 && act.progress_s == 0)
+          if (act.held == 0 && w.locations.parent_of(act.target) != a.body)
             for (const Effect& e : p->effects)
               if (e.op == EffectOp::Take) {  // extract into the hands: from here on it is held
                 w.locations.place(act.target, a.body);
@@ -814,6 +844,8 @@ void Actors::save(ArchiveWriter& w) const {
     w.f64(act.total_s);
     w.u64(act.tool);
     w.u64(act.held);
+    w.boolean(act.close_behind);
+    w.i64(act.opened.z); w.i64(act.opened.x); w.i64(act.opened.y); w.boolean(act.opened.vertical);
     w.u64(a.queue.size());
     for (const auto& [c, cause] : a.queue) {
       w.i64(c.tick); w.u16(c.type); w.u64(c.subject); w.i64(c.a); w.i64(c.b); w.u64(cause);
@@ -848,6 +880,11 @@ void Actors::load(ArchiveReader& r) {
     act.total_s = r.f64();
     act.tool = r.u64();
     act.held = r.u64();
+    act.close_behind = r.boolean();
+    act.opened.z = static_cast<int>(r.i64());
+    act.opened.x = static_cast<int>(r.i64());
+    act.opened.y = static_cast<int>(r.i64());
+    act.opened.vertical = r.boolean();
     a.action = act;
     a.queue.clear();
     for (std::uint64_t n = r.u64(); n > 0; --n) {

@@ -79,6 +79,8 @@ void World::save_state(ArchiveWriter& w, bool with_input_log) const {
     w.u64(input_log_.size());
     for (const Command& c : input_log_) { w.i64(c.tick); w.u16(c.type); w.u64(c.subject); w.i64(c.a); w.i64(c.b); }
   }
+  w.u64(pending_.size());  // v3: submitted, applied on the next step
+  for (const Command& c : pending_) { w.i64(c.tick); w.u16(c.type); w.u64(c.subject); w.i64(c.a); w.i64(c.b); }
   w.u64(systems_.size());
   for (const auto& s : systems_) { w.str(s->name()); s->save(w); }
 }
@@ -121,6 +123,10 @@ void World::load_state(ArchiveReader& r, std::uint32_t version) {
   input_log_.resize(r.u64());
   for (Command& c : input_log_) { c.tick = r.i64(); c.type = r.u16(); c.subject = r.u64(); c.a = r.i64(); c.b = r.i64(); }
   pending_.clear();
+  if (version >= 3) {
+    pending_.resize(r.u64());
+    for (Command& c : pending_) { c.tick = r.i64(); c.type = r.u16(); c.subject = r.u64(); c.a = r.i64(); c.b = r.i64(); }
+  }
   emitted_.clear();
   if (r.u64() != systems_.size()) throw std::runtime_error("save: system list differs");
   for (auto& s : systems_) {

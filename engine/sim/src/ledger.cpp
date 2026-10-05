@@ -103,8 +103,22 @@ bool Locations::place(EntityId entity, EntityId parent) {
   if (entity == kWorld) return false;
   for (EntityId p = parent; p != kWorld; p = parent_of(p))
     if (p == entity) return false;  // would create a cycle
+  if (auto it = parent_.find(entity); it != parent_.end()) children_[it->second].erase(entity);
   parent_[entity] = parent;
+  children_[parent].insert(entity);
   return true;
+}
+
+const std::set<EntityId>& Locations::children(EntityId parent) const {
+  static const std::set<EntityId> kNone;
+  auto it = children_.find(parent);
+  return it == children_.end() ? kNone : it->second;
+}
+
+void Locations::restore(std::map<EntityId, EntityId> parents) {
+  parent_ = std::move(parents);
+  children_.clear();
+  for (const auto& [e, p] : parent_) children_[p].insert(e);
 }
 
 EntityId Locations::parent_of(EntityId entity) const {

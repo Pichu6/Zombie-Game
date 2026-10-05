@@ -213,7 +213,39 @@ TEST_CASE("stage 4: arriving is not working; save mid-action and load replays to
 
 TEST_CASE("stage 4: golden hash of the scripted pop (same on every compiler)") {
   Tier0 t = run_script(false);
-  const std::uint64_t golden = 8020709326137939862ULL;
+  const std::uint64_t golden = 13013449480267047549ULL;
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 4 golden world hash: " << t.world->world_hash());
+}
+
+TEST_CASE("stage 4 review: walls, windows and built barricades can't be picked up") {
+  Tier0 t = run_script(false);
+  const std::size_t take = *t.actors->find_process("take");
+  for (const auto& [id, ref] : t.actors->edges()) {
+    CHECK(t.actors->preview(*t.world, t.player, take, id).reason == Reason::WrongTarget);
+    if (const EntityId bar = t.map->edge(ref).barricade)
+      CHECK(t.actors->preview(*t.world, t.player, take, bar).reason == Reason::WrongTarget);
+  }
+}
+
+TEST_CASE("stage 4 review: a command submitted before a save survives the load") {
+  Tier0 a = make_world(1);
+  a.world->submit(use(a, "take", item_of(a, "hammer")));
+  const auto bytes = a.world->save();
+  Tier0 b = make_world(1);
+  b.world->load(bytes);
+  a.world->run_ticks(3000);
+  b.world->run_ticks(3000);
+  CHECK(a.world->locations.parent_of(item_of(a, "hammer")) == a.player);
+  CHECK(b.world->state_hash() == a.world->state_hash());
+}
+
+TEST_CASE("stage 4 review: doors opened on the way are closed behind") {
+  Tier0 t = run_script(false);
+  int open_doors = 0;
+  for (const auto& [id, ref] : t.actors->edges()) {
+    const Edge& ed = t.map->edge(ref);
+    open_doors += (ed.kind == EdgeKind::DoorInterior || ed.kind == EdgeKind::DoorExterior) && ed.open;
+  }
+  CHECK(open_doors == 0);
 }

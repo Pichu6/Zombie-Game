@@ -35,7 +35,7 @@ struct Result {
 
 Result total_fast_14d(std::uint64_t seed = 1);         // kg lost, 4-8
 Result semi_starvation_14d(std::uint64_t seed = 1);    // kg lost at ~1600 kcal/day, 1.5-4.5
-Result no_water_critical_day(std::uint64_t seed = 1);  // first day at >= 8 % deficit, 2-4
+Result no_water_critical_day(std::uint64_t seed = 1);  // first day at >= 35 % water deficit, 2-4
 Result thigh_bleed_untreated(std::uint64_t seed = 1);  // hours to death, 1-8
 Result thigh_bleed_dressed(std::uint64_t seed = 1);    // blood lost fraction after 24 h, survives (< 0.45)
 Result infection_rate(Cleaned how, std::uint64_t seed = 1);  // share of 100 lacerations infected in 7 days

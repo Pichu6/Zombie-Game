@@ -98,7 +98,6 @@ struct Body {
   double sleep_pressure = 0.2;  // S, 0-1
   double exertion = 1;          // short-term reserve, 0-1
   double vo2max = 42;
-  double core_temp_c = 37;
   double fear = 0, morale = 0.7;
   double active_minutes_today = 0;  // minutes at >= 2.5 MET
   double heavy_minutes_today = 0;   // training stimulus (one value, whole body, in Tier 0)
@@ -111,7 +110,7 @@ struct BodyLedger {
   ResourceId fat_mg, muscle_mg, structure_mg, glycogen_mg, water_ul, blood_ul, food_j, spent_j;
   OwnerId metabolised, excreted, blood_lost;
   ConversionId food_to_glycogen, food_to_fat, glycogen_burn, fat_burn, muscle_burn, glycogen_to_muscle,
-      water_to_blood;
+      water_to_muscle, water_to_blood;
 };
 
 struct Capabilities {
@@ -156,7 +155,8 @@ class Bodies : public System {
   double region_pain(const Body& b, Region r, std::int64_t now) const;
   double pain(const Body& b, std::int64_t now) const;
   double blood_loss_fraction(const Body& b) const;
-  double water_deficit_fraction(const Body& b) const;  // of body mass
+  double water_deficit_fraction(const Body& b) const;  // share of the body's normal mobile water
+  double core_temp_c(const Body& b) const;             // 37 C plus fever from infected wounds
   double bleed_ml_per_min(const Body& b) const;
   Capabilities capabilities(const Body& b, std::int64_t now) const;
   Needs needs(const Body& b) const;
