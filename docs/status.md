@@ -1,31 +1,31 @@
-# Estado
+# Status
 
-Actualizado: 2026-10-05.
+Updated: 2026-10-05.
 
-## Qué hay que hacer
+## What we're building
 
-Construir un primer corte vertical jugable sobre el motor propio (Propuesta, ver [visión](vision.md)):
+A first playable vertical slice on our own engine (Proposal, see [vision](vision.md)):
 
-1. Volar un poste y que la manzana quede a oscuras.
-2. Tirar una granada en el cuarto de bombas del sótano y que el agua llegue al piso de abajo por la escalera.
-3. Reparar el poste con una pieza fabricada cuya calidad decide cuánto dura.
-4. Un personaje con cuerpo que cambia de forma, ropa que lo sigue y las dos cámaras.
+1. Blow up a pole and the block goes dark.
+2. Throw a grenade into the basement pump room and the water reaches the floor below down the stairs.
+3. Repair the pole with a crafted part whose quality decides how long it lasts.
+4. One character whose body changes shape, clothing that follows it, and both cameras.
 
-## Dónde estamos
+## Where we are
 
-- **Hay:** documentación de diseño destilada del prototipo, decisiones registradas y la investigación de ropa con herramientas probadas en un cuerpo sintético.
-- **No hay:** código del motor. El repositorio todavía no está en GitHub (cuenta del usuario bloqueada por 2FA); el historial está en git local.
+- **Have:** design docs distilled from the prototype, recorded decisions, and the clothing research with tools tested on a synthetic body.
+- **Don't have:** any engine code. The repo is not on GitHub yet (the user's account is locked by a 2FA issue); history is in local git.
 
-## Siguiente paso
+## Next step
 
-1. El usuario confirma o corrige las decisiones marcadas para revalidar y responde las preguntas abiertas de la [visión](vision.md), sobre todo cuál es el sistema héroe.
-2. Arrancar el núcleo de simulación sin ventana, con una vista de depuración 2D: red eléctrica por grafo y grafo de salas para el agua.
-3. Subir el repositorio a GitHub cuando la cuenta vuelva.
+1. The user confirms or corrects the decisions marked for revalidation, and answers the open questions in the [vision](vision.md), above all which system is the hero.
+2. Start the simulation core without a window, with a 2D debug view: a graph-based power grid and a room graph for water.
+3. Push the repo to GitHub once the account is back.
 
-## Pendiente de decisión del usuario
+## Waiting on the user
 
-- Stack del motor ([0002](decisions/0002-stack-motor.md)).
-- Ropa por wrap en GPU y si la ropa ceñida oculta la piel ([0003](decisions/0003-ropa-wrap.md)).
-- Fórmula de calidad ([0006](decisions/0006-crafteo-calidad.md)).
-- Si "todo en las redes se puede reparar o construir desde cero" es una regla confirmada ([infraestructura](design/infraestructura.md)).
-- Zombis lentos con incubación larga o rápidos ([amenazas](design/amenazas.md)).
+- Engine stack ([0002](decisions/0002-engine-stack.md)).
+- Clothing via GPU wrap, and whether tight clothing hides the skin under it ([0003](decisions/0003-clothing-wrap.md)).
+- Quality formula ([0006](decisions/0006-crafting-quality.md)).
+- Whether "everything in the grids can be repaired or built from scratch" is a confirmed rule ([infrastructure](design/infrastructure.md)).
+- Slow zombies with a long incubation, or fast ones ([threats](design/threats.md)).

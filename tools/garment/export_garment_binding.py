@@ -1,21 +1,21 @@
-"""Exporta el "binding" de prendas al cuerpo para el motor propio (Blender 4.x / 5.x).
+"""Exports the garment-to-body "binding" for our own engine (Blender 4.x / 5.x).
 
-Blender sólo se usa como herramienta de autoría. El motor no lee shape keys de
-la ropa: lee este binding y, cada frame, coloca cada vértice de la prenda sobre
-el cuerpo ya deformado (morphs + esqueleto). Ver wrap_reference.py.
+Blender is only an authoring tool here. The engine does not read garment shape
+keys: it reads this binding and, every frame, places each garment vertex on the
+already deformed body (morphs + skeleton). See wrap_reference.py.
 
-Uso:
-  blender escena.blend --background --factory-startup --python export_garment_binding.py -- \
+Usage:
+  blender scene.blend --background --factory-startup --python export_garment_binding.py -- \
       --body Body --collection Garments --out-dir export/
 
-Grupos de vértices opcionales en cada prenda:
-  fit_follow  0..1  cuánto sigue la forma del cuerpo (1 = ceñido; ~0.5 = holgado).
-  fit_rigid   >0.5  islas que se mueven como pieza rígida (hebillas, bolsillos,
-                    armazón de mochila, suela). Comparten el ancla de su centro.
+Optional vertex groups on each garment:
+  fit_follow  0..1  how much it follows body shape (1 = tight; ~0.5 = loose).
+  fit_rigid   >0.5  islands that move as one rigid piece (buckles, pockets,
+                    backpack frame, sole). They share the anchor at their centre.
 
-Salida por prenda: <nombre>.bind.json (cabecera) + <nombre>.bind.bin (little-endian,
-arrays consecutivos en el orden de "layout"). También body.tris.bin con los
-triángulos del cuerpo en el orden que usan los tri_id.
+Output per garment: <name>.bind.json (header) + <name>.bind.bin (little-endian,
+consecutive arrays in "layout" order). Also body.tris.bin with the body's
+triangles in the order tri_id refers to.
 """
 import argparse
 import json
@@ -41,7 +41,7 @@ def parse_args():
 
 
 class BodySurface:
-    """Cuerpo en reposo (todas las keys a 0), triangulado, en espacio mundo."""
+    """Body at rest (all keys at 0), triangulated, in world space."""
 
     def __init__(self, body):
         if body.data.shape_keys:
@@ -62,7 +62,7 @@ class BodySurface:
         self.bvh = BVHTree.FromPolygons(self.verts, self.tris)
 
     def frame(self, tri, bary):
-        """Punto y base (T, B, N) suave sobre el triángulo. Igual en el motor."""
+        """Point and smooth (T, B, N) frame on the triangle. Same maths as the engine."""
         a, b, c = (self.verts[i] for i in self.tris[tri])
         na, nb, nc = (self.normals[i] for i in self.tris[tri])
         u, v = bary
@@ -83,7 +83,7 @@ class BodySurface:
 def vertex_normals(verts, tris):
     acc = [Vector() for _ in verts]
     for i, j, k in tris:
-        n = (verts[j] - verts[i]).cross(verts[k] - verts[i])  # ponderado por área
+        n = (verts[j] - verts[i]).cross(verts[k] - verts[i])  # area-weighted
         for idx in (i, j, k):
             acc[idx] += n
     return [n.normalized() for n in acc]
@@ -130,9 +130,9 @@ def bind_garment(garment, body):
     n = len(verts)
     follow = group_weights(garment, "fit_follow", 1.0)
     islands = rigid_islands(garment, group_weights(garment, "fit_rigid", 0.0))
-    anchor = list(range(n))  # cada vértice se ancla a su propio punto...
+    anchor = list(range(n))  # each vertex anchors to its own point...
     island_of = [NO_ISLAND] * n
-    for k, island in enumerate(islands):  # ...salvo las islas rígidas: ancla común
+    for k, island in enumerate(islands):  # ...except rigid islands, which share one anchor
         centre = sum((verts[i] for i in island), Vector()) / len(island)
         nearest = min(island, key=lambda i: (verts[i] - centre).length)
         for i in island:
@@ -155,7 +155,7 @@ def bind_garment(garment, body):
         uvs = body.tri_uvs[tri]
         uv = uvs[0] * (1 - u - v) + uvs[1] * u + uvs[2] * v
         body_uv += [uv.x, uv.y]
-        # Pesos de hueso: interpolados del cuerpo, top 4, normalizados.
+        # Bone weights: interpolated from the body, top 4, normalised.
         acc = {}
         for corner, wc in zip(body.tris[tri], (1 - u - v, u, v)):
             for g, w in body.weights[corner]:

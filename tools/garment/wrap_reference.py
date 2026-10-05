@@ -1,8 +1,8 @@
-"""Referencia en CPU (numpy) del paso "wrap" del motor.
+"""CPU (numpy) reference of the engine's "wrap" pass.
 
-Es la especificación ejecutable del compute shader: mismo cálculo, un vértice
-de prenda por hilo. Entrada: cuerpo ya deformado (morphs + esqueleto) y el
-binding exportado por export_garment_binding.py. Salida: posiciones de la prenda.
+This is the executable spec of the compute shader: same maths, one garment
+vertex per thread. Input: the deformed body (morphs + skeleton) and the binding
+exported by export_garment_binding.py. Output: garment positions.
 """
 import json
 
@@ -29,7 +29,7 @@ def load_binding(base):
 
 def vertex_normals(verts, tris):
     a, b, c = verts[tris[:, 0]], verts[tris[:, 1]], verts[tris[:, 2]]
-    face = np.cross(b - a, c - a)  # ponderado por área, igual que el exportador
+    face = np.cross(b - a, c - a)  # area-weighted, same as the exporter
     acc = np.zeros_like(verts)
     for k in range(3):
         np.add.at(acc, tris[:, k], face)
@@ -37,8 +37,8 @@ def vertex_normals(verts, tris):
 
 
 def wrap(body_verts, body_tris, bind, skinned_only=None, min_gap=0.004):
-    """body_verts: (V,3) cuerpo deformado este frame. body_tris: (T,3).
-    skinned_only: (N,3) prenda deformada sólo por huesos (para follow<1), opcional."""
+    """body_verts: (V,3) body deformed this frame. body_tris: (T,3).
+    skinned_only: (N,3) garment deformed by bones only (for follow<1), optional."""
     normals = vertex_normals(body_verts, body_tris)
     tri = body_tris[bind["tri_id"]]
     u, v = bind["bary"][:, :1], bind["bary"][:, 1:]
@@ -53,7 +53,7 @@ def wrap(body_verts, body_tris, bind, skinned_only=None, min_gap=0.004):
     bt = np.cross(n, t)
     off = bind["offset_tbn"].copy()
     rigid = bind["island"] != 0xFFFFFFFF
-    # Holgura mínima: la tela nunca baja de min_gap sobre su punto de anclaje.
+    # Minimum gap: cloth never goes below min_gap above its anchor point.
     off[~rigid, 2] = np.maximum(off[~rigid, 2], min_gap)
     wrapped = p + t * off[:, :1] + bt * off[:, 1:2] + n * off[:, 2:3]
     if skinned_only is None:

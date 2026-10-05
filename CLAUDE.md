@@ -1,39 +1,42 @@
 # Juego Zombie
 
-Simulador de supervivencia zombi realista para PC, sobre un motor propio en C++ con renderer Vulkan. La apuesta es la simulación profunda: redes de energía y agua, fluidos por habitaciones, cuerpo humano por capas y crafteo con calidad estilo Haven & Hearth. El mismo personaje se juega en tercera persona y en vista isométrica.
+A realistic zombie survival simulation for PC, on our own C++ engine with a Vulkan renderer. The bet is deep simulation: power and water grids, room-by-room fluids, a layered human body, and Haven & Hearth-style crafting with quality. The same character is played in third person and in isometric view.
 
-## Antes de trabajar
+## Language
 
-1. Leer `docs/status.md` (dónde estamos) y `docs/vision.md` (qué es el juego).
-2. Leer el documento del sistema que se toca en `docs/design/` y las decisiones relacionadas en `docs/decisions/`.
-3. Las instrucciones actuales del usuario mandan sobre cualquier documento.
+**Everything in this repo is in English:** docs, code, comments, commit messages, and the game's own text. The user may write in Spanish in chat; answer in the language they write in, but keep the repo in English.
 
-## Dónde vive cada cosa
+## Before you work
 
-| Qué | Dónde | Regla |
+1. Read `docs/status.md` (where we are) and `docs/vision.md` (what the game is).
+2. Read the design doc for the system you touch in `docs/design/`, and its decisions in `docs/decisions/`.
+3. The user's current instructions override any document.
+
+## Where things live
+
+| What | Where | Rule |
 | --- | --- | --- |
-| Estado actual y siguiente paso | `docs/status.md` | Una pantalla. Se reescribe, no se acumula. |
-| Visión del juego | `docs/vision.md` | Una página. |
-| Diseño por sistema | `docs/design/<sistema>.md` | Una fuente de verdad por sistema. |
-| Decisiones | `docs/decisions/NNNN-tema.md` | Una por archivo, con fecha. No se reescriben; una decisión nueva reemplaza a otra y lo dice. |
-| Investigación | `docs/research/` | Notas fechadas; no son decisiones. |
-| Lecciones del prototipo | `docs/lessons/` | Qué falló y por qué. |
-| Términos | `docs/glosario.md` | |
+| Current state and next step | `docs/status.md` | One screen. Rewrite it; don't append. |
+| Game vision | `docs/vision.md` | One page. |
+| Design per system | `docs/design/<system>.md` | One source of truth per system. |
+| Decisions | `docs/decisions/NNNN-topic.md` | One per file, dated. Never rewritten; a new decision supersedes an old one and says so. |
+| Research | `docs/research/` | Dated notes; not decisions. |
+| Prototype lessons | `docs/lessons/` | What failed and why. |
+| Terms | `docs/glossary.md` | |
 
-## Reglas de trabajo
+## Working rules
 
-- **Distinguir siempre:** *Decidido* (lo confirmó el usuario), *Propuesta* (idea sin confirmar), *Implementado* (existe en código) y *Validado* (probado, con evidencia). Un test que pasa no es una validación visual.
-- **El núcleo de simulación no depende del renderer.** Es una biblioteca C++ que corre y se prueba sin ventana. Renderer, cámaras y UI leen su estado y le mandan comandos.
-- **Escribir sólo lo que hace distinto a este juego.** Para lo demás, usar bibliotecas probadas (ver `docs/decisions/0002-stack-motor.md`).
-- **Toda tarea de motor responde a un escenario del vertical slice** (`docs/status.md`). Si ninguno la necesita, espera.
-- Archivos chicos y con una sola responsabilidad, por diseño y no por un límite de líneas.
-- No gastar créditos de servicios pagos ni hacer acciones externas sin pedirlo.
-- El usuario escribe en español e inglés; responder en el idioma en que escribe.
+- **Always distinguish** *Decided* (the user confirmed it), *Proposal* (not confirmed), *Implemented* (exists in code) and *Validated* (tested, with evidence). A passing test is not a visual validation.
+- **The simulation core does not depend on the renderer.** It is a C++ library that runs and is tested without a window. Renderer, cameras and UI read its state and send it commands.
+- **Write only what makes this game different.** Use proven libraries for the rest (see `docs/decisions/0002-engine-stack.md`).
+- **Every engine task serves a vertical-slice scenario** (`docs/status.md`). If none needs it, it waits.
+- Small files with one responsibility, by design rather than by a line limit.
+- Don't spend credits on paid services or take external actions without asking.
 
-## Prototipo anterior
+## Old prototype
 
-`D:/Proyectos/juego zombie` (Godot, Mixamo, Blender, Tripo3D) es **sólo referencia**. No se continúa ni se copia código. Sus lecciones están destiladas en `docs/lessons/` y su diseño en `docs/design/`.
+`D:/Proyectos/juego zombie` (Godot, Mixamo, Blender, Tripo3D) is **reference only**. Don't continue it or copy its code. Its lessons are distilled in `docs/lessons/` and its design in `docs/design/`.
 
-## Compilar y probar
+## Build and test
 
-Todavía no hay código. Cuando exista, esta sección dice cómo compilar, correr y testear.
+No code yet. Once there is, this section says how to build, run and test.

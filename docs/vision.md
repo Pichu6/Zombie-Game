@@ -1,76 +1,76 @@
-# Visión
+# Vision
 
-Juego de supervivencia zombi en 3D sobre un motor propio (C++/Vulkan). El jugador encarna a un habitante de un mundo finito: un cuerpo humano simulado que se cansa, se hiere, aprende y carga peso real. La ciudad también está simulada: luz, agua y aire son redes que se rompen, se aprovechan y se reparan. Se juega en tercera persona y en vista isométrica sobre el mismo personaje; la gestión de grupo y el cooperativo llegan después. Todo objeto se desmonta y se fabrica, y su calidad depende de piezas, herramienta y habilidad.
+A 3D zombie survival game on a custom engine (C++/Vulkan). The player embodies an inhabitant of a finite world. That body is a simulated human: it tires, gets hurt, learns and carries real weight. The city is simulated too: power, water and air are networks that break, get exploited and get repaired. The game is played in third person and in isometric view on the same character. Group management and co-op come later. Every object can be disassembled and crafted. Its quality depends on parts, tool and skill.
 
-Etiquetas: **Decidido** (el usuario lo confirmó en el prototipo), **Propuesta** (no confirmado), **Abierto** (pregunta pendiente).
+Labels: **Decided** (the user confirmed it in the prototype), **Proposal** (not confirmed), **Open** (pending question).
 
-## Fantasía
+## Fantasy
 
-Sobrevivir mucho tiempo en una ciudad que se apaga. Cada pelea es peligrosa, incluso contra pocos. Lo que encuentras no vuelve a aparecer. Para durar hay que entender el cuerpo, los objetos y la infraestructura, y organizar a otros.
+Survive a long time in a city that is shutting down. Every fight is dangerous, even against few enemies. What you find never respawns. To last, you must understand the body, objects and infrastructure, and organize others.
 
-## Pilares
+## Pillars
 
-| Pilar | Qué significa | Estado |
+| Pillar | What it means | Status |
 | --- | --- | --- |
-| Mundo finito | Personas, botín y zombis no reaparecen. Supervivencia larga y difícil. | Decidido |
-| Cuerpo simulado | Lesiones por zona, metabolismo, composición corporal y carga real. Nada de barra de vida genérica. | Propuesta (versión reducida) |
-| Todo se desmonta y fabrica | Objetos como ensamblajes; Q heredada de piezas, limitada por habilidad y herramienta. | Decidido |
-| Conocimiento y profesión | Las acciones disponibles dependen de saber, profesión y Q de herramientas (modelo Haven & Hearth). | Decidido |
-| Infraestructura viva | Red eléctrica, agua y aire acoplados; romper un poste apaga un sector. | Propuesta (sistema héroe) |
-| Un mundo, varias lentes | Tercera persona, táctica y gestión sobre el mismo mundo (Decidido). Reglas idénticas en todas (Propuesta). | Decidido / Propuesta |
-| Estado único por habitante | Inventario, esfuerzo y dolor persisten al cambiar control, cámara u orden. | Decidido |
-| Realismo | Realismo visual y animación fluida; fisiología legible. | Decidido |
+| Finite world | People, loot and zombies do not respawn. Long, hard survival. | Decided |
+| Simulated body | Injuries by zone, metabolism, body composition and real load. No generic health bar. | Proposal (reduced version) |
+| Everything is disassembled and crafted | Objects as assemblies; Q inherited from parts, capped by skill and tool. | Decided |
+| Knowledge and profession | Available actions depend on knowledge, profession and tool Q (Haven & Hearth model). | Decided |
+| Living infrastructure | Coupled power grid, water and air; breaking a pole blacks out a sector. | Proposal (hero system) |
+| One world, several lenses | Third person, tactical and management on the same world (Decided). Identical rules in all (Proposal). | Decided / Proposal |
+| Single state per inhabitant | Inventory, exertion and pain persist across changes of control, camera or order. | Decided |
+| Realism | Visual realism and fluid animation; readable physiology. | Decided |
 
-## Qué lo hace distinto
+## What makes it different
 
-- **Infraestructura viva en 3D.** Juegos 2D (Oxygen Not Included, Space Station 13) lo hacen; casi ningún survival 3D. Project Zomboid corta luz y agua por temporizador. Propuesta.
-- **Grafo de salas.** Agua, humo, gas, sonido y olor zombi viajan entre salas por puertas, escaleras y desagües. Propuesta.
-- **Calidad que alimenta sistemas físicos.** Un caño Q80 aguanta más presión que uno Q30. Propuesta.
-- **Cuerpo que cambia silueta y ajuste de la ropa.** Al adelgazar, el pantalón queda flojo. Propuesta.
-- **Cooperativo asimétrico.** Un jugador coordina desde gestión mientras otros pelean y saquean. Decidido como intención; diferido por la investigación (Propuesta).
+- **Living infrastructure in 3D.** 2D games (Oxygen Not Included, Space Station 13) do it; almost no 3D survival game does. Project Zomboid cuts power and water on a timer. Proposal.
+- **Room graph.** Water, smoke, gas, sound and zombie scent travel between rooms through doors, stairs and drains. Proposal.
+- **Quality that feeds physical systems.** A Q80 pipe holds more pressure than a Q30 one. Proposal.
+- **A body that changes silhouette and clothing fit.** When you lose weight, your trousers get loose. Proposal.
+- **Asymmetric co-op.** One player coordinates from management while others fight and loot. Decided as intent; deferred by the research (Proposal).
 
-Escenario demostración (Propuesta): una granada en el cuarto de bombas del sótano rompe caños; el agua sube y baja por la escalera al piso inferior. Volar un poste deja la manzana a oscuras; repararlo con una pieza fabricada, cuya Q decide cuánto dura.
+Demo scenario (Proposal): a grenade in the basement pump room breaks pipes. The water rises and flows down the stairs to the floor below. Blowing up a pole leaves the block dark. Repair it with a crafted part; its Q decides how long it lasts.
 
-## Jugador objetivo
+## Target player
 
-Propuesta: jugadores de survival sistémico (Project Zomboid, Dwarf Fortress, RimWorld, Oxygen Not Included) que quieren eso en 3D y con acción directa. Disfrutan entender causas y consecuencias más que seguir un guion.
+Proposal: players of systemic survival games (Project Zomboid, Dwarf Fortress, RimWorld, Oxygen Not Included) who want that in 3D with direct action. They enjoy understanding causes and consequences more than following a script.
 
-## Modalidad
+## Play mode
 
-- Objetivo final multijugador; se acepta empezar single player, luego cooperativo, luego multijugador. Decidido.
-- Empezar con un personaje, encontrar supervivientes o bandidos, formar o unirse a grupos. Decidido.
-- Escala de habitantes, zombis y jugadores. Abierto.
+- Final goal is multiplayer. Starting single player is accepted, then co-op, then multiplayer. Decided.
+- Start with one character, find survivors or bandits, form or join groups. Decided.
+- Scale of inhabitants, zombies and players. Open.
 
-## Alcance: recortar, diferir, mantener
+## Scope: cut, defer, keep
 
-Tabla de la investigación del motor. **Propuesta**: el usuario no la confirmó todavía.
+Table from the engine research. **Proposal**: the user has not confirmed it yet.
 
-| Capa | Decisión | Por qué |
+| Layer | Decision | Why |
 | --- | --- | --- |
-| Tercera persona + isométrica sobre un personaje | Mantener | Identidad central |
-| Red eléctrica en grafo con sectores | Mantener | Barata, visible; demo del poste |
-| Red de agua + inundación por grafo de salas | Mantener | Demo de la granada |
-| Cuerpo por capas + metabolismo | Mantener, reducido | Árbol de partes y composición |
-| Ropa que sigue los morphs del cuerpo | Mantener, ya | Bloquea todo asset de personaje |
-| Desmontaje + calidad en ~30 ítems | Mantener | Prueba el ciclo H&H sin catálogo enorme |
-| Modo comandante / RTS | Diferir | Necesita multijugador |
-| Modo gestor de ciudad | Diferir | Necesita una ciudad entera de contenido |
-| Multijugador | Diferir | Multiplica el costo de cada sistema |
-| Fuego, temperatura, clima | Diferir | Irán sobre el grafo de salas |
-| Simulación de tela completa | Diferir | Solo pulido cerca de cámara |
-| Destrucción vóxel, fluidos a escala mundo | Recortar | Costo excesivo para la ganancia |
+| Third person + isometric on one character | Keep | Core identity |
+| Graph power grid with sectors | Keep | Cheap, visible; pole demo |
+| Water network + room-graph flooding | Keep | Grenade demo |
+| Layered body + metabolism | Keep, reduced | Part tree and composition |
+| Clothing that follows body morphs | Keep, now | Blocks every character asset |
+| Disassembly + quality on ~30 items | Keep | Tests the H&H loop without a huge catalog |
+| Commander / RTS mode | Defer | Needs multiplayer |
+| City manager mode | Defer | Needs a whole city of content |
+| Multiplayer | Defer | Multiplies the cost of every system |
+| Fire, temperature, weather | Defer | Will sit on the room graph |
+| Full cloth simulation | Defer | Only polish near the camera |
+| Voxel destruction, world-scale fluids | Cut | Excessive cost for the gain |
 
-Primer corte vertical (Propuesta): una manzana con 3–4 edificios, uno con cuarto de bombas en el sótano; una subestación y ~20 postes; un personaje con ambas cámaras.
+First vertical slice (Proposal): one block with 3–4 buildings, one with a basement pump room; a substation and ~20 poles; one character with both cameras.
 
-## Preguntas abiertas
+## Open questions
 
-- ¿El sistema héroe es la infraestructura o el cuerpo? Abierto.
-- ¿Cooperativo central desde el día uno o después? Abierto (el usuario aceptó empezar single player).
-- ¿Tamaño del mundo: un pueblo, un distrito o una ciudad? Abierto.
-- ¿La vista isométrica permite acelerar el tiempo? Abierto.
-- Época, región, tono y nivel de violencia gráfica. Abierto.
+- Is the hero system the infrastructure or the body? Open.
+- Co-op central from day one or later? Open (the user accepted starting single player).
+- World size: a town, a district or a city? Open.
+- Does the isometric view allow speeding up time? Open.
+- Era, region, tone and level of graphic violence. Open.
 
-## Fuentes del prototipo
+## Prototype sources
 
 - GDD_Survival_3D.md
 - wiki/decisiones-experiencia-control.md
@@ -78,4 +78,4 @@ Primer corte vertical (Propuesta): una manzana con 3–4 edificios, uno con cuar
 - wiki/gameplay-cooperativo.md
 - wiki/guia-de-arte.md
 - wiki/bases-produccion-visual.md
-- engine-research.txt (investigación del motor, más reciente)
+- engine-research.txt (engine research, most recent)
