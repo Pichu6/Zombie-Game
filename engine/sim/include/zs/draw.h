@@ -19,6 +19,7 @@ enum class Purpose : std::uint32_t {
   WoundInfection = 3,
   BiteHit = 4,
   CensusFate = 5,
+  GridFailure = 6,
 };
 
 class Rng {

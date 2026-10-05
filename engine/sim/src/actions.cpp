@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "toml.hpp"
+#include "zs/detmath.h"
 
 namespace zs {
 namespace {
@@ -58,7 +59,8 @@ EffectOp op_from(const std::string& s) {
   static const std::pair<const char*, EffectOp> ops[] = {
       {"eat", EffectOp::Eat},       {"drink", EffectOp::Drink},   {"fill", EffectOp::Fill},
       {"use_stock", EffectOp::UseStock}, {"treat", EffectOp::Treat}, {"board", EffectOp::Board},
-      {"salvage", EffectOp::Salvage}, {"take", EffectOp::Take},   {"sleep", EffectOp::Sleep}};
+      {"salvage", EffectOp::Salvage}, {"take", EffectOp::Take},   {"sleep", EffectOp::Sleep},
+      {"power", EffectOp::Power},     {"cover", EffectOp::Cover}};
   for (const auto& [name, op] : ops)
     if (s == name) return op;
   throw std::runtime_error("processes: unknown effect op " + s);
@@ -115,6 +117,8 @@ const char* to_string(Reason r) {
     case Reason::Interrupted: return "interrupted";
     case Reason::Asleep: return "asleep";
     case Reason::TooHeavy: return "too heavy to carry";
+    case Reason::AlreadyDone: return "already that way";
+    case Reason::NoFuel: return "no fuel";
   }
   return "?";
 }
@@ -185,15 +189,26 @@ std::optional<std::size_t> Actors::find_process(const std::string& id) const {
 
 void Actors::populate(World& w) {
   auto& l = w.ledger;
-  const ResourceId food = bodies_.ids().food_j, water = bodies_.ids().water_ul;
   // Amounts in map files use readable units; the ledger uses J and uL.
+  struct AmountKey {
+    const char* key;
+    const char* resource;
+    double scale;
+  };
+  static constexpr AmountKey kAmounts[] = {
+      {"food_kj", "food_j", 1e3},          {"tap_water_l", "body_water_ul", 1e6}, {"water_ml", "body_water_ul", 1e3},
+      {"disinfectant_ml", "disinfectant_ul", 1e3}, {"gasoline_l", "gasoline_ul", 1e6}};
+  liquids_.clear();
+  for (const char* name : {"body_water_ul", "disinfectant_ul", "gasoline_ul"})
+    if (auto r = resource_id(l, name)) liquids_.push_back(*r);
   auto mint_amounts = [&](OwnerId owner, const MapObject& o) {
     for (const auto& [key, v] : o.amounts) {
-      if (key == "food_kj") l.mint(owner, food, static_cast<std::int64_t>(v * 1000));
-      else if (key == "tap_water_l") l.mint(owner, water, static_cast<std::int64_t>(v * 1e6));
-      else if (key == "water_ml") l.mint(owner, water, static_cast<std::int64_t>(v * 1000));
-      else if (key == "disinfectant_ml") l.mint(owner, disinfectant_, static_cast<std::int64_t>(v * 1000));
-      else throw std::runtime_error("map: unknown amount " + key);
+      const AmountKey* k = nullptr;
+      for (const AmountKey& c : kAmounts)
+        if (key == c.key) k = &c;
+      const auto r = k ? resource_id(l, k->resource) : std::nullopt;
+      if (!r) throw std::runtime_error("map: unknown amount " + key);
+      l.mint(owner, *r, static_cast<std::int64_t>(v * k->scale));
     }
   };
   const auto& objs = map_.objects();
@@ -433,6 +448,11 @@ Actors::Found Actors::check(const World& w, const Actor& a, const ProcessDef& p,
     if (have < s.amount) return {Reason::MissingStock};
   }
   for (const Effect& e : p.effects) {
+    if (e.op == EffectOp::Power) {
+      const Reason r = power_check ? power_check(w, a.body, target, e.how) : Reason::WrongTarget;
+      if (r != Reason::Ok) return {r};
+    }
+    if (e.op == EffectOp::Cover && covered(w, target)) return {Reason::Full};
     if (e.op == EffectOp::Take &&
         a.carried_kg + static_cast<double>(items_.mass_g(target)) / 1000.0 > bodies_.carry_limit_kg(b, w.clock.tick))
       return {Reason::TooHeavy};
@@ -463,6 +483,27 @@ Actors::Found Actors::check(const World& w, const Actor& a, const ProcessDef& p,
   return f;
 }
 
+double Actors::light_factor(const World& w, const Actor& a, const ProcessDef& p) const {
+  if (!light_lux) return 1;
+  switch (p.primitive) {
+    case Primitive::Fine:
+    case Primitive::Strike:
+    case Primitive::Pry:
+    case Primitive::Cut: break;
+    default: return 1;
+  }
+  const double lux = light_lux(w, a.pos);
+  if (lux <= 10) return 0.5;
+  if (lux >= 100) return 1;
+  return 0.5 + 0.5 * detmath::log10(lux / 10);  // log-linear: the eye works in ratios (estimate)
+}
+
+bool Actors::covered(const World& w, EntityId window) const {
+  for (EntityId c : w.locations.children(window))
+    if (items_.exists(c) && items_.prop(c, Prop::ClothAreaM2) >= 1.0) return true;
+  return false;
+}
+
 Offer Actors::preview(const World& w, EntityId body, std::size_t process, EntityId target) const {
   const Actor& a = actors_.at(body);
   const ProcessDef& p = processes_.at(process);
@@ -472,7 +513,7 @@ Offer Actors::preview(const World& w, EntityId body, std::size_t process, Entity
   o.target = target;
   o.reason = f.reason;
   o.enabled = f.reason == Reason::Ok;
-  o.time_s = work_time(w, a, p, f.tool_factor);
+  o.time_s = work_time(w, a, p, f.tool_factor) / light_factor(w, a, p);
   return o;
 }
 
@@ -483,7 +524,9 @@ std::vector<Offer> Actors::offers_for(const World& w, EntityId body, EntityId ta
     const ProcessDef& p = processes_[i];
     if (a.skill[static_cast<std::size_t>(p.trade)] < 0) continue;  // knowledge hides the offer
     if (!target_matches(w, p, a, target)) continue;                 // not an action on this thing
-    out.push_back(preview(w, body, i, target));
+    Offer o = preview(w, body, i, target);
+    if (o.reason == Reason::WrongTarget) continue;  // e.g. switching on something that takes no power
+    out.push_back(o);
   }
   return out;
 }
@@ -630,8 +673,11 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
         const auto cs = store_of(c);
         if (!cs) continue;
         const auto cap = static_cast<std::int64_t>(items_.prop(c, Prop::ContainerMl) * 1000);
-        const std::int64_t room = cap - l.balance(*cs, water) - l.balance(*cs, disinfectant_);
-        if (room > 0 && l.balance(*cs, disinfectant_) == 0) l.transfer(t, *s, *cs, water, room, a.cause);
+        std::int64_t other = 0;  // a container holds one liquid: never water into a fuel can
+        for (ResourceId r : liquids_)
+          if (r != water) other += l.balance(*cs, r);
+        const std::int64_t room = cap - l.balance(*cs, water);
+        if (room > 0 && other == 0) l.transfer(t, *s, *cs, water, room, a.cause);
       }
       break;
     }
@@ -690,6 +736,13 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
       }
       break;
     case EffectOp::Sleep:
+      break;
+    case EffectOp::Power:
+      if (power_apply) power_apply(w, a.body, target, e.how, a.cause);
+      break;
+    case EffectOp::Cover:
+      for (const UseNeed& u : p.uses)
+        if (auto item = carried_with(w, a, u.prop, u.min)) w.locations.place(*item, target);
       break;
   }
 }
@@ -797,7 +850,7 @@ void Actors::update(World& w) {
                 act.held = act.target;
                 recompute_carried(w, a);
               }
-          const double rate = std::max(0.05, bodies_.work_rate(b, w.clock.tick));
+          const double rate = std::max(0.05, bodies_.work_rate(b, w.clock.tick)) * light_factor(w, a, *p);
           act.progress_s += kTickSeconds * rate;
           if (act.progress_s >= act.total_s) finish(w, a);
         }

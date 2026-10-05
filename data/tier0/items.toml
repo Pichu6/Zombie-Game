@@ -351,3 +351,19 @@ material = "plastic"
 mass_g = 30
 props = { container_ml = 250 }
 source = "250 mL rubbing alcohol bottle (retail listings)"
+
+[[item]]
+id = "fuel_can"
+family = "can"
+material = "plastic"
+mass_g = 1100
+props = { container_ml = 20000 }
+source = "20 L plastic jerry can (retail listings)"
+
+[[item]]
+id = "blanket"
+family = "cloth"
+material = "cotton"
+mass_g = 1500
+props = { cloth_area_m2 = 3.0 }
+source = "a heavy blanket, ~1.5 m x 2 m (estimate); hung over a window as a curtain"

@@ -1,0 +1,73 @@
+# Tier 0 power network. Spec: docs/tier0/specs/17-power-network.md
+# Mains or generator -> transfer switch (at the power_panel) -> circuit breakers -> receivers.
+# Receivers are map objects matched by kind. Watts only: no voltage or current.
+
+[generator]
+capacity_w = 3000      # rated running watts
+surge_w = 3500         # starting watts
+idle_lph = 0.6         # fuel at no load
+full_lph = 1.9         # fuel at rated load
+tank_l = 15
+noise_db_1m = 89       # ~72 dBA at 7 m
+source = "typical 3-3.5 kW open-frame spec sheets: ~12 h at 50 % load on a ~15 L tank, ~72 dBA at 7 m; idle and full-load use read off the same curve (estimate)"
+
+[[circuit]]
+id = "lights"
+rating_w = 1800        # 15 A at 120 V; watts only
+
+[[circuit]]
+id = "kitchen"
+rating_w = 2400        # 20 A
+
+[[circuit]]
+id = "general"
+rating_w = 1800
+
+# demand_w: running; surge_w: the extra draw for a moment when it switches on.
+[[receiver]]
+kind = "lamp"
+demand_w = 10
+surge_w = 10
+lumens = 800
+circuit = "lights"
+source = "LED bulb ~800 lm at ~10 W (product data)"
+
+[[receiver]]
+kind = "fridge"
+demand_w = 150
+surge_w = 600
+circuit = "kitchen"
+on = true
+source = "household fridge ~100-200 W running, compressor start ~3-4x (appliance labels, Energy Star)"
+
+[[receiver]]
+kind = "hot_plate"
+demand_w = 1200
+surge_w = 1200
+circuit = "kitchen"
+source = "single hot plate ~1-1.5 kW (appliance labels)"
+
+[[receiver]]
+kind = "radio"
+demand_w = 20
+surge_w = 20
+circuit = "general"
+source = "radio ~10-30 W (appliance labels)"
+
+[[receiver]]
+kind = "saw"
+demand_w = 1800
+surge_w = 2500
+circuit = "general"
+source = "1.8 kW circular saw on the same 15 A circuit as the radio: both at once trip it. 1.8 kW, motor start well above running (tool labels; surge an estimate)"
+
+# Fridge: the inside moves toward 3 C when cooling, toward the room otherwise. Food keeps
+# `life_days_at_4c` at 4 C and half as long for every `halving_c` warmer.
+[fridge]
+cold_c = 3
+room_c = 20
+cool_tau_h = 1
+warm_tau_h = 6
+life_days_at_4c = 7
+halving_c = 4
+source = "USDA: fridge food keeps ~3-7 days at <=4 C; a closed fridge stays cold ~4 h without power. Rates are estimates"

@@ -12,6 +12,9 @@ inline constexpr std::int64_t kTicksPerGameHour = 7200;
 inline constexpr std::int64_t kTicksPerGameDay = 24 * kTicksPerGameHour;
 inline constexpr double kGameSecondsPerRealSecondAt1x = 24.0;  // 1 game day per real hour (Decided)
 
+// Tick 0 is 08:00 on day 0 (a morning start). day() counts whole days since the start.
+inline constexpr std::int64_t kStartTimeOfDayTicks = 8 * kTicksPerGameHour;
+
 enum class Speed : std::uint8_t { Paused, X1, X3, X10, RestUntilEvent };
 
 // Ticks per real second at a speed; RestUntilEvent returns 0, meaning "as fast as possible".
@@ -23,6 +26,12 @@ struct Clock {
 
   bool is_body_step() const { return tick % kBodyStepTicks == 0; }
   std::int64_t day() const { return tick / kTicksPerGameDay; }
+  // Calendar day for display: day 0 is the start day, the next starts at midnight.
+  std::int64_t calendar_day() const { return (tick + kStartTimeOfDayTicks) / kTicksPerGameDay; }
+  // Hour of the day in [0, 24).
+  double hour() const {
+    return static_cast<double>((tick + kStartTimeOfDayTicks) % kTicksPerGameDay) / static_cast<double>(kTicksPerGameHour);
+  }
 };
 
 // How fast the app runs the simulation. Not simulation state: speed never changes what a tick does,

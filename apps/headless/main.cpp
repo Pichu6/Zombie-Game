@@ -8,6 +8,7 @@
 
 #include "zs/body_lab.h"
 #include "zs/demo.h"
+#include "zs/noise.h"
 #include "zs/site_map.h"
 #include "zs/tier0.h"
 
@@ -18,7 +19,8 @@ void usage() {
             "       zs_headless --map [FILE]   print the room graph of a map (default: the Tier 0 block)\n"
             "       zs_headless --body-lab     run the body calibration scenarios\n"
             "       zs_headless --bench        body cost: 4 pops and 60 walkers for one game day\n"
-            "       zs_headless --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades");
+            "       zs_headless --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades\n"
+            "       zs_headless --stage6 [--seed N]  the grid fails; generator, fuel, fridge, noise and light");
 }
 
 }  // namespace
@@ -124,7 +126,92 @@ int scripted_pop(bool as_ai) {
   return 0;
 }
 
+// Stage 6: the generator problem, as a timeline plus a night snapshot of noise and light.
+std::string clock_text(std::int64_t tick) {
+  zs::Clock c;
+  c.tick = tick;
+  const double h = c.hour();
+  char buf[32];
+  std::snprintf(buf, sizeof buf, "day %lld %02d:%02d", static_cast<long long>(c.calendar_day()), static_cast<int>(h),
+                static_cast<int>((h - static_cast<int>(h)) * 60));
+  return buf;
+}
+
+void night_snapshot(const zs::tier0::Tier0& t) {
+  using namespace zs;
+  const World& w = *t.world;
+  const Power& p = *t.power;
+  const double bg = background_db(p.mains_alive(), w.clock.hour());
+  std::printf("\n--- snapshot %s ---\n", clock_text(w.clock.tick).c_str());
+  std::printf("power: mains %s, panel on %s, generator %s, load %.0f W, fuel %.2f L (%.2f L/h)\n",
+              p.mains_alive() ? "alive" : "dead",
+              p.transfer() == Transfer::Generator ? "generator" : p.transfer() == Transfer::Mains ? "mains" : "off",
+              p.generator_running() ? "running" : "stopped", p.load_w(), static_cast<double>(p.fuel_ul(w)) / 1e6,
+              p.fuel_lph());
+  for (const Receiver& r : p.receivers())
+    std::printf("  %-10s at (%d,%d,%d): %s%s\n", p.receiver_defs()[r.def].kind.c_str(), r.at.z, r.at.x, r.at.y,
+                r.on ? "on" : "off", r.powered ? ", powered" : "");
+  std::printf("fridge %.1f C, spoil %.0f %%\n", p.fridge_temp_c(), p.spoil_progress() * 100);
+  const NoiseSource gen{p.generator_cell(), p.generator().noise_db_1m};
+  std::printf("noise: background %.0f dB; the generator is heard %.0f m away (with the grid alive at night: %.0f m)\n", bg,
+              audible_range_m(*t.map, *t.items, gen, bg), audible_range_m(*t.map, *t.items, gen, background_db(true, 23)));
+  const auto field = noise_field(*t.map, *t.items, noise_sources(w, *t.actors, p));
+  std::printf("noise map, ground floor ('.' inaudible, 1-9 = every 10 dB above hearing):\n%s",
+              noise_ascii(*t.map, field, 0, bg).c_str());
+  std::printf("light: outdoors %.2f lux; lit windows:\n", Power::ambient_lux(w.clock.hour()));
+  for (const WindowLeak& l : p.window_leaks(w))
+    if (l.room_lux > 0)
+      std::printf("  window (%d,%d,%d%s): room %.1f lux, cover %.0f %%, leak %.2f lux, seen from %.0f m\n", l.edge.z,
+                  l.edge.x, l.edge.y, l.edge.vertical ? ",v" : "", l.room_lux, l.cover * 100, l.leak_lux, l.seen_m);
+  std::printf("---\n\n");
+}
+
+int stage6(std::uint64_t seed) {
+  using namespace zs;
+  auto t = tier0::make_world(seed);
+  tier0::GeneratorScenario script(false);
+  std::printf("grid failure drawn for %s\n", clock_text(t.power->grid_failure_tick()).c_str());
+  std::size_t seen = 0;
+  bool snap = false;
+  while (script.drive(t)) {
+    t.world->step();
+    const auto& log = t.world->log.all();
+    for (; seen < log.size(); ++seen) {
+      const Event& e = log[seen];
+      const auto& procs = t.actors->processes();
+      const char* proc = e.a >= 0 && static_cast<std::size_t>(e.a) < procs.size() ? procs[static_cast<std::size_t>(e.a)].name.c_str() : "?";
+      const std::string at = clock_text(e.tick);
+      switch (e.type) {
+        case EventType::ActionDone: std::printf("%s  done: %s\n", at.c_str(), proc); break;
+        case EventType::ActionRefused:
+        case EventType::ActionInterrupted:
+          std::printf("%s  %s: %s (%s)\n", at.c_str(), e.type == EventType::ActionRefused ? "refused" : "interrupted", proc,
+                      to_string(static_cast<Reason>(e.b)));
+          break;
+        case EventType::GridFailed: std::printf("%s  GRID FAILED\n", at.c_str()); break;
+        case EventType::GeneratorStalled: std::printf("%s  generator stalled\n", at.c_str()); break;
+        case EventType::GeneratorOutOfFuel: std::printf("%s  generator out of fuel\n", at.c_str()); break;
+        case EventType::BreakerTripped: std::printf("%s  breaker tripped: %s\n", at.c_str(), t.power->circuits()[static_cast<std::size_t>(e.a)].id.c_str()); break;
+        case EventType::FoodSpoiled: std::printf("%s  fridge food spoiled (%.0f kJ)\n", at.c_str(), static_cast<double>(e.a) / 1000); break;
+        case EventType::Death: std::printf("%s  the pop died\n", at.c_str()); break;
+        default: break;
+      }
+    }
+    if (!snap && t.power->generator_running() && t.world->clock.hour() >= 23 &&
+        t.world->clock.tick % kTicksPerGameHour == 0 && t.actors->covered(*t.world, *tier0::GeneratorScenario::front_window(t))) {
+      snap = true;
+      night_snapshot(t);
+    }
+  }
+  std::printf("ended %s: refueled %s, fridge %.1f C, world hash %016llx\n", clock_text(t.world->clock.tick).c_str(),
+              script.refueled() ? "yes" : "no", t.power->fridge_temp_c(),
+              static_cast<unsigned long long>(t.world->world_hash()));
+  return 0;
+}
+
 int main(int argc, char** argv) {
+  if (argc >= 2 && !std::strcmp(argv[1], "--stage6"))
+    return stage6(argc >= 4 && !std::strcmp(argv[2], "--seed") ? std::strtoull(argv[3], nullptr, 10) : 1);
   if (argc >= 2 && !std::strcmp(argv[1], "--scripted-pop"))
     return scripted_pop(argc >= 3 && !std::strcmp(argv[2], "--ai"));
   if (argc >= 2 && !std::strcmp(argv[1], "--body-lab")) return body_lab();

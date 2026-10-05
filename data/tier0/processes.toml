@@ -169,3 +169,98 @@ target = "self"
 time_s = 1800
 effects = []
 source = "30 min calisthenics, ~6 MET (Compendium)"
+
+# ---------- Stage 6: power and light (specs 17, 19) ----------
+
+[[process]]
+id = "eat_fresh"
+name = "Eat from the fridge"
+primitive = "consume"
+target = "object:fridge"
+time_s = 900
+stocks = [{ resource = "food_j", amount = 2500000, from = "target" }]
+effects = [{ op = "eat", amount = 2500000 }]
+source = "as eat"
+
+[[process]]
+id = "start_generator"
+name = "Start the generator"
+primitive = "push_pull"
+target = "object:generator"
+time_s = 15
+effects = [{ op = "power", how = "start" }]
+source = "choke and a few cord pulls (estimate)"
+
+[[process]]
+id = "stop_generator"
+name = "Stop the generator"
+primitive = "fine"
+target = "object:generator"
+time_s = 5
+effects = [{ op = "power", how = "stop" }]
+source = "estimate"
+
+[[process]]
+id = "refuel_generator"
+name = "Refuel the generator"
+primitive = "hold"
+target = "object:generator"
+time_s = 90
+stocks = [{ resource = "gasoline_ul", amount = 1000000 }]
+effects = [{ op = "power", how = "refuel" }]
+source = "pouring ~10 L from a can (estimate); the AI waits for the engine to stop (spec 24)"
+
+[[process]]
+id = "switch_to_generator"
+name = "Switch the panel to the generator"
+primitive = "fine"
+target = "object:power_panel"
+time_s = 10
+effects = [{ op = "power", how = "transfer_generator" }]
+source = "manual transfer switch (estimate)"
+
+[[process]]
+id = "switch_to_mains"
+name = "Switch the panel to the mains"
+primitive = "fine"
+target = "object:power_panel"
+time_s = 10
+effects = [{ op = "power", how = "transfer_mains" }]
+source = "manual transfer switch (estimate)"
+
+[[process]]
+id = "reset_breakers"
+name = "Reset tripped breakers"
+primitive = "fine"
+target = "object:power_panel"
+time_s = 10
+effects = [{ op = "power", how = "reset" }]
+source = "estimate"
+
+[[process]]
+id = "switch_on"
+name = "Switch on"
+primitive = "fine"
+target = "object"
+time_s = 2
+effects = [{ op = "power", how = "on" }]
+source = "estimate"
+
+[[process]]
+id = "switch_off"
+name = "Switch off"
+primitive = "fine"
+target = "object"
+time_s = 2
+effects = [{ op = "power", how = "off" }]
+source = "estimate"
+
+[[process]]
+id = "hang_curtain"
+name = "Hang a curtain"
+primitive = "fine"
+target = "edge:window"
+time_s = 120
+uses = [{ prop = "cloth_area_m2", min = 1.5 }]
+effects = [{ op = "cover" }]
+source = "a blanket over a window with a few nails or hooks (estimate)"

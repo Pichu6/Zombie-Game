@@ -7,6 +7,7 @@
 #include <array>
 #include <cstdint>
 #include <deque>
+#include <functional>
 #include <map>
 #include <optional>
 #include <string>
@@ -70,13 +71,15 @@ enum class EffectOp : std::uint8_t {
   Salvage,    // unmount every part of the target onto the floor
   Take,       // pick up the target item
   Sleep,      // sleep until the body wakes
+  Power,      // how = start | stop | refuel | on | off | transfer_generator | transfer_mains | reset (spec 17)
+  Cover,      // hang the first carried `uses` item over the target window (a curtain; spec 19)
 };
 
 struct Effect {
   EffectOp op;
   std::string resource;  // UseStock
   std::int64_t amount = 0;
-  std::string how;       // Treat
+  std::string how;       // Treat, Power
 };
 
 struct ProcessDef {
@@ -102,7 +105,8 @@ Cell unpack_cell(std::int64_t v);
 
 enum class Reason : std::uint8_t {
   Ok, UnknownProcess, WrongTarget, Dead, Unconscious, CannotMove, CannotUseHands, NoTool, MissingItem,
-  MissingStock, NoRoute, TargetGone, InUse, Full, Interrupted, Asleep, TooHeavy
+  MissingStock, NoRoute, TargetGone, InUse, Full, Interrupted, Asleep, TooHeavy,
+  AlreadyDone, NoFuel
 };
 const char* to_string(Reason r);
 
@@ -187,6 +191,17 @@ class Actors : public System {
   Offer preview(const World& w, EntityId body, std::size_t process, EntityId target) const;
   std::vector<Offer> offers_for(const World& w, EntityId body, EntityId target) const;
 
+  // Hooks to systems that come later in the update order, so the executor does not depend on them.
+  // power_check returns Ok or why the power effect can't be done; power_apply does it.
+  std::function<Reason(const World&, EntityId body, EntityId target, const std::string& how)> power_check;
+  std::function<void(World&, EntityId body, EntityId target, const std::string& how, EventId cause)> power_apply;
+  std::function<double(const World&, const Cell&)> light_lux;  // illuminance where a pop works (spec 19)
+  // Work-rate factor from light for fine, strike, pry and cut work: 0.5 below 10 lux, 1 from 100 lux.
+  double light_factor(const World& w, const Actor& a, const ProcessDef& p) const;
+
+  // A curtain (cloth of >= 1 m2) hangs on this window.
+  bool covered(const World& w, EntityId window) const;
+
   bool idle(EntityId body) const { return actors_.at(body).action.phase == Phase::Idle && actors_.at(body).queue.empty(); }
 
  private:
@@ -217,6 +232,7 @@ class Actors : public System {
   SiteMap& map_;
   Bodies& bodies_;
   ResourceId disinfectant_ = 0;
+  std::vector<ResourceId> liquids_;  // what a container can hold; it holds one at a time
   OwnerId used_ = 0;
   std::vector<ProcessDef> processes_;
   std::vector<EntityId> object_entities_;           // per map object

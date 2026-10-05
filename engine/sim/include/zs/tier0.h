@@ -1,9 +1,12 @@
 // The Tier 0 world: map, items, bodies and actors wired in the fixed system order.
 // Specs: docs/tier0/specs/05-clock.md (update order), 14-action-executor.md
 #pragma once
+#include <deque>
 #include <memory>
+#include <optional>
 
 #include "zs/actions.h"
+#include "zs/power.h"
 
 namespace zs::tier0 {
 
@@ -13,6 +16,7 @@ struct Tier0 {
   SiteMap* map = nullptr;
   Actors* actors = nullptr;
   Bodies* bodies = nullptr;
+  Power* power = nullptr;
   EntityId player = 0;  // the body of the pop at the map's player start
 };
 
@@ -34,6 +38,27 @@ class ScriptedPop {
  private:
   bool as_ai_;
   int step_ = 0;
+};
+
+// The stage 6 scenario (plan: "done when"): the pop eats and drinks every 8 h and sleeps at night.
+// When the grid fails it takes the fuel can and a blanket, switches the panel to the generator,
+// starts it, lights the front room, hangs the blanket over that room's window and refuels once when
+// the tank runs low. It ends when the fridge food spoils after the fuel is gone (or on day 10).
+class GeneratorScenario {
+ public:
+  explicit GeneratorScenario(bool as_ai) : as_ai_(as_ai) {}
+  bool drive(Tier0& t);  // call before each step; false when finished
+  bool refueled() const { return refueled_; }
+  // The window the blanket goes over: one of the front-room lamp's walled space.
+  static std::optional<EntityId> front_window(const Tier0& t);
+
+ private:
+  void use(Tier0& t, const char* process, std::optional<EntityId> target);
+  bool as_ai_;
+  std::deque<std::pair<const char*, EntityId>> todo_;
+  std::int64_t next_meal_ = 0;
+  std::int64_t slept_day_ = -1;
+  bool set_up_ = false, refueled_ = false, out_twice_ = false;
 };
 
 // Gives the player the wound the script treats (a dirty forearm cut).

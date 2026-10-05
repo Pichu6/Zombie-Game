@@ -30,6 +30,11 @@ enum class EventType : std::uint16_t {
   ActionDone = 15,         // subject = actor, a = process index, b = target
   ActionInterrupted = 16,  // a = process index, b = Reason
   ActionRefused = 17,      // a = process index, b = Reason
+  GridFailed = 18,         // the mains are dead from now on
+  GeneratorStalled = 19,   // a = StallCause
+  BreakerTripped = 20,     // a = circuit index
+  FoodSpoiled = 21,        // subject = the fridge, a = J spoiled
+  GeneratorOutOfFuel = 22,
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

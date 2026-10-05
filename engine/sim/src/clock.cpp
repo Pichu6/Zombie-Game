@@ -25,6 +25,11 @@ bool TimeControl::is_slow_down_event(EventType type) {
     case EventType::Death:
     case EventType::InfectionVisible:
     case EventType::InfectionWorse:
+    case EventType::GridFailed:
+    case EventType::GeneratorStalled:
+    case EventType::BreakerTripped:
+    case EventType::FoodSpoiled:
+    case EventType::GeneratorOutOfFuel:
       return true;
     default:
       return false;

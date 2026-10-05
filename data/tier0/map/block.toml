@@ -225,6 +225,7 @@ id = "stranger"
 [[object]]
 kind = "generator"
 at = [0, 10, 18]
+gasoline_l = 4
 
 [[object]]
 kind = "power_panel"
@@ -233,6 +234,7 @@ at = [0, 15, 13]
 [[object]]
 kind = "fridge"
 at = [0, 2, 11]
+food_kj = 20000
 
 [[object]]
 kind = "stove"
@@ -330,3 +332,21 @@ id = "water_bottle"
 kind = "item"
 at = [0, 9, 8]
 id = "chair"
+
+# Stage 6: the generator problem (spec 17). A saw in the workshop, fuel and a blanket.
+
+[[object]]
+kind = "saw"
+at = [0, 12, 14]
+id = "workshop"
+
+[[object]]
+kind = "item"
+at = [0, 14, 14]
+id = "fuel_can"
+contents = { gasoline_l = 15 }
+
+[[object]]
+kind = "item"
+at = [0, 9, 8]
+id = "blanket"

@@ -213,7 +213,7 @@ TEST_CASE("stage 4: arriving is not working; save mid-action and load replays to
 
 TEST_CASE("stage 4: golden hash of the scripted pop (same on every compiler)") {
   Tier0 t = run_script(false);
-  const std::uint64_t golden = 13013449480267047549ULL;
+  const std::uint64_t golden = 11437380109558089007ULL;
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 4 golden world hash: " << t.world->world_hash());
 }
