@@ -55,15 +55,19 @@ TEST_CASE("load at day 2 and play on matches the uninterrupted run (A1)") {
 
 TEST_CASE("golden hash of the scripted demo run (A1; pinned on Linux, must match on Windows)") {
   auto w = run(1, 14 * kTicksPerGameDay);
-  CHECK(w->state_hash() == 0x1cb8fab8fd1fc23eULL);
+  CHECK(w->state_hash() == 0x1f0ffe82089cdb0eULL);
 }
 
 TEST_CASE("every saved format version still loads (A1)") {
-  // fixtures/save_v1.zsav: demo seed 1, one game day, written by zs_headless --days 1 --save.
-  auto w = demo::make_world(1);
-  w->load(read_file(std::string(ZS_FIXTURES_DIR) + "/save_v1.zsav"));
-  CHECK(w->clock.tick == kTicksPerGameDay);
-  CHECK(w->state_hash() == run(1, kTicksPerGameDay)->state_hash());
+  // fixtures/save_vN.zsav: demo seed 1, one game day, written by zs_headless --days 1 --save
+  // with the build of that format version.
+  for (const char* file : {"/save_v1.zsav", "/save_v2.zsav"}) {
+    CAPTURE(file);
+    auto w = demo::make_world(1);
+    w->load(read_file(std::string(ZS_FIXTURES_DIR) + file));
+    CHECK(w->clock.tick == kTicksPerGameDay);
+    CHECK(w->state_hash() == run(1, kTicksPerGameDay)->state_hash());
+  }
 }
 
 TEST_CASE("a corrupt or unknown save is refused") {

@@ -1,0 +1,204 @@
+# Tier 0 item definitions. Spec: docs/tier0/specs/08-assembly.md, 10-fortification.md, 15-items-recipes.md
+# Masses in grams, forces in newtons, sound losses in dB. Every number names its source or says "estimate".
+# Stage 2 holds the structural items (walls, doors, windows, fences, barricades); stage 4 adds the rest.
+
+# ---------- Parts ----------
+
+[[item]]
+id = "strike_plate"
+family = "strike_plate"
+mass_g = 150
+hold_force_n = 1500
+source = "estimate; residential doors usually fail at the strike plate first (spec 10); tune against EN 1627"
+
+[[item]]
+id = "hinge_set"
+family = "hinge_set"
+mass_g = 600
+hold_force_n = 3000
+source = "estimate: three steel butt hinges"
+
+[[item]]
+id = "door_panel_hollow"
+family = "door_panel"
+mass_g = 12000
+hold_force_n = 2000
+source = "hollow-core interior door ~10-14 kg (manufacturer data); force estimate"
+
+[[item]]
+id = "door_panel_solid"
+family = "door_panel"
+mass_g = 25000
+hold_force_n = 5000
+source = "solid-core exterior door ~25 kg (spec 08); force estimate"
+
+[[item]]
+id = "door_frame"
+family = "door_frame"
+mass_g = 8000
+hold_force_n = 6000
+source = "estimate: softwood jamb set"
+
+[[item]]
+id = "glass_pane"
+family = "glass_pane"
+mass_g = 12000
+hold_force_n = 300
+source = "single 4 mm float glass 1.0 x 1.2 m at 2500 kg/m3; force estimate (EN 356 class below P1A)"
+
+[[item]]
+id = "window_frame"
+family = "window_frame"
+mass_g = 8000
+hold_force_n = 1500
+source = "estimate"
+
+[[item]]
+id = "drywall_panel"
+family = "drywall_panel"
+mass_g = 23000
+hold_force_n = 1200
+source = "12.5 mm gypsum board ~9 kg/m2 x 2.6 m2 (manufacturer data); force estimate"
+
+[[item]]
+id = "stud_frame"
+family = "stud_frame"
+mass_g = 8000
+hold_force_n = 4000
+source = "estimate: timber studs per 1 m of wall"
+
+[[item]]
+id = "fence_boards"
+family = "fence_boards"
+mass_g = 10000
+hold_force_n = 800
+source = "estimate: 1 m of 1.8 m wooden fence"
+
+[[item]]
+id = "fence_post"
+family = "fence_post"
+mass_g = 6000
+hold_force_n = 2000
+source = "estimate"
+
+[[item]]
+id = "gate_latch"
+family = "gate_latch"
+mass_g = 300
+hold_force_n = 800
+source = "estimate"
+
+[[item]]
+id = "plank"
+family = "plank"
+mass_g = 3000
+hold_force_n = 1500
+source = "pine 2.0 m x 15 cm x 2 cm at ~500 kg/m3; force estimate"
+
+[[item]]
+id = "nail_set"
+family = "fasteners"
+mass_g = 200
+hold_force_n = 1000
+source = "estimate: a dozen 75 mm nails"
+
+# ---------- Map edges (one per 1 m segment) ----------
+
+[[item]]
+id = "wall_interior"
+family = "wall"
+mass_g = 0
+sound_loss_db = 35
+failure_chain = ["panel_a", "frame", "panel_b"]
+source = "stud wall with gypsum both sides, STC ~33-38 (ASTM E413 typical ratings)"
+slot = [
+  { name = "panel_a", accepts = "drywall_panel", joint = "screwed", default = "drywall_panel" },
+  { name = "frame", accepts = "stud_frame", joint = "nailed", default = "stud_frame" },
+  { name = "panel_b", accepts = "drywall_panel", joint = "screwed", default = "drywall_panel" },
+]
+
+[[item]]
+id = "wall_exterior"
+family = "wall"
+mass_g = 1180000
+sound_loss_db = 47
+hold_force_n = 50000
+source = "230 mm brick, 1 m x 2.7 m at ~1900 kg/m3; STC ~45-50 (ASTM E413 typical ratings); not breachable by hand in Tier 0"
+
+[[item]]
+id = "door_interior"
+family = "door"
+mass_g = 0
+sound_loss_db = 20
+failure_chain = ["strike_plate", "hinges", "panel", "frame"]
+source = "hollow-core door, STC ~20 (typical ratings)"
+slot = [
+  { name = "strike_plate", accepts = "strike_plate", joint = "screwed", default = "strike_plate" },
+  { name = "hinges", accepts = "hinge_set", joint = "screwed", default = "hinge_set" },
+  { name = "panel", accepts = "door_panel", joint = "screwed", default = "door_panel_hollow" },
+  { name = "frame", accepts = "door_frame", joint = "nailed", default = "door_frame" },
+]
+
+[[item]]
+id = "door_exterior"
+family = "door"
+mass_g = 0
+sound_loss_db = 30
+failure_chain = ["strike_plate", "hinges", "panel", "frame"]
+source = "solid-core door, STC ~30 (typical ratings)"
+slot = [
+  { name = "strike_plate", accepts = "strike_plate", joint = "screwed", default = "strike_plate" },
+  { name = "hinges", accepts = "hinge_set", joint = "screwed", default = "hinge_set" },
+  { name = "panel", accepts = "door_panel", joint = "screwed", default = "door_panel_solid" },
+  { name = "frame", accepts = "door_frame", joint = "nailed", default = "door_frame" },
+]
+
+[[item]]
+id = "window"
+family = "window"
+mass_g = 0
+sound_loss_db = 25
+failure_chain = ["glass", "frame"]
+source = "single glazing, STC ~25 (typical ratings)"
+slot = [
+  { name = "glass", accepts = "glass_pane", joint = "glued", default = "glass_pane" },
+  { name = "frame", accepts = "window_frame", joint = "screwed", default = "window_frame" },
+]
+
+[[item]]
+id = "fence"
+family = "fence"
+mass_g = 0
+sound_loss_db = 3
+failure_chain = ["boards", "post"]
+source = "estimate: a wooden fence barely blocks sound"
+slot = [
+  { name = "boards", accepts = "fence_boards", joint = "nailed", default = "fence_boards" },
+  { name = "post", accepts = "fence_post", joint = "loose", default = "fence_post" },
+]
+
+[[item]]
+id = "gate"
+family = "gate"
+mass_g = 0
+sound_loss_db = 3
+failure_chain = ["latch", "hinges", "boards"]
+source = "estimate"
+slot = [
+  { name = "latch", accepts = "gate_latch", joint = "screwed", default = "gate_latch" },
+  { name = "hinges", accepts = "hinge_set", joint = "screwed", default = "hinge_set" },
+  { name = "boards", accepts = "fence_boards", joint = "nailed", default = "fence_boards" },
+]
+
+[[item]]
+id = "barricade"
+family = "barricade"
+mass_g = 0
+failure_chain = ["fasteners", "board_1", "board_2", "board_3"]
+source = "three planks nailed across an opening (spec 10 rule 5)"
+slot = [
+  { name = "fasteners", accepts = "fasteners", joint = "loose" },
+  { name = "board_1", accepts = "plank", joint = "nailed" },
+  { name = "board_2", accepts = "plank", joint = "nailed", required = false },
+  { name = "board_3", accepts = "plank", joint = "nailed", required = false },
+]

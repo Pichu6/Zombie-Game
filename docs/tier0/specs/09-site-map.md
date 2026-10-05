@@ -21,7 +21,7 @@ The hand-made Tier 0 block: one 2-floor building with a basement and yard, plus 
 
 ## Rules
 
-1. The map is a text file under `data/tier0/map/` (one grid per level plus an object list), hand-edited and loaded at start. It is designed so a generator could fill the same format later (vision: map data ready for a generator).
+1. The map is a TOML file under `data/tier0/map/`: one ASCII grid per level at double resolution (cells on odd rows and columns, edges between them, legend in `data/tier0/map/README.md`), plus stairs and an object list. It is hand-edited (a helper script drew the first version) and loaded at start. It is designed so a generator could fill the same format later (vision: map data ready for a generator).
 2. Rooms and portals are rebuilt only when an edge changes state (dirty flag), never per tick.
 3. Outdoors is one room per connected outdoor area; the map border connects to the off-map world (census arrivals, [22](22-census.md)).
 4. A closed door or intact wall is still a portal for sound, with that assembly's transmission loss ([18](18-noise-field.md)).

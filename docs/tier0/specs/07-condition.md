@@ -10,8 +10,8 @@ How worn or damaged a thing is, separate from how well it was made (Q) and what 
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| condition | integer 0–10 000 (0.01 % steps) | Current |
-| max condition | integer 0–10 000 | Repairs lower it; never rises except by replacing the part |
+| condition | integer 0–1 000 000 (parts per million) | Current; fine steps so slow wear is not rounded away |
+| max condition | integer 0–1 000 000 | Repairs lower it; never rises except by replacing the part |
 | wear law | per definition: per use, per hour running, per hit | Rate scaled by Q: higher Q wears less (Decided rule) |
 | failure threshold | per definition | Below it the part stops working |
 
@@ -24,7 +24,7 @@ How worn or damaged a thing is, separate from how well it was made (Q) and what 
 
 ## Invariants
 
-- 0 ≤ condition ≤ max condition ≤ 10 000.
+- 0 ≤ condition ≤ max condition ≤ 1 000 000. Wear truncates toward zero (never rounds up).
 
 ## Tests
 

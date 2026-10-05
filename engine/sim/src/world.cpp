@@ -48,6 +48,7 @@ void World::step() {
 
 void World::save_state(ArchiveWriter& w) const {
   w.i64(clock.tick);
+  w.u64(next_entity_);
   w.u64(rng.seed());
   w.u64(rng.counters().size());
   for (const auto& [key, value] : rng.counters()) { w.u64(key.first); w.u32(key.second); w.u64(value); }
@@ -75,8 +76,9 @@ void World::save_state(ArchiveWriter& w) const {
   for (const auto& s : systems_) { w.str(s->name()); s->save(w); }
 }
 
-void World::load_state(ArchiveReader& r) {
+void World::load_state(ArchiveReader& r, std::uint32_t version) {
   clock.tick = r.i64();
+  next_entity_ = version >= 2 ? r.u64() : kFirstEntity;  // v1 had no entity counter
   rng = Rng(r.u64());
   for (std::uint64_t n = r.u64(); n > 0; --n) {
     const EntityId e = r.u64(); const std::uint32_t p = r.u32(); rng.set_counter(e, p, r.u64());
@@ -137,12 +139,12 @@ void World::load(const std::vector<std::uint8_t>& bytes) {
   ArchiveReader r(bytes);
   if (r.u32() != 0x5641535a) throw std::runtime_error("not a save file");
   const std::uint32_t version = r.u32();
-  // Upgrade steps for older versions go here, oldest first. Unknown versions refuse to load.
-  if (version != kSaveFormatVersion) throw std::runtime_error("unsupported save version " + std::to_string(version));
+  // Older versions are upgraded field by field in load_state. Unknown versions refuse to load.
+  if (version < 1 || version > kSaveFormatVersion) throw std::runtime_error("unsupported save version " + std::to_string(version));
   const std::uint64_t expected_hash = r.u64();
   const std::vector<std::uint8_t> state(bytes.begin() + 16, bytes.end());
   if (hash_bytes(state) != expected_hash) throw std::runtime_error("save file is corrupt (hash mismatch)");
-  load_state(r);
+  load_state(r, version);
   if (!r.at_end()) throw std::runtime_error("save file has trailing data");
 }
 

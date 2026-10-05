@@ -6,16 +6,50 @@
 #include <string>
 
 #include "zs/demo.h"
+#include "zs/site_map.h"
 
 namespace {
 
 void usage() {
-  std::puts("usage: zs_headless [--seed N] [--days D] [--save FILE] [--load FILE]");
+  std::puts("usage: zs_headless [--seed N] [--days D] [--save FILE] [--load FILE]\n"
+            "       zs_headless --map [FILE]   print the room graph of a map (default: the Tier 0 block)");
 }
 
 }  // namespace
 
+// Stage 2: loads a map and prints its rooms and portals.
+int print_map(const std::string& path) {
+  zs::World world(1);
+  auto items = std::make_unique<zs::Assemblies>();
+  auto map = std::make_unique<zs::SiteMap>();
+  auto* items_ptr = items.get();
+  auto* map_ptr = map.get();
+  world.add_system(std::move(items));
+  world.add_system(std::move(map));
+  zs::load_item_defs(*items_ptr, std::string(ZS_DATA_DIR) + "/tier0/items.toml");
+  map_ptr->load_file(world, *items_ptr, path);
+  const auto& rooms = map_ptr->rooms();
+  std::printf("%zu rooms, %zu portals, %zu assemblies\n", rooms.size(), map_ptr->portals().size(),
+              items_ptr->all().size());
+  for (std::size_t i = 0; i < rooms.size(); ++i) {
+    int open = 0, closed = 0;
+    for (const auto& p : map_ptr->portals())
+      if (p.room_a == static_cast<int>(i) || p.room_b == static_cast<int>(i)) (p.open ? open : closed)++;
+    std::printf("room %2zu  level %2d  %4d m2  %-7s%s  portals: %d open, %d closed\n", i, rooms[i].z, rooms[i].cells,
+                rooms[i].indoor ? "indoor" : "outdoor", rooms[i].touches_border ? "  border" : "", open, closed);
+  }
+  return 0;
+}
+
 int main(int argc, char** argv) {
+  if (argc >= 2 && !std::strcmp(argv[1], "--map")) {
+    try {
+      return print_map(argc >= 3 ? argv[2] : std::string(ZS_DATA_DIR) + "/tier0/map/block.toml");
+    } catch (const std::exception& e) {
+      std::fprintf(stderr, "error: %s\n", e.what());
+      return 1;
+    }
+  }
   std::uint64_t seed = 1;
   std::int64_t days = 14;
   std::string save_path, load_path;

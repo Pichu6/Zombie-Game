@@ -15,7 +15,8 @@
 
 namespace zs {
 
-inline constexpr std::uint32_t kSaveFormatVersion = 1;
+// Version history: 1 = stage 1; 2 = adds the entity id counter (stage 2).
+inline constexpr std::uint32_t kSaveFormatVersion = 2;
 
 // A player intent, applied at the start of the tick it was submitted for. The AI produces the
 // same kind of intents (parity), but only player commands are recorded in the input log.
@@ -59,6 +60,10 @@ class World {
     return nullptr;
   }
 
+  // Allocates a new entity id. Ids below kFirstEntity are reserved for fixed setup ids.
+  static constexpr EntityId kFirstEntity = EntityId{1} << 20;
+  EntityId new_entity() { return next_entity_++; }
+
   // Ends setup: no more minting, logs the run start.
   void close_setup();
 
@@ -92,12 +97,13 @@ class World {
 
  private:
   void save_state(ArchiveWriter& w) const;
-  void load_state(ArchiveReader& r);
+  void load_state(ArchiveReader& r, std::uint32_t version);
 
   std::vector<std::unique_ptr<System>> systems_;
   std::vector<Command> pending_;
   std::vector<Command> input_log_;
   std::vector<EventId> emitted_;
+  EntityId next_entity_ = kFirstEntity;
 };
 
 }  // namespace zs
