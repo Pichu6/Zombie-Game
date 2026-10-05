@@ -69,7 +69,7 @@ Every system feeds that one choice:
 
 ## 4. Every idea Pichu had, and where it lives
 
-Tier 0 = 2D prototype (~3 months). Tier 1 = first 3D playable. Tier 2 = the neighborhood. Tier 3 = the dream. **Nothing is deleted**, only scheduled.
+Tier 0 = 2D prototype. Tier 1 = first 3D playable. Tier 2 = the neighborhood. Tier 3 = the dream. **Nothing is deleted**, only scheduled.
 
 | Pichu's idea | Tier 0 (2D prototype) | Tier 1 (3D first playable) | Tier 2 | Tier 3 |
 | --- | --- | --- | --- | --- |
@@ -97,7 +97,7 @@ Tier 0 = 2D prototype (~3 months). Tier 1 = first 3D playable. Tier 2 = the neig
 
 **Fact first: no engine code exists yet.** The repo today holds docs and decisions only. Every estimate below includes building the engine.
 
-### Tier 0: "The generator problem" (~3 months, 2D, SDL3 + ImGui, no Vulkan)
+### Tier 0: "The generator problem" (2D, SDL3 + ImGui, no Vulkan)
 
 Exact contents:
 - **Map:** one hand-made 2-floor building with a basement, a yard and 2 neighbour houses. Cell grid with walls, doors, windows, barricades and breachable walls.
@@ -120,7 +120,7 @@ Exact contents:
 
 If an answer is no, change the design **before** writing a renderer. The sim code is kept for Tier 1.
 
-### Tier 1: "One building, five bodies" (realistic: 20–30 person-months, ~2–2.5 years after Tier 0)
+### Tier 1: "One building, five bodies" (after Tier 0)
 
 This is the Tier 0 sim in 3D grey box. It adds a Vulkan renderer with iso cutaways and floor switching, one camera rig (zoom out for command, zoom in for possession), skinned mannequins with 3 morph axes, pathfinding that updates when walls are breached, Jolt collision, power + water + noise + light + smoke, ~30 items, 3–6 pops, a census of ~300, two simulation detail levels (near and far) and 2–3 hand-made buildings with a minimal building editor. It has no warm neighbours, no trust system and no seeding. The biggest hidden costs are pop AI (job bugs), command UI and integration/tuning, which takes about 25% of the total.
 
@@ -134,7 +134,7 @@ Co-op (commander + possessed players), photoreal bodies, physics-based movement,
 
 | Risk | Mitigation |
 | --- | --- |
-| The engine does not exist, so a renderer could eat the first year | Tier 0 is pure sim in 2D. The renderer starts only after Tier 0 passes |
+| The engine does not exist, so renderer work could crowd out the game | Tier 0 is pure sim in 2D. The renderer starts only after Tier 0 passes |
 | No clear fun loop (watching bars move) | One core choice (section 2), a pressure arc, and the Tier 0 kill/keep questions |
 | Possession gets ignored (as in Dungeon Keeper) or becomes a chore | AI panic/refusal moments, risky phases where timing matters, measured in Tier 0 |
 | Sped-up time keeps dropping back to 1× | Slow down on events, not on perception. The player can speed up again |
@@ -147,7 +147,7 @@ Co-op (commander + possessed players), photoreal bodies, physics-based movement,
 
 ## 7. Where we disagreed
 
-The critique was right on most points, and this concept accepts them: the 3.5–5 year estimate, Tier 0 first, cutting trust gating, warm neighbours, the belief map and seeding from Tier 1, keeping hidden infection and body drift early, adding direct squad orders, and slow-down on events. Here is where we pushed back to protect Pichu's vision:
+The critique was right on most points, and this concept accepts them: that the old plan was far too big, Tier 0 first, cutting trust gating, warm neighbours, the belief map and seeding from Tier 1, keeping hidden infection and body drift early, adding direct squad orders, and slow-down on events. Here is where we pushed back to protect Pichu's vision:
 
 - **Possession is not optional flavour.** The critic warned that Dungeon Keeper players mostly ignored possession. It is half of Pichu's fantasy, so it is in Tier 0 from day one and gets measured, not trimmed. Also, possession is not only a fix for AI failure. It is also the reward: the moment you feel a body's limits from the inside.
 - **The body is the heart, not a stat sheet.** The critic suggested "the group" as the hero. We agree and phrase it as **a group of real bodies**. The body model stays the single shared data source for pop, zombie and movement, even in 2D.
@@ -160,7 +160,7 @@ The critique was right on most points, and this concept accepts them: the 3.5–
 2. **Main identity?** **Decided by Pichu (2026-10-05):** a commander who can play as the units, "like XCOM in that sense". Read as: base/group management above, and dropping into named, permadeath-style units for the moments that matter. Real time, no turns (confirmed by Pichu).
 3. **Time scale?** **Decided by Pichu (2026-10-05):** default 1 real hour per game day at 1× (1 game hour = 2.5 real minutes), with 3×, 10× and rest-until-event; also a sandbox setting.
 4. **Map?** **Decided (Pichu: "something doable", 2026-10-05):** a small hand-made map where every building can be entered, with breachable walls. Tier 0: one building + 2 houses. Seeded variants stay in Tier 3.
-5. **Tier 0 before any renderer work?** **Decided by Pichu (2026-10-05):** yes. About 3 months of 2D simulation (SDL3 + ImGui, no Vulkan) with the kill/keep questions, before any renderer work.
+5. **Tier 0 before any renderer work?** **Decided by Pichu (2026-10-05):** yes. A 2D simulation (SDL3 + ImGui, no Vulkan) with the kill/keep questions, before any renderer work.
 6. **Zombie speed?** **Decided by Pichu (2026-10-05):** a sandbox setting, Zomboid style. Default: body-driven (mostly slow; fresh lean bodies faster; fat or broken ones slower). Options: always slow, body-driven, fast.
 
 ## 9. Revision after Pichu's answers (2026-10-05)

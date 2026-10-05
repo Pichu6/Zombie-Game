@@ -4,7 +4,7 @@ Updated: 2026-10-05.
 
 ## What we're building
 
-**Tier 0, "The generator problem"** (Decided, see [0010](decisions/0010-concept-v2.md) and [vision](vision.md)): a 2D simulation prototype, SDL3 + ImGui, no Vulkan, about 3 months.
+**Tier 0, "The generator problem"** (Decided, see [0010](decisions/0010-concept-v2.md) and [vision](vision.md)): a 2D simulation prototype, SDL3 + ImGui, no Vulkan.
 
 - One hand-made 2-floor building with a basement and yard, plus 2 houses. Every building enterable; walls breachable.
 - Start with 1 survivor; find 3 more during the run. Same body model and rules for player and survivors.

@@ -55,10 +55,10 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 
 Nothing is deleted; every idea is scheduled. Details inside each tier are Proposals.
 
-| Tier | What | Size |
+| Tier | What | Order |
 | --- | --- | --- |
-| **0 · "The generator problem"** | 2D simulation, SDL3 + ImGui, no Vulkan. One 2-floor building with a basement, yard and 2 houses. Start with 1 survivor; find 3 more. Power, noise, light (water as stretch). Body in kg, ~17 regions with wounds, needs, weekly drift. 6 jobs, squad orders, direct control. Zombies made from dead survivors and a cold census of ~60 neighbours; hidden incubation. Goal: survive 14 days. | ~3 months. **Decided:** before any renderer work |
-| **1 · "One building, five bodies"** | Tier 0 sim in 3D grey box: Vulkan renderer, iso cutaways, floor switching, one camera rig, skinned mannequins with 3 morph axes, Jolt collision, power/water/noise/light/smoke, ~30 items, 3–6 survivors, ~300 census, 2–3 hand-made buildings. | ~20–30 person-months |
+| **0 · "The generator problem"** | 2D simulation, SDL3 + ImGui, no Vulkan. One 2-floor building with a basement, yard and 2 houses. Start with 1 survivor; find 3 more. Power, noise, light (water as stretch). Body in kg, ~17 regions with wounds, needs, weekly drift. 6 jobs, squad orders, direct control. Zombies made from dead survivors and a cold census of ~60 neighbours; hidden incubation. Goal: survive 14 days. | First. **Decided:** before any renderer work |
+| **1 · "One building, five bodies"** | Tier 0 sim in 3D grey box: Vulkan renderer, iso cutaways, floor switching, one camera rig, skinned mannequins with 3 morph axes, Jolt collision, power/water/noise/light/smoke, ~30 items, 3–6 survivors, ~300 census, 2–3 hand-made buildings. | After Tier 0 |
 | **2 · "The neighbourhood"** | 3rd-person possession, visible body change, long infection drama, recruitment and relationships, a district with a sewer, floods/fire/collapse, ~150 items, seasons. | — |
 | **3 · "The town"** | Co-op (commander + possessed players), photoreal bodies, physics-based movement, vehicles, thousands of persistent lives. | — |
 

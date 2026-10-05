@@ -14,11 +14,11 @@
 - **Time scale:** 1 real hour per game day at 1×, plus faster speeds; also a sandbox setting.
 - **Map:** small and hand-made; every building enterable; breachable walls.
 - **Sandbox settings**, Zomboid style, for zombie speed, time scale and later others. Settings change numbers, never rules. Zombie speed default: body-driven.
-- **Tier 0 first:** about 3 months of 2D simulation (SDL3 + ImGui, no Vulkan) that must answer the fun questions before any renderer work.
+- **Tier 0 first:** a 2D simulation (SDL3 + ImGui, no Vulkan) that must answer the fun questions before any renderer work.
 
 ## Why
 
-The user felt the previous vision was spread across too many ideas and too ambitious for a custom engine. A proposer/critic review estimated the old first playable at 3.5–5 years for one person with AI. These decisions keep every idea but schedule it by tier, and prove the fun in 2D first.
+The user felt the previous vision was spread across too many ideas and too ambitious for a custom engine. A proposer/critic review found the old first playable far too big for one person with AI. These decisions keep every idea but schedule it by tier, and prove the fun in 2D first.
 
 ## Consequences
 
