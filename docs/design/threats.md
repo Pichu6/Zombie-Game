@@ -50,6 +50,8 @@ Conflict: the GDD gave bite 100 %, scratch 30 %, prodrome in 6–12 h, death in 
 
 Conflict: the GDD had "fast and strong" fresh zombies. The user's later concept asks for slow walkers. I prefer slow. Proposal.
 
+Resolved (2026-10-05, [0010](../decisions/0010-concept-v2.md)): zombie speed is a sandbox setting (always slow, body-driven, fast). The default is body-driven: mostly slow walkers, fresh lean bodies faster, fat or broken ones slower. Decided.
+
 ## Spread and contagion
 
 - The first wave comes from people in incubation: presymptomatic contagion, misdiagnosis, multiple hotspots. Proposal.

@@ -8,7 +8,7 @@ Labels: **Decided** (the source states it as a project rule), **Proposal** (not 
 
 | Rule | Status |
 | --- | --- |
-| Every network element can be repaired or built from scratch in the late game. | Decided (the source calls it the project's "golden rule") |
+| Every network element can be repaired or built from scratch in the late game. | Decided (confirmed and extended to everything built in the game, see [0010](../decisions/0010-concept-v2.md)) |
 | Networks as graphs of nodes and edges, not cables or physics. | Proposal (prototype and research agree) |
 | Zero cost at rest: each receiver stores its state and nothing runs per tick. | Proposal |
 | Recalculate only the part of the graph affected by a cut, repair or overload. | Proposal |

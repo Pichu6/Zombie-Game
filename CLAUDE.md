@@ -1,6 +1,6 @@
 # Juego Zombie
 
-A realistic zombie survival simulation for PC, on our own C++ engine with a Vulkan renderer. The bet is deep simulation: power and water grids, room-by-room fluids, a layered human body, and Haven & Hearth-style crafting with quality. The same character is played in third person and in isometric view.
+A realistic zombie survival simulation for PC, on our own C++ engine with a Vulkan renderer. The question it asks: how long can you really survive? You play one survivor in real time, and an XCOM-like commander layer opens as you find others. Player, survivors and zombies share one simulated body model and one set of rules. Everything built (walls, pipes, engines, items) can be scavenged and crafted, tied by one quality system. We start with a 2D simulation prototype (Tier 0) before any renderer work.
 
 ## Language
 
