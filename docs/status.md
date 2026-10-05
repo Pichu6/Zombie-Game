@@ -19,7 +19,7 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 ## Where we are
 
 - **Have:** the decided concept, design docs distilled from the prototype, recorded decisions, the clothing research, and the world simulation design ([0012](decisions/0012-world-simulation-layers.md), [world simulation](design/world-simulation.md)): one outbreak simulation of real Earth, played as Macro, City or Individual, with the play style chosen in setup.
-- **Don't have:** the window, power/noise/light, zombies or AI yet. Built so far: foundations (stage 1), things and places (stage 2) and the body (stage 3). The repo is not on GitHub yet (the user's account is locked by a 2FA issue); history is in local git.
+- **Don't have:** the window, power/noise/light, zombies or AI yet. Built so far: foundations (stage 1), things and places (stage 2) the body (stage 3) and actions and items (stage 4). The repo is not on GitHub yet (the user's account is locked by a 2FA issue); history is in local git.
 
 ## Next step
 
