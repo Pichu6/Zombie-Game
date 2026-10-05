@@ -1,0 +1,7 @@
+build/
+out/
+*.bind.bin
+__pycache__/
+.vs/
+.vscode/
+*.blend1
