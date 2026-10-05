@@ -22,7 +22,8 @@ Any run can be saved, loaded, replayed exactly and inspected. This is how an eme
 2. Save = full state. Replay = start state + seed + input log. Both must reach the same hash.
 3. The event log is append-only during a run and saved with it. The view filters it; the simulation never reads it.
 4. Every output (save, log, test report) carries binary hash, data hash, seed and settings.
-5. Data (item definitions, map, census table, calibration numbers) lives in text files under `data/tier0/`, never in code.
+5. Loading goes into a fresh candidate world built by the same setup; the running world is replaced only if the load succeeded. Saving writes a temporary file, reads it back, then renames it. Only primary state is saved; readouts are recomputed.
+6. Data (item definitions, map, census table, calibration numbers) lives in text files under `data/tier0/`, never in code.
 
 ## Invariants
 

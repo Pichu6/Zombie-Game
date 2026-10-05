@@ -40,4 +40,15 @@ A realistic zombie survival simulation for PC, on our own C++ engine with a Vulk
 
 ## Build and test
 
-No code yet. Once there is, this section says how to build, run and test.
+Needs CMake 3.25+, Ninja and a C++20 compiler (MSVC 2022, GCC 13 or Clang 17). Test libraries are vendored in `third_party/`.
+
+```
+cmake --preset debug          # or: release
+cmake --build --preset debug
+ctest --preset debug          # unit, property and golden tests
+build/debug/apps/headless/zs_headless --days 14   # stage 1 demo run, one line per game day
+```
+
+On Windows, run these from a "x64 Native Tools Command Prompt for VS 2022". Golden hashes in the tests are pinned on Linux; Windows must reproduce them (cross-compiler determinism, [spec 01](docs/tier0/specs/01-quantity.md)).
+
+Layout: `engine/sim` is the simulation library (no window), `apps/headless` the command-line runner, `docs/tier0` the plan and specs.

@@ -14,7 +14,7 @@ The Tier 0 window: SDL3 + Dear ImGui, top-down 2D, no Vulkan ([0010](../../decis
 | Perception fog | Areas the controlled pop cannot see are grey memory (tactical rule, [cameras](../../design/cameras-modes.md)). Debug toggle shows all |
 | Overlays | Noise (heat map with the last loud events), light leak, power (powered/unpowered, load vs capacity) |
 | Pop bar | Portraits of the group with key needs and wound icons; click to select, double click to control |
-| Inspector | Body (masses, needs, wounds by region), Things (inventory), Doing (current action and queue), Mind (mood, fear). A separate debug inspector shows truth (hidden infection) |
+| Inspector | Body (a 17-region silhouette coloured by the worst state per region, a marker per wound, click a region to list its wounds, one "how I feel" line; masses and needs), Things (inventory), Doing (current action and queue), Mind (mood, fear). A separate debug inspector shows truth (hidden infection) |
 | Context menu | Offers on the clicked target, greyed with reasons ([14](14-action-executor.md)) |
 | Event log | Filterable; each line links to its cause chain ([25](25-chronicle.md)) |
 | Time bar | Pause, 1×, 3×, 10×, rest-until-event; clock and day |

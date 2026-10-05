@@ -19,8 +19,8 @@ One global clock and one fixed update order for every system, so a run is reprod
 ## Rules
 
 1. Update order per tick (fixed): input commands → AI decisions → action executor → movement → damage → body (fine) → networks (on dirty) → fields → perception → body (slow, when due) → census schedule → ledger check → event log flush.
-2. Each system reads the state as it was at the start of the tick and writes into the next state; systems later in the order see the new state only from the next tick.
-3. Speed changes how many ticks run per real second, never what a tick does. At 1× that is 48 ticks per real second; at 10×, 480; rest-until-event runs as fast as the machine allows.
+2. The fixed system order is what makes a tick reproducible. Inside a system, entities update in id order. Where one entity's update reads another's value and order would change the result (fields, perception, combat), the system reads start-of-tick values (a small copy), not a full double buffer of the world. (Simplified after stage 1: double-buffering every system was more machinery than Tier 0 needs.)
+3. Speed is not simulation state: it lives in the app (`TimeControl`) and is not saved or hashed. It changes how many ticks run per real second, never what a tick does. At 1× that is 48 ticks per real second; at 10×, 480; rest-until-event runs as fast as the machine allows.
 4. Event slow-down (RimWorld rule): alarm, attack on a pop, new wound, breakdown, new symptom noticed, found survivor → speed 1×, and pause if the setting is on. A zombie merely seen does not slow time.
 5. Rest-until-event stops on any slow-down event or at a chosen hour.
 6. Combat forces 1× while any pop is in melee range of a hostile.

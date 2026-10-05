@@ -19,7 +19,7 @@ Conserved fields in Tier 0 use integer base units: mass in **grams**, volume in 
 ## Rules
 
 1. Arithmetic is only defined between compatible units; mixed units fail to compile.
-2. Integer quantities never round silently. A division returns quotient and remainder, and the caller says where the remainder goes.
+2. Integer quantities never round silently. A division returns quotient and remainder, and the caller says where the remainder goes. A continuous rate that feeds an integer stock (fuel burnt per tick, blood lost per second) keeps a saved integer remainder per flow, so a slow flow is never rounded away (the stage 1 generator demo does this).
 3. Conversions to display units (kg, L, kcal, hours) happen only in the view.
 4. Continuous values (fields, rates, body chemistry) use `double`, built with strict floating point: `/fp:precise` on MSVC, `-ffp-contract=off` and no `-ffast-math` on GCC and Clang, SSE2 only (no x87).
 5. The simulation never calls the platform's maths library for transcendental functions (`exp`, `log`, `log10`, `sin`, `cos`, `pow`). It uses our own `detmath` versions built only from `+ − × ÷ √`, which IEEE 754 rounds the same everywhere.

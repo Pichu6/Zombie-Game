@@ -31,7 +31,7 @@ The ~20 item families and the few recipes that make the generator problem playab
 | Backpack | Container with volume | Carry |
 | Circular saw (power tool) | ~1.8 kW, very loud; makes salvage and barricades faster | Power, noise |
 | Curtain or cloth cover | Covers a window: less light leak, a little less noise | Light leak |
-| Worn clothes | Jacket, jeans, boots: one cut and bite protection value per region, no layers or insulation | Bites |
+| Worn clothes | Jacket, jeans, boots: coverage as a 17-bit region mask and one protection value; two garments on one region combine as 1 − (1 − p₁)(1 − p₂); no layers or insulation | Bites |
 | Stockpile | A marked floor area or shelf that the haul job fills ([09](09-site-map.md)) | Hauling |
 | Doors, windows, walls, barricades | Map assemblies ([10](10-fortification.md)) | Fortification |
 
@@ -48,6 +48,7 @@ The ~20 item families and the few recipes that make the generator problem playab
 | Repair radio | Hand | parts, screwdriver | Needs electronics knowledge (one found survivor has it) |
 | Clean and dress a wound | Hand | water or disinfectant, bandage or cloth | First aid knowledge improves it |
 | Make a splint | Hand | planks, cloth | |
+| Improvised tourniquet | Hand | cloth or belt, a stick | Stops limb bleeding; ischaemia clock ([12](12-body-wounds.md)) |
 | Cook | Hand | food, hot plate (power) or gas stove | Cooking lowers food poisoning from fresh food |
 
 ## Rules

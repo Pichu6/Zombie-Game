@@ -22,9 +22,10 @@ The single place where anything is done to the world, by the player or any AI, u
 3. An action is timed: duration = base × work rate × tool and Q factors. It runs in phases (approach → prepare → work → finish). Effects land only in the phase that causes them.
 4. Each phase costs the body (MET level for [11](11-body-composition.md)) and emits its sound ([18](18-noise-field.md)).
 5. Interruptions: death, unconsciousness, lost reach, target changed, capability below need, a slow-down event the actor reacts to. Progress is kept for resumable work (barricading, repairing).
-6. Transfers move items through the ledger in phases (access source → handle → access destination → fit). An interruption never duplicates or loses an item.
-7. Player input becomes intents for the controlled actor: move to, use offer, cancel. The same intents come from the AI ([24](24-pop-ai.md)).
-8. Direct control (WASD) sets a movement intent each tick; movement still uses the body's speeds.
+6. Transfers move items through the ledger in phases (access source → handle → access destination → fit). The item stays at its origin, reserved, until extracted; then it is in the actor's hands (limited by the carry limit); then it is placed. An interruption drops it on the actor's cell. It is never duplicated or lost. An offer's identity includes its target's location, so a stale menu never acts on a moved item.
+7. Arriving is not working: the work phase starts on the tick after the approach ends.
+8. Player input becomes intents for the controlled actor: move to, use offer, cancel. The same intents come from the AI ([24](24-pop-ai.md)).
+9. Direct control (WASD) sets a movement intent each tick; movement still uses the body's speeds.
 
 ## Invariants
 
