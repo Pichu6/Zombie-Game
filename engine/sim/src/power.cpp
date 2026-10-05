@@ -27,9 +27,10 @@ constexpr double kIndoorDaylight = 0.02;     // share of outdoor light indoors (
 constexpr double kGlass = 0.85;              // clear single glazing transmission (product data)
 constexpr double kCurtainCover = 0.97;       // a heavy curtain (estimate)
 constexpr double kWindowArea_m2 = 1.2;       // the lit patch seen from outside
-// A light stands out when what it throws at the observer beats 5 % of the ambient plus an absolute
-// floor of dark-adapted vision (estimate; spec 19 rule 4).
-constexpr double kContrast = 0.05, kDarkFloorLux = 0.0005;
+// A light draws attention when what it throws at the observer beats 2 % of the ambient plus a
+// floor (estimate; spec 19 rule 4). Eyes detect a lit window much farther; this is the distance
+// where it stands out enough to pull a walker, set so a one-lamp room shows at ~50 m (spec 19 test).
+constexpr double kContrast = 0.02, kDarkFloorLux = 0.0002;
 
 }  // namespace
 
@@ -157,10 +158,10 @@ std::int64_t Power::fuel_ul(const World& w) const { return w.ledger.balance(*act
 
 double Power::fuel_lph() const {
   if (!running_) return 0;
-  return gen_.idle_lph + (gen_.full_lph - gen_.idle_lph) * std::min(1.0, load_w_ / gen_.capacity_w);
+  return gen_.idle_lph + (gen_.full_lph - gen_.idle_lph) * std::min(1.0, generator_load_w() / gen_.capacity_w);
 }
 
-void Power::solve(World& w, EventId cause, int switched_on) {
+void Power::solve(World& w, EventId cause, int switched_on, bool source_changed) {
   for (Receiver& r : receivers_) r.powered = false;
   load_w_ = 0;
   const bool on_generator = transfer_ == Transfer::Generator && running_;
@@ -185,10 +186,15 @@ void Power::solve(World& w, EventId cause, int switched_on) {
   // Brownout and stall: over the running rating, or a motor start over the surge rating (rule 2).
   if (load_w_ > gen_.capacity_w) {
     stall(w, StallCause::Overload, cause);
-  } else if (switched_on >= 0) {
-    const Receiver& r = receivers_[static_cast<std::size_t>(switched_on)];
-    const ReceiverDef& d = rdefs_[r.def];
-    if (r.powered && load_w_ - d.demand_w + d.surge_w > gen_.surge_w) stall(w, StallCause::Surge, cause);
+  } else {
+    // The worst start surge on top of the running load (motors start one by one; estimate).
+    double extra = 0;
+    for (std::size_t i = 0; i < receivers_.size(); ++i) {
+      const Receiver& r = receivers_[i];
+      if (r.powered && (source_changed || static_cast<int>(i) == switched_on))
+        extra = std::max(extra, rdefs_[r.def].surge_w - rdefs_[r.def].demand_w);
+    }
+    if (load_w_ + extra > gen_.surge_w) stall(w, StallCause::Surge, cause);
   }
 }
 
@@ -202,7 +208,7 @@ void Power::stall(World& w, StallCause why, EventId cause) {
 bool Power::start_generator(World& w, EventId cause) {
   if (running_ || fuel_ul(w) <= 0) return false;
   running_ = true;
-  solve(w, cause);
+  solve(w, cause, -1, true);
   return running_;
 }
 
@@ -216,7 +222,7 @@ bool Power::stop_generator(World& w, EventId cause) {
 bool Power::set_transfer(World& w, Transfer t, EventId cause) {
   if (transfer_ == t) return false;
   transfer_ = t;
-  solve(w, cause);
+  solve(w, cause, -1, t == Transfer::Generator);
   return true;
 }
 
@@ -396,8 +402,10 @@ std::vector<WindowLeak> Power::window_leaks(const World& w) const {
     leak.cover = 1 - (1 - curtain) * (1 - boards);
     const double transmission = ed.open || ed.breached ? 1.0 : kGlass;
     leak.leak_lux = leak.room_lux * transmission * (1 - leak.cover);
-    // The window as a small source: it throws leak * area / d^2 at the observer.
-    const double d = detmath::sqrt(leak.leak_lux * kWindowArea_m2 / (kContrast * outside + kDarkFloorLux));
+    // The lit pane as a small diffuse source: intensity ~ leak * area / pi (cd), so it throws
+    // leak * area / (pi d^2) at the observer.
+    constexpr double kPi = 3.14159265358979323846;
+    const double d = detmath::sqrt(leak.leak_lux * kWindowArea_m2 / kPi / (kContrast * outside + kDarkFloorLux));
     leak.seen_m = d >= 1 ? d : 0;
     out.push_back(leak);
   }

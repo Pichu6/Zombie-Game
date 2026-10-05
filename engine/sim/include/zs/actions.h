@@ -232,7 +232,8 @@ class Actors : public System {
   SiteMap& map_;
   Bodies& bodies_;
   ResourceId disinfectant_ = 0;
-  std::vector<ResourceId> liquids_;  // what a container can hold; it holds one at a time
+  std::vector<std::pair<ResourceId, double>> liquids_;  // what a container can hold (one at a time), g per mL
+  double contents_g(const World& w, EntityId container) const;
   OwnerId used_ = 0;
   std::vector<ProcessDef> processes_;
   std::vector<EntityId> object_entities_;           // per map object

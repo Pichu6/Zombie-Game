@@ -261,7 +261,48 @@ TEST_CASE("stage 6: the scenario through actions: refuels once, runs dry, the fo
   u.world->load(mid);
   while (at_mid.drive(u)) u.world->step();
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 2846288229969204348ULL;
+  const std::uint64_t golden = 198114955181617027ULL;
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 6 golden world hash: " << t.world->world_hash());
+}
+
+TEST_CASE("stage 6 review: a generator idling while the panel is on mains burns idle fuel") {
+  Tier0 t = make_world(1);
+  all_lamps(t, true);
+  REQUIRE(t.power->start_generator(*t.world, 0));
+  CHECK(t.power->load_w() > 0);  // the mains carry the house
+  CHECK(t.power->fuel_lph() == doctest::Approx(t.power->generator().idle_lph));
+}
+
+TEST_CASE("stage 6 review: moving the panel to a running generator starts every motor at once") {
+  Tier0 t = make_world(1);
+  t.power->fail_grid(*t.world, 0);
+  REQUIRE(t.power->start_generator(*t.world, 0));
+  t.power->set_on(*t.world, object(t, "hot_plate"), true, 0);
+  t.power->set_on(*t.world, object(t, "radio"), true, 0);
+  // 150 + 1200 + 20 running, plus the saw's 700 W start margin: 2070 < 3500, fine.
+  t.power->set_on(*t.world, object(t, "saw"), true, 0);  // trips nothing yet: no source on the bus
+  t.power->set_on(*t.world, object(t, "radio"), false, 0);
+  t.power->set_on(*t.world, object(t, "hot_plate"), false, 0);
+  // fridge 150 + saw 1800 running = 1950 < 3000, but the saw's start (+700) and the fridge's
+  // (+450) come together on the switch: the worst one, 2650 < 3500, still holds.
+  CHECK(t.power->set_transfer(*t.world, Transfer::Generator, 0));
+  CHECK(t.power->generator_running());
+  // With the hot plate too (3150 W running) it is over capacity at once.
+  t.power->set_transfer(*t.world, Transfer::Off, 0);
+  t.power->set_on(*t.world, object(t, "hot_plate"), true, 0);
+  t.power->set_transfer(*t.world, Transfer::Generator, 0);
+  CHECK_FALSE(t.power->generator_running());
+}
+
+TEST_CASE("stage 6 review: a carried fuel can weighs its fuel; a hung blanket can be taken down") {
+  Tier0 t = make_world(1);
+  const EntityId can = item_of(t, "fuel_can");
+  t.world->locations.place(can, t.player);
+  CHECK(t.actors->carried_kg(*t.world, t.player) == doctest::Approx(1.1 + 15 * 0.74));
+  const EntityId window = kitchen_window(t);
+  const EntityId blanket = item_of(t, "blanket");
+  t.world->locations.place(blanket, window);
+  CHECK(t.actors->covered(*t.world, window));
+  CHECK(t.actors->preview(*t.world, t.player, *t.actors->find_process("take"), blanket).enabled);
 }

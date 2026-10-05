@@ -28,7 +28,8 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
    - **Stage 2:** condition, assemblies with salvage that conserves mass, and the Tier 0 block map with its room graph (`zs_headless --map`).
    - **Stage 3:** the body (composition, energy, water, blood, sleep, exertion, 17 regions, wounds, infection, healing, capabilities). `zs_headless --body-lab` runs 14 calibration scenarios, all inside their bands. `zs_headless --bench` runs one game day with 4 pops and 60 walkers in about 0.2 s.
    - **Stage 4:** the compressed item and action model (materials, properties, stocks vs things; body primitives plus data processes that match by property), the action executor and a scripted pop that drinks, eats, disinfects and dresses a wound, breaks a chair into planks and boards a window (`zs_headless --scripted-pop`). Player and AI runs of the same intents hash the same.
-   - **Next:** stage 5 (first window: SDL3 + ImGui) on the user's Windows PC, which is also the first MSVC check; stage 6 (power, noise, light) can start headless in parallel.
+   - **Stage 6:** the generator problem, headless. A power network (mains and generator behind a transfer switch, breakers, surge and overload stalls), fuel through the ledger, a grid failure drawn in days 2-5, fridge temperature and spoilage, a noise field through walls and doors, and light with window leaks, curtains and boards; dark slows fine work. `zs_headless --stage6` runs the grid failure, refuel, fuel-out and spoilage, with a night snapshot of noise and light. The window overlays wait for stage 5.
+   - **Next:** stage 5 (first window: SDL3 + ImGui) on the user's Windows PC, which is also the first MSVC check; stage 7 (the dead: damage, infection, census, walker brain) can go ahead headless.
 2. Push the repo to GitHub once the account is back.
 
 ## Waiting on the user

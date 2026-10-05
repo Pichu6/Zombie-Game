@@ -199,8 +199,9 @@ void Actors::populate(World& w) {
       {"food_kj", "food_j", 1e3},          {"tap_water_l", "body_water_ul", 1e6}, {"water_ml", "body_water_ul", 1e3},
       {"disinfectant_ml", "disinfectant_ul", 1e3}, {"gasoline_l", "gasoline_ul", 1e6}};
   liquids_.clear();
-  for (const char* name : {"body_water_ul", "disinfectant_ul", "gasoline_ul"})
-    if (auto r = resource_id(l, name)) liquids_.push_back(*r);
+  // Densities: water 1.0, isopropyl alcohol 0.79, gasoline ~0.74 g/mL (handbook values).
+  for (const auto& [name, density] : {std::pair{"body_water_ul", 1.0}, {"disinfectant_ul", 0.79}, {"gasoline_ul", 0.74}})
+    if (auto r = resource_id(l, name)) liquids_.emplace_back(*r, density);
   auto mint_amounts = [&](OwnerId owner, const MapObject& o) {
     for (const auto& [key, v] : o.amounts) {
       const AmountKey* k = nullptr;
@@ -305,11 +306,17 @@ std::vector<EntityId> Actors::carried(const World& w, EntityId body) const {
 double Actors::carried_kg(const World& w, EntityId body) const {
   double g = 0;
   for (EntityId e : carried(w, body)) {
-    g += static_cast<double>(items_.mass_g(e));
-    if (auto s = store_of(e))
-      g += static_cast<double>(w.ledger.balance(*s, bodies_.ids().water_ul) + w.ledger.balance(*s, disinfectant_)) / 1000.0;
+    g += static_cast<double>(items_.mass_g(e)) + contents_g(w, e);
   }
   return g / 1000.0;
+}
+
+double Actors::contents_g(const World& w, EntityId container) const {
+  const auto s = store_of(container);
+  if (!s) return 0;
+  double g = 0;
+  for (const auto& [r, density] : liquids_) g += static_cast<double>(w.ledger.balance(*s, r)) / 1000.0 * density;
+  return g;
 }
 
 void Actors::recompute_carried(const World& w, Actor& a) { a.carried_kg = carried_kg(w, a.body); }
@@ -367,6 +374,7 @@ bool Actors::target_matches(const World& w, const ProcessDef& p, const Actor& a,
       if (!p.target_match.empty() && items_.def(items_.get(target).def).family != p.target_match) return false;
       // Loose = lying on a floor or at a map object; not mounted, not built into the map, not in hands.
       const EntityId parent = w.locations.parent_of(target);
+      if (edge_of_.contains(parent)) return items_.prop(target, Prop::ClothAreaM2) >= 1.0;  // a hung curtain
       return floor_cell(parent).has_value() || object_index_.contains(parent);
     }
     case TargetKind::Edge: {
@@ -454,7 +462,7 @@ Actors::Found Actors::check(const World& w, const Actor& a, const ProcessDef& p,
     }
     if (e.op == EffectOp::Cover && covered(w, target)) return {Reason::Full};
     if (e.op == EffectOp::Take &&
-        a.carried_kg + static_cast<double>(items_.mass_g(target)) / 1000.0 > bodies_.carry_limit_kg(b, w.clock.tick))
+        a.carried_kg + (static_cast<double>(items_.mass_g(target)) + contents_g(w, target)) / 1000.0 > bodies_.carry_limit_kg(b, w.clock.tick))
       return {Reason::TooHeavy};
     if (e.op == EffectOp::Board) {
       if (!fitting_part(w, a, "plank", Prop::FlatBoard)) return {Reason::MissingItem};
@@ -674,7 +682,7 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
         if (!cs) continue;
         const auto cap = static_cast<std::int64_t>(items_.prop(c, Prop::ContainerMl) * 1000);
         std::int64_t other = 0;  // a container holds one liquid: never water into a fuel can
-        for (ResourceId r : liquids_)
+        for (const auto& [r, density] : liquids_)
           if (r != water) other += l.balance(*cs, r);
         const std::int64_t room = cap - l.balance(*cs, water);
         if (room > 0 && other == 0) l.transfer(t, *s, *cs, water, room, a.cause);

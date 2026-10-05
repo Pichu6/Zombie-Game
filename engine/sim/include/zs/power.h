@@ -82,6 +82,7 @@ class Power : public System {
   bool generator_running() const { return running_; }
   Transfer transfer() const { return transfer_; }
   double load_w() const { return load_w_; }
+  double generator_load_w() const { return running_ && transfer_ == Transfer::Generator ? load_w_ : 0; }
   std::int64_t fuel_ul(const World& w) const;
   std::int64_t tank_ul() const { return static_cast<std::int64_t>(gen_.tank_l * 1e6); }
   double fuel_lph() const;  // at the current load
@@ -105,7 +106,9 @@ class Power : public System {
   int space_of(const Cell& c) const;
 
  private:
-  void solve(World& w, EventId cause, int switched_on = -1);
+  // switched_on: a receiver just turned on (its start surge); source_changed: every running motor
+  // starts at once (generator started, panel moved to it).
+  void solve(World& w, EventId cause, int switched_on = -1, bool source_changed = false);
   void stall(World& w, StallCause why, EventId cause);
   void step_fuel(World& w);
   void step_fridge(World& w);

@@ -15,6 +15,18 @@ Every sound is an event with a level that travels through the room graph and wak
 | background level | per area and hour: urban day ~55 dB, urban night ~45 dB; after the grid fails, quiet night ~30 dB |
 | portal loss | per portal from the assembly ([08](08-assembly.md)) and its open fraction |
 
+## Model as implemented (Proposal, 2026-10-05)
+
+Code: `engine/sim/src/noise.cpp`. Stateless: callers evaluate it when something changes.
+
+- **Best path** is a least-loss Dijkstra over cells (not rooms): crossing an edge costs its assembly's `sound_loss_db` when closed, 0 when air passes (no edge, open, breached), +3 dB per nailed board; stairs cost 0. Ties break by steps then cell index.
+- **Level** at a cell = L(1 m) − 20·log10(max(1, straight-line distance, 3 m per level)) − path loss; sources add energetically.
+- **Background:** 55 dB day / 45 night while the grid lives, 40 / 30 after it fails (night 22:00–07:00).
+- **Carry outdoors:** audible range = 10^((L − best loss to any outdoor cell − background − 3) / 20). An open-frame generator (89 dB) carries ~112 m at night before the grid fails and ~630 m after.
+- **Sources** now: the running generator and each pop's current primitive or footsteps.
+
+**Known gaps:** spreading uses the straight-line distance, not the length of the best path (a sound around corners carries a bit too far); no listeners yet (walkers come in stage 7); no direction or certainty from the margin; border attention for the census (rule 4) is not wired; no cache.
+
 ## Rules
 
 1. Level at a listener = source level − 20·log10(distance in m) along the best path − sum of portal losses on that path. Best path = least total loss, by Dijkstra over the room graph with portal positions.

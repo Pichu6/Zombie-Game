@@ -17,6 +17,19 @@ The building's power as a small graph: mains or generator → transfer switch �
 | receiver | demand W (running and start surge), on/off, powered yes/no |
 | mains | present until the grid-failure event, then dead |
 
+## Model as implemented (Proposal, 2026-10-05)
+
+Code: `engine/sim/src/power.cpp`, data: `data/tier0/power.toml`.
+
+- **One network per building:** mains and one generator behind a transfer switch (off, mains, generator) at the `power_panel`, then circuits with a breaker rating in W, then receivers. Receivers are map objects matched by `kind` (lamp, fridge, hot_plate, radio, saw); cables are not modelled.
+- **Solve** runs only on a change (switch, start, stop, grid failure, fuel out). A circuit over its rating trips (`BreakerTripped`); the others keep running. On the generator, load over `capacity_w` stalls it (`GeneratorStalled`, overload). Load plus the worst start surge (surge − demand) of the receivers starting passes `surge_w`: it stalls too. Starting are the one just switched on, or all of them when the generator starts or the panel moves to it. Fuel follows the generator's own load: idling while the panel is on mains burns idle fuel.
+- **Fuel** (`gasoline_ul`) burns every body step (60 s): idle + (full − idle) × load fraction, from the generator's tank store into `sink:burned`, with the sub-µL rest saved. An empty tank stops it (`GeneratorOutOfFuel`). Refuelling pours from carried containers up to the tank size.
+- **Grid failure** is drawn at setup in [day 2, day 5) (`Purpose::GridFailure`) and scheduled; it emits `GridFailed`.
+- **Fridge:** the inside moves toward 3 °C (τ 1 h) while powered and on, toward 20 °C (τ 6 h) otherwise. Spoilage progress grows by dt / life(T), life = 7 days × 2^((4 − T) / 4). At 1, all `food_j` in the fridge converts to `spoiled_food_j` (`FoodSpoiled`). An empty fridge resets the clock.
+- **Actions** reach it through `power` effects (start, stop, refuel, on, off, transfer_generator, transfer_mains, reset), checked and applied through hooks so the executor does not depend on this system.
+
+**Known gaps:** no cables or per-cable limits; one batch clock for the whole fridge; refuelling a running engine is allowed (the AI should wait, spec 24); no shock hazard yet (rule 6); no carbon monoxide; stall is immediate (no brownout phase); capacity doesn't follow engine Q yet; resetting a breaker under the same overload trips it again.
+
 ## Rules
 
 1. Solved only when dirty (a switch, receiver, cable or source changes): find connected components from each live source over closed switches, sum demand, compare with capacity. Cost is a few hundred operations; never per tick.
