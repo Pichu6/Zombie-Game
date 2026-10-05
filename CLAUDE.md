@@ -19,6 +19,7 @@ A realistic zombie survival simulation for PC, on our own C++ engine with a Vulk
 | Current state and next step | `docs/status.md` | One screen. Rewrite it; don't append. |
 | Game vision | `docs/vision.md` | One page. |
 | Design per system | `docs/design/<system>.md` | One source of truth per system. |
+| Tier 0 plan and unit specs | `docs/tier0/` | A unit's spec is written before its code. |
 | Decisions | `docs/decisions/NNNN-topic.md` | One per file, dated. Never rewritten; a new decision supersedes an old one and says so. |
 | Research | `docs/research/` | Dated notes; not decisions. |
 | Prototype lessons | `docs/lessons/` | What failed and why. |

@@ -23,7 +23,7 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Next step
 
-1. Write one-page specs for the Tier 0 units (contract rule 10), then plan Tier 0: sim core layout, body, room graph, power and noise, the 2D debug view. No test slice of the world layers yet.
+1. Tier 0 specs and plan are written (Proposal): [plan](tier0/plan.md), [specs](tier0/specs/README.md). Next: stage 0 (build skeleton), then stage 1 (foundations).
 2. Push the repo to GitHub once the account is back.
 
 ## Waiting on the user
