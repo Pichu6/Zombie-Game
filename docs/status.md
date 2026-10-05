@@ -23,10 +23,9 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Next step
 
-1. Answer the open questions in [vision](vision.md#open-questions).
-2. Write one-page specs for the Tier 0 units (contract rule 10), then plan Tier 0: sim core layout, body, room graph, power and noise, the 2D debug view. No test slice of the world layers yet.
-3. Push the repo to GitHub once the account is back.
+1. Write one-page specs for the Tier 0 units (contract rule 10), then plan Tier 0: sim core layout, body, room graph, power and noise, the 2D debug view. No test slice of the world layers yet.
+2. Push the repo to GitHub once the account is back.
 
 ## Waiting on the user
 
-- The open questions in [vision](vision.md#open-questions): nine on the world simulation (each has a recommendation), plus engine stack, clothing, quality formula and tone.
+- Tone and level of graphic violence ([vision](vision.md#open-questions)). Everything else was answered in [0014](decisions/0014-open-questions-answered.md).

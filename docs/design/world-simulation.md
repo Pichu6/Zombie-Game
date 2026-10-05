@@ -59,10 +59,10 @@ Every system obeys these rules; they are what make "same rules for player and po
   - A slow, visible shambler almost always fizzles once people know (each infects ~0.3 people when people fight back).
   - A fast runner goes regional and stalls at low density.
   - "Everyone reanimates" is global by definition.
-  - A hidden bite (1–2 days to turn, people hide it) goes regional often, global sometimes. **Proposed realistic default.**
+  - A hidden bite (1–2 days to turn, people hide it) goes regional often, global sometimes. **Default (Decided, 0014).**
   - Airborne behaves like COVID.
   - Fizzle odds use the branching-process formula with superspreading (Lloyd-Smith).
-- **Warning time:** arrival minus first public news. About 7 days by default (Decided), drawn narrowly around day 7 (Proposal); "most real" places patient zero anywhere on Earth by population. All 7 days are live (Decided).
+- **Warning time:** arrival minus first public news. About 7 days by default (Decided), drawn narrowly around day 7 (Decided, 0014); "most real" places patient zero anywhere on Earth by population. All 7 days are live (Decided).
 - **Response:** authority states per region (normal → advisory → travel ban → curfew → cordon → martial law → collapse, plus local order), from real lags (Italy's red zone on day 2, Wuhan's lockdown on day 23, Ebola cordons). A held cordon is a valid run.
 - **Origins:** viral, bacterial, "everyone reanimates", fungal, prion in the base game (numbers plus two general hooks: what makes a corpse rise, and pathogen held in water, soil or corpses). Rule-changing origins (parasites that control the living, controllers, occult) are DLC (Decided). If an occult DLC ships, it uses an invented occult, not a real religion.
 
@@ -112,6 +112,6 @@ A scenario can only set numbers or starting state, schedule real events, and add
 
 Tier 0 stays as decided ([0010](../decisions/0010-concept-v2.md)): contract, body, assemblies (doors and windows included), sound core, room-graph power, ~60-person stub census, walkers and pop AI, 2D individual view, kill/keep runs. Then: census and records, region graph with authorities and behaviour, economy and infrastructure, social order, the living week, real-Earth data and world setup, macro and city views, scenarios, switching, scale.
 
-## Open
+## Answered
 
-See [vision](../vision.md#open-questions).
+The nine open questions (speed by path, hidden odds, narrow arrival, hidden-bite default, civilian start, pause while ordering, instant build in sandbox only, orders need comms, realism-breaking presets tagged in Sandbox) were decided as recommended in [0014](../decisions/0014-open-questions-answered.md).

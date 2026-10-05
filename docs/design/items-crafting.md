@@ -78,9 +78,9 @@ Decided (confirmed 2026-09-10):
 
 ### Formula
 
-Conflict: the prototype used a geometric mean and a `sqrt(Q·S)` cap; the engine research proposes another rule. The research rule is preferred. Proposal:
+Decided ([0014](../decisions/0014-open-questions-answered.md)): the research rule, plus the method ceiling and process stability from the [production ladder](#production-ladder). Numbers per family are still to tune.
 
-- `Q_out = weighted mean of input Q`, capped by `min(skill, Q_tool)`, plus a small random spread.
+- `Q_out = weighted mean of input Q`, capped by `min(skill, Q_tool, method ceiling, Q_station)`, with a spread set by process stability.
 - Weights represent function, not mass.
 - Q is continuous, with no steps. Candidate scale 0–100. Open: the prototype also used [1, 100+].
 - Example: a Q40 head and a Q90 handle with 70/30 weights give Q55 before the cap.

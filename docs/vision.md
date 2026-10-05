@@ -82,23 +82,7 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-Recommendations are Proposals; details in [world simulation](design/world-simulation.md) and [research/global-sim](research/global-sim.md).
+All earlier questions were answered on 2026-10-05 ([0014](decisions/0014-open-questions-answered.md)). Still open:
 
-**World simulation**
-
-1. Movement speed between towns: real speeds on paths, body speed inside the local zone? Recommended: yes.
-2. Outbreak odds (will it fizzle?) shown while playing an individual? Recommended: hidden; shown in the god view and after death.
-3. Arrival time: drawn narrowly around day 7, or widely? Recommended: narrow.
-4. Default origin? Recommended: hidden bite, 1–2 days to turn (a slow, visible shambler almost always fizzles).
-5. Default start role? Recommended: civilian, with Responder (real local health officer or mayor) as an option.
-6. Pause while giving orders in City and Macro? Recommended: yes.
-7. Instant build? Recommended: sandbox only.
-8. Do orders need working communications to reach people? Recommended: yes.
-9. Community presets that break realism: rejected outside Sandbox, tagged inside? Recommended: yes.
-
-**Earlier**
-
-10. Engine stack ([0002](decisions/0002-engine-stack.md)).
-11. Clothing via GPU wrap ([0003](decisions/0003-clothing-wrap.md)).
-12. Quality formula ([0006](decisions/0006-crafting-quality.md)), now with method ceilings and process stability ([production ladder](design/items-crafting.md#production-ladder)).
-13. Tone and level of graphic violence.
+- Tone and level of graphic violence.
+- Ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).
