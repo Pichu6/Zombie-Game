@@ -15,6 +15,23 @@ The single place where anything is done to the world, by the player or any AI, u
 | reservation | One per instance in use |
 | queue | Per actor, ordered intents |
 
+## Model: primitives and processes (Proposal, 2026-10-05)
+
+Pichu's constraint: items will number in the thousands and actions must stay compressed. Code holds only the **primitives**; every contextual action is a **process** in data that matches items by property, never by name ([15](15-items-recipes.md#model-materials-properties-stocks-and-things)).
+
+| Layer | What it is | Where it lives |
+| --- | --- | --- |
+| Primitive | One body verb: move (walk, run, crawl, climb), hold/carry, strike, push/pull, cut, pry, fine work, consume, rest/sleep, exercise, search, wait | Code. Each has a body cost (MET, which regions move), the capability it needs ([13](13-capabilities.md)) and a noise ([18](18-noise-field.md)) |
+| Process | A primitive applied to a target with requirements and effects, e.g. "pry window" = pry + tool `lever >= 0.5` | Data (`data/tier0/processes.toml`) |
+| Requirement | A property test on a tool, an input or the target: `lever >= 0.5`, `cloth_area >= 0.2`, `water_safe` stock `>= 200 mL` | Data |
+| Effect op | One of a fixed set: transfer stock, convert stock, change condition, mount, unmount, add wound, treat wound, set state | Code (the whole effect vocabulary) |
+| Phase | approach → prepare → work → finish; each phase lists its primitive and its effect ops | Data |
+
+- **Speed from properties.** Work time = base time ÷ (tool property ÷ the process's reference value), × work rate ([13](13-capabilities.md)). A crowbar (lever 1.0) pries faster than a screwdriver (lever 0.3); both qualify for a reference of 0.25.
+- **Knowledge** is a set of known process ids per person, plus one skill number per trade (first aid, carpentry, mechanics, electronics). Everyday processes (eat, drink, open, carry) are known by everyone.
+- **Exercise** is a primitive with a MET and training stimulus; the body already counts heavy minutes ([11](11-body-composition.md)).
+- New items join old processes automatically when their properties qualify; a new process needs no code unless it needs a new effect op.
+
 ## Rules
 
 1. Five gates decide what an actor sees and can do ([world simulation §9](../../design/world-simulation.md#9-communication-decided-as-intent-model-proposal)): **knowledge** hides an offer; **skill** sets the odds and Q cap; missing **items** or **access** grey it out with the reason; **quality** changes the result; **capability** ([13](13-capabilities.md)) blocks with the reason.

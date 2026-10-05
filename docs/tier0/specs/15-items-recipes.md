@@ -6,6 +6,18 @@
 
 The ~20 item families and the few recipes that make the generator problem playable. Each one serves a real way to survive or die.
 
+## Model: materials, properties, stocks and things (Proposal, 2026-10-05)
+
+Items will number in the thousands, so an item is a few rows of data, never code.
+
+1. **Materials** (`data/tier0/materials.toml`, ~20 rows): density, hardness, flammability, food energy, water content, each with a source. Physical numbers live only here.
+2. **Item definitions** (`items.toml`) inherit from a parent (`board` ← `wood_part`) and list only what differs: material, volume or mass, slots ([08](08-assembly.md)), and **properties**.
+3. **Properties** are one fixed list of numeric keys that processes test: `edge`, `blunt`, `lever`, `grip`, `container_ml`, `cloth_area_m2`, `absorbent`, `fuel_kj`, `food_kj`, `flat_board`, `fastener`… A key not given is derived from the material (e.g. `blunt` from mass and hardness) or is 0. Q and condition scale a property continuously; the property's governing part decides which Q counts (an axe's edge follows its head).
+4. **Stocks and things.** Bulk resources (water, fuel, nails, food, ammunition) are ledger stocks: counts in an owner, no identity, cheap at any number. Only things with their own Q, condition or slots (a hammer, a door, a radio) are instances; canned food stays a stock of cans. Most of the thousands are stocks.
+5. **States** are a small enum per family (fresh/stale/spoiled, safe/unknown, charge %), stored on the stock lot or the instance.
+
+The Tier 0 families below are the first rows of these tables.
+
 ## Items
 
 | Family | Notes | Feeds |
