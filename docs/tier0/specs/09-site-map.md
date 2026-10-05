@@ -17,6 +17,7 @@ The hand-made Tier 0 block: one 2-floor building with a basement and yard, plus 
 | rooms | derived: flood fill of cells bounded by closed edges | Recomputed when an edge opens, closes or breaks |
 | portals | derived: each open or leaky edge between rooms, with area and open fraction | Room graph edges |
 | receivers and fixtures | positions of lamps, outlets, fridge, stove, panel | Linked to [17](17-power-network.md) |
+| stockpiles | marked areas or shelves for the haul job | [24](24-pop-ai.md) |
 
 ## Rules
 

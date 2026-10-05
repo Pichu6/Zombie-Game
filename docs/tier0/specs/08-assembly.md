@@ -21,7 +21,7 @@ One data model for everything built, from a nail to a wall to the generator ([00
 
 1. Mass of an assembly = sum of mounted parts + contents, each counted once.
 2. A functional property names the part that governs it (door hold force ← strike plate and hinges; generator output ← engine and alternator). It reads that part's Q and condition, not the average.
-3. Q of a made or repaired assembly: weighted mean of the governing parts' Q, capped by min(skill, tool Q, method ceiling) ([0014](../../decisions/0014-open-questions-answered.md)). Tier 0 has only salvage and hand methods.
+3. Q of a made or repaired assembly: weighted mean of the governing parts' Q, capped by min(skill, Q_tool, method ceiling, Q_station) ([0014](../../decisions/0014-open-questions-answered.md)). Tier 0 has only salvage and hand methods and no stations, so Q_station does not cap yet.
 4. A missing or failed required part stops the function. The average never lets an incomplete object work.
 5. Salvage moves the real parts out through the ledger, minus a declared loss that drops with skill and tool Q. It never rolls new loot. Disassembling and reassembling never raises Q.
 6. Composition is fixed when the instance is created (from the map file or a seed) and saved.

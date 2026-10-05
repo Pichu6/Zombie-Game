@@ -1,6 +1,6 @@
 # 15 · Tier 0 items and recipes
 
-**Status:** Proposal. **Stage:** 4. **Needs:** [08](08-assembly.md), [14](14-action-executor.md).
+**Status:** Proposal. **Stage:** 4. **Needs:** [04](04-hazard-event.md), [08](08-assembly.md), [14](14-action-executor.md).
 
 ## Purpose
 
@@ -29,6 +29,10 @@ The ~20 item families and the few recipes that make the generator problem playab
 | Crowbar, kitchen knife | Melee | Combat |
 | Splint (improvised) | Boards + cloth | Fractures |
 | Backpack | Container with volume | Carry |
+| Circular saw (power tool) | ~1.8 kW, very loud; makes salvage and barricades faster | Power, noise |
+| Curtain or cloth cover | Covers a window: less light leak, a little less noise | Light leak |
+| Worn clothes | Jacket, jeans, boots: one cut and bite protection value per region, no layers or insulation | Bites |
+| Stockpile | A marked floor area or shelf that the haul job fills ([09](09-site-map.md)) | Hauling |
 | Doors, windows, walls, barricades | Map assemblies ([10](10-fortification.md)) | Fortification |
 
 ## Recipes and processes (Tier 0)
@@ -36,6 +40,8 @@ The ~20 item families and the few recipes that make the generator problem playab
 | Process | Method | Inputs and tools | Notes |
 | --- | --- | --- | --- |
 | Barricade window or door | Hand | planks, nails, hammer | Loud; resumable |
+| Salvage door or window | Salvage | screwdriver, crowbar | Returns hinges, strike plate, panel, glass ([10](10-fortification.md) chain) |
+| Repair door part | Hand | replacement hinge, strike plate or panel, screwdriver or hammer | Restores the failed part in the chain |
 | Salvage furniture into planks | Salvage | hammer or crowbar | Loud; returns real boards |
 | Refuel generator | Hand | fuel can | Engine must be off (fire risk later) |
 | Service generator | Hand | spark plug, filter, oil, wrench | Mechanic knowledge improves odds and Q |
@@ -65,4 +71,4 @@ The ~20 item families and the few recipes that make the generator problem playab
 
 ## Not in Tier 0
 
-Firearms (candidate stretch: a shotgun is a perfect comfort-vs-noticed item), clothing layers and insulation, crops, water network (stretch: tank and basement leak).
+Firearms (candidate stretch: a shotgun is a perfect comfort-vs-noticed item), clothing layers, insulation and fit, crops, water network (stretch: tank and basement leak).

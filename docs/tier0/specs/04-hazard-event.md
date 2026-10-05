@@ -17,22 +17,22 @@ Every "may happen" in the game (a wound gets infected, a hinge fails, a census n
 
 ## Rules
 
-1. A hazard h over a step Δt fires with p = 1 − exp(−h·Δt), drawn with the hazard's own key.
-2. When several hazards compete on one entity in one step, they are tested in exit-set order; the first that fires wins and the rest are skipped this step.
+1. A single hazard h over a step Δt fires with p = 1 − exp(−h·Δt) (`detmath`), drawn with the hazard's own key.
+2. When several hazards compete on one entity (an exit set), one draw decides whether any fires, with total rate H = Σh: p = 1 − exp(−H·Δt). A second draw picks which one, with weight hᵢ/H, walking the list in its fixed order (contract rule 3). No hazard is favoured by its position.
 3. Known-time outcomes (a census death at a drawn time) are drawn once, up front, and scheduled; they are not re-rolled each tick.
 4. Every event stores its cause (another event or a hazard with its source), so chains can be read back ([25](25-chronicle.md)).
 5. Settings change hazard numbers, never which hazards exist.
 
 ## Invariants
 
-- 0 ≤ p ≤ 1 and the probabilities of one exit set sum to at most 1.
+- 0 ≤ p ≤ 1; at most one hazard of an exit set fires per step.
 - Every event except the run start has a cause.
 
 ## Tests
 
 - Halving Δt with the rate fixed gives the same firing-time distribution. (A2)
 - A zeroed hazard never fires; its transition disappears. (A1, metamorphic)
-- Exit order respected: with two certain hazards the first always wins. (A1)
+- Two competing hazards with rates h₁ and h₂: each wins in proportion hᵢ/(h₁+h₂) over 10⁵ draws. (A2)
 
 ## Calibration
 

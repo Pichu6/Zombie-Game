@@ -1,6 +1,6 @@
 # 24 · Pop AI
 
-**Status:** Proposal. **Stage:** 8. **Needs:** [14](14-action-executor.md), [15](15-items-recipes.md), [17](17-power-network.md)–[19](19-light-field.md), [23](23-walker-brain.md).
+**Status:** Proposal. **Stage:** 8. **Needs:** [11](11-body-composition.md), [14](14-action-executor.md), [15](15-items-recipes.md), [17](17-power-network.md)–[19](19-light-field.md), [21](21-infection.md)–[23](23-walker-brain.md).
 
 ## Purpose
 
@@ -10,7 +10,7 @@ What a pop does when nobody controls it: look after its body, do its jobs, obey 
 
 | Field | Notes |
 | --- | --- |
-| mood | fear (threats seen and heard, darkness, pain), morale (hunger, sleep, losses, comforts: light, hot food, company) |
+| mood | reads fear and morale from the person ([11](11-body-composition.md)); the AI never owns them |
 | job priorities | 6 jobs × priority, from the job board |
 | order | current squad order: go, hold, follow, attack (overrides jobs) |
 | disposition | a few fixed traits from the census: brave/timid, honest/secretive |
@@ -33,7 +33,7 @@ What a pop does when nobody controls it: look after its body, do its jobs, obey 
 
 ## Tests
 
-- **AI-only run:** 4 pops with no player for 14 days, 50 seeds. They should die of the same ignored things a careless player does (log of causes), and survive often enough to show the rules are survivable. (A2)
+- **AI-only run:** 4 pops with no player for 14 days, 50 seeds. They should die of the same ignored things a careless player does (log of causes), and survive often enough to show the rules are survivable. (A3, plus the logged causes)
 - Each refusal situation triggers with its reason. (A1)
 - Possess, act, release: AI continues the same job with the same state. (A1)
 

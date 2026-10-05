@@ -37,7 +37,7 @@ Wound types in Tier 0: scratch, laceration, puncture, bite, blunt contusion, fra
 ## Tests
 
 - Untreated deep laceration on the thigh: bleeds out inside the hemorrhage band; with a dressing, survives. (A3)
-- 100 seeded untreated dirty lacerations: infection rate inside the band; cleaned ones lower. (A2)
+- 100 seeded untreated dirty lacerations: infection rate inside the band; cleaned ones lower. (A3)
 - Splinted fracture walks faster than unsplinted. (A3)
 
 ## Calibration

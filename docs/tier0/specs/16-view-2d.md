@@ -22,9 +22,10 @@ The Tier 0 window: SDL3 + Dear ImGui, top-down 2D, no Vulkan ([0010](../../decis
 
 ## Controls
 
-- Direct control: WASD moves the controlled pop; mouse targets; E uses the default offer; right click opens the menu.
+- Direct control: WASD moves the controlled pop; mouse targets; E uses the default offer.
 - Command: left click or drag selects pops; right click gives go; keys for hold, follow, attack.
-- Keyboard and mouse first; gamepad as a full path is designed in (abstract actions), but Tier 0 tests it only if time allows.
+- The Decided click scheme ([interaction](../../design/interaction.md#selection-targeting-and-control)) is kept alongside WASD: in direct control, right click on ground moves and right click on an object opens its menu; in command, middle click opens orders.
+- Keyboard and mouse first; gamepad as a full path is designed in (abstract actions) but not tested in Tier 0.
 
 ## Rules
 

@@ -17,7 +17,7 @@ Doors, windows, walls, fences and barricades are assemblies that fail part by pa
 
 ## Rules
 
-1. Push load on an edge = sum over attacking bodies of mass × g × posture factor × (1 − decay factor). Each body's factor comes from its body ([11](11-body-composition.md)).
+1. Push load on an edge = sum over attacking bodies of mass × g × posture factor × (1 − decay factor). Each body's factor comes from its body ([11](11-body-composition.md)). Tier 0 has no decay model, so the decay factor is 0.
 2. Each tick, the load is applied to the first intact part of the chain; it loses condition at a rate that grows with load above its hold force. When it fails, the next part takes the load.
 3. Breach time therefore falls smoothly with horde size; there is no "N zombies break a door" constant.
 4. Every hit or push is a sound event ([18](18-noise-field.md)); the level grows with impulse.
@@ -33,7 +33,7 @@ Doors, windows, walls, fences and barricades are assemblies that fail part by pa
 
 - Breach time decreases monotonically with the number of pushers. (A3)
 - A boarded door outlasts the bare door under the same load. (A3)
-- Ten seeded runs with 5 walkers on a standard interior door land inside the calibration band. (A2)
+- 50 seeded runs with 5 walkers on a standard interior door: median breach time inside the calibration band. (A3)
 
 ## Calibration
 

@@ -22,7 +22,7 @@ The building's power as a small graph: mains or generator → transfer switch �
 1. Solved only when dirty (a switch, receiver, cable or source changes): find connected components from each live source over closed switches, sum demand, compare with capacity. Cost is a few hundred operations; never per tick.
 2. Over a breaker's rating: it trips (event, slow-down). Over the generator's capacity: brownout, then the generator stalls (event).
 3. Generator fuel use per hour = idle use + (full-load use − idle use) × load fraction; fuel moves to `world.burned` through the ledger.
-4. A running generator is a continuous noise source ([18](18-noise-field.md)); its level depends on its type and enclosure (indoors is quieter outside but brings carbon monoxide, Tier 1).
+4. A running generator is a continuous noise source ([18](18-noise-field.md)); its level depends on its type and enclosure (indoors is quieter outside but brings carbon monoxide: a Tier 0 stretch, see the plan).
 5. Grid failure: in Tier 0 a scheduled world event (drawn between day 2 and day 5) kills the mains, a stand-in for staff loss in the full sim ([world simulation §5](../../design/world-simulation.md#5-entanglement-decided-as-a-requirement-loop-details-proposal)).
 6. Working on a live circuit (panel, cable) is a hazard (shock injury). The AI refuses it ([24](24-pop-ai.md)); the player may do it.
 7. Model in watts per connected component only; no voltage or current.
@@ -34,7 +34,7 @@ The building's power as a small graph: mains or generator → transfer switch �
 
 ## Tests
 
-- Switching on the hot plate with fridge and lamps on a 3 kW generator: inside capacity; adding a 1.4 kW saw stalls it. (A1)
+- Switching on the hot plate with fridge and lamps on a 3 kW generator: inside capacity; adding the 1.8 kW circular saw stalls it. (A1)
 - Fuel use at 50 % load over 10 h lands in the spec-sheet band. (A3)
 - Grid failure turns every mains-fed receiver off in one solve. (A1)
 

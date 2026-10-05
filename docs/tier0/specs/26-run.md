@@ -18,14 +18,14 @@ The Tier 0 scenario that ties the units into one 14-day run with a pressure arc,
 | Who | Where | Twist |
 | --- | --- | --- |
 | A neighbour | House A, barricaded, low on water | Knows first aid; heavy body, slow, strong hauler |
-| A stranger | Arrives at the yard gate around day 4 | May carry a hidden bite (drawn); secretive or honest |
-| A technician | Hiding in House B basement, in the dark | Knows electronics: the only one who can repair the radio |
+| A stranger | Arrives at the yard gate around day 4 | Carries a hidden bite with probability 0.5 (drawn per seed); secretive or honest |
+| A technician | Hiding in a windowless storeroom in House B, in the dark | Knows electronics: the only one who can repair the radio |
 
 ## Goal and pressure arc
 
 - **Goal:** be alive on day 14. **Better ending:** repair the radio, power it, and hear the evacuation broadcast that names the pickup.
 - **Pressure:** fuel crunch near day 10; waves that grow with noise and light ([22](22-census.md)); hidden infection inside the group; the radio needs power, and power means noise.
-- **Run end:** goal met, or no group member alive.
+- **Control after death** (Proposal, not yet in any decision): when the controlled pop dies, control passes to another group member; the run ends when the goal is met or no group member is alive.
 
 ## Telemetry (for the kill/keep questions)
 
@@ -39,12 +39,12 @@ The Tier 0 scenario that ties the units into one 14-day run with a pressure arc,
 | 6. Different bodies, different decisions? | Job assignments by body type |
 | 7. Death feels fair and taught? | Danger tag of each death; post-run question |
 
-A short post-run form in the app asks the questions that logs can't answer.
+The view writes these to a separate telemetry file with wall-clock stamps (the simulation's input log keeps ticks only). A short post-run form in the app asks the questions that logs can't answer.
 
 ## Tests
 
 - A scripted "careless" run dies of a tagged cause before day 14; a scripted "careful" run reaches day 14. (A3)
-- 50 AI-only runs: fuel crunch lands near day 10 in most of them. (A2)
+- 50 AI-only runs: in most of them the fuel crunch lands between day 8 and day 12. (A3)
 
 ## Not in Tier 0
 

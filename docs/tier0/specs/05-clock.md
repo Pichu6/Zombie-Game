@@ -25,6 +25,8 @@ One global clock and one fixed update order for every system, so a run is reprod
 5. Rest-until-event stops on any slow-down event or at a chosen hour.
 6. Combat forces 1× while any pop is in melee range of a hostile.
 
+7. No system iterates over a hash container (unordered map or set) when the order can affect results; entity lists are kept sorted by id. Path searches ([09](09-site-map.md), [18](18-noise-field.md)) use a fixed neighbour order and explicit tie-breaks.
+
 ## Invariants
 
 - Tick count only grows; a save stores it.

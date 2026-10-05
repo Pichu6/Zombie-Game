@@ -27,7 +27,7 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 07 | [Condition](07-condition.md) | Condition | 2 |
 | 08 | [Component and assembly](08-assembly.md) | Component, Assembly | 2 |
 | 09 | [Site map and room graph](09-site-map.md) | Cell grid, room graph | 2 |
-| 10 | [Fortification](10-fortification.md) | Assembly (structural) | 2 |
+| 10 | [Fortification](10-fortification.md) | Assembly (structural) | 2, 7 |
 | 11 | [Body: composition and needs](11-body-composition.md) | Body | 3 |
 | 12 | [Body: regions and wounds](12-body-wounds.md) | Body part | 3 |
 | 13 | [Capabilities](13-capabilities.md) | Body (readouts) | 3 |
@@ -42,5 +42,5 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 22 | [Stub census](22-census.md) | Agent (census form) | 7 |
 | 23 | [Walker brain](23-walker-brain.md) | Agent (policy) | 7 |
 | 24 | [Pop AI](24-pop-ai.md) | Agent (policy) | 8 |
-| 25 | [Chronicle and cause of death](25-chronicle.md) | Event | 9 |
+| 25 | [Chronicle and cause of death](25-chronicle.md) | Event | 7, 9 |
 | 26 | [The run: "The generator problem"](26-run.md) | Scenario | 9 |
