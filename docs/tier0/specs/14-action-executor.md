@@ -1,6 +1,6 @@
 # 14 · Action executor
 
-**Status:** Proposal. **Stage:** 4. **Needs:** [03](03-stock-transfer.md), [08](08-assembly.md), [13](13-capabilities.md).
+**Status:** Implemented (stage 4; numbers are Proposal). **Stage:** 4. **Needs:** [03](03-stock-transfer.md), [08](08-assembly.md), [13](13-capabilities.md).
 
 ## Purpose
 
@@ -31,6 +31,15 @@ Pichu's constraint: items will number in the thousands and actions must stay com
 - **Knowledge** is a set of known process ids per person, plus one skill number per trade (first aid, carpentry, mechanics, electronics). Everyday processes (eat, drink, open, carry) are known by everyone.
 - **Exercise** is a primitive with a MET and training stimulus; the body already counts heavy minutes ([11](11-body-composition.md)).
 - New items join old processes automatically when their properties qualify; a new process needs no code unless it needs a new effect op.
+
+**As implemented (stage 4):** `engine/sim/src/actions.cpp`, `data/tier0/processes.toml`.
+- 16 primitives with their body costs.
+- 17 processes, matching tools and inputs by property.
+- 9 effect ops: eat, drink, fill, use stock, treat, board, salvage, take, sleep.
+- Phases are approach then work, with effects at finish.
+- Player commands (`World::submit`) and AI intents (`World::queue_intent`) take the same path. Only the player's are kept in the input log, so parity compares `World::world_hash()`, which leaves the input log out.
+- Floors are fixed entity ids per cell, so dropped items need no extra saved state.
+- `zs_headless --scripted-pop [--ai]` runs the stage 4 scenario.
 
 ## Rules
 

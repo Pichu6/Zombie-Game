@@ -276,3 +276,57 @@ kind = "lamp"
 at = [-1, 5, 9]
 id = "basement"
 
+
+# Stage 4: stores (stocks without identity) and loose items. `kind = "item"` places one instance of
+# the item definition `id`; `contents` fills a container with a stock.
+
+[[object]]
+kind = "pantry"
+at = [0, 3, 11]
+food_kj = 60000
+
+[[object]]
+kind = "sink"
+at = [0, 5, 10]
+tap_water_l = 10000
+
+[[object]]
+kind = "item"
+at = [0, 13, 14]
+id = "hammer"
+
+[[object]]
+kind = "item"
+at = [0, 13, 14]
+id = "crowbar"
+
+[[object]]
+kind = "item"
+at = [0, 13, 14]
+id = "screwdriver"
+
+[[object]]
+kind = "item"
+at = [0, 13, 14]
+id = "nail_set"
+
+[[object]]
+kind = "item"
+at = [0, 4, 11]
+id = "bandage"
+
+[[object]]
+kind = "item"
+at = [0, 4, 11]
+id = "disinfectant_bottle"
+contents = { disinfectant_ml = 250 }
+
+[[object]]
+kind = "item"
+at = [0, 4, 11]
+id = "water_bottle"
+
+[[object]]
+kind = "item"
+at = [0, 9, 8]
+id = "chair"

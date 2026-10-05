@@ -158,7 +158,14 @@ void SiteMap::load_file(World& w, Assemblies& items, const std::string& path) {
   if (const auto* objs = t["object"].as_array())
     for (const auto& o : *objs) {
       const auto& ot = *o.as_table();
-      objects_.push_back({ot["kind"].value<std::string>().value(), cell_from(ot["at"].as_array()), ot["id"].value_or(std::string{})});
+      MapObject mo{ot["kind"].value<std::string>().value(), cell_from(ot["at"].as_array()), ot["id"].value_or(std::string{}), {}};
+      // Any other number is an amount (a store's stock, a container's contents), kept in key order.
+      for (const auto& [key, value] : ot)
+        if (auto v = value.value<double>()) mo.amounts.emplace_back(std::string(key.str()), *v);
+      if (const auto* contents = ot["contents"].as_table())
+        for (const auto& [key, value] : *contents)
+          if (auto v = value.value<double>()) mo.amounts.emplace_back(std::string(key.str()), *v);
+      objects_.push_back(std::move(mo));
     }
   dirty_ = true;
 }
@@ -176,6 +183,11 @@ void SiteMap::set_breached(const EdgeRef& e, bool breached) {
 }
 
 void SiteMap::set_locked(const EdgeRef& e, bool locked) { edge(e).locked = locked; }
+
+void SiteMap::set_barricade(const EdgeRef& e, EntityId barricade) {
+  edge(e).barricade = barricade;
+  dirty_ = true;
+}
 
 bool SiteMap::air_passes(const EdgeRef& e) const {
   const Edge& ed = edge(e);
@@ -346,27 +358,53 @@ Joint joint_from(const std::string& s) {
 
 void load_item_defs(Assemblies& items, const std::string& path) {
   const toml::table t = toml::parse_file(path);
+  if (const auto* mats = t["material"].as_array())
+    for (const auto& node : *mats) {
+      const auto& m = *node.as_table();
+      items.add_material({m["id"].value<std::string>().value(), m["density_kg_m3"].value_or(0.0),
+                          m["hardness"].value_or(0.0), m["source"].value_or(std::string{})});
+    }
   const auto* list = t["item"].as_array();
   if (!list) throw std::runtime_error("items: no [[item]] tables");
   for (const auto& node : *list) {
     const auto& it = *node.as_table();
     ItemDef d;
+    // Inheritance: start from the parent (defined earlier in the file), then override.
+    if (auto parent = it["parent"].value<std::string>()) {
+      const auto pid = items.find_def(*parent);
+      if (!pid) throw std::runtime_error("items: parent " + *parent + " must come first");
+      d = items.def(*pid);
+      d.name.clear();
+    }
     d.id = it["id"].value<std::string>().value();
     d.name = it["name"].value_or(d.id);
-    d.family = it["family"].value_or(d.id);
-    d.mass_g = it["mass_g"].value<std::int64_t>().value();
-    d.failure_threshold = it["failure_threshold_ppm"].value_or<std::int64_t>(100'000);
-    d.hold_force_n = it["hold_force_n"].value_or(0.0);
-    d.sound_loss_db = it["sound_loss_db"].value_or(0.0);
-    d.source = it["source"].value_or(std::string{});
-    if (const auto* chain = it["failure_chain"].as_array())
+    d.family = it["family"].value_or(d.family.empty() ? d.id : d.family);
+    d.mass_g = it["mass_g"].value_or(d.mass_g);
+    d.failure_threshold = it["failure_threshold_ppm"].value_or(d.failure_threshold);
+    d.hold_force_n = it["hold_force_n"].value_or(d.hold_force_n);
+    d.sound_loss_db = it["sound_loss_db"].value_or(d.sound_loss_db);
+    d.source = it["source"].value_or(d.source);
+    d.material = it["material"].value_or(d.material);
+    if (!d.material.empty() && !items.find_material(d.material))
+      throw std::runtime_error("items: unknown material " + d.material + " in " + d.id);
+    if (const auto* chain = it["failure_chain"].as_array()) {
+      d.failure_chain.clear();
       for (const auto& s : *chain) d.failure_chain.push_back(s.value<std::string>().value());
-    if (const auto* slots = it["slot"].as_array())
+    }
+    if (const auto* slots = it["slot"].as_array()) {
+      d.slots.clear();
       for (const auto& sn : *slots) {
         const auto& st = *sn.as_table();
         d.slots.push_back({st["name"].value<std::string>().value(), st["accepts"].value<std::string>().value(),
                            st["required"].value_or(true), joint_from(st["joint"].value_or(std::string("screwed"))),
                            st["default"].value_or(std::string{})});
+      }
+    }
+    if (const auto* props = it["props"].as_table())
+      for (const auto& [key, value] : *props) {
+        const auto p = prop_from(std::string(key.str()));
+        if (!p) throw std::runtime_error("items: unknown property " + std::string(key.str()) + " in " + d.id);
+        d.props[static_cast<std::size_t>(*p)] = value.value<double>().value();
       }
     items.add_def(std::move(d));
   }

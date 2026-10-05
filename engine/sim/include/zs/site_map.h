@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "zs/assembly.h"
@@ -45,6 +46,7 @@ struct MapObject {
   std::string kind;  // pop_start, generator, fridge, lamp, stockpile, ...
   Cell at;
   std::string id;    // optional name
+  std::vector<std::pair<std::string, double>> amounts;  // stocks and contents (e.g. food_kj = 60000)
 };
 
 struct Room {
@@ -86,6 +88,7 @@ class SiteMap : public System {
   void set_open(const EdgeRef& e, bool open);
   void set_breached(const EdgeRef& e, bool breached);
   void set_locked(const EdgeRef& e, bool locked);
+  void set_barricade(const EdgeRef& e, EntityId barricade);  // 0 removes it
 
   bool air_passes(const EdgeRef& e) const;   // sound and air pass freely
   bool can_walk(const EdgeRef& e) const;     // a body can cross (closed unlocked doors open on the way)

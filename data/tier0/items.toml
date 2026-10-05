@@ -2,6 +2,44 @@
 # Masses in grams, forces in newtons, sound losses in dB. Every number names its source or says "estimate".
 # Stage 2 holds the structural items (walls, doors, windows, fences, barricades); stage 4 adds the rest.
 
+# ---------- Materials (spec 15 model: physical numbers live here) ----------
+
+[[material]]
+id = "pine"
+density_kg_m3 = 500
+hardness = 0.3
+source = "softwood ~450-550 kg/m3 (Wood Handbook, USDA FPL 2010); hardness relative, estimate"
+
+[[material]]
+id = "steel"
+density_kg_m3 = 7850
+hardness = 1.0
+source = "carbon steel (engineering tables)"
+
+[[material]]
+id = "cotton"
+density_kg_m3 = 1540
+hardness = 0.0
+source = "cellulose fibre density (engineering tables)"
+
+[[material]]
+id = "glass"
+density_kg_m3 = 2500
+hardness = 0.8
+source = "soda-lime float glass (engineering tables)"
+
+[[material]]
+id = "gypsum"
+density_kg_m3 = 700
+hardness = 0.2
+source = "gypsum board ~700 kg/m3 (manufacturer data)"
+
+[[material]]
+id = "plastic"
+density_kg_m3 = 950
+hardness = 0.2
+source = "polyethylene ~950 kg/m3 (engineering tables)"
+
 # ---------- Parts ----------
 
 [[item]]
@@ -42,6 +80,7 @@ source = "estimate: softwood jamb set"
 [[item]]
 id = "glass_pane"
 family = "glass_pane"
+material = "glass"
 mass_g = 12000
 hold_force_n = 300
 source = "single 4 mm float glass 1.0 x 1.2 m at 2500 kg/m3; force estimate (EN 356 class below P1A)"
@@ -56,6 +95,7 @@ source = "estimate"
 [[item]]
 id = "drywall_panel"
 family = "drywall_panel"
+material = "gypsum"
 mass_g = 23000
 hold_force_n = 1200
 source = "12.5 mm gypsum board ~9 kg/m2 x 2.6 m2 (manufacturer data); force estimate"
@@ -91,6 +131,8 @@ source = "estimate"
 [[item]]
 id = "plank"
 family = "plank"
+material = "pine"
+props = { flat_board = 1.0, rigid = 0.6, blunt = 0.4 }
 mass_g = 3000
 hold_force_n = 1500
 source = "pine 2.0 m x 15 cm x 2 cm at ~500 kg/m3; force estimate"
@@ -98,6 +140,8 @@ source = "pine 2.0 m x 15 cm x 2 cm at ~500 kg/m3; force estimate"
 [[item]]
 id = "nail_set"
 family = "fasteners"
+material = "steel"
+props = { fastener = 1.0 }
 mass_g = 200
 hold_force_n = 1000
 source = "estimate: a dozen 75 mm nails"
@@ -202,3 +246,108 @@ slot = [
   { name = "board_2", accepts = "plank", joint = "nailed", required = false },
   { name = "board_3", accepts = "plank", joint = "nailed", required = false },
 ]
+
+# ---------- Furniture (salvageable) ----------
+
+[[item]]
+id = "chair_legs"
+family = "chair_legs"
+material = "pine"
+mass_g = 2000
+props = { rigid = 0.6, blunt = 0.4 }
+source = "estimate: four pine legs with rails"
+
+[[item]]
+id = "chair"
+family = "chair"
+mass_g = 0
+source = "kitchen chair ~5-6 kg (retail listings); boards are planks so salvage returns real ones"
+slot = [
+  { name = "seat", accepts = "plank", joint = "nailed", default = "plank" },
+  { name = "back", accepts = "plank", joint = "nailed", default = "plank" },
+  { name = "legs", accepts = "chair_legs", joint = "nailed", default = "chair_legs" },
+  { name = "fasteners", accepts = "fasteners", joint = "loose", default = "nail_set" },
+]
+
+# ---------- Tools (spec 15; properties at Q50, full condition) ----------
+
+[[item]]
+id = "tool"
+family = "tool"
+material = "steel"
+mass_g = 500
+source = "template for hand tools"
+
+[[item]]
+id = "hammer"
+parent = "tool"
+family = "hammer"
+mass_g = 600
+props = { blunt = 1.0, grip = 0.2 }
+source = "16 oz claw hammer ~0.6 kg (retail listings)"
+
+[[item]]
+id = "crowbar"
+parent = "tool"
+family = "crowbar"
+mass_g = 1500
+props = { lever = 1.0, blunt = 0.7 }
+source = "60 cm pry bar ~1.5 kg (retail listings)"
+
+[[item]]
+id = "screwdriver"
+parent = "tool"
+family = "screwdriver"
+mass_g = 150
+props = { lever = 0.3, grip = 1.0 }
+source = "estimate"
+
+[[item]]
+id = "wrench"
+parent = "tool"
+family = "wrench"
+mass_g = 400
+props = { grip = 0.8, blunt = 0.3 }
+source = "estimate"
+
+[[item]]
+id = "kitchen_knife"
+parent = "tool"
+family = "knife"
+mass_g = 150
+props = { edge = 0.8 }
+source = "estimate"
+
+# ---------- Medical and containers ----------
+
+[[item]]
+id = "bandage"
+family = "dressing"
+material = "cotton"
+mass_g = 30
+props = { cloth_area_m2 = 0.15, absorbent = 1.0 }
+source = "rolled gauze bandage (estimate)"
+
+[[item]]
+id = "cloth"
+family = "cloth"
+material = "cotton"
+mass_g = 200
+props = { cloth_area_m2 = 0.5, absorbent = 0.6 }
+source = "a towel or torn shirt (estimate)"
+
+[[item]]
+id = "water_bottle"
+family = "bottle"
+material = "plastic"
+mass_g = 40
+props = { container_ml = 1500 }
+source = "1.5 L PET bottle (retail listings)"
+
+[[item]]
+id = "disinfectant_bottle"
+family = "bottle"
+material = "plastic"
+mass_g = 30
+props = { container_ml = 250 }
+source = "250 mL rubbing alcohol bottle (retail listings)"

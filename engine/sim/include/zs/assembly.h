@@ -1,5 +1,6 @@
 // Components and assemblies: one data model for everything built. Spec: docs/tier0/specs/08-assembly.md
 #pragma once
+#include <array>
 #include <cstdint>
 #include <map>
 #include <optional>
@@ -24,6 +25,32 @@ struct SlotDef {
   std::string default_part;      // def id built into new instances ("" = empty)
 };
 
+// Numeric properties that processes test (spec 15 model). One fixed list: append only.
+enum class Prop : std::uint8_t {
+  Edge,         // cutting edge, 0-1
+  Blunt,        // striking mass and hardness, 0-1 (hammer ~1)
+  Lever,        // prying, 0-1 (crowbar 1, screwdriver ~0.3)
+  Grip,         // fine driving and turning (screwdriver, wrench), 0-1
+  ContainerMl,  // holds this many mL of liquid
+  ClothAreaM2,  // usable cloth
+  Absorbent,    // soaks blood, 0-1
+  FlatBoard,    // usable as a board for barricades and splints, 0-1
+  Fastener,     // nails or screws, 0-1
+  Rigid,        // stiff enough for a splint, 0-1
+  Count
+};
+inline constexpr std::size_t kPropCount = static_cast<std::size_t>(Prop::Count);
+const char* to_string(Prop p);
+std::optional<Prop> prop_from(const std::string& name);
+
+// Physical numbers live here, once per material (spec 15 model).
+struct MaterialDef {
+  std::string id;
+  double density_kg_m3 = 0;
+  double hardness = 0;  // 0-1, relative (steel 1, pine 0.3, cotton 0)
+  std::string source;
+};
+
 // Shared data for one kind of thing. Loaded from data/tier0/items.toml.
 struct ItemDef {
   std::string id;
@@ -36,6 +63,8 @@ struct ItemDef {
   double hold_force_n = 0;                    // structural parts: force held at Q50, full condition
   double sound_loss_db = 0;                   // walls, doors, windows: transmission loss when closed
   std::string source;                         // where the numbers come from
+  std::string material;                       // id in the materials table ("" = mixed or none)
+  std::array<double, kPropCount> props{};     // properties at Q50 and full condition
 };
 
 struct Instance {
@@ -69,6 +98,12 @@ class Assemblies : public System {
   const ItemDef& def(DefId id) const { return defs_.at(id); }
   std::optional<DefId> find_def(const std::string& id) const;
   const std::vector<ItemDef>& defs() const { return defs_; }
+  void add_material(MaterialDef m) { materials_.push_back(std::move(m)); }
+  const MaterialDef* find_material(const std::string& id) const;
+
+  // A property of an instance: the definition's value scaled by Q and condition
+  // (x (0.5 + Q/100) x (0.5 + 0.5 condition)); 0 when the item is failed.
+  double prop(EntityId id, Prop p) const;
 
   // Creates an instance with its default parts, all at `quality`, placed under `parent`.
   EntityId create(World& w, DefId def, int quality, EntityId parent);
@@ -90,6 +125,7 @@ class Assemblies : public System {
 
  private:
   std::vector<ItemDef> defs_;
+  std::vector<MaterialDef> materials_;
   std::map<EntityId, Instance> instances_;
 };
 

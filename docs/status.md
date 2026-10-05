@@ -19,7 +19,7 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 ## Where we are
 
 - **Have:** the decided concept, design docs distilled from the prototype, recorded decisions, the clothing research, and the world simulation design ([0012](decisions/0012-world-simulation-layers.md), [world simulation](design/world-simulation.md)): one outbreak simulation of real Earth, played as Macro, City or Individual, with the play style chosen in setup.
-- **Don't have:** actions, items, the window, power/noise/light, zombies or AI yet. Built so far: foundations (stage 1), things and places (stage 2) and the body (stage 3). The repo is not on GitHub yet (the user's account is locked by a 2FA issue); history is in local git.
+- **Don't have:** the window, power/noise/light, zombies or AI yet. Built so far: foundations (stage 1), things and places (stage 2) and the body (stage 3). The repo is not on GitHub yet (the user's account is locked by a 2FA issue); history is in local git.
 
 ## Next step
 
@@ -27,7 +27,8 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
    - **Stage 1:** foundations (quantities, own deterministic maths, Philox draws, ledger, hazards and events, clock, save/load/replay).
    - **Stage 2:** condition, assemblies with salvage that conserves mass, and the Tier 0 block map with its room graph (`zs_headless --map`).
    - **Stage 3:** the body (composition, energy, water, blood, sleep, exertion, 17 regions, wounds, infection, healing, capabilities). `zs_headless --body-lab` runs 14 calibration scenarios, all inside their bands. `zs_headless --bench` runs one game day with 4 pops and 60 walkers in about 0.2 s.
-   - **Next:** stage 4 (action executor, items and recipes), which needs stages 2 and 3.
+   - **Stage 4:** the compressed item and action model (materials, properties, stocks vs things; body primitives plus data processes that match by property), the action executor and a scripted pop that drinks, eats, disinfects and dresses a wound, breaks a chair into planks and boards a window (`zs_headless --scripted-pop`). Player and AI runs of the same intents hash the same.
+   - **Next:** stage 5 (first window: SDL3 + ImGui) on the user's Windows PC, which is also the first MSVC check; stage 6 (power, noise, light) can start headless in parallel.
 2. Push the repo to GitHub once the account is back.
 
 ## Waiting on the user

@@ -1,6 +1,6 @@
 # 15 · Tier 0 items and recipes
 
-**Status:** Proposal. **Stage:** 4. **Needs:** [04](04-hazard-event.md), [08](08-assembly.md), [14](14-action-executor.md).
+**Status:** Implemented in part (stage 4; numbers are Proposal). **Stage:** 4. **Needs:** [04](04-hazard-event.md), [08](08-assembly.md), [14](14-action-executor.md).
 
 ## Purpose
 
@@ -17,6 +17,12 @@ Items will number in the thousands, so an item is a few rows of data, never code
 5. **States** are a small enum per family (fresh/stale/spoiled, safe/unknown, charge %), stored on the stock lot or the instance.
 
 The Tier 0 families below are the first rows of these tables.
+
+**As implemented (stage 4):**
+- Materials and properties are in `data/tier0/items.toml`, with inheritance through `parent`.
+- Tools, dressings, bottles and a salvageable chair are loose items placed in `block.toml`.
+- The pantry and sink are stores; the bottles are containers with their own ledger owner.
+- The power-dependent families and processes (generator, fridge, spoilage, cooking, tap water quality, radio, lamps, saw) come with stage 6, because they need the power network.
 
 ## Items
 

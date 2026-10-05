@@ -50,6 +50,7 @@ build/debug/apps/headless/zs_headless --days 14   # stage 1 demo run, one line p
 build/debug/apps/headless/zs_headless --map       # stage 2: room graph of the Tier 0 block
 build/release/apps/headless/zs_headless --body-lab  # stage 3: body calibration scenarios vs their bands
 build/release/apps/headless/zs_headless --bench     # stage 3: body cost, 4 pops + 60 walkers for a game day
+build/release/apps/headless/zs_headless --scripted-pop [--ai]  # stage 4: a pop eats, treats a wound, salvages, barricades
 ```
 
 On Windows, run these from a "x64 Native Tools Command Prompt for VS 2022". Golden hashes in the tests are pinned on Linux; Windows must reproduce them (cross-compiler determinism, [spec 01](docs/tier0/specs/01-quantity.md)).

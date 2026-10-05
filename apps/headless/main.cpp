@@ -9,6 +9,7 @@
 #include "zs/body_lab.h"
 #include "zs/demo.h"
 #include "zs/site_map.h"
+#include "zs/tier0.h"
 
 namespace {
 
@@ -16,7 +17,8 @@ void usage() {
   std::puts("usage: zs_headless [--seed N] [--days D] [--save FILE] [--load FILE]\n"
             "       zs_headless --map [FILE]   print the room graph of a map (default: the Tier 0 block)\n"
             "       zs_headless --body-lab     run the body calibration scenarios\n"
-            "       zs_headless --bench        body cost: 4 pops and 60 walkers for one game day");
+            "       zs_headless --bench        body cost: 4 pops and 60 walkers for one game day\n"
+            "       zs_headless --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades");
 }
 
 }  // namespace
@@ -83,7 +85,48 @@ int bench() {
   return 0;
 }
 
+// Stage 4: the scripted pop, driven as the player (default) or as the AI.
+int scripted_pop(bool as_ai) {
+  auto t = zs::tier0::make_world(1);
+  zs::tier0::wound_player(t);
+  zs::tier0::ScriptedPop script(as_ai);
+  std::size_t seen = 0;
+  const std::int64_t limit = 4 * zs::kTicksPerGameHour;
+  while (t.world->clock.tick < limit && script.drive(t)) {
+    t.world->step();
+    const auto& log = t.world->log.all();
+    for (; seen < log.size(); ++seen) {
+      const zs::Event& e = log[seen];
+      const auto minute = static_cast<double>(e.tick) / (zs::kTicksPerGameHour / 60);
+      const char* proc = e.a >= 0 && static_cast<std::size_t>(e.a) < t.actors->processes().size()
+                             ? t.actors->processes()[static_cast<std::size_t>(e.a)].name.c_str() : "move";
+      if (e.type == zs::EventType::ActionDone) std::printf("%6.1f min  done: %s\n", minute, proc);
+      else if (e.type == zs::EventType::ActionRefused)
+        std::printf("%6.1f min  refused: %s (%s)\n", minute, proc, zs::to_string(static_cast<zs::Reason>(e.b)));
+      else if (e.type == zs::EventType::ActionInterrupted)
+        std::printf("%6.1f min  interrupted: %s (%s)\n", minute, proc, zs::to_string(static_cast<zs::Reason>(e.b)));
+    }
+  }
+  const auto& body = t.bodies->get(t.player);
+  const auto& wd = body.wounds.front();
+  std::printf("finished at %.1f min, world hash %016llx\n", static_cast<double>(t.world->clock.tick) / 120.0,
+              static_cast<unsigned long long>(t.world->world_hash()));
+  std::printf("wound: cleaned %d, dressed %d; blood loss %.3f; carried %.1f kg\n", static_cast<int>(wd.cleaned),
+              wd.dressed ? 1 : 0, t.bodies->blood_loss_fraction(body), t.actors->actor(t.player).carried_kg);
+  for (const auto& [id, ref] : t.actors->edges()) {
+    const zs::Edge& ed = t.map->edge(ref);
+    if (ed.barricade == 0) continue;
+    int boards = 0;
+    for (zs::EntityId p : t.items->get(ed.barricade).slots) boards += p != 0;
+    std::printf("barricade at (%d,%d,%d): %d parts, Q%d, works %d\n", ref.z, ref.x, ref.y, boards,
+                t.items->get(ed.barricade).quality, t.items->works(ed.barricade) ? 1 : 0);
+  }
+  return 0;
+}
+
 int main(int argc, char** argv) {
+  if (argc >= 2 && !std::strcmp(argv[1], "--scripted-pop"))
+    return scripted_pop(argc >= 3 && !std::strcmp(argv[2], "--ai"));
   if (argc >= 2 && !std::strcmp(argv[1], "--body-lab")) return body_lab();
   if (argc >= 2 && !std::strcmp(argv[1], "--bench")) return bench();
   if (argc >= 2 && !std::strcmp(argv[1], "--map")) {

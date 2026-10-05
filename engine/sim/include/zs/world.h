@@ -69,6 +69,9 @@ class World {
 
   // Queues a player command for the next tick and records it in the input log.
   void submit(Command command);
+  // Queues an AI intent for the next tick. Same path as a player command (parity), but not
+  // recorded: replays regenerate AI intents from the state.
+  void queue_intent(Command command);
 
   // Advances one tick: commands, systems in order, due scheduled events, ledger check.
   void step();
@@ -88,6 +91,9 @@ class World {
   std::vector<std::uint8_t> save() const;
   void load(const std::vector<std::uint8_t>& bytes);
   std::uint64_t state_hash() const;  // hash of the state part of a save (header excluded)
+  // The same without the input log: equal for a player-driven and an AI-driven run of the same
+  // intents (spec 14 parity test).
+  std::uint64_t world_hash() const;
 
 #ifdef NDEBUG
   static constexpr bool kDebugBuild = false;
@@ -96,7 +102,7 @@ class World {
 #endif
 
  private:
-  void save_state(ArchiveWriter& w) const;
+  void save_state(ArchiveWriter& w, bool with_input_log = true) const;
   void load_state(ArchiveReader& r, std::uint32_t version);
 
   std::vector<std::unique_ptr<System>> systems_;

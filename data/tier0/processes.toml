@@ -1,0 +1,171 @@
+# Tier 0 processes: every contextual action. Spec: docs/tier0/specs/14-action-executor.md, 15-items-recipes.md
+# A process = a body primitive + a target + requirements by property + effects from a fixed vocabulary.
+# Tools: any one qualifies (prop >= min); work time scales by ref / prop of the best one.
+# Times are at work rate 1, skill 50 and a Q50 tool; each names a source or says "estimate".
+
+[[process]]
+id = "take"
+name = "Pick up"
+primitive = "hold"
+target = "item"
+time_s = 3
+effects = [{ op = "take" }]
+source = "estimate"
+
+[[process]]
+id = "eat"
+name = "Eat a meal"
+primitive = "consume"
+target = "object:pantry"
+time_s = 900
+stocks = [{ resource = "food_j", amount = 2500000, from = "target" }]
+effects = [{ op = "eat", amount = 2500000 }]
+source = "a ~600 kcal meal in ~15 min (estimate)"
+
+[[process]]
+id = "drink_tap"
+name = "Drink from the tap"
+primitive = "consume"
+target = "object:sink"
+time_s = 60
+stocks = [{ resource = "body_water_ul", amount = 500000, from = "target" }]
+effects = [{ op = "drink", amount = 500000 }]
+source = "500 mL in about a minute (estimate)"
+
+[[process]]
+id = "fill_bottle"
+name = "Fill bottles"
+primitive = "hold"
+target = "object:sink"
+time_s = 30
+uses = [{ prop = "container_ml", min = 1 }]
+effects = [{ op = "fill", amount = 1500000 }]
+source = "estimate"
+
+[[process]]
+id = "drink_bottle"
+name = "Drink from a bottle"
+primitive = "consume"
+target = "self"
+time_s = 60
+stocks = [{ resource = "body_water_ul", amount = 250000 }]
+effects = [{ op = "drink", amount = 250000 }]
+source = "estimate"
+
+[[process]]
+id = "clean_wound_water"
+name = "Wash the wound"
+primitive = "fine"
+target = "wound"
+trade = "first_aid"
+time_s = 120
+stocks = [{ resource = "body_water_ul", amount = 200000 }]
+effects = [{ op = "use_stock", resource = "body_water_ul", amount = 200000 }, { op = "treat", how = "clean_water" }]
+source = "irrigation with clean water (ED wound care guidance); time estimate"
+
+[[process]]
+id = "disinfect_wound"
+name = "Disinfect the wound"
+primitive = "fine"
+target = "wound"
+trade = "first_aid"
+time_s = 90
+stocks = [{ resource = "disinfectant_ul", amount = 20000 }]
+effects = [{ op = "use_stock", resource = "disinfectant_ul", amount = 20000 }, { op = "treat", how = "disinfect" }]
+source = "estimate"
+
+[[process]]
+id = "dress_wound"
+name = "Dress the wound"
+primitive = "fine"
+target = "wound"
+trade = "first_aid"
+time_s = 120
+uses = [{ prop = "absorbent", min = 0.3 }]
+effects = [{ op = "treat", how = "dress" }]
+source = "estimate"
+
+[[process]]
+id = "splint_fracture"
+name = "Splint the fracture"
+primitive = "fine"
+target = "wound"
+trade = "first_aid"
+time_s = 300
+uses = [{ prop = "rigid", min = 0.3 }, { prop = "cloth_area_m2", min = 0.1 }]
+effects = [{ op = "treat", how = "splint" }]
+source = "estimate"
+
+[[process]]
+id = "tourniquet"
+name = "Apply a tourniquet"
+primitive = "fine"
+target = "wound"
+time_s = 45
+uses = [{ prop = "cloth_area_m2", min = 0.1 }]
+effects = [{ op = "treat", how = "tourniquet" }]
+source = "improvised tourniquet in under a minute (estimate; Kragh et al. for limits)"
+
+[[process]]
+id = "salvage_furniture"
+name = "Break apart"
+primitive = "pry"
+target = "item:chair"
+trade = "carpentry"
+time_s = 240
+tools = [{ prop = "lever", min = 0.25, ref = 1.0 }, { prop = "blunt", min = 0.5, ref = 1.0 }]
+effects = [{ op = "salvage" }]
+source = "estimate: a few minutes to knock apart a nailed chair"
+
+[[process]]
+id = "barricade"
+name = "Nail a board across"
+primitive = "strike"
+target = "edge:window"
+trade = "carpentry"
+time_s = 90
+resumable = true
+tools = [{ prop = "blunt", min = 0.5, ref = 1.0 }]
+uses = [{ prop = "flat_board", min = 0.5 }, { prop = "fastener", min = 0.5, optional = true }]
+effects = [{ op = "board" }]
+source = "nailing one board ~1-2 min by hand (spec 14 calibration)"
+
+[[process]]
+id = "barricade_door"
+name = "Nail a board across"
+primitive = "strike"
+target = "edge:door"
+trade = "carpentry"
+time_s = 90
+resumable = true
+tools = [{ prop = "blunt", min = 0.5, ref = 1.0 }]
+uses = [{ prop = "flat_board", min = 0.5 }, { prop = "fastener", min = 0.5, optional = true }]
+effects = [{ op = "board" }]
+source = "as barricade"
+
+[[process]]
+id = "sleep"
+name = "Sleep"
+primitive = "sleep"
+target = "self"
+time_s = 0
+effects = [{ op = "sleep" }]
+source = "ends when the body wakes (spec 11)"
+
+[[process]]
+id = "rest"
+name = "Rest"
+primitive = "rest"
+target = "self"
+time_s = 900
+effects = []
+source = "15 min sitting"
+
+[[process]]
+id = "exercise"
+name = "Exercise"
+primitive = "exercise"
+target = "self"
+time_s = 1800
+effects = []
+source = "30 min calisthenics, ~6 MET (Compendium)"

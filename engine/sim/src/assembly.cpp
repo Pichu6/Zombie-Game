@@ -123,4 +123,33 @@ void Assemblies::load(ArchiveReader& r) {
   }
 }
 
+namespace {
+constexpr const char* kPropNames[kPropCount] = {"edge",          "blunt",     "lever",      "grip",     "container_ml",
+                                                "cloth_area_m2", "absorbent", "flat_board", "fastener", "rigid"};
+}  // namespace
+
+const char* to_string(Prop p) { return kPropNames[static_cast<std::size_t>(p)]; }
+
+std::optional<Prop> prop_from(const std::string& name) {
+  for (std::size_t i = 0; i < kPropCount; ++i)
+    if (name == kPropNames[i]) return static_cast<Prop>(i);
+  return std::nullopt;
+}
+
+const MaterialDef* Assemblies::find_material(const std::string& id) const {
+  for (const MaterialDef& m : materials_)
+    if (m.id == id) return &m;
+  return nullptr;
+}
+
+double Assemblies::prop(EntityId id, Prop p) const {
+  const Instance& inst = instances_.at(id);
+  const ItemDef& d = defs_.at(inst.def);
+  if (inst.condition.failed(d.failure_threshold)) return 0;
+  const double base = d.props[static_cast<std::size_t>(p)];
+  if (p == Prop::ContainerMl || p == Prop::ClothAreaM2) return base;  // sizes do not scale with Q
+  const double condition = static_cast<double>(inst.condition.value) / static_cast<double>(kConditionFull);
+  return base * (0.5 + inst.quality / 100.0) * (0.5 + 0.5 * condition);
+}
+
 }  // namespace zs

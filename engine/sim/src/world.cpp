@@ -19,6 +19,11 @@ void World::submit(Command command) {
   input_log_.push_back(command);
 }
 
+void World::queue_intent(Command command) {
+  command.tick = clock.tick;
+  pending_.push_back(command);
+}
+
 EventId World::emit(EventType type, EntityId subject, EventId cause, std::int64_t a, std::int64_t b) {
   const EventId id = log.append(clock.tick, type, subject, cause, a, b);
   emitted_.push_back(id);
@@ -29,7 +34,7 @@ void World::step() {
   emitted_.clear();
   // 1. Input commands, in submission order.
   for (const Command& c : pending_) {
-    const EventId id = emit(EventType::PlayerCommand, c.subject, 0, c.type, c.a);
+    const EventId id = emit(EventType::Intent, c.subject, 0, c.type, c.a);
     for (auto& s : systems_) s->apply_command(*this, c, id);
   }
   pending_.clear();
@@ -46,7 +51,7 @@ void World::step() {
   ++clock.tick;
 }
 
-void World::save_state(ArchiveWriter& w) const {
+void World::save_state(ArchiveWriter& w, bool with_input_log) const {
   w.i64(clock.tick);
   w.u64(next_entity_);
   w.u64(rng.seed());
@@ -70,8 +75,10 @@ void World::save_state(ArchiveWriter& w) const {
     w.i64(key.first); w.u64(key.second);
     w.i64(e.tick); w.u16(static_cast<std::uint16_t>(e.type)); w.u64(e.subject); w.u64(e.cause); w.i64(e.a); w.i64(e.b);
   }
-  w.u64(input_log_.size());
-  for (const Command& c : input_log_) { w.i64(c.tick); w.u16(c.type); w.u64(c.subject); w.i64(c.a); w.i64(c.b); }
+  if (with_input_log) {
+    w.u64(input_log_.size());
+    for (const Command& c : input_log_) { w.i64(c.tick); w.u16(c.type); w.u64(c.subject); w.i64(c.a); w.i64(c.b); }
+  }
   w.u64(systems_.size());
   for (const auto& s : systems_) { w.str(s->name()); s->save(w); }
 }
@@ -151,6 +158,12 @@ void World::load(const std::vector<std::uint8_t>& bytes) {
 std::uint64_t World::state_hash() const {
   ArchiveWriter state;
   save_state(state);
+  return hash_bytes(state.bytes());
+}
+
+std::uint64_t World::world_hash() const {
+  ArchiveWriter state;
+  save_state(state, false);
   return hash_bytes(state.bytes());
 }
 

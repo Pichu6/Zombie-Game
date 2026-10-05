@@ -23,7 +23,7 @@ TEST_CASE("slow-down events drop to 1x or pause; others do not (A1)") {
     CHECK(paused.speed == Speed::Paused);
   }
   TimeControl tc{Speed::X10, false};
-  CHECK_FALSE(tc.on_event(EventType::PlayerCommand));
+  CHECK_FALSE(tc.on_event(EventType::Intent));
   CHECK(tc.speed == Speed::X10);
 }
 

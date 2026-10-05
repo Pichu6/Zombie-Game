@@ -13,7 +13,7 @@ using EventId = std::uint64_t;  // 0 = no event
 // Fixed list of event types. Append only.
 enum class EventType : std::uint16_t {
   RunStart = 0,
-  PlayerCommand = 1,
+  Intent = 1,  // a command from a controller, player or AI (subject = actor, a = command type, b = a)
   Scheduled = 2,
   Alarm = 3,
   AttackOnPop = 4,
@@ -27,6 +27,9 @@ enum class EventType : std::uint16_t {
   WoundHealed = 12,       // a = wound id
   FellAsleep = 13,
   WokeUp = 14,
+  ActionDone = 15,         // subject = actor, a = process index, b = target
+  ActionInterrupted = 16,  // a = process index, b = Reason
+  ActionRefused = 17,      // a = process index, b = Reason
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,
