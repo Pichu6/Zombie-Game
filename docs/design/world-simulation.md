@@ -101,6 +101,7 @@ The 7 live warning days are driven by drift (the world changes every hour from i
 ## 10. Items, resources and fortifications
 
 - **Every item and resource** has quality (how well made, fixed), condition (wear, repairs lower the maximum) and states (wet, frozen, rotten, contaminated, loaded, charged...). Bulk resources per batch: fuel goes stale, water is safe / unknown / contaminated, food spoils with temperature. Decided.
+- **Production ladder:** salvage is easy; manufacturing is capped by machinery and infrastructure, and top quality needs the whole chain to run well. Late game, with teamwork and trade. Intent Decided ([0013](../decisions/0013-production-ladder.md)); model in [items and crafting](items-crafting.md#production-ladder).
 - **Fortifications** (Decided as intent; model Proposal): every door, window, wall, fence and barricade is an assembly of parts, breaking at its weakest part (doors usually at the strike plate, then hinges, then frame). Zombie push comes from each body's mass, posture and decay, summed; breach time falls smoothly with horde size. Failures happen in order (lock, hinges, panel, frame, glass). Every hit is a sound. Walls and floors carry load through a simple graph solved from the roof down. Calibrated on security-door classes (EN 1627), glass classes (EN 356) and mob-attack tests (ASTM F3038). Zombies don't tire by default (Decided).
 
 ## 11. Scenarios (Proposal)

@@ -120,6 +120,44 @@ Proposal:
 
 Proposal. Inputs and alternatives; quantities and units; tools and capabilities; station and conditions; knowledge; difficulty and skill; phases and time; consumed resources; outputs, by-products and losses; Q and recovery rules; interruptions and partial results.
 
+## Production ladder
+
+Intent Decided ([0013](../decisions/0013-production-ladder.md)); model Proposal. Salvage is easy, manufacturing is capped by machinery, and top quality needs a whole chain running well.
+
+### Methods cap quality
+
+Each recipe lists one or more **methods**, and each method has a **ceiling**: the highest Q that method can physically reach, and sometimes a minimum below which the part does not work at all.
+
+| Method | Needs | Example |
+| --- | --- | --- |
+| Salvage | Hands, basic tools, knowledge | Pull bricks, cable, pipe, a car door. Keeps the part's Q; only loss and condition change |
+| Hand | Tools, skill | Wooden door, bow saw repair, rope. Low ceiling for precision parts |
+| Workshop | Bench, power tools, power | Welded gate, furniture, simple engine repair |
+| Machine shop | Lathe, mill, welder, measuring tools, steady power, trained operators | Shafts, bushings, a rebuilt cylinder head |
+| Plant | A facility (a Project, see [world simulation](world-simulation.md)): crew, inputs, power, water | Cement (kiln near 1450 °C), steel, glass, tyres, transformer parts |
+
+- A hand-made engine part cannot reach the fit an engine needs (bore tolerances are hundredths of a millimetre), so it either cannot be made or works badly. That is the cap the user asked for: not a rule on top, but the method's ceiling.
+- Machines are assemblies with their own Q and condition, made by the same ladder. Better machines come from machines (the tool ladder), so the first steps are slow and the climb compounds.
+- The Q formula above gains one cap: `Q_out ≤ min(skill, Q_tool, method ceiling, Q_station)`.
+
+### Flow decides the top
+
+Inputs carry their own chain: a Q90 engine needs Q90 steel, which needs good ore, fuel and a well-run furnace. The weighted mean of inputs makes quality compound down the chain, so one weak link caps everything after it.
+
+The final spread is set by **process stability** for that batch, a product of factors between 0 and 1: power stayed on, machine condition, input consistency (similar Q across inputs), operator practice, full crew, the right water and temperature. A stable process lands near its cap; an unstable one scatters low and fails more often. A power cut in the middle of a kiln firing ruins the batch. So the rare top qualities come from excellent flow, not from one lucky roll.
+
+### Why it is late game
+
+- The world is finite and decays: salvaged parts lose condition, fuel goes stale, tyres and seals perish, and spare parts run out. Salvage covers the early game; production becomes necessary later.
+- One person cannot know every trade (knowledge takes time to learn), and a plant needs a crew. Manufacturing needs a group.
+- No settlement has every input, so groups specialise and trade, by the same economy rules as the world simulation. In multiplayer, groups are clans.
+- Restarting a real factory from the world (a cement works, a machine shop) is a big goal: it needs its staff, inputs, power and repairs, exactly as in the world simulation.
+
+### Open
+
+- Ceiling values per method and per family.
+- How many production steps to model per family before the chain gets tedious (proposal: model only steps where the player makes a real choice; the rest are one recipe at a plant).
+
 ## Inventory
 
 - Separate type, instance, state, location and quantity or stack. Proposal.

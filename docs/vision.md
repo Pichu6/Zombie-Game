@@ -30,7 +30,7 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 | Play style chosen in setup | No main mode: micro → macro (start as one survivor, the XCOM-like commander layer opens with others), macro → micro, one layer only, or spectator. | Decided |
 | Entangled and calibrated | Infection reaches people, jobs, supply chains and infrastructure. Outbreaks can fail; the default is calibrated on real pandemics and how people react. | Decided |
 | Finite world | People, loot and zombies don't respawn. | Decided |
-| Everything built is scavengable and craftable | Walls, floors, houses, pipe networks, power lines, car engines, vehicles, tools and items are all assemblies of real parts that can be scavenged and crafted, all tied by one quality (Q) system. Q comes from parts, capped by skill and tool. What you can see and do depends on job knowledge (electrician, plumber, mechanic). Everything takes real time (Haven & Hearth). See [0010](decisions/0010-concept-v2.md). | Decided |
+| Everything built is scavengable and craftable | Walls, floors, houses, pipe networks, power lines, car engines, vehicles, tools and items are all assemblies of real parts that can be scavenged and crafted, all tied by one quality (Q) system. Q comes from parts, capped by skill and tool. What you can see and do depends on job knowledge (electrician, plumber, mechanic). Everything takes real time (Haven & Hearth). Salvage is easy; making engines, concrete or grid parts is capped by machinery, and top quality needs a whole chain running well, so manufacturing is late-game teamwork and trade. See [0010](decisions/0010-concept-v2.md), [0013](decisions/0013-production-ladder.md). | Decided |
 | Living infrastructure | Power, water, light and noise as real networks that keep bodies alive and leak signals. | Proposal |
 | Real behaviour | People talk by voice, radio and phone with real propagation. Options depend on knowledge, items and their quality. Every item and resource has quality, condition and states. Doors, walls and fortifications break part by part. | Decided |
 | Single state per survivor | Pain, fear, load and job persist when you possess or release a body. | Decided |
@@ -100,5 +100,5 @@ Recommendations are Proposals; details in [world simulation](design/world-simula
 
 10. Engine stack ([0002](decisions/0002-engine-stack.md)).
 11. Clothing via GPU wrap ([0003](decisions/0003-clothing-wrap.md)).
-12. Quality formula ([0006](decisions/0006-crafting-quality.md)).
+12. Quality formula ([0006](decisions/0006-crafting-quality.md)), now with method ceilings and process stability ([production ladder](design/items-crafting.md#production-ladder)).
 13. Tone and level of graphic violence.
