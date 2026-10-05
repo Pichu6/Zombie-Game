@@ -8,6 +8,7 @@ add_executable(zs_sim_tests
   test_clock.cpp
   test_save_replay.cpp
   test_stage2.cpp
+  test_body.cpp
 )
 target_include_directories(zs_sim_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest)
 target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck)

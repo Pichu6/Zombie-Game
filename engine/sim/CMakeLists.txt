@@ -11,6 +11,8 @@ add_library(zs_sim
   src/demo.cpp
   src/assembly.cpp
   src/site_map.cpp
+  src/body.cpp
+  src/body_lab.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

@@ -1,10 +1,12 @@
 // Headless runner: runs the simulation with no window. Spec: docs/tier0/specs/16-view-2d.md rule 2.
 // Stage 1: runs the demo scenario and prints one line per game day.
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
 
+#include "zs/body_lab.h"
 #include "zs/demo.h"
 #include "zs/site_map.h"
 
@@ -12,7 +14,9 @@ namespace {
 
 void usage() {
   std::puts("usage: zs_headless [--seed N] [--days D] [--save FILE] [--load FILE]\n"
-            "       zs_headless --map [FILE]   print the room graph of a map (default: the Tier 0 block)");
+            "       zs_headless --map [FILE]   print the room graph of a map (default: the Tier 0 block)\n"
+            "       zs_headless --body-lab     run the body calibration scenarios\n"
+            "       zs_headless --bench        body cost: 4 pops and 60 walkers for one game day");
 }
 
 }  // namespace
@@ -41,7 +45,47 @@ int print_map(const std::string& path) {
   return 0;
 }
 
+// Stage 3: the body lab prints each calibration scenario against its band.
+int body_lab() {
+  int failed = 0;
+  for (const auto& r : zs::body_lab::run_all(1)) {
+    std::printf("%-4s %-62s %8.3f %-26s band: %s\n", r.pass ? "ok" : "FAIL", r.name.c_str(), r.value, r.unit.c_str(),
+                r.band.c_str());
+    failed += r.pass ? 0 : 1;
+  }
+  return failed == 0 ? 0 : 1;
+}
+
+// Stage 3: how fast one game day runs with 4 pops and 60 walkers (rest-until-event runs flat out).
+int bench() {
+  std::vector<zs::BodySpec> specs(64);
+  for (std::size_t i = 4; i < specs.size(); ++i) specs[i].walker = true;
+  auto lab = zs::body_lab::make_lab(1, specs);
+  std::vector<zs::EntityId> ids;
+  for (const auto& [id, b] : lab.bodies->all()) ids.push_back(id);
+  zs::Wound cut;
+  cut.region = zs::Region::ForearmL;
+  cut.depth = zs::Depth::Fat;
+  lab.bodies->add_wound(*lab.world, ids[0], cut, 0);
+  for (std::size_t i = 4; i < ids.size(); ++i) lab.bodies->get(ids[i]).activity.speed_mps = 0.4;
+  lab.world->check_every_tick = false;
+  const auto t0 = std::chrono::steady_clock::now();
+  for (int h = 0; h < 24; ++h) {
+    for (int k = 0; k < 4; ++k) {
+      zs::body_lab::daily_routine(lab, ids[k], zs::Activity{});
+      zs::body_lab::keep_supplied(lab, ids[k], true, true);
+    }
+    lab.world->run_ticks(zs::kTicksPerGameHour);
+  }
+  const double s = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
+  std::printf("1 game day (%lld ticks), 4 pops + 60 walkers: %.3f s real, %.0fx faster than 1x speed\n",
+              static_cast<long long>(zs::kTicksPerGameDay), s, 3600.0 / s);
+  return 0;
+}
+
 int main(int argc, char** argv) {
+  if (argc >= 2 && !std::strcmp(argv[1], "--body-lab")) return body_lab();
+  if (argc >= 2 && !std::strcmp(argv[1], "--bench")) return bench();
   if (argc >= 2 && !std::strcmp(argv[1], "--map")) {
     try {
       return print_map(argc >= 3 ? argv[2] : std::string(ZS_DATA_DIR) + "/tier0/map/block.toml");

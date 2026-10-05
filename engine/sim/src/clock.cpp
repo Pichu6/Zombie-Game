@@ -22,6 +22,9 @@ bool TimeControl::is_slow_down_event(EventType type) {
     case EventType::Breakdown:
     case EventType::NewSymptom:
     case EventType::SurvivorFound:
+    case EventType::Death:
+    case EventType::InfectionVisible:
+    case EventType::InfectionWorse:
       return true;
     default:
       return false;

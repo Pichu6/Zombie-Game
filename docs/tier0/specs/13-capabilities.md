@@ -1,6 +1,6 @@
 # 13 · Capabilities
 
-**Status:** Proposal. **Stage:** 3. **Needs:** [11](11-body-composition.md), [12](12-body-wounds.md).
+**Status:** Implemented (stage 3; numbers are Proposal). **Stage:** 3. **Needs:** [11](11-body-composition.md), [12](12-body-wounds.md).
 
 ## Purpose
 
@@ -20,7 +20,7 @@ What a body can do right now, computed from its state: the only body numbers tha
 
 | Readout | Rule |
 | --- | --- |
-| walk and run speed (m/s) | base from height (leg length) and fitness, × moving, × load factor (moving mass / body mass), × stairs factor |
+| walk and run speed (m/s) | base from height (leg length) and fitness, × moving, × load factor (load / carry limit), × stairs factor |
 | carry limit (kg) | from muscle mass (arms and trunk) and moving; above it, speed drops and exertion rises fast |
 | work rate | × manipulation, × consciousness, × exertion |
 | strike force and push force | from muscle mass and body mass ([10](10-fortification.md), [20](20-damage.md)) |
@@ -53,6 +53,24 @@ What a body can do right now, computed from its state: the only body numbers tha
 | Running speeds | Recreational runner data; tune |
 | Load effect on speed | Military load-carriage studies (Knapik et al. 2004) |
 | Footstep levels | Measured footfall noise ~40–60 dB at 1 m (estimate; tune) |
+
+## Model as implemented (stage 3)
+
+- **Consciousness** = blood factor (ATLS classes) × sleep × water × fever × (1 − 0.3 pain) × 0.7 per deep head wound.
+- **Moving** = mean of the two legs' segment factors × pelvis × (1 − 0.4 leg pain) × blood factor × (0.5 + 0.5 exertion) × alertness. An unsplinted fracture makes its segment 0, a splinted one 0.6; deep wounds 0.7 and muscle-depth wounds 0.85. A hand wound never touches moving.
+- **Speeds and limits.**
+  - Walk = 1.35 m/s × √(height / 1.75) × age factor × moving × load factor.
+  - Run = (2.5 + 0.06 (VO₂max − 35)) × the same factors × a fat penalty (−1.2 per unit of fat share above 15 %).
+  - Carry limit = 0.9 × muscle kg × moving. Load factor = 1 − 0.5 r² up to the limit (r = load / limit), then falls fast, with a floor of 0.15.
+- **Force and noise.**
+  - Push force = (4 × mass + 6 × muscle) N × posture × consciousness.
+  - Footsteps = 40 dB + 10 log₁₀(mass / 70) + 20 log₁₀(speed / 1.35) + floor; −6 dB crouched.
+  - Strike force comes with damage (stage 7).
+
+**Lab results:**
+- With 30 kg, a 60 kg body keeps 0.57× the speed share of an 85 kg strong body.
+- A fractured shin gives moving 0.42, and a splint makes it walk faster.
+- A 60 kg lean body runs 1.76× as fast as a 110 kg body of the same fitness.
 
 ## Not in Tier 0
 

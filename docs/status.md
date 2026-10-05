@@ -19,11 +19,15 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 ## Where we are
 
 - **Have:** the decided concept, design docs distilled from the prototype, recorded decisions, the clothing research, and the world simulation design ([0012](decisions/0012-world-simulation-layers.md), [world simulation](design/world-simulation.md)): one outbreak simulation of real Earth, played as Macro, City or Individual, with the play style chosen in setup.
-- **Don't have:** any game systems yet; only the stage 1 foundations and a demo generator used to test them. The repo is not on GitHub yet (the user's account is locked by a 2FA issue); history is in local git.
+- **Don't have:** actions, items, the window, power/noise/light, zombies or AI yet. Built so far: foundations (stage 1), things and places (stage 2) and the body (stage 3). The repo is not on GitHub yet (the user's account is locked by a 2FA issue); history is in local git.
 
 ## Next step
 
-1. Tier 0 [plan](tier0/plan.md) and [specs](tier0/specs/README.md) written (Proposal). **Stages 0 and 1 Implemented** (2026-10-05): build skeleton and foundations (quantities, own deterministic maths, Philox draws, ledger with conversions, hazards and events, clock, save/load/replay), 26 tests green on GCC and Clang with identical golden hashes. Not yet checked on Windows/MSVC. Next: stage 2 (condition, assemblies, site map) and stage 3 (body), which only need stage 1.
+1. Tier 0 [plan](tier0/plan.md) and [specs](tier0/specs/README.md) written (Proposal). Implemented on 2026-10-05, tests green on GCC and Clang with identical golden hashes (Windows/MSVC not yet checked):
+   - **Stage 1:** foundations (quantities, own deterministic maths, Philox draws, ledger, hazards and events, clock, save/load/replay).
+   - **Stage 2:** condition, assemblies with salvage that conserves mass, and the Tier 0 block map with its room graph (`zs_headless --map`).
+   - **Stage 3:** the body (composition, energy, water, blood, sleep, exertion, 17 regions, wounds, infection, healing, capabilities). `zs_headless --body-lab` runs 14 calibration scenarios, all inside their bands. `zs_headless --bench` runs one game day with 4 pops and 60 walkers in about 0.2 s.
+   - **Next:** stage 4 (action executor, items and recipes), which needs stages 2 and 3.
 2. Push the repo to GitHub once the account is back.
 
 ## Waiting on the user

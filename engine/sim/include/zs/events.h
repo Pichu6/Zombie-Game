@@ -21,6 +21,12 @@ enum class EventType : std::uint16_t {
   Breakdown = 6,
   NewSymptom = 7,
   SurvivorFound = 8,
+  Death = 9,             // a = DeathCause
+  InfectionVisible = 10,  // subject = body, a = wound id
+  InfectionWorse = 11,    // a = wound id, b = new stage
+  WoundHealed = 12,       // a = wound id
+  FellAsleep = 13,
+  WokeUp = 14,
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

@@ -1,6 +1,6 @@
 # 12 · Body: regions and wounds
 
-**Status:** Proposal. **Stage:** 3. **Needs:** [11](11-body-composition.md).
+**Status:** Implemented (stage 3; numbers are Proposal). **Stage:** 3. **Needs:** [11](11-body-composition.md).
 
 ## Purpose
 
@@ -50,6 +50,20 @@ Wound types in Tier 0: scratch, laceration, puncture, bite, blunt contusion, fra
 | Hemorrhage classes and effects | ATLS (American College of Surgeons), classes I–IV |
 | Laceration infection rates (ED, cleaned) | Emergency medicine reviews (e.g. Hollander and Singer); higher for bites (dog and human bite literature) |
 | Time to visible infection | Typical 24–72 h for wound cellulitis (clinical references; tune) |
+
+## Model as implemented (stage 3)
+
+- **Regions.** One static table: de Leva mass fractions and the prototype's authored vessel weights (neck 2.5, pelvis 2.0, head 1.8, chest 1.5, thigh 1.4, abdomen 1.3, shin 1.1, upper arm 1.0, forearm and foot 0.9, hand 0.8).
+- **Wound ids.** Every wound has its own entity id, which keys its hazard draws, so adding a wound never shifts another wound's dice.
+- **Bleeding.** Computed on the fine tick (0.5 s). Rate (mL/min) = depth base (skin 0.3, fat 1, muscle 6, deep 15) × vessel weight × length / 50 mm × (1 − clot), × 0.3 for a scratch, × 0.15 dressed, and 0 under a tourniquet on a limb.
+- **Clotting.** Clots grow toward a cap with a time constant by depth (3, 8, 30, 120 min). The cap is 0.6 for muscle-depth or deeper wounds in regions with vessel weight ≥ 1.4 unless dressed. A clot loses 20 % per minute while its region moves.
+- **Blood loss.** Hemorrhage classes are fractions of the body's own volume; death at 45 % lost. Plasma refills from body water at 1.5 L/day while the deficit is under 8 %.
+- **Infection onset.** Rate per day = base by type (scratch 0.02, laceration 0.041, puncture 0.06, bite 0.123) × contamination × cleaning factor (1, water 0.3, disinfectant 0.15) × 0.7 if dressed. The infection stays hidden for 36 h, then shows (event).
+- **Infection course.** Each stage is an exit set per day of {resolve, worse}: local {0.25, 0.35}, spreading {0.10, 0.35}, systemic {0.05, sepsis death 0.5}. Fever is +1 °C spreading and +2 °C systemic. No healing while infected.
+- **Healing.** Skin 5 days, fat 10, muscle 21, deep 35, fracture 42.
+- **Pain.** Per wound: depth base (0.1 / 0.2 / 0.35 / 0.5); scratch 0.05; contusion 0.15; fracture 0.7 (0.3 splinted); a visible infection adds 0.15–0.4. This is scaled by age (0.5 + 0.5·e^(−days/3)) and by 0.6 when the region is still. Pains combine as 1 − Π(1 − p).
+
+**Lab results:** an untreated deep 80 mm thigh laceration bleeds out in 1.4 h; dressed at once, the worst loss is 6 %. Of 100 dirty forearm lacerations over 7 days, 20 % are infected uncleaned, 6 % cleaned with water and 5 % disinfected.
 
 ## Not in Tier 0
 
