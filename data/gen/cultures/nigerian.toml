@@ -1,0 +1,38 @@
+# Culture pack (docs/design/content-tools.md section 3). Most common first; ASCII only in Tier 0 (no tone marks).
+# Names: common Yoruba, Igbo and Hausa given names and surnames, plus common English Christian names, hand-picked.
+# Appearance shares are rough estimates for drawing variety.
+
+id = "nigerian"
+label = "Nigerian"
+country = "Nigeria"
+nationality = "Nigerian"
+name_order = "given_family"
+surnames = "single"
+
+given_m = ["Chinedu", "Oluwaseun", "Emeka", "Babatunde", "Ibrahim", "Musa", "Tunde", "Chukwuemeka", "Ifeanyi", "Olumide",
+           "Segun", "Obinna", "Abdullahi", "Kelechi", "Femi", "Uche", "Adebayo", "Nnamdi", "Yusuf", "Kunle",
+           "Samuel", "Daniel", "Emmanuel", "David", "Joseph", "Chidi", "Gbenga", "Ikenna", "Sani", "Tobi"]
+given_f = ["Ngozi", "Adaeze", "Funmilayo", "Aisha", "Chiamaka", "Folake", "Amina", "Ifeoma", "Yetunde", "Nkechi",
+           "Bukola", "Chioma", "Fatima", "Temitope", "Uchenna", "Zainab", "Omolara", "Blessing", "Grace", "Esther",
+           "Abimbola", "Kemi", "Halima", "Obiageli", "Titilayo", "Amaka", "Precious", "Mercy", "Hadiza", "Ronke"]
+family = ["Adeyemi", "Okafor", "Ibrahim", "Okonkwo", "Bello", "Adebayo", "Eze", "Ogunleye", "Nwosu", "Abubakar",
+          "Olawale", "Chukwu", "Afolabi", "Nwachukwu", "Musa", "Balogun", "Obi", "Ajayi", "Okeke", "Usman",
+          "Oyelaran", "Onyeka", "Adewale", "Igwe", "Lawal", "Ogbonna", "Danjuma", "Akinola", "Ezeh", "Uzor"]
+
+places = ["Lagos", "Ibadan", "Kano", "Abuja", "Enugu", "Onitsha", "Owerri", "Aba", "Abeokuta", "Ilorin",
+          "Oshogbo", "Akure", "Ondo", "Ogbomosho", "Benin", "Warri", "Calabar", "Uyo", "Jos", "Kaduna",
+          "Zaria", "Sokoto", "Maiduguri", "Bauchi", "Makurdi", "Asaba", "Nsukka", "Umuahia", "Awka", "Ijebu"]
+town_forms = ["{root}", "{root}", "{root}-Ode", "Ile-{root}", "{root} Town"]
+province_forms = ["{root} State"]
+country_forms = ["{root}", "Federal Republic of {root}", "{root}ria"]
+
+street_format = "{name} {kind}"
+street_names = ["Awolowo", "Allen", "Herbert Macaulay", "Bode Thomas", "Ikorodu", "Broad", "Marina", "Akin Adesola",
+                "Ahmadu Bello", "Nnamdi Azikiwe", "Obafemi", "Adeola Odeku", "Ozumba Mbadiwe", "Kingsway", "Palm"]
+street_kinds = ["Street", "Road", "Close", "Crescent", "Avenue", "Way"]
+
+skin = [0, 0, 0, 0, 1, 5, 15, 30, 30, 19]
+hair = ["black"]
+hair_w = [100]
+eyes = ["brown"]
+eyes_w = [100]

@@ -1,0 +1,278 @@
+# Jobs the pop generator draws for working-age adults (docs/design/content-tools.md section 4).
+# share: rough share of US employment, an estimate from BLS Occupational Employment and Wage Statistics
+#   (May 2023) major groups, split by hand; only the ratios matter.
+# workplace: a business type in businesses.toml ("" = no fixed workplace, works around town).
+# education: lowest level the job needs (none, high_school, trade, bachelor, master, doctorate).
+# skills: tags the AI and the body/know-how model can read later; not numbers yet.
+
+[[job]]
+id = "cashier"
+label = "cashier"
+share = 3.0
+workplace = "grocery"
+education = "none"
+skills = ["people"]
+
+[[job]]
+id = "retail_clerk"
+label = "store clerk"
+share = 3.0
+workplace = "hardware"
+education = "none"
+skills = ["people"]
+
+[[job]]
+id = "cook"
+label = "cook"
+share = 2.5
+workplace = "diner"
+education = "none"
+skills = ["cooking", "knives"]
+
+[[job]]
+id = "server"
+label = "server"
+share = 2.0
+workplace = "diner"
+education = "none"
+skills = ["people"]
+
+[[job]]
+id = "nurse"
+label = "nurse"
+share = 2.2
+workplace = "hospital"
+education = "bachelor"
+skills = ["medicine", "first_aid"]
+
+[[job]]
+id = "nursing_assistant"
+label = "nursing assistant"
+share = 1.5
+workplace = "care_home"
+education = "trade"
+skills = ["first_aid", "lifting"]
+
+[[job]]
+id = "doctor"
+label = "doctor"
+share = 0.6
+workplace = "hospital"
+education = "doctorate"
+skills = ["medicine", "first_aid", "surgery"]
+
+[[job]]
+id = "pharmacist"
+label = "pharmacist"
+share = 0.2
+workplace = "pharmacy"
+education = "doctorate"
+skills = ["medicine", "chemistry"]
+
+[[job]]
+id = "paramedic"
+label = "paramedic"
+share = 0.2
+workplace = "hospital"
+education = "trade"
+skills = ["first_aid", "driving"]
+
+[[job]]
+id = "teacher"
+label = "teacher"
+share = 2.5
+workplace = "school"
+education = "bachelor"
+skills = ["teaching", "people"]
+
+[[job]]
+id = "truck_driver"
+label = "truck driver"
+share = 1.4
+workplace = "warehouse"
+education = "trade"
+skills = ["driving", "vehicles"]
+
+[[job]]
+id = "warehouse_worker"
+label = "warehouse worker"
+share = 2.0
+workplace = "warehouse"
+education = "none"
+skills = ["lifting", "forklift"]
+
+[[job]]
+id = "laborer"
+label = "construction laborer"
+share = 1.5
+workplace = ""
+education = "none"
+skills = ["lifting", "tools", "building"]
+
+[[job]]
+id = "carpenter"
+label = "carpenter"
+share = 0.6
+workplace = ""
+education = "trade"
+skills = ["carpentry", "tools", "building"]
+
+[[job]]
+id = "electrician"
+label = "electrician"
+share = 0.5
+workplace = ""
+education = "trade"
+skills = ["electrical", "tools"]
+
+[[job]]
+id = "plumber"
+label = "plumber"
+share = 0.3
+workplace = ""
+education = "trade"
+skills = ["plumbing", "tools"]
+
+[[job]]
+id = "mechanic"
+label = "auto mechanic"
+share = 0.5
+workplace = "auto_repair"
+education = "trade"
+skills = ["mechanics", "engines", "tools"]
+
+[[job]]
+id = "machinist"
+label = "machinist"
+share = 0.3
+workplace = "factory"
+education = "trade"
+skills = ["metalwork", "tools"]
+
+[[job]]
+id = "assembler"
+label = "assembly worker"
+share = 1.2
+workplace = "factory"
+education = "none"
+skills = ["tools"]
+
+[[job]]
+id = "office_clerk"
+label = "office clerk"
+share = 3.0
+workplace = "office"
+education = "high_school"
+skills = ["computers"]
+
+[[job]]
+id = "accountant"
+label = "accountant"
+share = 1.0
+workplace = "office"
+education = "bachelor"
+skills = ["computers", "numbers"]
+
+[[job]]
+id = "manager"
+label = "manager"
+share = 3.0
+workplace = "office"
+education = "bachelor"
+skills = ["leadership", "people"]
+
+[[job]]
+id = "programmer"
+label = "software developer"
+share = 1.0
+workplace = "office"
+education = "bachelor"
+skills = ["computers", "electronics"]
+
+[[job]]
+id = "janitor"
+label = "janitor"
+share = 1.5
+workplace = "school"
+education = "none"
+skills = ["cleaning", "tools"]
+
+[[job]]
+id = "security_guard"
+label = "security guard"
+share = 0.8
+workplace = "warehouse"
+education = "high_school"
+skills = ["watch", "people"]
+
+[[job]]
+id = "police"
+label = "police officer"
+share = 0.5
+workplace = "police"
+education = "high_school"
+skills = ["firearms", "first_aid", "driving", "watch"]
+
+[[job]]
+id = "firefighter"
+label = "firefighter"
+share = 0.2
+workplace = "fire_station"
+education = "trade"
+skills = ["first_aid", "lifting", "rescue"]
+
+[[job]]
+id = "hairdresser"
+label = "hairdresser"
+share = 0.4
+workplace = "salon"
+education = "trade"
+skills = ["people"]
+
+[[job]]
+id = "bank_teller"
+label = "bank teller"
+share = 0.3
+workplace = "bank"
+education = "high_school"
+skills = ["numbers", "people"]
+
+[[job]]
+id = "social_worker"
+label = "social worker"
+share = 0.5
+workplace = "office"
+education = "bachelor"
+skills = ["people"]
+
+[[job]]
+id = "pastor"
+label = "pastor"
+share = 0.2
+workplace = "church"
+education = "master"
+skills = ["people", "leadership"]
+
+[[job]]
+id = "farmworker"
+label = "farm worker"
+share = 0.6
+workplace = ""
+education = "none"
+skills = ["farming", "lifting", "animals"]
+
+[[job]]
+id = "bus_driver"
+label = "bus driver"
+share = 0.3
+workplace = ""
+education = "trade"
+skills = ["driving"]
+
+[[job]]
+id = "soldier"
+label = "soldier"
+share = 0.3
+workplace = ""
+education = "high_school"
+skills = ["firearms", "first_aid", "watch", "fitness"]

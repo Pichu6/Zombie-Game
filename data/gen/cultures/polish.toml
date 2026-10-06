@@ -1,0 +1,39 @@
+# Culture pack (docs/design/content-tools.md section 3). Most common first; ASCII only in Tier 0 (no diacritics).
+# Names: common Polish given names and surnames (PESEL registry frequency lists), hand-picked.
+# Surnames ending -ski/-cki/-dzki take -ska/-cka/-dzka for women (handled by the generator).
+
+id = "polish"
+label = "Polish"
+country = "Poland"
+nationality = "Polish"
+name_order = "given_family"
+surnames = "gendered_ski"
+
+given_m = ["Piotr", "Krzysztof", "Andrzej", "Tomasz", "Jan", "Pawel", "Michal", "Marcin", "Stanislaw", "Jakub",
+           "Adam", "Marek", "Lukasz", "Grzegorz", "Mateusz", "Wojciech", "Mariusz", "Dariusz", "Zbigniew", "Jerzy",
+           "Kacper", "Szymon", "Filip", "Bartosz", "Antoni"]
+given_f = ["Anna", "Maria", "Katarzyna", "Malgorzata", "Agnieszka", "Barbara", "Ewa", "Krystyna", "Elzbieta", "Zofia",
+           "Magdalena", "Joanna", "Monika", "Aleksandra", "Natalia", "Julia", "Teresa", "Danuta", "Halina", "Irena",
+           "Zuzanna", "Hanna", "Maja", "Lena", "Dorota"]
+family = ["Nowak", "Kowalski", "Wisniewski", "Wojcik", "Kowalczyk", "Kaminski", "Lewandowski", "Zielinski", "Szymanski", "Wozniak",
+          "Dabrowski", "Kozlowski", "Jankowski", "Mazur", "Kwiatkowski", "Krawczyk", "Piotrowski", "Grabowski", "Nowakowski", "Pawlowski",
+          "Michalski", "Krol", "Wieczorek", "Jablonski", "Wrobel", "Majewski", "Olszewski", "Stepien", "Malinowski", "Jaworski"]
+
+places = ["Warszawa", "Krakow", "Lodz", "Wroclaw", "Poznan", "Gdansk", "Szczecin", "Bydgoszcz", "Lublin", "Bialystok",
+          "Katowice", "Gdynia", "Czestochowa", "Radom", "Torun", "Sosnowiec", "Kielce", "Rzeszow", "Gliwice", "Zabrze",
+          "Olsztyn", "Opole", "Tarnow", "Plock", "Elblag", "Koszalin", "Legnica", "Kalisz", "Przemysl", "Zamosc"]
+town_forms = ["{root}", "{root}", "{root}ow", "{root}owice", "Nowy {root}", "{root} Wielki"]
+province_forms = ["{root} Voivodeship", "{root}skie"]
+country_forms = ["{root}", "Republic of {root}", "{root}ska"]
+
+street_format = "{kind} {name}"
+street_names = ["Mickiewicza", "Slowackiego", "Kosciuszki", "Pilsudskiego", "Sienkiewicza", "Kopernika", "Chopina",
+                "Polna", "Lesna", "Ogrodowa", "Kwiatowa", "Szkolna", "Lipowa", "Sloneczna", "Krotka", "Dluga",
+                "Wolnosci", "Warszawska", "Krakowska", "Kolejowa"]
+street_kinds = ["ul.", "al."]
+
+skin = [12, 35, 30, 15, 6, 2, 0, 0, 0, 0]
+hair = ["brown", "blond", "black", "red"]
+hair_w = [55, 35, 5, 5]
+eyes = ["blue", "brown", "green", "hazel", "gray"]
+eyes_w = [45, 25, 15, 10, 5]

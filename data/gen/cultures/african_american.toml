@@ -1,0 +1,38 @@
+# Culture pack (docs/design/content-tools.md section 3). Most common first; ASCII only in Tier 0.
+# Names: common given names and surnames among Black Americans (SSA and US Census 2010 data), hand-picked.
+# Appearance shares are rough estimates for drawing variety.
+
+id = "african_american"
+label = "African American"
+country = "United States"
+nationality = "American"
+name_order = "given_family"
+surnames = "single"
+
+given_m = ["James", "Michael", "Robert", "John", "William", "Anthony", "Darnell", "Marcus", "Andre", "Terrence",
+           "Jerome", "Tyrone", "Derrick", "Reginald", "Cedric", "Malik", "Jamal", "DeShawn", "Isaiah", "Elijah",
+           "Jalen", "Xavier", "Darius", "Calvin", "Curtis", "Willie", "Lamar", "Maurice", "Kendrick", "Jordan"]
+given_f = ["Mary", "Patricia", "Gloria", "Denise", "Tanya", "Keisha", "Latoya", "Tamika", "Ebony", "Monique",
+           "Aaliyah", "Imani", "Jasmine", "Destiny", "Kiara", "Brianna", "Nia", "Shanice", "Angela", "Yolanda",
+           "Dorothy", "Loretta", "Bernice", "Tiana", "Alicia", "Erica", "Candace", "Raven", "Zora", "Danielle"]
+family = ["Johnson", "Williams", "Smith", "Jones", "Brown", "Jackson", "Davis", "Harris", "Robinson", "Thomas",
+          "Washington", "Jefferson", "Banks", "Booker", "Mosley", "Gaines", "Freeman", "Coleman", "Simmons", "Hayes",
+          "Wright", "Walker", "Bryant", "Butler", "Gibson", "Holmes", "Ellis", "Dixon", "Bell", "Pierce"]
+
+places = ["Atlanta", "Memphis", "Birmingham", "Jackson", "Montgomery", "Savannah", "Charleston", "Durham",
+          "Richmond", "Baltimore", "Detroit", "Chicago", "Cleveland", "Newark", "Shreveport", "Macon",
+          "Augusta", "Greensboro", "Tuskegee", "Selma", "Natchez", "Vicksburg", "Gary", "Flint", "Camden"]
+town_forms = ["{root}", "{root}ville", "{root} Heights", "{root}ton"]
+province_forms = ["{root} County", "{root} Parish"]
+country_forms = ["{root}ia", "Republic of {root}"]
+
+street_format = "{name} {kind}"
+street_names = ["Martin Luther King Jr.", "Main", "Peachtree", "Magnolia", "Oak", "Church", "Freedom", "Union",
+                "Liberty", "Booker", "Douglass", "Carver", "Pine", "Elm", "Cotton", "Grove"]
+street_kinds = ["Street", "Avenue", "Boulevard", "Road", "Drive"]
+
+skin = [0, 0, 0, 1, 5, 15, 25, 28, 18, 8]
+hair = ["black", "brown"]
+hair_w = [90, 10]
+eyes = ["brown", "hazel"]
+eyes_w = [95, 5]

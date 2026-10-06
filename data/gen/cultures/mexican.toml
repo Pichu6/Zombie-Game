@@ -1,0 +1,41 @@
+# Culture pack (docs/design/content-tools.md section 3). Most common first; ASCII only in Tier 0 (no accents).
+# Names: common Mexican given names and surnames (INEGI and RENAPO frequency lists), hand-picked.
+# Two surnames: paternal then maternal. Appearance shares are rough estimates for drawing variety.
+
+id = "mexican"
+label = "Mexican"
+country = "Mexico"
+nationality = "Mexican"
+name_order = "given_family"
+surnames = "paternal_maternal"
+
+given_m = ["Jose", "Juan", "Luis", "Carlos", "Jesus", "Miguel", "Francisco", "Antonio", "Alejandro", "Jorge",
+           "Pedro", "Manuel", "Ricardo", "Fernando", "Roberto", "Javier", "Eduardo", "Daniel", "Raul", "Sergio",
+           "Santiago", "Mateo", "Diego", "Emiliano", "Rafael", "Arturo", "Hector", "Oscar", "Ramon", "Andres"]
+given_f = ["Maria", "Guadalupe", "Juana", "Margarita", "Veronica", "Leticia", "Rosa", "Elizabeth", "Alejandra", "Patricia",
+           "Gabriela", "Adriana", "Claudia", "Araceli", "Silvia", "Lucia", "Ximena", "Valentina", "Sofia", "Fernanda",
+           "Daniela", "Mariana", "Carmen", "Teresa", "Josefina", "Yolanda", "Brenda", "Diana", "Paola", "Karla"]
+family = ["Hernandez", "Garcia", "Martinez", "Lopez", "Gonzalez", "Rodriguez", "Perez", "Sanchez", "Ramirez", "Cruz",
+          "Flores", "Gomez", "Morales", "Vazquez", "Reyes", "Jimenez", "Torres", "Diaz", "Gutierrez", "Ruiz",
+          "Mendoza", "Aguilar", "Ortiz", "Moreno", "Castillo", "Romero", "Alvarez", "Mendez", "Chavez", "Rivera",
+          "Juarez", "Ramos", "Dominguez", "Herrera", "Medina", "Castro", "Vargas", "Guzman", "Velazquez", "Rojas"]
+
+places = ["Guadalajara", "Monterrey", "Puebla", "Toluca", "Leon", "Morelia", "Queretaro", "Oaxaca", "Zacatecas",
+          "Durango", "Hermosillo", "Chihuahua", "Saltillo", "Aguascalientes", "Celaya", "Irapuato", "Uruapan",
+          "Tepic", "Colima", "Pachuca", "Tlaxcala", "Cuernavaca", "Culiacan", "Mazatlan", "Ensenada", "Tijuana",
+          "Mexicali", "Torreon", "Zamora", "Apatzingan", "Salamanca", "Fresnillo", "Tehuacan", "Orizaba", "Cordoba"]
+town_forms = ["{root}", "San {root}", "Santa {root}", "{root} de Juarez", "Villa {root}"]
+province_forms = ["{root}", "Estado de {root}"]
+country_forms = ["{root}", "Republica de {root}", "Estados Unidos de {root}"]
+
+street_format = "{kind} {name}"
+street_names = ["Hidalgo", "Morelos", "Juarez", "Allende", "Independencia", "Reforma", "Madero", "Zaragoza",
+                "Guerrero", "5 de Mayo", "16 de Septiembre", "Insurgentes", "Revolucion", "Constitucion",
+                "Aldama", "Matamoros", "Obregon", "Victoria", "Galeana", "Iturbide"]
+street_kinds = ["Calle", "Avenida", "Calzada", "Privada"]
+
+skin = [1, 5, 15, 25, 25, 17, 8, 3, 1, 0]
+hair = ["black", "brown"]
+hair_w = [70, 30]
+eyes = ["brown", "hazel", "green"]
+eyes_w = [85, 10, 5]
