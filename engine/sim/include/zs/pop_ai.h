@@ -89,7 +89,8 @@ class PopAI : public System {
   void cancel(World& w, PopMind& m);
   bool armed(const World& w, EntityId body) const;
   bool carries(const World& w, EntityId body, const std::string& def_id) const;
-  std::optional<EntityId> loose(const World& w, const std::string& def_id, const Cell& near) const;
+  // The nearest item of this kind lying on a floor; with_parts: only assemblies with something still mounted.
+  std::optional<EntityId> loose(const World& w, const std::string& def_id, const Cell& near, bool with_parts = false) const;
   std::optional<EntityId> loose_weapon(const World& w, const Cell& near) const;
   std::optional<Cell> safe_cell(const World& w, EntityId body, const std::vector<EntityId>& threats) const;
   std::optional<EntityId> window_to_board(const World& w, const Cell& from, EntityId me) const;

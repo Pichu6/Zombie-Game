@@ -188,6 +188,7 @@ TEST_CASE("stage 8: weak blows add up; a plank in weak hands puts a walker down 
   }
   MESSAGE("strikes with a plank to put a walker down: " << strikes);
   CHECK_FALSE(t.walkers->walkers().contains(z));
+  CHECK(strikes <= 20);
 }
 
 TEST_CASE("stage 8: the group puts down its dead before they rise (spec 21, 24)") {
@@ -228,7 +229,7 @@ TEST_CASE("stage 8: a group run: save/load keeps the hash; golden") {
   u.world->load(mid);
   run_hours(u, 6);
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 2260278671357301883ULL;
+  const std::uint64_t golden = 5502810987884745546ULL;
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 8 golden world hash: " << t.world->world_hash());
 }

@@ -101,11 +101,12 @@ bool PopAI::armed(const World& w, EntityId body) const {
   return false;
 }
 
-std::optional<EntityId> PopAI::loose(const World& w, const std::string& def_id, const Cell& near) const {
+std::optional<EntityId> PopAI::loose(const World& w, const std::string& def_id, const Cell& near, bool with_parts) const {
   std::optional<EntityId> best;
   double best_d = 1e300;
   for (const auto& [id, inst] : items_.all()) {
     if (items_.def(inst.def).id != def_id) continue;
+    if (with_parts && std::none_of(inst.slots.begin(), inst.slots.end(), [](EntityId s) { return s != 0; })) continue;
     const EntityId parent = w.locations.parent_of(id);
     const auto at = actors_.floor_cell(parent);
     if (!at) continue;  // carried, mounted, or on a wound
@@ -415,10 +416,8 @@ bool PopAI::plan_want(World& w, PopMind& m, Doing want) {
       const auto panel = actors_.find_object("power_panel");
       if (power_.transfer() != Transfer::Generator && panel) use("switch_to_generator", *panel);
       const double fuel = static_cast<double>(power_.fuel_ul(w)) / static_cast<double>(power_.tank_ul());
-      if (fuel < kRefuelBelow) {
-        if (!take("fuel_can")) return false;
-        use("refuel_generator", gen);
-      }
+      if (fuel < kRefuelBelow && take("fuel_can")) use("refuel_generator", gen);
+      if (fuel <= 0 && plan.empty()) return false;
       if (!power_.generator_running()) use("start_generator", gen);
       break;
     }
@@ -428,9 +427,9 @@ bool PopAI::plan_want(World& w, PopMind& m, Doing want) {
       if (!take("hammer") || !take("nail_set")) return false;
       if (!carries(w, me, "plank")) {
         if (auto plank = loose(w, "plank", pos)) use("take", *plank);
-        else if (auto chair = loose(w, "chair", pos)) {
+        else if (auto chair = loose(w, "chair", pos, true)) {
           use("salvage_furniture", *chair);
-          return true;  // the planks lie on the floor next time
+          break;  // the planks lie on the floor next time
         } else return false;
       }
       use("barricade", *window);
@@ -456,7 +455,7 @@ void PopAI::send_next(World& w, PopMind& m) {
   const EntityId me = m.body;
   // Refusals (rule 4) for everything but fighting and running: where is this step going?
   if (m.doing != Doing::Fight && m.doing != Doing::Flee && m.doing != Doing::Treat && m.doing != Doing::Drink &&
-      m.doing != Doing::Eat && m.doing != Doing::Sleep && m.doing != Doing::Idle) {
+      m.doing != Doing::Eat && m.doing != Doing::Sleep && m.doing != Doing::Idle && m.doing != Doing::PutDown) {
     std::optional<Cell> to = proc < 0 ? std::optional<Cell>(unpack_cell(static_cast<std::int64_t>(target)))
                                       : actors_.cell_of(w, target);
     if (to) {
@@ -633,7 +632,9 @@ void PopAI::decide(World& w, PopMind& m) {
   if (!actors_.idle(me)) return;
   if (m.plan.empty()) {
     if (!plan_want(w, m, want)) {
-      if (want != Doing::Idle) m.retry_after[want] = now + kRetryTicks;
+      // A followed pop that is close needs no plan now, but must be followed again as soon as it moves.
+      const bool following = want == Doing::Order && m.order.type == OrderType::Follow;
+      if (want != Doing::Idle && !following) m.retry_after[want] = now + kRetryTicks;
       m.doing = Doing::Idle;
       return;
     }
