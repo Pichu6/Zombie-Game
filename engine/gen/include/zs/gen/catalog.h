@@ -44,18 +44,33 @@ struct BusinessType {
   std::map<std::string, std::vector<std::string>> culture_forms;  // culture id -> extra forms
 };
 
+struct LifeEvent {
+  std::string text, kind, skill;
+  double chance = 0;
+  int min_age = 0;
+};
+
+struct LifepathRules {
+  int year = 2026;
+  int term_min = 2, term_max = 9;
+  double gap_chance = 0.1, service_share = 0.06, same_job = 0.55;
+  int service_min = 2, service_max = 6;
+  std::vector<LifeEvent> events;
+};
+
 struct Catalog {
   std::vector<Culture> cultures;  // sorted by id
   std::vector<Job> jobs;
   std::vector<BusinessType> businesses;
   std::vector<std::string> words;
+  LifepathRules life;
 
   const Culture& culture(const std::string& id) const;  // throws if missing
   const Job* job(const std::string& id) const;
   const BusinessType* business(const std::string& id) const;
 };
 
-// Loads <dir>/cultures/*.toml, <dir>/jobs.toml and <dir>/businesses.toml. Throws on bad data.
+// Loads <dir>/cultures/*.toml, jobs.toml, businesses.toml and lifepath.toml. Throws on bad data.
 Catalog load_catalog(const std::string& dir);
 
 // Education levels in order; index is the level.

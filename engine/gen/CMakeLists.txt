@@ -3,6 +3,7 @@ add_library(zs_gen
   src/catalog.cpp
   src/names.cpp
   src/pops.cpp
+  src/lifepath.cpp
   src/registry_bridge.cpp
 )
 target_include_directories(zs_gen PUBLIC include)
