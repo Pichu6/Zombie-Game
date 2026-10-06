@@ -90,7 +90,7 @@ TEST_CASE("the save has a version, and a newer or alien save is refused with a c
   PopRegistry reg = fixture_registry();
   auto bytes = reg.save();
   REQUIRE(bytes.size() > 12);
-  CHECK(bytes[8] == 1);  // the version, right after the 8-byte magic
+  CHECK(bytes[8] == 2);  // the newest version, right after the 8-byte magic
   PopRegistry other(41);
   bytes[8] = 99;
   CHECK_THROWS_WITH_AS(other.load(bytes), doctest::Contains("version 99"), std::runtime_error);

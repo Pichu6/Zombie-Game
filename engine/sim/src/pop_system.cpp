@@ -23,6 +23,10 @@ void PopSystem::apply_command(World& w, const Command& c, EventId cause) {
       ok = registry_.roster_apply(c.subject, kind, c.b, year, cause);
       if (ok) w.emit(EventType::PopEffect, c.subject, cause, c.a, c.b);
       break;
+    case RegionApply:
+      ok = registry_.region_apply(static_cast<std::uint32_t>(c.subject), kind, c.b, year, cause);
+      if (ok) w.emit(EventType::PopEffect, c.subject, cause, c.a, c.b);
+      break;
     case CohortApply:
       ok = registry_.apply({c.subject, kind, c.b, year, cause});
       if (ok) w.emit(EventType::PopEffect, c.subject, cause, c.a, c.b);

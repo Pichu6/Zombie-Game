@@ -97,6 +97,12 @@ class PopRegistry {
   bool roster_leave(std::uint64_t roster, PopId pop, double year);
   bool roster_apply(std::uint64_t roster, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason);
   std::uint64_t roster_count(std::uint64_t roster, EffectKind kind, double year) const;
+  // A region-wide event: `delta` more present members across ALL the region's rosters enter the state
+  // (negative: that many are given back). The count is split down to the rosters by an exact hypergeometric
+  // draw, so the total is exactly |delta|, no roster gets more than it has, and the work is O(rosters).
+  // Refused (nothing changes) if the region has too few eligible members, no rosters, or a roster that has
+  // already seen a later year. Aimed at rosters only: generated cohorts take their own events.
+  bool region_apply(std::uint32_t region, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason);
   std::uint64_t roster_count_region(std::uint32_t region, EffectKind kind, double year) const;
 
   // The jump: births, deaths and who is alive over (from, to] for every founder in every cohort and
@@ -126,7 +132,9 @@ class PopRegistry {
   std::vector<Range> ranges(std::uint64_t cohort, EffectKind kind, double year) const;
   void set_exception(std::vector<PopException>& list, const PopException& e);
   void index_effect(const CohortEffect& e);
+  void load_body(ArchiveReader& r);  // everything every version has
   void load_v1(ArchiveReader& r);
+  void load_v2(ArchiveReader& r);
 
   std::uint64_t seed_;
   PopParams params_;
@@ -139,6 +147,7 @@ class PopRegistry {
   std::map<PopId, Record> records_;                    // pinned pops
   std::map<PopId, std::vector<PopException>> kept_;    // exceptions of lazy pops
   std::map<std::uint64_t, Roster> rosters_;
+  std::uint64_t region_events_ = 0;                         // region-wide events applied; part of each split's key (v2)
   std::map<PopId, std::vector<std::uint64_t>> rosters_of_;  // derived from the rosters; rebuilt on load
 };
 

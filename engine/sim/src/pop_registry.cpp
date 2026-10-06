@@ -2,9 +2,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 #include "zs/archive.h"
 #include "zs/detmath.h"
+#include "zs/hypergeometric.h"
 
 namespace zs {
 
@@ -13,7 +15,7 @@ namespace {
 // (never delete an old reader), keep a frozen fixture of every shipped version in tests/fixtures, and make the
 // new reader of an old version fill any new field with the value that reproduces the old behaviour.
 constexpr std::uint64_t kSaveMagic = 0x474552504f50ull;  // "POPREG"
-constexpr std::uint32_t kSaveVersion = 1;
+constexpr std::uint32_t kSaveVersion = 2;  // 2 adds the region-event counter
 constexpr std::uint64_t kDrawStartAge = 10;                // the `b` key of Purpose::PopLife
 }  // namespace
 
@@ -237,6 +239,36 @@ std::uint64_t PopRegistry::roster_count_region(std::uint32_t region, EffectKind 
   return n;
 }
 
+bool PopRegistry::region_apply(std::uint32_t region, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason) {
+  if (delta == 0 || static_cast<std::uint8_t>(kind) >= static_cast<std::uint8_t>(EffectKind::kCount)) return false;
+  struct Part { std::uint64_t id, capacity; };
+  std::vector<Part> parts;
+  std::uint64_t total = 0;
+  for (const auto& [id, r] : rosters_) {
+    if (r.region() != region) continue;
+    if (year < r.last_year()) return false;  // a roster has already seen a later year
+    const std::uint64_t in_state = r.count(kind, year);
+    const std::uint64_t cap = delta > 0 ? r.size(year) - in_state : in_state;
+    parts.push_back({id, cap});
+    total += cap;
+  }
+  const std::uint64_t want = delta > 0 ? static_cast<std::uint64_t>(delta) : static_cast<std::uint64_t>(-delta);
+  if (parts.empty() || want > total) return false;
+  const std::uint64_t stream = ((static_cast<std::uint64_t>(region) << 8) | static_cast<std::uint64_t>(kind)) ^
+                               (region_events_ * 0x9E3779B97F4A7C15ull);
+  std::uint64_t pool = total, left = want;
+  for (const Part& p : parts) {
+    if (left == 0) break;
+    const std::uint64_t k = hypergeometric(keyed_uniform01(seed_, Purpose::PopRank, stream, p.id), pool, p.capacity, left);
+    if (k > 0 && !rosters_.at(p.id).apply(seed_, kind, delta > 0 ? static_cast<std::int64_t>(k) : -static_cast<std::int64_t>(k), year, reason))
+      throw std::logic_error("pop registry: a region split asked a roster for more than it had");
+    pool -= p.capacity;
+    left -= k;
+  }
+  ++region_events_;
+  return true;
+}
+
 DemographyCounts PopRegistry::project_demography(double from, double to) const {
   std::vector<Founder> founders;
   for (const auto& [cid, c] : cohorts_)
@@ -335,6 +367,7 @@ std::vector<std::uint8_t> PopRegistry::save() const {
   for (const auto& [id, list] : kept_) { w.u64(id); put_exceptions(list); }
   w.u64(rosters_.size());
   for (const auto& [id, r] : rosters_) r.save(w);
+  w.u64(region_events_);  // v2
   return w.bytes();
 }
 
@@ -344,6 +377,7 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
   const std::uint32_t version = r.u32();
   switch (version) {
     case 1: load_v1(r); return;
+    case 2: load_v2(r); return;
     default:
       throw std::runtime_error("pop registry save is version " + std::to_string(version) + "; this build reads up to " +
                                std::to_string(kSaveVersion));
@@ -351,6 +385,18 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
 }
 
 void PopRegistry::load_v1(ArchiveReader& r) {
+  load_body(r);
+  region_events_ = 0;  // version 1 had none: no region event had ever been applied
+  if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
+}
+
+void PopRegistry::load_v2(ArchiveReader& r) {
+  load_body(r);
+  region_events_ = r.u64();
+  if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
+}
+
+void PopRegistry::load_body(ArchiveReader& r) {
   if (r.u64() != seed_) throw std::runtime_error("pop registry save is from another world seed");
   params_ = read_pop_params(r);
   cohorts_.clear(); by_slot_.clear(); log_.clear(); records_.clear(); kept_.clear();
@@ -390,7 +436,6 @@ void PopRegistry::load_v1(ArchiveReader& r) {
     for (PopId pop : ro.ever_members()) rosters_of_[pop].push_back(rid);
     rosters_[rid] = std::move(ro);
   }
-  if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
 }
 
 std::uint64_t PopRegistry::hash() const { return hash_bytes(save()); }

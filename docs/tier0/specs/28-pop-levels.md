@@ -129,6 +129,17 @@ Code: `engine/sim/include/zs/pop_system.h`, `src/pop_system.cpp`, tests in `test
 - **Not in the ledger, on purpose.** The ledger holds conserved things moved by actions and only mints at setup. A lazy population cannot be transfers every tick, and by rule 4 counts are sums, not stored numbers. The conservation of people is the identity *alive at end = alive at start + births - deaths*, tested in the jump (P5). The Tier 0 census keeps its own `people` ledger resource for its 60 neighbours.
 - **Tests (A1):** save, load, save gives identical bytes and the world hash includes the registry; replaying the input log reproduces the hash after five game days; a load into a continuing world matches never having stopped; effects carry their cause and refusals change nothing; setup is closed afterwards; the audit stays clean; years and commands land correctly. GCC and Clang agree on all 149 tests.
 
+## Region-wide events (2026-10-06)
+
+Code: `engine/sim/include/zs/hypergeometric.h`, `src/hypergeometric.cpp`, `PopRegistry::region_apply`, command `RegionApply`; tests in `tests/test_region_events.cpp`. Implemented, not Validated.
+
+- **What it does.** A Macro-level order ("3% of region R lose their jobs", "10% fall ill") is an exact count K. `region_apply` splits K across the region's rosters with an **exact hypergeometric draw** (the distribution of "K taken without replacement from everyone eligible"), one roster after another, each draw keyed by (region, kind, event counter, roster). Each roster then picks its own members as before. So the total is exactly K, no roster gets more than it has, nobody is hit twice, and the work is O(rosters), not O(people). A give-back (negative K) splits over the rosters' current in-state counts the same way.
+- **The sampler** is `hypergeometric(u, population, good, draws)`: inversion walked outward from the mode (any fixed order is a valid inversion), with ln(n!) from a table and Stirling's series, our own log and exp. Tested against the exact probabilities (A2, 200,000 draws), mean and spread for a population of ten million (A2), bounds and edge cases (A1).
+- **Proportional (A3):** a workplace three times the size gets about three times the hits over 300 events.
+- **Refusals change nothing:** more than the eligible count, a region with no rosters, an event earlier than a roster's last year, zero, or a give-back larger than the in-state count.
+- **Rosters only.** Generated cohorts take their own events; a region event never touches them, so one population is not hit by two mechanisms.
+- **Save format version 2** adds the region-event counter (part of each split's key). The v1 reader fills it with 0; the frozen v1 fixture still loads. This is the first real use of the versioning rules below.
+
 ## Built to be changed (2026-10-06)
 
 We expect to come back and change much of this, so the foundations are arranged to make change safe:

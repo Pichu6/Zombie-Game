@@ -23,6 +23,7 @@ class Roster {
   Roster(std::uint64_t id, std::uint32_t region) : id_(id), region_(region) {}
   std::uint64_t id() const { return id_; }
   std::uint32_t region() const { return region_; }
+  double last_year() const { return last_year_; }  // events and joins never go back before this
 
   // Membership. A pop can join again after leaving; it cannot join twice at once. Years never go back.
   bool join(PopId pop, double year);
