@@ -165,12 +165,16 @@ A first playable slice for the loop: a **single continent of a dozen or so of th
 4. **Uneven development at the start:** yes, read from the capabilities each faction holds.
 5. **Map editing before the run:** yes, with the world divided into sectors (borders) and zones (placement), re-audited after edits.
 
+### Answered (2026-10-06, [0034](../decisions/0034-grid-sector-zone-sizes-accepted.md))
+
+- **Global grid:** equal-area cells of about 5,000 km² at Earth size (about 100,000 cells); a flat metric grid only for local maps.
+- **Sectors and zones:** a sector is a few hundred to a few thousand cells (dozens per world); zone cells are 100 to 500 m, inside settlement footprints only.
+- **Real Earth:** later.
+
 ### Open
 
-1. **The global grid.** A planet is a sphere: an equal-area grid (an icosahedral hexagon-and-pentagon grid) keeps areas and distances honest, at the price of a harder grid than a flat map. Recommendation: equal-area cells of about 5,000 km² at Earth size (about 100,000 cells), a flat metric grid only for local maps.
-2. **How many world cells make a sector,** and the zone resolution inside settlements. Recommendation: sectors of a few hundred to a few thousand cells so that a world has dozens, and zone cells of 100–500 m inside settlement footprints only.
-3. **The real Earth** remains a separate data pipeline ([0028](../decisions/0028-real-time-reference-and-generational-runs.md)); generated worlds use the laws here. Is Earth a first-slice goal or later? Recommendation: later.
-4. **Research honesty.** The notes are second-hand search summaries; a real data pipeline ([world numbers](world-numbers.md) §10) is the way to firm numbers up.
+1. **Research honesty.** The notes are second-hand search summaries; a real data pipeline ([world numbers](world-numbers.md) §10) is the way to firm numbers up.
+2. **The first generator spec** (global grid, terrain and climate fields, sectors, zones) is the next unit to write; see section 8.
 
 ## 10. Laws and anchors for the new systems
 
