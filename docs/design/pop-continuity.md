@@ -42,7 +42,26 @@ Macro counts are never a separate stored number. A region's counts (by age, job,
 
 Every change carries its reason, as already planned for the ledger ([macro layer](macro-layer.md) §5), so the inspector can answer "why".
 
-**Lost capabilities.** A capability is lost when the establishments, parts or people that make it are gone, never by a timer. Knowledge held by living people can be lost with them (and with their notes), not "forgotten" by drift (Decided, [0026](../decisions/0026-pop-continuity-and-capability-loss.md)). A lost capability **can** be restored but only with great effort (Decided, [0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): the AI never chooses it on its own; it is a human goal or late-game play that needs trade, cooperation and real time. The cost model (what it needs in parts, people, time and partners) is Open.
+**Lost capabilities.** A capability is lost when the establishments, parts or people that make it are gone, never by a timer. Knowledge held by living people can be lost with them (and with their notes), not "forgotten" by drift (Decided, [0026](../decisions/0026-pop-continuity-and-capability-loss.md)). A lost capability **can** be restored but only with great effort (Decided, [0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): the AI never chooses it on its own; it is a human goal or late-game play that needs trade, cooperation and real time. The cost is made of resources, pops and time, for real reasons ([0029](../decisions/0029-restoring-cost-and-two-way-projects.md)); the model is in §5.1.
+
+### 5.1 Restoring a capability: a project, from either end (Decided as intent, model Proposal)
+
+A restoration is a **Project** ([world simulation](world-simulation.md) §7), the same record whoever starts it. It needs, as real reasons for a real project:
+
+| Cost | What it means |
+| --- | --- |
+| **Resources** | Parts, materials, tools, machinery, energy and money that exist in the ledger and move to the site; if a part is no longer made anywhere, making it is itself a project (the production ladder, [0013](../decisions/0013-production-ladder.md)) or it must be imported through trade |
+| **Pops** | Specific people with the know-how (found, hired, trained, or brought by partners), for the hours the work needs; people who hold the knowledge may be few, old or dead (Decided: knowledge is lost with people and notes) |
+| **Time** | Real durations ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): months to years for a plant, a school year for a cohort of trainees; it cannot be skipped by money alone |
+| **Partners** | Other nations, companies or groups for parts, trade, training and security; the more that is missing, the more partners it takes |
+| **Upkeep** | The restored thing needs staff, power and inputs to stay restored, or the capability is lost again |
+
+**Two ways to drive it** (the same Project, seen from either layer):
+
+- **Micro → Macro (bottom up):** a possessed pop or a group finds the parts, repairs the machines, trains the staff and brings the plant back. The work is real actions at Layer 1 and jobs at Layer 2; when it is done the nation's tech readout (Layer 3) rises by itself, because the establishment and people now exist ([sandbox parameters](sandbox-parameters.md) §11.1).
+- **Macro → Micro (top down):** an actor at Layer 3 (a government, a ministry, a company board) opens the programme with a budget and a goal. It becomes a site and job postings at Layer 2; pops and companies take them by their own rules ([world simulation](world-simulation.md) §7, §13); a possessed pop can take one of those jobs. If nobody can or will do it, the programme stalls and says why.
+- **Mixed:** both can run on one Project: a nation funds it, a player's group does the hard part.
+- **AI:** pops and AI governments do not start the hard restorations on their own (Decided); they do ordinary repairs and maintenance.
 
 ## 6. Invariants and tests (to write when specified)
 
@@ -57,5 +76,5 @@ Every change carries its reason, as already planned for the ledger ([macro layer
 
 1. **Budget:** how many records the sim can hold and update on a normal PC, and how a Macro run at "years per second" drives lazy jumps. Needs a benchmark.
 2. **Selection rules for layoffs and similar aggregate events** per system (seniority, skill, random draw): each system's spec states its ranking.
-3. **Cost model for restoring a lost capability** (what "nearly impossible" means in parts, people, time and partners).
+3. **Numbers for the restoring cost** (§5.1): per capability, which parts, which skills, how many person-hours, which partners. Each comes from its own spec.
 4. **Age gate:** a pop younger than the playable age is a record the player can follow but not possess ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)).

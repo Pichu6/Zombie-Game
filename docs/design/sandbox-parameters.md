@@ -382,7 +382,7 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 2. **Restoring a lost capability:** Decided ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): nearly impossible, never done by the AI on its own, a human goal or late-game play needing trade and cooperation. Open: the exact cost model (what "nearly" means in parts, people, time and partners).
 3. **War scale and look:** after the Foxhole research.
 4. **Tech tree contents:** which capabilities and how many tiers.
-5. **Starting speed of a new game:** Decided that real time is the reference and 1 hour = 1 day the usual speed ([0028](../decisions/0028-real-time-reference-and-generational-runs.md)). Open: does a new game start at 1 hour = 1 day or at 1:1? Recommendation: 1 hour = 1 day, with 1:1 one key away.
+5. **Starting speed of a new game:** Decided: 1 hour = 1 day, 1:1 one key away ([0029](../decisions/0029-restoring-cost-and-two-way-projects.md)).
 
 ## 16. Order of work (dependencies only)
 
