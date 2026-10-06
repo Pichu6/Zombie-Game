@@ -106,6 +106,22 @@ A nation is an Actor that owns regions, a budget, offices (each held by a real c
 | **AI priorities** | Weights: protect lives, protect the economy, protect the regime, help neighbours, expand, status quo | What the government picks when you are not watching; same menu as the player |
 | **Politics play** | Elections, coups, revolutions, secession, reform: on or off, and how likely | Sandbox rules; never forced on a date |
 
+### 5.2 Demographic profile (Decided as intent, [0030](../decisions/0030-nation-demographics.md); model Proposal)
+
+Every nation has its own demographics, as real countries do. The profile is data, `data/setup/nations/<id>.toml`, and it is what the generators and the realism report read, so a country is not one US-shaped town copied.
+
+| Table | What it holds |
+| --- | --- |
+| Age pyramid | Shares by five-year band (0-4 to 95+); founders drawn by rule take this age structure |
+| Education | Attainment of adults (none, primary, secondary, tertiary) for ages 25-34, 35-64 and 65 and over |
+| Labour | Participation by age group and sex, unemployment rate, retirement age |
+| Occupations and sectors | Shares of the employed by ISCO-08 major group and by agriculture, industry, services |
+| Households | Shares of households of 1, 2, 3, 4, 5 or more people |
+| Settlement | Urban share |
+| Mortality and fertility | The demography preset it names (`data/setup/demography/`) |
+
+Each table carries its source and year. A profile is **placeholder** (a plausible shape, not data) or **sourced**; the loader refuses "sourced" without a citation on every table. The profile is copied into a world's save when the world is made, like the other presets, so updating it never changes an old save. Next: the town generator draws education, occupation and households from the nation's profile (today it uses one US-like job table), and the realism report ([§13.1](#131-realism-checks-for-long-runs-decided-as-a-use-0028-model-proposal)) compares a run with the same profile's real data.
+
 ### 5.1 Military power (Decided as intent, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model Proposal)
 
 Military power counts in the simulation whether or not anyone plays combat. Combat gameplay is wanted in some form and at some later time; it will read and write the same records.

@@ -15,8 +15,8 @@ namespace {
 // (never delete an old reader), keep a frozen fixture of every shipped version in tests/fixtures, and make the
 // new reader of an old version fill any new field with the value that reproduces the old behaviour.
 constexpr std::uint64_t kSaveMagic = 0x474552504f50ull;  // "POPREG"
-constexpr std::uint32_t kSaveVersion = 3;  // 2 adds the region-event counter; 3 adds founder specs
-constexpr std::uint64_t kDrawStartAge = 10;                // the `b` key of Purpose::PopLife
+constexpr std::uint32_t kSaveVersion = 4;  // 2 adds the region-event counter; 3 adds founder specs and roster kinds; 4 adds the age pyramid to the params
+constexpr std::uint64_t kDrawStartAge = 10, kDrawAgeInBand = 11;                // the `b` key of Purpose::PopLife
 }  // namespace
 
 bool PopRegistry::add_cohort(const Cohort& c) {
@@ -138,6 +138,13 @@ double PopRegistry::founder_age(PopId id) const {
   if (c) {
     if (const auto it = founder_specs_.find(c->id); it != founder_specs_.end())
       return static_cast<double>(it->second[member].age) + fraction;
+  }
+  if (!params_.age_pyramid.empty()) {  // a nation's age structure: a band by its share, then a point inside the band
+    double u = fraction, acc = 0;
+    int band = kAgeBands - 1;
+    for (int b = 0; b < kAgeBands; ++b) { acc += params_.age_pyramid[static_cast<std::size_t>(b)]; if (u < acc) { band = b; break; } }
+    const double inside = keyed_uniform01(seed_, Purpose::PopLife, id, kDrawAgeInBand);
+    return 5.0 * band + 5.0 * inside;
   }
   return params_.founder_min_age + std::floor(fraction * params_.founder_age_span);
 }
@@ -407,6 +414,7 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
     case 1: load_v1(r); return;
     case 2: load_v2(r); return;
     case 3: load_v3(r); return;
+    case 4: load_v4(r); return;
     default:
       throw std::runtime_error("pop registry save is version " + std::to_string(version) + "; this build reads up to " +
                                std::to_string(kSaveVersion));
@@ -434,6 +442,13 @@ void PopRegistry::load_v3(ArchiveReader& r) {
   if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
 }
 
+void PopRegistry::load_v4(ArchiveReader& r) {
+  load_body(r, 4);  // the same layout as version 3, with the pyramid inside the params
+  load_events(r);
+  load_specs(r);
+  if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
+}
+
 void PopRegistry::load_events(ArchiveReader& r) { region_events_ = r.u64(); }
 
 void PopRegistry::load_specs(ArchiveReader& r) {
@@ -448,7 +463,7 @@ void PopRegistry::load_specs(ArchiveReader& r) {
 
 void PopRegistry::load_body(ArchiveReader& r, std::uint32_t version) {
   if (r.u64() != seed_) throw std::runtime_error("pop registry save is from another world seed");
-  params_ = read_pop_params(r);
+  params_ = read_pop_params(r, version);
   cohorts_.clear(); by_slot_.clear(); log_.clear(); records_.clear(); kept_.clear();
   by_cohort_kind_.clear(); by_region_.clear(); rosters_.clear(); rosters_of_.clear();
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {

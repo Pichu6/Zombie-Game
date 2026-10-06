@@ -38,6 +38,18 @@ void read_mortality(const toml::table* t, Mortality& m, const std::string& where
 PopParams load_pop_params(const std::string& path) {
   const toml::table t = toml::parse_file(path);
   PopParams p;
+  if (const toml::array* a = t["age_pyramid"].as_array()) {
+    for (const auto& v : *a) {
+      const auto x = v.value<double>();
+      if (!x || *x < 0) throw std::runtime_error("pop params: age_pyramid must be non-negative numbers");
+      p.age_pyramid.push_back(*x);
+    }
+    double sum = 0;
+    for (double x : p.age_pyramid) sum += x;
+    if (static_cast<int>(p.age_pyramid.size()) != kAgeBands) throw std::runtime_error("pop params: age_pyramid needs 20 five-year bands");
+    if (sum < 0.99 || sum > 1.01) throw std::runtime_error("pop params: age_pyramid shares must add up to 1");
+    for (double& x : p.age_pyramid) x /= sum;
+  }
   std::set<std::string> seen;
   read_double(t, "male_share_at_birth", p.male_share_at_birth, seen);
   read_double(t, "founder_min_age", p.founder_min_age, seen);
@@ -55,7 +67,7 @@ PopParams load_pop_params(const std::string& path) {
     read_double(*f, "end_age", x.end_age, s2);
     check_keys(*f, {"childless_share", "first_min_age", "first_mean_delay", "gap_min", "gap_mean_extra", "end_age"}, "[fertility]");
   }
-  check_keys(t, {"male_share_at_birth", "founder_min_age", "founder_age_span", "mortality_female", "mortality_male", "fertility"}, "the file");
+  check_keys(t, {"male_share_at_birth", "founder_min_age", "founder_age_span", "mortality_female", "mortality_male", "fertility", "age_pyramid"}, "the file");
   if (p.male_share_at_birth < 0 || p.male_share_at_birth > 1 || p.fertility.childless_share < 0 || p.fertility.childless_share > 1)
     throw std::runtime_error("pop params: a share is outside 0..1");
   for (const Mortality* m : {&p.female, &p.male})
@@ -70,14 +82,20 @@ void write_pop_params(ArchiveWriter& w, const PopParams& p) {
   w.f64(p.male_share_at_birth); w.f64(p.founder_min_age); w.f64(p.founder_age_span);
   const Fertility& f = p.fertility;
   w.f64(f.childless_share); w.f64(f.first_min_age); w.f64(f.first_mean_delay); w.f64(f.gap_min); w.f64(f.gap_mean_extra); w.f64(f.end_age);
+  w.u64(p.age_pyramid.size());  // registry version 4
+  for (double x : p.age_pyramid) w.f64(x);
 }
 
-PopParams read_pop_params(ArchiveReader& r) {
+PopParams read_pop_params(ArchiveReader& r, std::uint32_t registry_version) {
   PopParams p;
   for (Mortality* m : {&p.female, &p.male}) { m->constant_hazard = r.f64(); m->gompertz_b = r.f64(); m->gompertz_c = r.f64(); }
   p.male_share_at_birth = r.f64(); p.founder_min_age = r.f64(); p.founder_age_span = r.f64();
   Fertility& f = p.fertility;
   f.childless_share = r.f64(); f.first_min_age = r.f64(); f.first_mean_delay = r.f64(); f.gap_min = r.f64(); f.gap_mean_extra = r.f64(); f.end_age = r.f64();
+  if (registry_version >= 4) {  // older saves drew founders by the placeholder rule: an empty pyramid keeps that
+    p.age_pyramid.resize(r.u64());
+    for (double& x : p.age_pyramid) x = r.f64();
+  }
   return p;
 }
 

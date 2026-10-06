@@ -5,6 +5,7 @@
 // All values are placeholders until fitted to real tables (spec 28, Calibration).
 #pragma once
 #include <string>
+#include <vector>
 
 #include "zs/archive.h"
 
@@ -34,6 +35,10 @@ struct PopParams {
   double male_share_at_birth = 0.512;       // about 105 boys per 100 girls; to be cited in the calibration pass
   double founder_min_age = 18.0;            // census people start between this age ...
   double founder_age_span = 47.0;           // ... and this many years above it (a placeholder for the census pyramid)
+  // Shares of the population by five-year age band (0-4, 5-9, ... 90-94, 95+: 20 bands). Empty = the placeholder rule
+  // above (uniform between founder_min_age and founder_min_age + founder_age_span). A nation's demographic profile
+  // fills it; it applies to founders drawn from the rule, not to founders a town generator gave an age.
+  std::vector<double> age_pyramid;
   Fertility fertility;
   const Mortality& mortality(bool male_pop) const { return male_pop ? male : female; }
   bool operator==(const PopParams&) const = default;
@@ -42,6 +47,8 @@ struct PopParams {
 const PopParams& default_pop_params();                 // the compiled-in preset, used only to make new worlds
 PopParams load_pop_params(const std::string& path);    // a TOML preset; unknown keys are an error, missing keys keep the default
 void write_pop_params(ArchiveWriter& w, const PopParams& p);
-PopParams read_pop_params(ArchiveReader& r);
+// `registry_version` is the registry save version that wrote it: the pyramid is stored from version 4.
+PopParams read_pop_params(ArchiveReader& r, std::uint32_t registry_version);
+constexpr int kAgeBands = 20;
 
 }  // namespace zs

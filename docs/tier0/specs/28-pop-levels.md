@@ -144,6 +144,15 @@ Code: `engine/sim/include/zs/hypergeometric.h`, `src/hypergeometric.cpp`, `PopRe
 
 The registry's founders can carry attributes from the human generator instead of the placeholder rule: `PopRegistry::set_founder_specs(cohort, specs)` gives every member of a cohort a whole-year age and a sex (once, before anything asks about those pops); the fraction of the year is drawn from the id, and `derive_base`, births and `project_demography` honour them. **Save format version 3** stores the specs; the v1 and v2 readers leave them empty (founders drawn from their ids, as before), and a frozen `popreg_v2.bin` fixture sits beside `popreg_v1.bin`.
 
+## Nation demographics (2026-10-06)
+
+Code: `engine/sim/include/zs/demographics.h`, `src/demographics.cpp`, `data/setup/nations/placeholder.toml`, `tests/test_demographics.cpp`; decision [0030](../../decisions/0030-nation-demographics.md); design in [sandbox parameters](../../design/sandbox-parameters.md) section 5.2. Implemented, not Validated.
+
+- **The profile** (age pyramid, education by age group, labour, occupations, sectors, households, urban share, each with a source and year) loads with strict checks: unknown keys, a missing table, the wrong count, a negative share, shares that do not add up (within 1%, then normalised), a rate outside 0..1, or **"sourced" without a citation on every table** are refused with a plain message. The only profile is `placeholder.toml`, which says on every table that it is "shape only, not data".
+- **Founders follow the nation's age pyramid.** `PopParams` gained an `age_pyramid` (20 five-year bands); when set, founders drawn by rule take their age from it (a band by its share, then a point inside it) instead of the placeholder uniform 18–64 that gave the benchmark its artificial population shape. Test (A2): 40,000 founders match the pyramid band by band, and a young nation and an old one differ by more than 15 years of mean age. A founder a town generator gave an age keeps it.
+- **Save format version 4** stores the pyramid in the params; the v1 to v3 readers leave it empty (the old rule), and a frozen `popreg_v3.bin` fixture sits with the v1 and v2 ones.
+- **Not yet:** the town generator drawing education, occupation and households from the profile; a real (sourced) country; age-by-sex pyramids; the realism report.
+
 ## Built to be changed (2026-10-06)
 
 We expect to come back and change much of this, so the foundations are arranged to make change safe:
