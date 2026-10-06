@@ -84,12 +84,6 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-Earlier questions were answered in [0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md), [0018](decisions/0018-sandbox-answers.md), [0019](decisions/0019-activities-and-delegation.md) and [0020](decisions/0020-activity-answers.md).
+All design questions so far are answered ([0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md), [0018](decisions/0018-sandbox-answers.md)–[0021](decisions/0021-recommended-defaults.md)).
 
-1. Local zone: a cropped piece of the real town, or the whole town with filler buildings removed? Recommended: cropped, thinning only filler if needed, never moving key buildings.
-2. Bodies keep real walking speed while the calendar runs 24×? Recommended: yes, and size the zone for it.
-3. One XCOM-style collapse-pressure bar per region on the globe? Recommended: yes, computed from the simulation's forecast, fogged while playing an individual.
-
-Details: [world simulation](design/world-simulation.md) section 8 (scale across layers).
-
-Also still open: ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).
+Only tuning remains: ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).

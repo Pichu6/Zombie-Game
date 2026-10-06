@@ -35,4 +35,4 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Waiting on the user
 
-- Three questions on scale across layers and the Macro pressure bar ([vision](vision.md#open-questions)), each with a recommendation.
+- Nothing. All design questions are answered (up to [0021](decisions/0021-recommended-defaults.md)).
