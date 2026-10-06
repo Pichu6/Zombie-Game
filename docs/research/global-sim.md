@@ -27,3 +27,11 @@ Files `loop/22a` (Plague Inc and a virus editor), `22b` (world generation, settl
 ## Endgame, generation, activities and scale (2026-10-06)
 
 `loop/24` (slow endgame, Haven & Hearth and Space Engineers, real infrastructure decay, generation on the go), `loop/25` (activities and mini-games, parity rule, eight interaction types), `loop/26` (scale across layers: real-size objects, smaller worlds by having less of them, time as the real constraint; XCOM 2 geoscape lessons).
+
+## Sandbox engine vision (2026-10-06)
+
+`loop/27`: precedents for one world played in several modes (Dwarf Fortress, Kenshi, Songs of Syx worked; Spore, early No Man's Sky, Star Citizen's scope are the warnings), war as fronts of real census people that zoom into battles, generations at macro speed only, and the growth order now in [vision](../vision.md).
+
+## Country creation and inheritance (2026-10-06)
+
+`loop/28`: Stellaris species and empire creation, Victoria 3, Crusader Kings 3, RimWorld and Dwarf Fortress models; real data on how religion, party, language and mixed identity pass between generations; genes pass only the body.

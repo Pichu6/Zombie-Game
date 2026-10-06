@@ -1,16 +1,24 @@
 # Vision
 
-**How long can you really survive?** Everyone thinks they would survive a zombie outbreak like in the movies. Real life has hundreds of things they ignore that would kill them: a scratch that gets infected, bad water, dehydration, no sleep, cold, a sprained ankle, carrying too much, the noise you make, food that spoils, panic. Each one is a body or world system, and each one is a believable way to die.
+**The ultimate sandbox of life and survival.** One simulation of a whole world, with three layers of depth: the world, a region or city, and one person. Watch it run, or step in anywhere: from a country's laws down to one person's day. Watch a country at war, zoom into the battle and play a fit soldier. Fly across the world and play John, who smokes, wears glasses and works 9 to 5 in IT at a tech company. Go back to the world view, put a city under martial law, and let the simulation run to see what happens. No two runs are the same. Decided ([0025](decisions/0025-sandbox-engine-first-game.md)).
 
-Under it runs **one outbreak simulation of the whole world**, real Earth by default. A virus starts somewhere, the news arrives, supply chains keep running until they break, and about 7 days later it reaches your town. You can watch and steer it from the globe (Macro), manage its local effects as a city (City), or live it as one person (Individual), in real time, as in Project Zomboid. Every person, yours or not, is a simulated human body under the same rules as you. The dead are not generic monsters: each zombie is a specific former person, with their body, wounds and clothes. Some used to be yours.
+Labels: **Decided** (the user confirmed it), **Proposal** (not confirmed), **Open** (pending question). Decision records: [0010](decisions/0010-concept-v2.md), [0012](decisions/0012-world-simulation-layers.md), [0022](decisions/0022-macro-layer-intent.md), [0025](decisions/0025-sandbox-engine-first-game.md). Design: [world simulation](design/world-simulation.md), [macro layer](design/macro-layer.md).
 
-Labels: **Decided** (the user confirmed it), **Proposal** (not confirmed), **Open** (pending question). Full concept and its history: [concept v2](research/concept-v2.md). Decision records: [0010](decisions/0010-concept-v2.md), [0012](decisions/0012-world-simulation-layers.md). World layer design: [world simulation](design/world-simulation.md).
+## The engine and the first game
+
+- **The engine** is a sandbox world-life simulation, "3 or more games in one": a Sims / InZOI style life game (with GTA Online and Second Life-like activities), Project Zomboid survival, World in Conflict style RTS, global politics and, later, generational strategy, all over one simulation and one rulebook. Freedom of play and customisation are pillars. Decided.
+- **The first game is the zombie outbreak**, an option on top of that simulation and its demo. **How long can you really survive?** Everyone thinks they would survive a zombie outbreak like in the movies. Real life has hundreds of things they ignore that would kill them: a scratch that gets infected, bad water, dehydration, no sleep, cold, a sprained ankle, carrying too much, the noise you make, food that spoils, panic. Each one is a body or world system, and each one is a believable way to die. A virus starts somewhere on real Earth, the news arrives, supply chains keep running until they break, and about 7 days later it reaches your town. Each zombie is a specific former person, with their body, wounds, clothes and house key. Some used to be yours. Decided.
+- **Without the virus** the same world is a life, city and politics sandbox ([0018](decisions/0018-sandbox-answers.md)).
 
 ## Selling point
 
-The depth of the simulation and the mix of gameplays over it: one world you can watch from the globe, run as a city, or live as one person, where every decision reaches every layer. No game has combined these before; it is ambitious on purpose. Decided (2026-10-06).
+The depth of the simulation and the mix of gameplays over it, where every decision reaches every layer. No game has combined these before; it is ambitious on purpose. The precedent is Dwarf Fortress (one world, several modes, a tiny team), not Star Citizen: what kills projects like this is a separate rulebook per mode (Spore), promising features before they play (No Man's Sky at launch), and people who don't matter when you play them (Watch Dogs: Legion). Decided (selling point); lessons from research `loop/27`.
 
-## The core choice
+## Order of growth (Proposal, by dependency)
+
+Individual survival → one building and block → the living week (where John's 9-to-5 exists) → the city → regions, laws and edicts → the world view as a game → war → generations. Life-sim activities grow alongside as data. Each step ships inside the outbreak game, and a layer is offered to watch before it is offered to play. Tier 0 below is the first step.
+
+## The core choice (outbreak game)
 
 One decision repeats every few minutes: **comfort and progress versus being noticed, paid for with fragile bodies.** Run the generator so the fridge stays cold? It makes 70 dB and the block's dead will come. Light the workshop so the repair goes faster? The window leaks light into the street. Hammer barricades now, loudly, or quietly at dawn? (Proposal)
 
@@ -37,6 +45,7 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 | Everything built is scavengable and craftable | Walls, floors, houses, pipe networks, power lines, car engines, vehicles, tools and items are all assemblies of real parts that can be scavenged and crafted, all tied by one quality (Q) system. Q comes from parts, capped by skill and tool. What you can see and do depends on job knowledge (electrician, plumber, mechanic). Everything takes real time (Haven & Hearth). Slow and hard, nothing easy; infrastructure fails unless pops maintain it. Salvage is easy; making engines, concrete or grid parts is capped by machinery, and top quality needs a whole chain running well, so manufacturing is late-game teamwork and trade. See [0010](decisions/0010-concept-v2.md), [0013](decisions/0013-production-ladder.md). | Decided |
 | Living infrastructure | Power, water, light and noise as real networks that keep bodies alive and leak signals. | Proposal |
 | Real behaviour | People talk by voice, radio and phone with real propagation. Options depend on knowledge, items and their quality. Every item and resource has quality, condition and states. Doors, walls and fortifications break part by part. | Decided |
+| Freedom and customisation | Watch or step in at any layer, set up the world, the people and the outbreak, and play your own way; no two runs alike. | Decided ([0025](decisions/0025-sandbox-engine-first-game.md)) |
 | Single state per survivor | Pain, fear, load and job persist when you possess or release a body. | Decided |
 | Realism | Visual realism and fluid animation; readable physiology. | Decided |
 
@@ -80,7 +89,7 @@ Nothing is deleted; every idea is scheduled. Details inside each tier are Propos
 
 ## Inspirations
 
-Named by the user (2026-10-05), "and plenty more": Haven & Hearth, Project Zomboid, Infection Free Zone, Cities: Skylines, The Sims, Thunder Tier One, Spark in the Dark, Ghost Recon Breakpoint, GTA, The Last of Us, XCOM, Plague Inc.
+Named by the user (2026-10-05), "and plenty more": Haven & Hearth, Project Zomboid, Infection Free Zone, Cities: Skylines, The Sims, Thunder Tier One, Spark in the Dark, Ghost Recon Breakpoint, GTA, The Last of Us, XCOM, Plague Inc. Added later: Stellaris, Hearts of Iron IV, Manor Lords, Shenmue, Space Engineers, InZOI, Second Life, GTA Online, World in Conflict, Crusader Kings (generations), Star Citizen (ambition).
 
 ## Target player
 
