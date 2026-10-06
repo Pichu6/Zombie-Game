@@ -13,7 +13,7 @@ A good activity has stakes, a choice before the input, visible progress, and an 
 - Skill, tool quality and body state (pain, cold, fear, fatigue) set how wide the success window is, how much it drifts and what readings the player sees.
 - The player's input, or the pop's draw, lands a performance value inside that window.
 - The result never exceeds `min(skill, Q_tool, method ceiling, Q_station)` ([0014](../decisions/0014-open-questions-answered.md)).
-- **Auto is exactly the pop's draw**, never worse than playing by hand, so nobody is forced to repeat a mini-game. A test checks that player and pop results match in distribution.
+- **Auto is exactly the pop's draw** and is the default ([0020](../decisions/0020-activity-answers.md)); playing by hand is optional and never required to get a fair result. A test checks that player and pop results match in distribution.
 
 ## Eight shared interaction types
 
@@ -36,8 +36,9 @@ Body care, medicine, cooking and food preservation, repair and mechanics, electr
 
 **First candidates** (six of the eight types cover them): barricading; refuelling and starting the generator; washing and bandaging wounds; boiling water and cooking; quiet searching; carrying and loading; radio tuning.
 
-## Open
+## Answered ([0020](../decisions/0020-activity-answers.md))
 
-1. Can the player's hands ever beat the character's skill? Recommended: no.
-2. When possessing, are repeated steps done by hand or automatically? Recommended: hands-on the first time, then auto for repetitive work and hands-on for dangerous or skilled steps, with a toggle per family.
-3. How deep should leisure go? Recommended: two or three fully playable games (cards with real stakes, guitar that makes real noise, darts); the rest stay timed actions.
+1. Hands never beat skill.
+2. Automatic by default; hands-on the first time as a tutorial, then optional. Proposal for how a hands-on moment pays off without breaking parity: it can land in the upper part of the character's own window (for example a press-to-build-faster rhythm, War Dogs style), a part a skilled pop also reaches; it never raises the ceiling.
+3. Simple, easy and varied (GTA, Shenmue, War Dogs building), in both cameras.
+4. Items carry their owners' lives: a zombie's pockets come from its census record, and its house key opens its real house (the building ledger in [world simulation](world-simulation.md) section 12).
