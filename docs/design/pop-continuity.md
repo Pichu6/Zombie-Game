@@ -74,7 +74,7 @@ A restoration is a **Project** ([world simulation](world-simulation.md) §7), th
 
 ## 7. Open
 
-1. **Budget:** how many records the sim can hold and update on a normal PC, and how a Macro run at "years per second" drives lazy jumps. Needs a benchmark.
+1. **Budget:** how many records the sim can hold and update on a normal PC, and how a Macro run at "years per second" drives lazy jumps. Needs a benchmark. Other games' evidence and a first estimated budget (50–300 embodied, 10,000–100,000 records, lazy unbounded) are in [research/sim-scale-in-other-games.md](../research/sim-scale-in-other-games.md); the figures are estimates and must be measured with `zs_headless --bench`.
 2. **Selection rules for layoffs and similar aggregate events** per system (seniority, skill, random draw): each system's spec states its ranking.
 3. **Numbers for the restoring cost** (§5.1): per capability, which parts, which skills, how many person-hours, which partners. Each comes from its own spec.
 4. **Age gate:** a pop younger than the playable age is a record the player can follow but not possess ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)).
