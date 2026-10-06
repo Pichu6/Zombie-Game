@@ -111,6 +111,8 @@ Rules, rates and costs for subjection, conquest and integration are Proposals in
 
 ## 6. State → pop → state, system by system
 
+The full audit of every jump between layers, with its status and proposed rule, is in [layer jumps](layer-jumps.md) ([0039](../decisions/0039-fill-the-layer-jumps.md)); this table is the macro-to-pop slice of it.
+
 The coupling contract ([spec 28](../tier0/specs/28-pop-levels.md), [pop continuity](pop-continuity.md)): a macro order becomes a command; the command becomes events on rosters and stocks (region events, workplaces, projects); micro entities act under their own rules (pops, establishments); their results add up into the macro numbers; every transfer carries the reason, back to the order.
 
 | Domain | Macro state (a sum) | Down: what an order does | Up: what the micro result adds up to |
