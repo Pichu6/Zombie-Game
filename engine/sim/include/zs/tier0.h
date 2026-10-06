@@ -79,6 +79,8 @@ class GeneratorScenario {
   bool set_up_ = false, refueled_ = false, out_twice_ = false, armed_ = false;
 };
 
+// Where the game data is: $ZS_DATA, else the source tree it was built from, else ./data.
+std::string data_dir();
 // "day 2 10:48" for a tick (calendar day, wall clock).
 std::string time_text(std::int64_t tick);
 // Spec 25 chronicle line for a Death event: name, age, when, cause, and what led to it from the

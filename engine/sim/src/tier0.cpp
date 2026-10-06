@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
+#include <filesystem>
 #include <stdexcept>
 
 #include "toml.hpp"
@@ -115,7 +117,7 @@ Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run) {
   w.add_system(std::move(bodies));
   if (ai) w.add_system(std::move(ai));  // decides on this tick's state, acts next tick
   if (run) w.add_system(std::move(run));  // last: arrivals, control and the end, after everything moved
-  const std::string data = ZS_DATA_DIR;
+  const std::string data = data_dir();
   load_item_defs(*t.items, data + "/tier0/items.toml");
   if (is_run) t.map->set_scenario("run");
   t.map->load_file(w, *t.items, data + "/tier0/map/block.toml");
@@ -346,6 +348,12 @@ bool GeneratorScenario::drive(Tier0& t) {
     }
   }
   return true;
+}
+
+std::string data_dir() {
+  if (const char* env = std::getenv("ZS_DATA")) return env;
+  if (std::filesystem::exists(ZS_DATA_DIR)) return ZS_DATA_DIR;  // a build next to its source
+  return "data";  // a packaged build: the data folder sits beside the program
 }
 
 std::string time_text(std::int64_t tick) {

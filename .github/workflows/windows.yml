@@ -1,0 +1,34 @@
+# Builds the game on Windows (MSVC), runs the simulation tests there, and packages the sandbox
+# window as a zip to download from the run's page (Actions tab -> the run -> Artifacts).
+name: windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DZS_BUILD_SANDBOX=ON
+      - name: Build
+        run: cmake --build build --config Release --parallel
+      - name: Simulation tests (golden hashes must match Linux)
+        run: build\engine\sim\tests\Release\zs_sim_tests.exe
+      - name: Content generator tests
+        run: build\engine\gen\tests\Release\zs_gen_tests.exe
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force pkg | Out-Null
+          Copy-Item build\apps\sandbox\Release\zs_sandbox.exe pkg\
+          Copy-Item build\apps\headless\Release\zs_headless.exe pkg\
+          Copy-Item -Recurse data pkg\data
+          Set-Content pkg\README.txt "Double-click zs_sandbox.exe. Keys: WASD move, right click actions, Space pause, 1-6 speed, F5 save, F9 load. zs_sandbox.exe --seed N picks another run."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: juego-zombie-windows
+          path: pkg

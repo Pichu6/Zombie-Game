@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <optional>
@@ -642,6 +643,11 @@ int main(int argc, char** argv) {
   ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer3_Init(renderer);
 
+  // A packaged build keeps its data folder beside the program: work from there (saves land there too).
+  if (const char* base = SDL_GetBasePath(); base && !std::getenv("ZS_DATA")) {
+    std::error_code ec;
+    if (std::filesystem::exists(std::filesystem::path(base) / "data", ec)) std::filesystem::current_path(base, ec);
+  }
   start(a, seed);
   if (watch) a.t.ai->release();
   a.overlay = overlay;
