@@ -91,6 +91,15 @@ Requested by the user: a background built from the years lived, like TTRPG lifep
 
 Skills are tags for now; the know-how model ([activities](activities.md), [inhabitants](inhabitants.md)) turns them into practice levels later.
 
+### 4.2 Mentions are links (Proposal, from the user's idea on 2026-10-06)
+
+Any person a text names (a spouse, a business owner, a coworker, a teacher) is a link: clicking the name focuses the camera on that person, or opens their dossier when they are far away.
+
+- **No new people.** A mention always points at a census slot that already exists from the world seed (world simulation §3, lazy census). Clicking it never invents anyone; it reads that slot and promotes it to a record if needed. The world population is fixed at creation, so the cascade is finite by construction.
+- **Lazy, one step at a time.** Opening a person generates their dossier and lifepath; the people *they* mention stay unopened links (ids) until someone clicks them. Cost grows only with what the player actually looks at.
+- **Through the character's eyes.** In individual play a link shows only what the character knows (world simulation §13 inspector); the god view shows everything.
+- **Needed in the generator:** mentions carry person ids, not just text; business owners, coworkers and schoolmates are picked from existing census slots (in the town or a neighbouring area record), so "Pete's Diner" is owned by a real Pete.
+
 ## 5. How it plugs into the sim
 
 - **Draws:** `zs::gen::Keyed`, a stateless Philox draw on (seed, id, field, k). Field numbers are append only (`engine/gen/src/fields.h`).
