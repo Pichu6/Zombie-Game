@@ -111,6 +111,7 @@ Proposal.
 - States that will need animation: limp per side, torso wound, staggering from blood loss, fainting, bandaging, tourniquet, panting. Proposal.
 - Contextual animations at walls, corners and doors in combat stance. Decided.
 - IK and motion matching only for concrete contact or transition problems. Proposal.
+- Procedural follow motion (head lag, sway, anticipation, hit reactions) uses view-side second-order dynamics; see [research/second-order-dynamics](../research/second-order-dynamics.md). Proposal.
 
 ## Body analysis view
 

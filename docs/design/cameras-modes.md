@@ -45,6 +45,7 @@ Developer test values, not user decisions. Proposal.
 - The scroll wheel does not change mode. Switching is explicit and each mode keeps its framing. Proposal.
 - Conflict: the GDD proposed a continuous 2.5–60 m zoom that went from micro to macro. The later prototype dropped it. I prefer explicit modes. Proposal.
 - Selecting a character in management does not drag the management camera. Proposal.
+- Camera follow and impact kick: smoothing recipe in [research/second-order-dynamics](../research/second-order-dynamics.md). Proposal.
 
 ## Interiors and floors
 
