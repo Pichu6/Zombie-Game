@@ -45,7 +45,7 @@ With **no outbreak** (zero first cases, Decided in [0018](../decisions/0018-sand
 
 | Needed for a no-outbreak game | Why | Today |
 | --- | --- | --- |
-| **Ordinary life and death:** ageing, ordinary illness, accidents, crime, births, marriage, migration | A world with no outbreak must not be static, nor empty out | Body, illness and wounds exist; births and ageing are not modelled (Open, §15 question 1) |
+| **Ordinary life and death:** ageing, ordinary illness, accidents, crime, births, marriage, migration | A world with no outbreak must not be static, nor empty out | Body, illness and wounds exist; births and ageing are not modelled yet (Decided as part of the simulation, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model in §7.3) |
 | **Long time scale:** months and years per real minute at Macro, with Individual dormant | A politics game cannot run at 1 real hour per game day | 1× and 3×/10× only ([vision](../vision.md)); the detail levels exist as a design |
 | **Standing goals:** the world gives pops and actors things to want without a threat | Sims aspirations, company growth, political ambition | Needs and jobs exist; ambitions and org goals do not |
 | **Pressure that is not zombies:** recession, scandal, disaster, shortage, unrest, rivalry | The brake that keeps a sandbox from going flat | Only the outbreak provides pressure today |
@@ -82,7 +82,7 @@ Intent Decided ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)); mode
 | **Resources and trade geography** | Deposit richness per resource; chokepoints; sea routes vs land routes | Feeds §11 |
 | **Disasters** | Frequency and severity of floods, droughts, quakes, storms, fires, plus *crop failure* | Detected-not-injected rule: they happen from the world's own state (weather, tectonics), at the set rate. Default realistic; "none" is allowed |
 | **Institutions** | A world assembly exists or not; how often it meets; how binding its resolutions | [macro layer](macro-layer.md) §4.4 |
-| **Pace of change** | Technology and innovation rate; urban growth rate | Proposal. Technology tree vs none is *Open* (§15 question 4) |
+| **Pace of change** | Technology and innovation rate; urban growth rate | Proposal; technology in §11.1 |
 
 ## 5. Nation parameters
 
@@ -104,7 +104,15 @@ A nation is an Actor that owns regions, a budget, offices (each held by a real c
 | **AI priorities** | Weights: protect lives, protect the economy, protect the regime, help neighbours, expand, status quo | What the government picks when you are not watching; same menu as the player |
 | **Politics play** | Elections, coups, revolutions, secession, reform: on or off, and how likely | Sandbox rules; never forced on a date |
 
-War is **not** in the catalogue yet: it breaks "nothing easy, everything real" if abstracted, and needs its own decision (§15 question 2).
+### 5.1 Military power (Decided as intent, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model Proposal)
+
+Military power counts in the simulation whether or not anyone plays combat. Combat gameplay is wanted in some form and at some later time; it will read and write the same records.
+
+- **It is made of real things:** armed forces are groups of pops (§8) with ranks, training and loyalty, holding items (weapons, vehicles, ammunition, fuel) from the ledger. A nation's "power" is a **derived** number read from those records, never a setting. Nothing is created: a unit that loses its fuel stops, a unit that is not paid may desert.
+- **Parameters** (setup values, then policies): size of regular forces, reserves and militia, share of budget, conscription rule, training level, equipment stock and quality (Q), logistics capacity, doctrine (defensive, expeditionary, internal security), command structure and who holds each office, loyalty to the government, readiness.
+- **Uses without combat gameplay:** deterrence and standing between nations, border control, policing and cordons (an order exists only through the guards posted, [world simulation](world-simulation.md) §13), coups and civil unrest, disaster response, and war.
+- **War between nations** is in scope as a simulated process: a campaign is a Project with forces, supply and objectives, resolved from the real numbers of both sides (strength, supply, terrain, morale, leadership) with the same draws and conservation as everything else; casualties are real pops, destroyed items leave the ledger. Resolved in aggregate when nobody is there; when a body is there (a possessed soldier, a combat scene), the same fight is played at body level and the result carries back. Which scale of war and what the detail looks like is *Open* (§15 open question 2).
+- **Same rule as all else:** settings change numbers, never rules, so an AI army and the player's obey the same logistics.
 
 ## 6. Cultures and religions
 
@@ -151,6 +159,18 @@ A pop is one person with a body, know-how, ties and a life ([inhabitants](inhabi
 | Migration | Willingness to move, distance, push and pull weights (jobs, safety, family, services) |
 | Learning | Practice and novelty rules ([inhabitants](inhabitants.md)); a "learning speed" multiplier (sandbox) |
 | Detail | How many pops are embodied near the player vs records vs lazy census ([world simulation](world-simulation.md) §3) |
+
+### 7.3 Births, ageing, leaders and researchers (Decided as intent, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model Proposal)
+
+Births, ageing and death run in every game, outbreak or not. This is what gives the Stellaris kind of play: you appoint leaders and researchers, they have careers, they age, and they die.
+
+- **Births:** a birth is a conserved event that creates a new record from two parents' census slots (or one), counted in the ledger as population in; it is not a respawn. The newborn gets a body from the human generator (body, genes, family resemblance, culture), a household, and then grows through real ages. Rates follow fertility by age and culture, health, wealth, housing, policy and war.
+- **Ageing and death:** every body ages with real rates by age and sex (the body model already has weekly drift). Death by age, illness, accident, violence or outbreak is one event with a cause, and it removes the person from every office and group they held.
+- **Offices are held by real people.** A president, minister, general, CEO, board member, party leader, lab director or chief researcher is a census record in a role slot ([macro layer](macro-layer.md) §3.2). A leader is an ordinary pop with a long record; they do not turn into a special object.
+- **Succession:** each office has a rule (appointed, elected, hereditary, seniority, strongest, council) set per nation or group (§8). When the holder dies, resigns or is removed, the rule picks a successor from real candidates; no candidate means the office is empty and its work stalls. Succession crises are events the world detects, not scripts.
+- **Careers:** pops move up through jobs by skill, experience, connections and age, so a future leader exists years before the post. Pops past retirement may keep advisory seats.
+- **Researchers:** a researcher is a pop with know-how in a field, employed at a lab or school. Their output depends on their skill, age, tools and the lab's power, staff and funds (production-limited by the scarcest input, [world simulation](world-simulation.md) §5). Research is slow and can be lost with their deaths and notes ([inhabitants](inhabitants.md): "if the only virologist dies, no replacement appears; her notes remain").
+- **Select and play (Decided as intent):** any officeholder is a selectable character in the higher layers (a president you like in Layer 3, a general, a CEO) and you can possess them to play them in Layer 1. Possession gives control, not power ([vision](../vision.md)): they still act through their office, with its limits, and the AI replans when you release them. Following a person across layers needs the same record at every zoom level, which is the aggregation problem in §15.
 
 ## 8. Households and groups
 
@@ -232,6 +252,15 @@ Rules in [world simulation](world-simulation.md) §5 (stock and flow per region,
 | **Networks** | Power, water, roads, rail, radio, phone: starting capacity, backup clocks, maintenance staffing, failure rates |
 | **Environment** | Pollution and its effects, resource stress, climate drift (rate, off by default) |
 
+### 11.1 Technology (Decided as intent, shape tbd, [0024](../decisions/0024-births-military-mystery-tech-leaders.md))
+
+A Stellaris-style tech tree is wanted. It must fit the rest: knowledge is held by people, and quality comes from parts, skill and machinery ([0013](../decisions/0013-production-ladder.md)). Proposal for how:
+
+- **A technology unlocks, it doesn't hand out power:** it adds recipes, building parts, procedures and know-how to what researchers and workers can learn, and lifts ceilings (for example the quality a method can reach). It adds no verb the player has and pops don't.
+- **Research is a Project** at labs and schools, done by researchers (§7.3), paid for in money, staff, power and samples, with a research rate and cost curve as parameters. A fallen government or a blackout stalls it.
+- **Spreads by people and trade:** knowledge moves with books, teachers, trade and espionage; losing the people can lose it locally. Whether it can be forgotten is *Open*.
+- **Parameters:** research speed, cost growth, number of fields, branch breadth, randomness of what is offered (Stellaris offers a few cards), whether the tree is fixed or generated per world, whether other nations' progress is visible. Tree contents, tiers and cadence are *tbd* (§15 open question 3).
+
 ## 12. Outbreak parameters (when enabled)
 
 The virus editor, cure and origins live in [world simulation](world-simulation.md) §4 and §12 and [threats](threats.md); nothing here repeats them. What this catalogue adds is only the **switch and its neighbours**:
@@ -243,7 +272,19 @@ The virus editor, cure and origins live in [world simulation](world-simulation.m
 | Virus group | sliders, trait cards, validator bands | realistic default ("necrobiotic syndrome") |
 | Cure | per [0018](../decisions/0018-sandbox-answers.md) and [0021](../decisions/0021-recommended-defaults.md) | per default |
 | Zombie speed, persistence | always slow, body-driven, fast; tiring off | body-driven, no tiring (Decided) |
-| **Late trigger** | Outbreak off at the start, but allowed to begin later at a chosen day or on a chosen condition (a lab accident rate) | off. *Open* (§15 question 3) |
+| **Late trigger** | Outbreak off at the start, but allowed to begin later at a chosen day or from a chance of a lab accident, a spillover or a smuggled sample | off by default. Decided as an option ([0024](../decisions/0024-births-military-mystery-tech-leaders.md)) |
+| **Mystery** | The outbreak is real, but nobody knows what it is: a normal epidemic or the dead rising | off. Decided as an option |
+| **Outbreak odds** | How likely a late outbreak is over a chosen span: never (the off option), rare, likely, certain on a date | never |
+
+### 12.1 "Epidemic or apocalypse?" (Decided as intent, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model Proposal)
+
+With a late trigger and the mystery option, the world may or may not get an outbreak, and when it does, nobody knows which kind it is. It uses only existing rules:
+
+- **The truth is fixed at the start of the run** (the cause is drawn once from the settings and the seed) and **hidden by fog**: the world fields and the character's beliefs ([world simulation](world-simulation.md) §1). The player can't read it from the setup preview while playing.
+- **Early cases look like any epidemic:** fever, hospital load, news, absenteeism. What separates a normal epidemic from the dead rising is real and observable: whether the dead stay dead, the **time to turn** and how hidden it is. A first rise is what reveals it, as it would in life.
+- **Pops and authorities act on beliefs:** health officers treat it as a flu-like epidemic, cordons and edicts follow the believed kind, and some pops hide bites. A wrong belief has real consequences (quarantine wards that turn into death traps).
+- **Outcomes:** a normal epidemic can burn out like any epidemic; a late-triggered one can fizzle or go global by the same calibrated odds ([world simulation](world-simulation.md) §4). The player never sees a countdown or a script.
+- **Off option:** setting the outbreak to off, or the odds to never, gives no outbreak at all, with no hidden cases and no hidden cause; the world's ordinary illnesses still exist.
 
 ## 13. Scenario and goals
 
@@ -271,16 +312,28 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 | **Corporate ladder** | off | A company, a market, regulators |
 | **Cold peace** | off | Several generated nations, tense diplomacy, an assembly |
 | **Slow burn** | off, late trigger | Years of normal life, then a lab accident |
+| **Is it the flu?** | off, late trigger, mystery | A normal epidemic or the dead rising: nobody knows which |
 | **Hard mode** | on | Fast, hidden-bite, collapsing governments |
 
-## 15. Open questions
+## 15. Questions
 
-1. **Births and ageing** in a "finite world, no respawn" game ([vision](../vision.md), [inhabitants](inhabitants.md) Open item): a no-outbreak world over decades needs births. Recommendation: a birth is a conserved event, a new record drawn from two parents' census slots, counted in the ledger; it is not a respawn.
-2. **War and violence between nations:** in scope for the politics game or not? Recommendation: not in the first version; keep unrest, coups, blockades and the army as guards and orders only.
-3. **Late outbreak trigger:** allowed (the "Slow burn" preset) or is the outbreak chosen only at setup? Recommendation: allowed, as a drawn event from a lab accident rate, so it is detected, not injected.
-4. **Technology and progress:** a tech tree, or only skills and Q? Recommendation: none; progress is know-how and production quality through the production ladder ([0013](../decisions/0013-production-ladder.md)).
-5. **Scope of the first slice:** which of nations, businesses, corporations and groups is built first? Recommendation: pops and households, then businesses, then a nation actor with a budget and three edicts, then corporations. Nothing here is needed by Tier 0 ([macro layer](macro-layer.md) §9).
-6. **Player in a corporation:** may the player hold a CEO chair in micro → macro? Recommendation: yes, only through a character who actually holds the role.
+### Answered (2026-10-06, [0024](../decisions/0024-births-military-mystery-tech-leaders.md))
+
+1. **Births:** part of the simulation (§7.3), with leaders and researchers who age and die.
+2. **Military power:** counts in the simulation regardless of combat gameplay; combat gameplay to exist in some form later (§5.1).
+3. **Late outbreak and mystery:** yes, with an off option (§12, §12.1).
+4. **Technology:** a Stellaris-style tree is wanted; shape tbd (§11.1).
+5. **Everything makes sense in the simulation:** the whole catalogue obeys the one contract; the hard part is levels of detail and pop levels (below).
+6. **Player in a corporation or any office:** yes; officeholders are selectable in higher layers and playable in Layer 1 (§7.3).
+
+### Open
+
+1. **One person at every zoom level (the hard part).** A president, a general or a researcher must be the same record whether you see a bar in Layer 3 or a body in Layer 1, and the aggregates must agree. Detail levels are designed ([world simulation](world-simulation.md) §3, [research/detail-levels.md](../research/detail-levels.md)) but not built. Needs a spec and a benchmark before any of §5 and §7 is coded. Recommendation: officeholders and anyone the player followed always stay **records** (never lazy), and their offices' work is computed from them at every zoom.
+2. **Scale and look of war:** which military activities exist at first (border incidents, blockades, invasions), and how a possessed soldier's fight carries back into the aggregate result. Recommendation: first version has forces, supply, deterrence and blockades; invasions come after.
+3. **Technology tree shape:** fixed or generated, how many fields, how knowledge can be lost, and whether it conflicts with the production ladder. Tbd with the user.
+4. **How the mystery is revealed** and how much the setup preview may show in sandbox (a "spoilers" toggle?). Recommendation: a toggle, default hidden.
+5. **Birth rules in a finite-world game:** the conserved-birth form in §7.3 is a Proposal. Check against [inhabitants](inhabitants.md) once births are specified.
+6. **First slice:** pops and households, then businesses, then a nation with a budget and three edicts, then corporations and military. Nothing here is needed by Tier 0 ([macro layer](macro-layer.md) §9).
 
 ## 16. Order of work (dependencies only)
 
