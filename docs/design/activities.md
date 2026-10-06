@@ -1,0 +1,43 @@
+# Activities and mini-games
+
+Intent Decided ([0019](../decisions/0019-activities-and-delegation.md)); everything else Proposal. Research: `research/global-sim/loop/25-activities-minigames.md`.
+
+## What an activity is
+
+An activity is an existing timed action (see [items and crafting](items-crafting.md), [interaction](interaction.md)) plus one or two optional **hands-on moments**: the critical step (the first board, the risky nail, the stitch), not every hour of work. The game clock never pauses. Each activity has a real effect in the simulation, gated by knowledge, skill, tools and quality, and pops do it through the same action.
+
+A good activity has stakes, a choice before the input, visible progress, and an exit once it gets repetitive. Most trade speed against noise or risk, so each one is a small version of the core choice.
+
+## Parity: skill buys tolerance, hands buy attention
+
+- Skill, tool quality and body state (pain, cold, fear, fatigue) set how wide the success window is, how much it drifts and what readings the player sees.
+- The player's input, or the pop's draw, lands a performance value inside that window.
+- The result never exceeds `min(skill, Q_tool, method ceiling, Q_station)` ([0014](../decisions/0014-open-questions-answered.md)).
+- **Auto is exactly the pop's draw**, never worse than playing by hand, so nobody is forced to repeat a mini-game. A test checks that player and pop results match in distribution.
+
+## Eight shared interaction types
+
+| Type | Feel | Example |
+| --- | --- | --- |
+| Steady | Hold still against drift | Aiming, stitching, pouring fuel |
+| Stroke | Rhythm and timing | Sawing, hammering, scrubbing |
+| Procedure | Right steps in the right order | First aid, starting a generator, radio setup |
+| Trace | Follow a path | Cutting along a line, wiring |
+| Load | Balance weight and space | Packing, carrying, loading a vehicle |
+| Inspect | Find the fault by looking and listening | Diagnosing an engine, searching a room quietly |
+| Tune | Find a value by feedback | Radio frequency, carburettor, lockpicking |
+| Exchange | Offer and read the other side | Trade, negotiation, cards |
+
+Each one reads values from the simulation and returns a performance value plus physical events (noise, slips, snaps). All work in isometric and over-the-shoulder cameras.
+
+## Families
+
+Body care, medicine, cooking and food preservation, repair and mechanics, electrical, plumbing, carpentry and fortification, scavenging and dismantling, farming, foraging and hunting, radio and communication, driving and hauling, social and trade, leisure and morale. The catalogue with effects, gates and pop versions is in the research file.
+
+**First candidates** (six of the eight types cover them): barricading; refuelling and starting the generator; washing and bandaging wounds; boiling water and cooking; quiet searching; carrying and loading; radio tuning.
+
+## Open
+
+1. Can the player's hands ever beat the character's skill? Recommended: no.
+2. When possessing, are repeated steps done by hand or automatically? Recommended: hands-on the first time, then auto for repetitive work and hands-on for dangerous or skilled steps, with a toggle per family.
+3. How deep should leisure go? Recommended: two or three fully playable games (cards with real stakes, guitar that makes real noise, darts); the rest stay timed actions.

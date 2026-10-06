@@ -47,6 +47,7 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 - **Character:** pick a pop or create one, Project Zomboid style (civilian, police, military, nurse, custom). Starting weapons follow real custody rules by default. Every pop has a TTRPG-style lifepath behind them. Decided.
 - **Warning week:** about 7 days from first news to arrival (realistic for the virus settings), all live play by default: work, buy, prepare, hear the news. Decided.
 - **Fog:** playing an individual, the layers above show what that character believes, and a pop's dossier can be wrong. Decided.
+- **Activities:** plenty of Shenmue-style hands-on activities in the Individual layer, each one a real action pops also do; repetitive work can be handed to pops. Decided ([0019](decisions/0019-activities-and-delegation.md)); model in [activities](design/activities.md).
 - **Layer flow:** a Macro order aimed at a sector (power plant in sector 3, blockade in sector 4) becomes a site in City, where pops gather, build and staff it on their own; click the plant, pick a worker and play as them. A possessed pop's tasks and routine become optional objectives. Decided ([0016](decisions/0016-sandbox-setup-and-layer-flow.md)).
 - **Orders follow role:** an individual takes jobs at a power plant; only someone with authority orders one. A build order creates real jobs and material demand that pops answer, like zoning in Cities: Skylines. Decided.
 - **Map:** the world is a sandbox too, with a zoom from the **globe** down to the **local zone** (Infection Free Zone style). Every building enterable; breachable walls. Timing decided (2026-10-05): hand-made map for Tier 0–1, a template-based generator in Tier 2, real-world globe pick in Tier 3; the global outbreak layer, being only numbers, can come early. The map data is designed from the start so a generator can fill it.
@@ -83,8 +84,10 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-Earlier questions were answered in [0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md) and [0018](decisions/0018-sandbox-answers.md). Recommendations are Proposals.
+Earlier questions were answered in [0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md), [0018](decisions/0018-sandbox-answers.md) and [0019](decisions/0019-activities-and-delegation.md). Recommendations are Proposals.
 
-1. Can repetitive work always be handed to pops, so your own hands do the skilled or dangerous step? Recommended: yes; the work stays slow and hard, just not tedious clicking ([0017](decisions/0017-slow-endgame-and-generation-on-the-go.md)).
+1. Can the player's hands ever beat the character's skill in an activity? Recommended: no.
+2. Repeated steps by hand or automatic when possessing? Recommended: hands-on the first time, then auto for repetitive work and hands-on for dangerous or skilled steps, toggle per family.
+3. How deep should leisure go? Recommended: two or three fully playable games (cards, guitar, darts); the rest timed actions.
 
 Also still open: ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).

@@ -35,4 +35,4 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Waiting on the user
 
-- One question: can repetitive work always be handed to pops ([vision](vision.md#open-questions))? Recommendation: yes.
+- Three questions about activities ([vision](vision.md#open-questions)), each with a recommendation.
