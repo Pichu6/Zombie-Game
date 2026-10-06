@@ -4,6 +4,8 @@ How big a world is, how many people it can hold, where they live, how nations ar
 
 Intent **Decided** ([0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md)): realistic numbers matter more than Earth 1:1; the pops-and-nation loop is the point; numbers come from real sources, never invented and presented as real. Everything below is a **Proposal** until tuned and confirmed. Source of every number and equation: the four research notes, [capacity](../research/world-numbers-capacity.md), [settlement](../research/world-numbers-settlement.md), [nations](../research/world-numbers-nations.md), [demography](../research/world-numbers-demography.md). **Evidence caveat:** the research could not open the source sites, so every cited number comes from search summaries (confidence medium at best) and several are marked low; parameters marked *design* have no source and exist to be calibrated. Nothing here is Implemented or Validated.
 
+The map of every system, the order a starting world is built in, and how factions hold territory: [world systems](world-systems.md) ([0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md)).
+
 Related design: [world simulation](world-simulation.md) §3–5 and §12 (generated worlds, settlements), [macro layer](macro-layer.md), [sandbox parameters](sandbox-parameters.md) §4–5, [pop continuity](pop-continuity.md), [spec 28](../tier0/specs/28-pop-levels.md).
 
 ## 1. The loop
