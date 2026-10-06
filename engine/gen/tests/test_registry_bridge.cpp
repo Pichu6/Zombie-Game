@@ -49,17 +49,28 @@ TEST_CASE("households and businesses become rosters with the right members (A1)"
     CHECK(r->size(0.5) == town.households[h].members.size());
     for (std::size_t m : town.households[h].members) CHECK(r->present(map.pop_ids[m], 0.5));
   }
-  std::map<int, std::size_t> by_business;
-  for (int b : map.business_of_pop) if (b >= 0) ++by_business[b];
-  std::size_t total = 0;
+  std::map<int, std::size_t> staff, pupils;
+  for (std::size_t i = 0; i < town.pops.size(); ++i)
+    if (map.business_of_pop[i] >= 0) ++(map.student[i] ? pupils : staff)[map.business_of_pop[i]];
+  std::size_t total_staff = 0, total_pupils = 0;
   for (std::size_t b = 0; b < town.businesses.size(); ++b) {
-    const zs::Roster* r = reg.roster(workplace_roster(b));
-    REQUIRE(r);
-    CHECK(r->size(0.5) == by_business[static_cast<int>(b)]);
-    total += r->size(0.5);
+    const zs::Roster* w = reg.roster(workplace_roster(b));
+    const zs::Roster* s = reg.roster(school_roster(b));
+    REQUIRE(w);
+    REQUIRE(s);
+    CHECK(w->kind() == zs::RosterKind::Workplace);
+    CHECK(s->kind() == zs::RosterKind::School);
+    CHECK(w->size(0.5) == staff[static_cast<int>(b)]);
+    CHECK(s->size(0.5) == pupils[static_cast<int>(b)]);
+    total_staff += w->size(0.5);
+    total_pupils += s->size(0.5);
   }
-  CHECK(total == map.employed);
+  CHECK(total_staff == map.employed);
+  CHECK(total_pupils == map.students);
   CHECK(map.employed > 0);
+  CHECK(map.students > 0);
+  for (std::size_t i = 0; i < town.pops.size(); ++i)  // a student is under a school roster, never a job
+    if (map.student[i]) CHECK(town.pops[i].job_id.empty());
   CHECK(map.unmatched_workplaces == 0);  // every workplace a pop names is in the town's directory
   CHECK_FALSE(reg.audit().has_value());
 }
@@ -83,7 +94,7 @@ TEST_CASE("a layoff aimed at workplaces lands only on workplace rosters; househo
   for (std::size_t i = 0; i < town.pops.size(); ++i) {
     PopSnapshot s;
     REQUIRE(reg.snapshot(map.pop_ids[i], 1.5, s));
-    if (s.roster_bits & 1u) { ++found; CHECK(map.business_of_pop[i] >= 0); }
+    if (s.roster_bits & 1u) { ++found; CHECK(map.business_of_pop[i] >= 0); CHECK_FALSE(map.student[i]); }  // no pupil is ever laid off
   }
   CHECK(found == static_cast<std::size_t>(k));
   CHECK(reg.region_apply(0, EffectKind::Ill, 25, 2.0, 8, zs::RosterKind::Household));   // illness can be aimed at homes

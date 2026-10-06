@@ -99,3 +99,13 @@ Not validated: whether the people read as real and varied to the user. That need
 
 - Which real region the Tier 0 town is modelled on (0011 left it open); the mix file assumes a mid-size US town.
 - Whether generated pops replace the hand-made census table now or at stage 9.
+
+## 8. From the generators to the simulation (2026-10-06)
+
+The generators and the simulation are one stack, not separate tools: `engine/gen` links `engine/sim`, and the apps (`zs_headless`, `zs_gen`, `zs_sandbox`) are thin shells over them.
+
+- **Town to pops.** `zs::gen::populate_registry` (`engine/gen/include/zs/gen/registry_bridge.h`) turns a generated town into pops in the pop registry ([spec 28](../tier0/specs/28-pop-levels.md)): every person becomes a founder with their generated age and sex, every household a roster (`RosterKind::Household`), every business a staff roster (`Workplace`) and every school a pupil roster (`School`, separate, so a layoff never touches a child). The generated name, dossier, job and look stay in the town record, found by the same index.
+- **Demo.** `zs_headless --town [--seed N] [--people N] [--years Y]` runs it: a generated town inside a world, a Macro-style layoff by command with its reason, and decades of births and deaths with no outbreak.
+- **Same people as Tier 0.** `zs_gen census` already writes Tier 0's 60 neighbours from the same generator; making the Tier 0 world's census and the registry the same pops (so the block's neighbours are the town's founders) is a next step, held back because adding a system to the Tier 0 world changes its pinned golden hashes and deserves its own decision.
+- **Known gaps:** businesses are drawn from small-town counts (23 for 3,000 people), so workplaces are large; fathers and marriage are not modelled yet, so a child's household roster does not follow births; the generator is not yet asked for age pyramids, jobs or households for births.
+

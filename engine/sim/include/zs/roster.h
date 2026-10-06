@@ -18,7 +18,7 @@ namespace zs {
 enum class EffectKind : std::uint8_t { LaidOff = 0, Moved = 1, Ill = 2, kCount = 3 };
 
 // What a roster is, so a region-wide event can aim at workplaces without touching households. Append only.
-enum class RosterKind : std::uint8_t { Other = 0, Household = 1, Workplace = 2, Office = 3, kCount = 4 };
+enum class RosterKind : std::uint8_t { Other = 0, Household = 1, Workplace = 2, Office = 3, School = 4, kCount = 5 };  // School: pupils and students, not staff
 
 class Roster {
  public:

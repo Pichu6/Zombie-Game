@@ -23,6 +23,7 @@ TownRegistryMap populate_registry(const Town& town, zs::PopRegistry& reg, std::u
   for (std::size_t i = 0; i < town.businesses.size(); ++i) {
     business_by_name.emplace(town.businesses[i].name, static_cast<int>(i));
     reg.add_roster(workplace_roster(i), region, zs::RosterKind::Workplace);
+    reg.add_roster(school_roster(i), region, zs::RosterKind::School);
   }
   for (std::size_t h = 0; h < town.households.size(); ++h) reg.add_roster(household_roster(h), region, zs::RosterKind::Household);
 
@@ -37,9 +38,14 @@ TownRegistryMap populate_registry(const Town& town, zs::PopRegistry& reg, std::u
       else business = it->second;
     }
     map.business_of_pop.push_back(business);
+    const bool student = business >= 0 && p.job_id.empty();  // a place at a school, not a job
+    map.student.push_back(student);
     if (p.household >= 0 && static_cast<std::size_t>(p.household) < town.households.size())
       reg.roster_join(household_roster(static_cast<std::size_t>(p.household)), id, 0.0);
-    if (business >= 0 && reg.roster_join(workplace_roster(static_cast<std::size_t>(business)), id, 0.0)) ++map.employed;
+    if (business >= 0) {
+      if (student) map.students += reg.roster_join(school_roster(static_cast<std::size_t>(business)), id, 0.0) ? 1 : 0;
+      else map.employed += reg.roster_join(workplace_roster(static_cast<std::size_t>(business)), id, 0.0) ? 1 : 0;
+    }
   }
   return map;
 }
