@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write  # to refresh the windows-latest release
+
 jobs:
   build:
     runs-on: windows-latest
@@ -32,3 +35,15 @@ jobs:
         with:
           name: juego-zombie-windows
           path: pkg
+      - name: Publish as the windows-latest release (a stable download link)
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Compress-Archive -Path pkg\* -DestinationPath juego-zombie-windows.zip
+          gh release view windows-latest 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create windows-latest --prerelease --title "Windows build (latest main)" --notes "Built automatically from main. Unzip and double-click zs_sandbox.exe."
+          }
+          gh release upload windows-latest juego-zombie-windows.zip --clobber
