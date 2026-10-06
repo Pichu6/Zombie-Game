@@ -33,6 +33,7 @@ constexpr double kPushRatePpmPerS = 1e6 / 60.0, kPushFloor = 0.5;
 // A hammer or crowbar in an average adult's hands delivers ~100 J; skull fracture ~60 J (impact
 // biomechanics, e.g. Yoganandan et al.; tune).
 constexpr double kStrikeBaseJ = 25, kSkullJ = 60, kHeadHitChance = 0.6;
+constexpr double kCrackShare = 0.3, kSkullSumJ = 2 * kSkullJ;  // blows that add up, and how far
 
 using EdgeKey = std::tuple<int, int, int, bool>;
 EdgeKey key_of(const EdgeRef& e) { return {e.z, e.x, e.y, e.vertical}; }
@@ -170,6 +171,38 @@ bool Walkers::in_reach(const Cell& a, const Cell& b) const {
   return a.z == b.z && std::abs(a.x - b.x) + std::abs(a.y - b.y) == 1 && walker_passes(SiteMap::edge_between(a, b));
 }
 
+std::vector<EntityId> Walkers::visible_to(const World& w, EntityId viewer) const {
+  std::vector<std::pair<double, EntityId>> seen;
+  const Body& vb = bodies_.get(viewer);
+  if (!vb.alive || vb.activity.asleep) return {};
+  const Cell from = actors_.actor(viewer).pos;
+  const double sight = bodies_.capabilities(vb, w.clock.tick).sight;
+  for (const auto& [id, z] : walkers_) {
+    if (!bodies_.get(id).alive || z.pos.z != from.z) continue;
+    const double d = distance_m(from, z.pos);
+    if (d <= sight_range_m(power_.lux_at(w, z.pos)) * sight && line_of_sight(w, from, z.pos)) seen.emplace_back(d, id);
+  }
+  std::sort(seen.begin(), seen.end());
+  std::vector<EntityId> out;
+  for (const auto& s : seen) out.push_back(s.second);
+  return out;
+}
+
+// The senses' report for fear (spec 11): held 1, a walker in reach 0.9, one in sight up to 0.8
+// falling to 0 at 20 m.
+void Walkers::sense_threats(World& w) {
+  for (const auto& [id, a] : actors_.actors()) {
+    Body& b = bodies_.get(id);
+    if (!b.alive || b.spec.walker) continue;
+    double threat = held_.contains(id) ? 1.0 : 0.0;
+    for (EntityId zid : visible_to(w, id)) {
+      const Cell zp = walkers_.at(zid).pos;
+      threat = std::max(threat, in_reach(a.pos, zp) ? 0.9 : 0.8 * std::max(0.0, 1 - distance_m(a.pos, zp) / 20));
+    }
+    b.threat = threat;
+  }
+}
+
 bool Walkers::walker_passes(const EdgeRef& e) const {
   const Edge& ed = map_.edge(e);
   if (ed.kind == EdgeKind::None || ed.breached) return true;
@@ -263,10 +296,10 @@ void Walkers::think(World& w, WalkerState& z) {
       }
     }
     // A lit window standing out against the night (spec 19 rule 4).
-    if (!is_indoor(map_.floor(z.pos))) {
-      if (leaks_tick_ != now) {
+    if (!is_indoor(map_.floor(z.pos)) && Power::ambient_lux(w.clock.hour()) < 1000) {  // by day a lit window does not stand out
+      if (leaks_tick_ != now / kBodyStepTicks) {  // lit windows, read once per game minute
         leaks_ = power_.window_leaks(w);
-        leaks_tick_ = now;
+        leaks_tick_ = now / kBodyStepTicks;
       }
       for (const WindowLeak& l : leaks_) {
         const Cell inner{l.edge.z, l.edge.x, l.edge.y};
@@ -326,7 +359,8 @@ void Walkers::move(World& w, WalkerState& z) {
   }
   z.pushing.reset();
   if (z.mode == Mode::Bash) z.mode = Mode::Investigate;
-  const double speed = bodies_.walk_speed(b, w.clock.tick) * kCoordination * (z.mode == Mode::Pursue ? kPursuitBoost : 1.0);
+  if (z.walk_mps < 0) z.walk_mps = bodies_.walk_speed(b, w.clock.tick);
+  const double speed = z.walk_mps * kCoordination * (z.mode == Mode::Pursue ? kPursuitBoost : 1.0);
   b.activity.speed_mps = speed;
   b.activity.grade_pct = stairs ? 50 : 0;
   z.step_m += speed * kTickSeconds;
@@ -439,29 +473,41 @@ double Walkers::strike_energy_j(const World& w, EntityId attacker, EntityId tool
 bool Walkers::strike(World& w, EntityId attacker, EntityId target, EntityId tool, EventId cause) {
   auto it = walkers_.find(target);
   const auto from = actors_.cell_of(w, attacker);
+  const Body& tb = bodies_.get(target);
+  // A still corpse (not yet risen, not put down) can be struck too: every blow lands on the head.
+  const bool corpse = it == walkers_.end() && !tb.alive && !put_down_.contains(target);
+  const auto at = corpse ? actors_.cell_of(w, target) : (it != walkers_.end() ? std::optional<Cell>(it->second.pos) : std::nullopt);
   bool destroyed = false;
-  if (it != walkers_.end() && from && in_reach(*from, it->second.pos)) {
+  if (at && from && in_reach(*from, *at)) {
     const Body& a = bodies_.get(attacker);
-    const double aim = kHeadHitChance * (1 - 0.5 * a.fear) * detmath::sqrt(std::max(0.05, a.exertion));
+    const double aim = corpse ? 1.0 : kHeadHitChance * (1 - 0.5 * a.fear) * detmath::sqrt(std::max(0.05, a.exertion));
     Wound wd;
     wd.type = WoundType::Contusion;
     wd.depth = Depth::Fat;
     wd.contamination = 0.1;
     if (w.rng.uniform01(target, Purpose::Strike) < aim) {
       const double delivered = strike_energy_j(w, attacker, tool) * (0.6 + 0.6 * w.rng.uniform01(target, Purpose::Strike));
-      destroyed = delivered >= kSkullJ;
+      // One hard blow breaks the skull; weaker blows that still crack it add up (two skulls' worth).
+      double& sum = head_j_[target];
+      if (delivered >= kSkullJ * kCrackShare) sum += delivered;
+      destroyed = delivered >= kSkullJ || sum >= kSkullSumJ;
       wd.region = Region::Head;
       if (delivered >= kSkullJ * 0.6) wd.type = WoundType::Fracture;
     } else {
       wd.region = Region::Chest;
     }
     const EventId ev = w.emit(EventType::Hit, attacker, cause, static_cast<std::int64_t>(target), destroyed ? 1 : 0);
-    bodies_.add_wound(w, target, wd, ev);
+    if (!corpse) bodies_.add_wound(w, target, wd, ev);
     if (destroyed) {
-      bodies_.kill(w, target, DeathCause::BrainDestroyed, ev);
-      for (auto h = held_.begin(); h != held_.end();) h = h->second == target ? held_.erase(h) : std::next(h);
-      if (auto p = census_.person_of(target)) census_.set_fate(w, *p, Fate::Destroyed);
-      walkers_.erase(it);
+      head_j_.erase(target);
+      if (corpse) {
+        put_down_.insert(target);
+      } else {
+        bodies_.kill(w, target, DeathCause::BrainDestroyed, ev);
+        for (auto h = held_.begin(); h != held_.end();) h = h->second == target ? held_.erase(h) : std::next(h);
+        if (auto p = census_.person_of(target)) census_.set_fate(w, *p, Fate::Destroyed);
+        walkers_.erase(it);
+      }
     }
   } else {
     w.emit(EventType::Hit, attacker, cause, static_cast<std::int64_t>(target), 0);  // out of reach: a miss
@@ -523,7 +569,9 @@ void Walkers::step_turnings(World& w) {
     const Body& b = bodies_.get(t.body);
     if (b.alive && now >= t.death_tick) bodies_.kill(w, t.body, DeathCause::Pathogen, t.cause);
     if (!b.alive && t.died_tick < 0) t.died_tick = now;
-    if (t.died_tick >= 0 && now >= t.died_tick + t.rise_after && b.death_cause != DeathCause::BrainDestroyed) rise(w, t);
+    if (t.died_tick >= 0 && now >= t.died_tick + t.rise_after && b.death_cause != DeathCause::BrainDestroyed &&
+        !put_down_.contains(t.body))
+      rise(w, t);
   }
   // The census follows the group's dead: dead for good, or dead until they rise.
   for (const Person& p : census_.people())
@@ -544,6 +592,7 @@ void Walkers::update(World& w) {
     const Body& b = bodies_.get(id);
     if (!b.alive) continue;
     if (now >= z.next_think) {
+      z.walk_mps = bodies_.walk_speed(b, now);  // wounds change slowly: once per think is enough
       think(w, z);
       z.next_think = now + kThinkTicks;
     }
@@ -569,6 +618,7 @@ void Walkers::update(World& w) {
                       holder->second.target != it->first || !bodies_.get(it->first).alive;
     it = gone ? held_.erase(it) : std::next(it);
   }
+  if (now % kThinkTicks == 0) sense_threats(w);
   if (w.clock.is_body_step()) step_turnings(w);
 }
 
@@ -603,6 +653,7 @@ void Walkers::save(ArchiveWriter& a) const {
     for (const Cell& c : z.path) put_cell(a, c);
     a.u64(z.next);
     a.f64(z.step_m);
+    a.f64(z.walk_mps);
     a.boolean(z.pushing.has_value());
     if (z.pushing) {
       put_cell(a, {z.pushing->z, z.pushing->x, z.pushing->y});
@@ -626,6 +677,23 @@ void Walkers::save(ArchiveWriter& a) const {
     a.i64(t.died_tick);
     a.boolean(t.risen);
   }
+  a.u64(head_j_.size());
+  for (const auto& [b, j] : head_j_) {
+    a.u64(b);
+    a.f64(j);
+  }
+  a.u64(put_down_.size());
+  for (EntityId b : put_down_) a.u64(b);
+  // The minute's lit windows are kept with the save: a load mid-minute must see what the run saw.
+  a.i64(leaks_tick_);
+  a.u64(leaks_.size());
+  for (const WindowLeak& l : leaks_) {
+    a.i64(l.edge.z);
+    a.i64(l.edge.x);
+    a.i64(l.edge.y);
+    a.boolean(l.edge.vertical);
+    a.f64(l.seen_m);
+  }
 }
 
 void Walkers::load(ArchiveReader& r) {
@@ -642,6 +710,7 @@ void Walkers::load(ArchiveReader& r) {
     for (std::uint64_t k = r.u64(); k > 0; --k) z.path.push_back(get_cell(r));
     z.next = r.u64();
     z.step_m = r.f64();
+    z.walk_mps = r.f64();
     if (r.boolean()) {
       const Cell c = get_cell(r);
       z.pushing = EdgeRef{c.z, c.x, c.y, r.boolean()};
@@ -667,9 +736,26 @@ void Walkers::load(ArchiveReader& r) {
     t.risen = r.boolean();
     turnings_.push_back(t);
   }
+  head_j_.clear();
+  for (std::uint64_t n = r.u64(); n > 0; --n) {
+    const EntityId b = r.u64();
+    head_j_[b] = r.f64();
+  }
+  put_down_.clear();
+  for (std::uint64_t n = r.u64(); n > 0; --n) put_down_.insert(r.u64());
   loss_cache_.clear();
   cache_version_ = ~std::uint64_t{0};
-  leaks_tick_ = -1;
+  leaks_tick_ = r.i64();
+  leaks_.clear();
+  for (std::uint64_t n = r.u64(); n > 0; --n) {
+    WindowLeak l;
+    l.edge.z = static_cast<int>(r.i64());
+    l.edge.x = static_cast<int>(r.i64());
+    l.edge.y = static_cast<int>(r.i64());
+    l.edge.vertical = r.boolean();
+    l.seen_m = r.f64();
+    leaks_.push_back(l);
+  }
 }
 
 }  // namespace zs

@@ -173,7 +173,7 @@ home = "street_9"
 survivor = true
 
 [[person]]
-name = "Jorge Rojas"
+name = "Mateo Rojas"
 age = 10
 sex = "m"
 household = "h11"
@@ -278,21 +278,21 @@ household = "h20"
 home = "street_18"
 
 [[person]]
-name = "Peter Duarte"
+name = "Sam Duarte"
 age = 8
 sex = "m"
 household = "h20"
 home = "street_18"
 
 [[person]]
-name = "Claudia Ortega"
+name = "Lucia Ortega"
 age = 83
 sex = "f"
 household = "h21"
 home = "street_19"
 
 [[person]]
-name = "Oscar Ortega"
+name = "Diego Ortega"
 age = 33
 sex = "m"
 household = "h21"

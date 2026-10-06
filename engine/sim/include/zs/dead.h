@@ -49,6 +49,10 @@ class Census : public System {
   void load_file(World& w, const std::string& path, Walkers& walkers);
   // A pop of the run (the player) joins the census so conservation covers it.
   void add_pop(World& w, EntityId body, const std::string& name);
+  // Census rows still waiting as survivor slots (rule 5), each with a living body.
+  std::vector<std::size_t> survivors() const;
+  // Setup: gives a survivor slot its body (rule 5) when the run places them.
+  EntityId embody(World& w, std::size_t person);
 
   const std::vector<Person>& people() const { return people_; }
   std::optional<std::size_t> person_of(EntityId body) const;
@@ -94,6 +98,7 @@ struct WalkerState {
   std::vector<Cell> path;
   std::size_t next = 0;
   double step_m = 0;
+  double walk_mps = -1;  // body walk speed, refreshed when it thinks (-1 = not yet)
   std::optional<EdgeRef> pushing;
   std::int64_t next_think = 0, next_attack = 0;
 };
@@ -124,6 +129,8 @@ class Walkers : public System {
   std::optional<Cell> cell_of(EntityId body) const;
   bool held(EntityId body) const { return held_.contains(body); }
   const std::vector<Turning>& turnings() const { return turnings_; }
+  // A corpse whose brain was destroyed before it rose (put down): it never rises (spec 21).
+  bool put_down(EntityId body) const { return put_down_.contains(body); }
   // Spec 21 rule 7: the debug inspector's truth (the player view never shows it).
   std::optional<Turning> turning_of(EntityId body) const;
 
@@ -141,6 +148,9 @@ class Walkers : public System {
   // Arm's reach: the same cell, or the next cell with nothing closed between (no diagonals,
   // nothing through glass or a shut door). Strikes, grabs and bites all use it.
   bool in_reach(const Cell& a, const Cell& b) const;
+  // What a living person sees of the dead: walkers in line of sight and light, nearest first
+  // (same sight rule the walkers use). Nothing while asleep.
+  std::vector<EntityId> visible_to(const World& w, EntityId viewer) const;
   static double sight_range_m(double lux);
   std::vector<NoiseSource> sources(const World& w) const;  // walkers' own noise (pushing)
 
@@ -152,6 +162,7 @@ class Walkers : public System {
   bool walker_passes(const EdgeRef& e) const;
   double heard_db(const World& w, const NoiseSource& s, const Cell& at, double background);
   void step_turnings(World& w);
+  void sense_threats(World& w);
   void rise(World& w, Turning& t);
 
   SiteMap& map_;
@@ -164,11 +175,13 @@ class Walkers : public System {
   std::map<EntityId, WalkerState> walkers_;
   std::map<EntityId, EntityId> held_;  // victim -> walker
   std::vector<Turning> turnings_;
+  std::map<EntityId, double> head_j_;  // energy of head blows so far, per walker or corpse (spec 20)
+  std::set<EntityId> put_down_;
   // Derived caches (not saved): path loss from a source cell, valid for one map version.
   std::map<std::size_t, std::vector<double>> loss_cache_;
   std::uint64_t cache_version_ = ~std::uint64_t{0};
-  std::vector<WindowLeak> leaks_;   // this tick's window leaks, computed on first use
-  std::int64_t leaks_tick_ = -1;
+  std::vector<WindowLeak> leaks_;   // this game minute's window leaks (saved: edge and seen_m only)
+  std::int64_t leaks_tick_ = -1;    // the minute they belong to
   std::set<EntityId> crowded_;  // walkers kept off their victim by others this tick (rebuilt every tick)
 };
 

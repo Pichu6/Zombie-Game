@@ -42,6 +42,9 @@ enum class EventType : std::uint16_t {
   PartFailed = 27,        // subject = the failed part, a = the edge assembly
   EdgeBreached = 28,      // subject = the edge assembly
   Hit = 29,               // subject = attacker, a = target body, b = 1 if it destroyed the brain
+  PopRefused = 30,        // subject = pop, a = Refusal, b = Doing it refused (spec 24 rule 4)
+  BiteReported = 31,      // subject = pop that told the group it was bitten (spec 24 rule 7)
+  Panicked = 32,          // subject = pop that dropped what it did and ran
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

@@ -25,6 +25,7 @@ enum class Purpose : std::uint32_t {
   WalkerMind = 9,
   Turning = 10,
   Strike = 11,
+  PopTrait = 12,
 };
 
 class Rng {

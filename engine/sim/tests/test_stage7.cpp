@@ -290,7 +290,7 @@ TEST_CASE("stage 7: the scenario with the dead: save/load keeps the hash; golden
   while (at_mid.drive(u)) u.world->step();
   run_hours(u, 2);
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 809371108571599772ULL;
+  const std::uint64_t golden = 12585753753234487495ULL;
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 7 golden world hash: " << t.world->world_hash());
 }

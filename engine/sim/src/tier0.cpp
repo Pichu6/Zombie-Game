@@ -3,10 +3,12 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <stdexcept>
 
 namespace zs::tier0 {
 
-Tier0 make_world(std::uint64_t seed, bool with_dead) {
+Tier0 make_world(std::uint64_t seed, bool with_dead, int group) {
+  if (group > 0 && !with_dead) throw std::invalid_argument("make_world: a group needs the census");
   Tier0 t;
   t.world = std::make_unique<World>(seed);
   World& w = *t.world;
@@ -17,10 +19,12 @@ Tier0 make_world(std::uint64_t seed, bool with_dead) {
   auto power = std::make_unique<Power>(w, *map, *items, *actors);
   std::unique_ptr<Census> census;
   std::unique_ptr<Walkers> walkers;
+  std::unique_ptr<PopAI> ai;
   if (with_dead) {
     census = std::make_unique<Census>(w, *map, *items, *bodies, *power);
     walkers = std::make_unique<Walkers>(w, *map, *items, *bodies, *actors, *power, *census);
   }
+  if (group > 0) ai = std::make_unique<PopAI>(w, *map, *items, *bodies, *actors, *power, *walkers);
   t.items = items.get();
   t.map = map.get();
   t.bodies = bodies.get();
@@ -28,6 +32,7 @@ Tier0 make_world(std::uint64_t seed, bool with_dead) {
   t.power = power.get();
   t.census = census.get();
   t.walkers = walkers.get();
+  t.ai = ai.get();
   // Order: things and places, the executor and movement, power, the dead, then the body.
   w.add_system(std::move(items));
   w.add_system(std::move(map));
@@ -38,6 +43,7 @@ Tier0 make_world(std::uint64_t seed, bool with_dead) {
     w.add_system(std::move(walkers));
   }
   w.add_system(std::move(bodies));
+  if (ai) w.add_system(std::move(ai));  // last: decides on this tick's state, acts next tick
   const std::string data = ZS_DATA_DIR;
   load_item_defs(*t.items, data + "/tier0/items.toml");
   t.map->load_file(w, *t.items, data + "/tier0/map/block.toml");
@@ -52,6 +58,27 @@ Tier0 make_world(std::uint64_t seed, bool with_dead) {
     t.walkers->setup(w);
     t.census->load_file(w, data + "/tier0/census.toml", *t.walkers);
     t.census->add_pop(w, t.player, "You");
+  }
+  t.group.push_back(t.player);
+  if (group > 0) {
+    // Survivors start in the cells nearest the player start (breadth-first over walkable cells).
+    const Cell start = t.actors->actor(t.player).pos;
+    std::vector<Cell> cells{start};
+    for (std::size_t i = 0; i < cells.size() && static_cast<int>(cells.size()) < 4 * group; ++i)
+      for (const Cell& nb : {Cell{start.z, cells[i].x + 1, cells[i].y}, Cell{start.z, cells[i].x - 1, cells[i].y},
+                             Cell{start.z, cells[i].x, cells[i].y + 1}, Cell{start.z, cells[i].x, cells[i].y - 1}})
+        if (t.map->in_bounds(nb) && t.map->walkable(nb) && t.map->can_walk(SiteMap::edge_between(cells[i], nb)) &&
+            std::find(cells.begin(), cells.end(), nb) == cells.end())
+          cells.push_back(nb);
+    const auto slots = t.census->survivors();
+    for (int k = 1; k < group && k - 1 < static_cast<int>(slots.size()); ++k) {
+      const std::size_t person = slots[static_cast<std::size_t>(k - 1)];
+      const EntityId body = t.census->embody(w, person);
+      t.actors->add_actor(w, body, cells.at(static_cast<std::size_t>(k)));
+      t.census->set_fate(w, person, Fate::Pop);
+      t.group.push_back(body);
+    }
+    for (EntityId b : t.group) t.ai->add_pop(w, b);
   }
   w.close_setup();
   return t;

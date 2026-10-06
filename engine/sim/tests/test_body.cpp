@@ -211,7 +211,7 @@ TEST_CASE("body: golden hash (same on every compiler)") {
     script_hour(lab, h % 24);
     lab.world->run_ticks(kTicksPerGameHour);
   }
-  const std::uint64_t golden = 13504463530566864507ULL;
+  const std::uint64_t golden = 5577061984998890910ULL;
   CHECK(lab.world->state_hash() == golden);
   MESSAGE("body golden hash: " << lab.world->state_hash());
 }

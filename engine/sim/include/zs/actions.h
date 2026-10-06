@@ -23,7 +23,7 @@ namespace zs {
 
 enum class Primitive : std::uint8_t {
   Walk, Run, Crawl, Climb, Hold, Strike, PushPull, Cut, Pry, Fine, Consume, Rest, Sleep, Exercise, Search, Wait,
-  Count
+  Shout, Count
 };
 enum class Requires : std::uint8_t { Consciousness, Moving, Manipulation };
 
@@ -74,6 +74,7 @@ enum class EffectOp : std::uint8_t {
   Power,      // how = start | stop | refuel | on | off | transfer_generator | transfer_mains | reset (spec 17)
   Cover,      // hang the first carried `uses` item over the target window (a curtain; spec 19)
   Hit,        // strike the target body with the tool in hand (spec 20)
+  Wake,       // wake every sleeper within 15 m on the same level (a shout; spec 24 guard)
 };
 
 struct Effect {

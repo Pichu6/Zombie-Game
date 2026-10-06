@@ -27,6 +27,8 @@ for hi, home in enumerate(homes):
         sex = rng.choice(["m", "f"])
         age = rng.randint(4, 17) if child else rng.randint(19, 84)
         name = rng.choice(first_m if sex == "m" else first_f)
+        while any(q[0] == f"{name} {surname}" for q in people):  # no two neighbours share a full name
+            name = rng.choice(first_m if sex == "m" else first_f)
         people.append((f"{name} {surname}", age, sex, f"h{hi + 1}", home))
     if len(people) >= 60:
         break

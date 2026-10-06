@@ -354,6 +354,8 @@ double Bodies::core_temp_c(const Body& b) const {
   return 37 + fever;
 }
 
+double Bodies::wound_bleed_ml_per_min(const Body& b, const Wound& wound) const { return wound_bleed(b, wound); }
+
 double Bodies::bleed_ml_per_min(const Body& b) const {
   double total = 0;
   for (const Wound& w : b.wounds) total += wound_bleed(b, w);
@@ -545,7 +547,10 @@ void Bodies::body_step(World& w, Body& b) {
   if (!b.alive) return;
   const Needs n = needs(b);
   const double p = pain(b, w.clock.tick);
-  b.fear += (0.6 * p - b.fear) * (1 - dm::exp(-dt / 1800.0));
+  // Fear follows pain and what the senses report: it jumps up within seconds and settles over
+  // half an hour (spec 11; the threat comes from the walkers system).
+  const double fear_target = std::max(0.6 * p, b.threat);
+  b.fear += (fear_target - b.fear) * (1 - dm::exp(-dt / (fear_target > b.fear ? 20.0 : 1800.0)));
   const double morale_target = clamp01(0.75 - 0.25 * n.hunger - 0.25 * n.tiredness - 0.2 * p);
   b.morale += (morale_target - b.morale) * (1 - dm::exp(-dt / (8 * 3600.0)));
   if (w.clock.tick > 0 && w.clock.tick % kTicksPerGameDay == 0) daily_drift(w, b);
@@ -756,6 +761,7 @@ void Bodies::reanimate(World& w, EntityId body, EventId cause) {
   b.activity = Activity{};
   b.posture = Posture::Stand;
   b.fear = 0;
+  b.threat = 0;
   w.emit(EventType::Reanimated, b.id, cause);
 }
 
@@ -774,7 +780,7 @@ void Bodies::save(ArchiveWriter& a) const {
     a.f64(b.activity.grade_pct);
     a.f64(b.activity.carried_kg);
     a.boolean(b.activity.asleep);
-    for (double v : {b.sleep_pressure, b.exertion, b.vo2max, b.fear, b.morale,
+    for (double v : {b.sleep_pressure, b.exertion, b.vo2max, b.fear, b.morale, b.threat,
                      b.active_minutes_today, b.heavy_minutes_today})
       a.f64(v);
     for (double c : b.carry) a.f64(c);
@@ -797,7 +803,7 @@ void Bodies::load(ArchiveReader& a) {
     b.activity.grade_pct = a.f64();
     b.activity.carried_kg = a.f64();
     b.activity.asleep = a.boolean();
-    for (double* v : {&b.sleep_pressure, &b.exertion, &b.vo2max, &b.fear, &b.morale,
+    for (double* v : {&b.sleep_pressure, &b.exertion, &b.vo2max, &b.fear, &b.morale, &b.threat,
                       &b.active_minutes_today, &b.heavy_minutes_today})
       *v = a.f64();
     for (double& c : b.carry) c = a.f64();

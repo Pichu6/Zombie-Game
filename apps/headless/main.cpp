@@ -223,6 +223,19 @@ struct Trace {
         first = false;
       }
     }
+    frames += "],[";
+    // The group: [z, x, y, doing label, name label, alive], player first.
+    bool first_pop = true;
+    for (EntityId id : t.group) {
+      const Body& pb = t.bodies->get(id);
+      const Cell c = t.actors->actor(id).pos;
+      std::string what = pb.spec.walker ? "risen as a walker" : !pb.alive ? "dead" : pb.activity.asleep ? "sleeping" : "idle";
+      if (pb.alive && !pb.spec.walker && !pb.activity.asleep && t.ai) what = to_string(t.ai->mind(id).doing);
+      std::snprintf(buf, sizeof buf, "%s[%d,%d,%d,%d,%d,%d]", first_pop ? "" : ",", c.z, c.x, c.y, label(what),
+                    label(t.census ? t.census->name_of(id) : "You"), pb.alive && !pb.spec.walker ? 1 : 0);
+      frames += buf;
+      first_pop = false;
+    }
     frames += "]]";
   }
 
@@ -423,7 +436,145 @@ int stage6(std::uint64_t seed, const std::string& trace_path = "", bool with_dea
   return 0;
 }
 
+// Stage 8: a group of AI pops with nobody in control. Prints the story (or only the summary).
+struct GroupResult {
+  std::int64_t ended = 0;
+  int alive = 0;
+  std::vector<std::string> deaths;
+};
+
+GroupResult group_run(std::uint64_t seed, int days, const std::string& trace_path, bool verbose) {
+  using namespace zs;
+  auto t = tier0::make_world(seed, true, 4);
+  t.world->check_every_tick = false;
+  Trace trace;
+  const bool tracing = !trace_path.empty();
+  std::size_t seen = 0;
+  GroupResult out;
+  auto name = [&](EntityId b) { return t.census->name_of(b); };
+  auto anyone_alive = [&] {
+    for (EntityId b : t.group)
+      if (t.bodies->get(b).alive && !t.bodies->get(b).spec.walker) return true;
+    return false;
+  };
+  if (verbose) {
+    std::printf("group:");
+    for (EntityId b : t.group)
+      std::printf(" %s (%d, %s, %s)", name(b).c_str(), static_cast<int>(t.bodies->get(b).spec.age),
+                  t.ai->mind(b).brave ? "brave" : "timid", t.ai->mind(b).honest ? "honest" : "secretive");
+    std::printf("\ngrid failure drawn for %s\n", clock_text(t.power->grid_failure_tick()).c_str());
+  }
+  std::int64_t all_dead_at = -1;
+  while (t.world->clock.tick < days * kTicksPerGameDay) {
+    t.world->step();
+    const std::int64_t now = t.world->clock.tick;
+    if (tracing) {
+      bool busy = Trace::walkers_busy(t);
+      for (EntityId b : t.group) busy |= t.actors->actor(b).action.phase == Phase::Approach;
+      if (now % (busy ? 10 : kBodyStepTicks) == 0) trace.frame(t);
+      if (now % kTicksPerGameHour == 0) trace.field(t);
+    }
+    const auto& log = t.world->log.all();
+    for (; seen < log.size(); ++seen) {
+      const Event& e = log[seen];
+      std::string line;
+      const char* kind = "alert";
+      switch (e.type) {
+        case EventType::GridFailed: line = "The grid failed"; break;
+        case EventType::GeneratorOutOfFuel: line = "The generator ran out of fuel"; break;
+        case EventType::FoodSpoiled: line = "The fridge food spoiled"; break;
+        case EventType::Death:
+          line = tier0::death_sentence(t, e);
+          kind = "dead";
+          if (!e.b) out.deaths.push_back(line);
+          break;
+        case EventType::WalkerArrived: line = name(e.subject) + " arrived, dead"; kind = "dead"; break;
+        case EventType::Bite: line = name(e.subject) + " bit " + name(static_cast<EntityId>(e.a)) + " (" + to_string(static_cast<Region>(e.b)) + ")"; break;
+        case EventType::Reanimated: line = name(e.subject) + " rose as a walker"; break;
+        case EventType::EdgeBreached: {
+          const EdgeRef r = t.actors->edges().at(e.subject);
+          line = "The " + t.items->def(t.items->get(e.subject).def).id + " was broken in";
+          if (tracing) trace.event(e.tick, "alert", line, &r);
+          if (verbose) std::printf("%s  %s\n", clock_text(e.tick).c_str(), line.c_str());
+          continue;
+        }
+        case EventType::PopRefused: line = name(e.subject) + " refused: " + to_string(static_cast<Refusal>(e.a)); kind = "body"; break;
+        case EventType::Panicked: line = name(e.subject) + " panicked and ran"; kind = "body"; break;
+        case EventType::BiteReported: line = name(e.subject) + " told the others: \"I've been bitten\""; break;
+        case EventType::Hit: {
+          const EntityId v = static_cast<EntityId>(e.a);
+          if (!e.b || t.bodies->get(v).spec.walker) continue;  // walkers put down have their own line
+          line = name(e.subject) + " made sure " + (v == t.player ? std::string("you stay") : name(v) + " stays") + " down";
+          kind = "dead";
+          break;
+        }
+        case EventType::ActionDone: {
+          const auto& procs = t.actors->processes();
+          if (e.a < 0 || static_cast<std::size_t>(e.a) >= procs.size()) continue;
+          const std::string& id = procs[static_cast<std::size_t>(e.a)].id;
+          if (id != "barricade" && id != "refuel_generator" && id != "start_generator" &&
+              id != "switch_to_generator" && id != "shout" && id != "dress_wound")
+            continue;
+          line = name(e.subject) + ": " + procs[static_cast<std::size_t>(e.a)].name;
+          kind = "done";
+          break;
+        }
+        default: continue;
+      }
+      if (tracing) trace.event(e.tick, kind, line);
+      if (verbose) std::printf("%s  %s\n", clock_text(e.tick).c_str(), line.c_str());
+    }
+    if (!anyone_alive()) {
+      if (all_dead_at < 0) all_dead_at = now;
+      if (now >= all_dead_at + 2 * kTicksPerGameHour) break;  // long enough to see them rise
+    }
+  }
+  out.ended = t.world->clock.tick;
+  for (EntityId b : t.group) out.alive += t.bodies->get(b).alive && !t.bodies->get(b).spec.walker;
+  if (tracing) {
+    trace.write(t, seed, trace_path);
+    std::printf("trace written to %s\n", trace_path.c_str());
+  }
+  if (verbose)
+    std::printf("ended %s: %d of %zu alive, world hash %016llx\n", clock_text(out.ended).c_str(), out.alive,
+                t.group.size(), static_cast<unsigned long long>(t.world->world_hash()));
+  return out;
+}
+
 int main(int argc, char** argv) {
+  if (argc >= 2 && !std::strcmp(argv[1], "--group")) {
+    std::uint64_t seed = 1, seeds = 0;
+    int days = 14;
+    std::string trace;
+    for (int i = 2; i + 1 < argc; i += 2) {
+      if (!std::strcmp(argv[i], "--seed")) seed = std::strtoull(argv[i + 1], nullptr, 10);
+      else if (!std::strcmp(argv[i], "--seeds")) seeds = std::strtoull(argv[i + 1], nullptr, 10);
+      else if (!std::strcmp(argv[i], "--days")) days = std::atoi(argv[i + 1]);
+      else if (!std::strcmp(argv[i], "--trace")) trace = argv[i + 1];
+    }
+    if (!seeds) {
+      group_run(seed, days, trace, true);
+      return 0;
+    }
+    // Batch (spec 24 test): how many live, and what kills them.
+    std::map<std::string, int> causes;
+    int alive = 0, survived_runs = 0;
+    for (std::uint64_t s = 1; s <= seeds; ++s) {
+      const GroupResult r = group_run(s, days, "", false);
+      alive += r.alive;
+      survived_runs += r.alive > 0;
+      for (const std::string& d : r.deaths) {
+        const auto colon = d.find(": ");
+        const auto dot = d.find('.', colon == std::string::npos ? 0 : colon);
+        causes[colon == std::string::npos ? d : d.substr(colon + 2, dot - colon - 2)]++;
+      }
+      std::printf("seed %llu: %d alive at %s\n", static_cast<unsigned long long>(s), r.alive, clock_text(r.ended).c_str());
+    }
+    std::printf("\n%llu runs of 4 pops, %d days: %d of %llu pops alive at the end; at least one alive in %d runs\n",
+                static_cast<unsigned long long>(seeds), days, alive, static_cast<unsigned long long>(4 * seeds), survived_runs);
+    for (const auto& [c, n] : causes) std::printf("  %3d died: %s\n", n, c.c_str());
+    return 0;
+  }
   if (argc >= 2 && !std::strcmp(argv[1], "--stage6"))
   {
     std::uint64_t seed = 1;

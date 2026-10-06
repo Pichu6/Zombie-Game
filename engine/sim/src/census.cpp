@@ -44,7 +44,7 @@ BodySpec body_for(Rng& rng, EntityId key, const Person& p) {
     s.fat_fraction = std::clamp((1.51 * bmi - 0.70 * p.age - 3.6 * (male ? 1 : 0) + 1.4) / 100, 0.08, 0.45);
     s.vo2max = male ? 47 : 42;
   }
-  s.walker = true;
+  s.walker = !p.survivor;  // survivor slots are living people (rule 5)
   return s;
 }
 
@@ -110,6 +110,22 @@ void Census::load_file(World& w, const std::string& path, Walkers& walkers) {
       if (border && map_.walkable(c) && !is_indoor(map_.floor(c))) entries_.push_back(c);
     }
   if (entries_.empty()) throw std::runtime_error("census: the map has no outdoor border cells");
+}
+
+EntityId Census::embody(World& w, std::size_t person) {
+  Person& p = people_.at(person);
+  if (!p.body) {
+    p.body = bodies_.create(w, body_for(w.rng, static_cast<EntityId>(person + 1), p), p.name);
+    by_body_[p.body] = person;
+  }
+  return p.body;
+}
+
+std::vector<std::size_t> Census::survivors() const {
+  std::vector<std::size_t> out;
+  for (std::size_t i = 0; i < people_.size(); ++i)
+    if (people_[i].fate == Fate::Survivor) out.push_back(i);
+  return out;
 }
 
 void Census::add_pop(World& w, EntityId body, const std::string& name) {

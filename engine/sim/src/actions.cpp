@@ -30,6 +30,7 @@ constexpr PrimitiveInfo kPrimitives[] = {
     {"exercise", 6.0, 45, Requires::Moving},      // calisthenics, vigorous (Compendium 02020)
     {"search", 2.5, 40, Requires::Manipulation},  // estimate
     {"wait", 1.3, 0, Requires::Consciousness},
+    {"shout", 1.5, 85, Requires::Consciousness},  // a raised voice, ~85 dB at 1 m (estimate)
 };
 static_assert(sizeof(kPrimitives) / sizeof(kPrimitives[0]) == static_cast<std::size_t>(Primitive::Count));
 
@@ -60,7 +61,8 @@ EffectOp op_from(const std::string& s) {
       {"eat", EffectOp::Eat},       {"drink", EffectOp::Drink},   {"fill", EffectOp::Fill},
       {"use_stock", EffectOp::UseStock}, {"treat", EffectOp::Treat}, {"board", EffectOp::Board},
       {"salvage", EffectOp::Salvage}, {"take", EffectOp::Take},   {"sleep", EffectOp::Sleep},
-      {"power", EffectOp::Power},     {"cover", EffectOp::Cover},   {"hit", EffectOp::Hit}};
+      {"power", EffectOp::Power},     {"cover", EffectOp::Cover},   {"hit", EffectOp::Hit},
+      {"wake", EffectOp::Wake}};
   for (const auto& [name, op] : ops)
     if (s == name) return op;
   throw std::runtime_error("processes: unknown effect op " + s);
@@ -384,7 +386,9 @@ bool Actors::target_matches(const World& w, const ProcessDef& p, const Actor& a,
     case TargetKind::Body: {
       const auto& all = bodies_.all();
       auto it = all.find(target);
-      if (it == all.end() || !it->second.alive || target == a.body) return false;
+      if (it == all.end() || target == a.body) return false;
+      if (p.target_match == "dead") return !it->second.alive && !it->second.spec.walker;  // a corpse not yet risen
+      if (!it->second.alive) return false;
       return p.target_match.empty() || (p.target_match == "walker") == it->second.spec.walker;
     }
     case TargetKind::Edge: {
@@ -769,6 +773,16 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
       break;
     case EffectOp::Hit:
       if (hit) hit(w, a.body, target, a.action.tool, a.cause);
+      break;
+    case EffectOp::Wake:
+      for (auto& [id, other] : actors_) {
+        Body& ob = bodies_.get(id);
+        if (id == a.body || !ob.alive || !ob.activity.asleep || other.pos.z != a.pos.z) continue;
+        const double dx = other.pos.x - a.pos.x, dy = other.pos.y - a.pos.y;
+        if (dx * dx + dy * dy > 15.0 * 15.0) continue;
+        ob.activity.asleep = false;
+        w.emit(EventType::WokeUp, id, a.cause);
+      }
       break;
     case EffectOp::Cover:
       for (const UseNeed& u : p.uses)

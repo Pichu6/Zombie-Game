@@ -8,6 +8,7 @@
 
 #include "zs/actions.h"
 #include "zs/dead.h"
+#include "zs/pop_ai.h"
 #include "zs/power.h"
 
 namespace zs::tier0 {
@@ -21,12 +22,16 @@ struct Tier0 {
   Power* power = nullptr;
   Census* census = nullptr;    // stage 7, with_dead only
   Walkers* walkers = nullptr;
+  PopAI* ai = nullptr;         // stage 8, group runs only
   EntityId player = 0;  // the body of the pop at the map's player start
+  std::vector<EntityId> group;  // the player first, then survivors who start with it
 };
 
 // Loads items, the block map and processes, creates the player pop and closes setup.
 // with_dead adds the census and walkers (stage 7); earlier stages' scenarios run without them.
-Tier0 make_world(std::uint64_t seed, bool with_dead = false);
+// group > 0 (needs with_dead) adds the pop AI for a group of that size: the player plus census
+// survivor slots starting next to it, every one driven by the AI unless possessed (stage 8).
+Tier0 make_world(std::uint64_t seed, bool with_dead = false, int group = 0);
 
 // The stage 4 scripted pop (plan: "done when"): drinks, eats, picks up first-aid supplies,
 // disinfects and dresses its wound, takes tools, breaks a chair into planks and nails them across

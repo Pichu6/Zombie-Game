@@ -99,6 +99,7 @@ struct Body {
   double exertion = 1;          // short-term reserve, 0-1
   double vo2max = 42;
   double fear = 0, morale = 0.7;
+  double threat = 0;  // 0-1, what the senses report right now (walkers seen, in reach, holding it)
   double active_minutes_today = 0;  // minutes at >= 2.5 MET
   double heavy_minutes_today = 0;   // training stimulus (one value, whole body, in Tier 0)
   std::array<double, 8> carry{};    // saved remainders of the continuous flows (spec 01 rule 2)
@@ -162,6 +163,7 @@ class Bodies : public System {
   double water_deficit_fraction(const Body& b) const;  // share of the body's normal mobile water
   double core_temp_c(const Body& b) const;             // 37 C plus fever from infected wounds
   double bleed_ml_per_min(const Body& b) const;
+  double wound_bleed_ml_per_min(const Body& b, const Wound& wound) const;
   Capabilities capabilities(const Body& b, std::int64_t now) const;
   Needs needs(const Body& b) const;
   double carry_limit_kg(const Body& b, std::int64_t now) const;

@@ -276,3 +276,24 @@ time_s = 1.5
 tools = [{ prop = "blunt", min = 0.3, ref = 1.0 }, { prop = "lever", min = 0.3, ref = 1.0 }]
 effects = [{ op = "hit" }]
 source = "one swing ~1-2 s (estimate); energy and aim in spec 20"
+
+# ---------- Stage 8: the group (spec 24) ----------
+
+[[process]]
+id = "put_down"
+name = "Make sure they stay down"
+primitive = "strike"
+target = "body:dead"
+time_s = 1.5
+tools = [{ prop = "blunt", min = 0.3, ref = 1.0 }, { prop = "lever", min = 0.3, ref = 1.0 }]
+effects = [{ op = "hit" }]
+source = "a blow to a still head; same energy model as strike_walker (spec 20)"
+
+[[process]]
+id = "shout"
+name = "Shout a warning"
+primitive = "shout"
+target = "self"
+time_s = 2
+effects = [{ op = "wake" }]
+source = "a few words at the top of the voice; wakes sleepers within ~15 m (estimate)"
