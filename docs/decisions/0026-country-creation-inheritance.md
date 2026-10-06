@@ -1,4 +1,4 @@
-# 0024 · Country creation like Stellaris species creation; traits pass from parents to children
+# 0026 · Country creation like Stellaris species creation; traits pass from parents to children
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (intent below). Model in [macro layer](../design/macro-layer.md) §6.5 is a Proposal; research `loop/28`.

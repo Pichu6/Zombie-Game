@@ -1,8 +1,8 @@
 # Vision
 
-**The ultimate sandbox of life and survival.** One simulation of a whole world, with three layers of depth: the world, a region or city, and one person. Watch it run, or step in anywhere: from a country's laws down to one person's day. Watch a country at war, zoom into the battle and play a fit soldier. Fly across the world and play John, who smokes, wears glasses and works 9 to 5 in IT at a tech company. Go back to the world view, put a city under martial law, and let the simulation run to see what happens. No two runs are the same. Decided ([0023](decisions/0023-sandbox-engine-first-game.md)).
+**The ultimate sandbox of life and survival.** One simulation of a whole world, with three layers of depth: the world, a region or city, and one person. Watch it run, or step in anywhere: from a country's laws down to one person's day. Watch a country at war, zoom into the battle and play a fit soldier. Fly across the world and play John, who smokes, wears glasses and works 9 to 5 in IT at a tech company. Go back to the world view, put a city under martial law, and let the simulation run to see what happens. No two runs are the same. Decided ([0025](decisions/0025-sandbox-engine-first-game.md)).
 
-Labels: **Decided** (the user confirmed it), **Proposal** (not confirmed), **Open** (pending question). Decision records: [0010](decisions/0010-concept-v2.md), [0012](decisions/0012-world-simulation-layers.md), [0022](decisions/0022-macro-layer-intent.md), [0023](decisions/0023-sandbox-engine-first-game.md). Design: [world simulation](design/world-simulation.md), [macro layer](design/macro-layer.md).
+Labels: **Decided** (the user confirmed it), **Proposal** (not confirmed), **Open** (pending question). Decision records: [0010](decisions/0010-concept-v2.md), [0012](decisions/0012-world-simulation-layers.md), [0022](decisions/0022-macro-layer-intent.md), [0025](decisions/0025-sandbox-engine-first-game.md). Design: [world simulation](design/world-simulation.md), [macro layer](design/macro-layer.md).
 
 ## The engine and the first game
 
@@ -45,7 +45,7 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 | Everything built is scavengable and craftable | Walls, floors, houses, pipe networks, power lines, car engines, vehicles, tools and items are all assemblies of real parts that can be scavenged and crafted, all tied by one quality (Q) system. Q comes from parts, capped by skill and tool. What you can see and do depends on job knowledge (electrician, plumber, mechanic). Everything takes real time (Haven & Hearth). Slow and hard, nothing easy; infrastructure fails unless pops maintain it. Salvage is easy; making engines, concrete or grid parts is capped by machinery, and top quality needs a whole chain running well, so manufacturing is late-game teamwork and trade. See [0010](decisions/0010-concept-v2.md), [0013](decisions/0013-production-ladder.md). | Decided |
 | Living infrastructure | Power, water, light and noise as real networks that keep bodies alive and leak signals. | Proposal |
 | Real behaviour | People talk by voice, radio and phone with real propagation. Options depend on knowledge, items and their quality. Every item and resource has quality, condition and states. Doors, walls and fortifications break part by part. | Decided |
-| Freedom and customisation | Watch or step in at any layer, set up the world, the people and the outbreak, and play your own way; no two runs alike. | Decided ([0023](decisions/0023-sandbox-engine-first-game.md)) |
+| Freedom and customisation | Watch or step in at any layer, set up the world, the people and the outbreak, and play your own way; no two runs alike. | Decided ([0025](decisions/0025-sandbox-engine-first-game.md)) |
 | Single state per survivor | Pain, fear, load and job persist when you possess or release a body. | Decided |
 | Realism | Visual realism and fluid animation; readable physiology. | Decided |
 

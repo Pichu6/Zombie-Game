@@ -1,4 +1,4 @@
-# 0023 · A sandbox world-life engine; the zombie outbreak is its first game
+# 0025 · A sandbox world-life engine; the zombie outbreak is its first game
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (framing below). Growth order and war and generations models are Proposals in [vision](../vision.md) and research `loop/27`.

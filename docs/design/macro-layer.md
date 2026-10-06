@@ -127,7 +127,7 @@ Each country is a record of numbers; the validator gives each a realistic, sandb
 | Field | Drives |
 | --- | --- |
 | Name, flag, colour | Display only. |
-| Government type (democracy, single party, dictatorship, military junta, monarchy, theocracy, corporate state, collapsed; user-requested, [0024](../decisions/0024-country-creation-inheritance.md)) | Which edicts need which approval and from whom (parliament, clergy, board, ruler), election cycle, how fast orders pass, use-of-force limits, where legitimacy comes from (votes, faith, profit, fear), and the AI's priorities when it runs that country: a theocracy weighs faith and clergy, a corporate state weighs profit and assets, a dictatorship weighs regime survival, a democracy weighs public opinion and the next election. |
+| Government type (democracy, single party, dictatorship, military junta, monarchy, theocracy, corporate state, collapsed; user-requested, [0026](../decisions/0026-country-creation-inheritance.md)) | Which edicts need which approval and from whom (parliament, clergy, board, ruler), election cycle, how fast orders pass, use-of-force limits, where legitimacy comes from (votes, faith, profit, fear), and the AI's priorities when it runs that country: a theocracy weighs faith and clergy, a corporate state weighs profit and assets, a dictatorship weighs regime survival, a democracy weighs public opinion and the next election. |
 | Wealth and economy mix | Budget, stocks, what is produced at home vs imported. |
 | Health capacity (beds and doctors per 1,000) | Hospital capacity and cure research. |
 | State capacity (how well orders are carried out) and public trust | Response lag and compliance. |
@@ -138,7 +138,7 @@ Each country is a record of numbers; the validator gives each a realistic, sandb
 
 On real Earth, country numbers start from public data (population, health capacity, infrastructure) and editing them is a sandbox change, tagged as such ([0014](../decisions/0014-open-questions-answered.md) §9).
 
-### 6.5 Creating a country, and how pops inherit (Intent Decided, [0024](../decisions/0024-country-creation-inheritance.md); model Proposal)
+### 6.5 Creating a country, and how pops inherit (Intent Decided, [0026](../decisions/0026-country-creation-inheritance.md); model Proposal)
 
 Research: `research/global-sim/loop/28-country-creation-inheritance.md`.
 
