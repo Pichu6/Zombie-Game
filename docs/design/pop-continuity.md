@@ -1,0 +1,60 @@
+# One pop at every layer
+
+A pop is the same person whether you see a count in Macro, a marker in City or a body in Individual. This doc says how, and how loss and gain travel between layers. It extends [world simulation](world-simulation.md) §3 and §8, [27 · detail levels](../tier0/specs/27-detail-levels.md) (places) and [inhabitants](inhabitants.md). Decided intent: [0025](../decisions/0025-leader-records-foxhole-tech-readout.md), [0026](../decisions/0026-pop-continuity-and-capability-loss.md). The model is a **Proposal**; none of it is built. Needed before any nation or office code ([sandbox parameters](sandbox-parameters.md) §5, §7).
+
+## 1. The rule
+
+**Identity is fixed; detail varies.** A pop has one id for life. What changes between layers is how much of them is stored and simulated, never who they are, what they have done, or what is true about them.
+
+## 2. Three levels, one pop
+
+| Level | What is stored | Who | How state is known |
+| --- | --- | --- | --- |
+| **Lazy** | Nothing per pop | Most of the census | Computed on demand from the seed, the region's daily series and the events recorded for their household or workplace |
+| **Record** | Compact state: id, age, job, household, ties, beliefs, wounds, items, office, plans | Anyone touched, and always: **officeholders, followed pops, pops the player has met or possessed** (Decided) | Updated by life-event jumps; fully exact |
+| **Embodied** | Full body, perception, actions | People near a player-controlled body | Ticked |
+
+- A lazy pop is **not** a different or "fake" pop: the same pure function that makes a record makes them ([world simulation](world-simulation.md) §3), so promoting gives exactly the person the lazy view implied.
+- Looking is a pure read. Promotion to record happens by a stated rule (office, follow, meeting, employment by something the player runs, a story tie), never by the camera.
+- Nobody is demoted below record while they hold an office or are followed. Others may go back to lazy only if their record equals what the seed and the region series would give, plus a small saved list of exceptions (so nothing the pop did is lost).
+
+## 3. Making the aggregate agree
+
+Macro counts are never a separate stored number. A region's counts (by age, job, wealth, health, loyalty) are **sums over its pops**, where lazy pops contribute through the region's series and records contribute their own state. Three consequences:
+
+1. **Conservation:** people, jobs, money and stock move through the ledger; promotion, demotion and jumps leave every total unchanged (contract rule 5 of spec 27).
+2. **Deterministic choice of who:** when an aggregate event hits a group (a shop closes and 40 of its 120 workers are laid off), the affected pops are picked by a **fixed ranking from their seed and the rule** (seniority, skill, an edict's order), so later promoting any of the 120 gives an answer consistent with the count. No one is chosen "when someone looks".
+3. **Jump agreement:** a life-event jump (age, births, marriages, deaths, job moves) from tick A to B gives the same distribution as stepping, using the same rates; tested against many seeded step runs, and exactly equal for rules that are deterministic.
+
+## 4. Births, deaths and ids
+
+- **Id:** deterministic from the parents (household seed and birth index), so a lazy birth can be promoted later and always be the same child.
+- **Birth** is a conserved event ([sandbox parameters](sandbox-parameters.md) §7.4); **death** removes the pop from offices, households and jobs and writes one record (cause, date) kept for the chronicle. The dead are never regenerated.
+- **Templates and imports** ([sandbox parameters](sandbox-parameters.md) §7.3) create a pop once, with a new id, at world creation.
+
+## 5. Loss and gain travel both ways (Decided as intent)
+
+| Down (decision above, effect below) | Up (change below, effect above) |
+| --- | --- |
+| A nation can't sustain a service or tech: its establishments lose staff, parts or power, and close | A shop closes: its workers become unemployed pops, with real households losing income |
+| A law or budget change: jobs and stocks move | A hospital lacks workers and shuts: the region's health capacity falls, the country panel shows it |
+| A lost capability: an item (some ammunition) stops being made, and is not found in the area | A factory is disabled: the nation's tech readout loses that node |
+
+Every change carries its reason, as already planned for the ledger ([macro layer](macro-layer.md) §5), so the inspector can answer "why".
+
+**Lost capabilities.** A capability is lost when the establishments, parts or people that make it are gone, never by a timer. Knowledge held by living people can be lost with them (and with their notes), not "forgotten" by drift (Decided, [0026](../decisions/0026-pop-continuity-and-capability-loss.md)). Whether a lost capability can be **restored** is Open: see the decision's open point (recommendation: possible, slow and hard, never chosen by the AI on its own; the player can take it as a mission).
+
+## 6. Invariants and tests (to write when specified)
+
+- Total people, jobs, money and stock are equal before and after promotion, demotion and jump (agreement A1).
+- A pop's id, history and office are unchanged across any level change.
+- Aggregate event vs per-pop result: the count affected equals the number of promoted pops that report being affected, for any chosen subset.
+- A save with a region lazy and the same save with it embodied replay to the same hash once both are embodied.
+- An officeholder or followed pop is never lazy.
+- Benchmark: records and embodied counts per frame budget; the number of records is bounded by the rule in §2, so the benchmark sets how many followed pops a player can have.
+
+## 7. Open
+
+1. **Budget:** how many records the sim can hold and update on a normal PC, and how a Macro run at "years per second" drives lazy jumps. Needs a benchmark.
+2. **Selection rules for layoffs and similar aggregate events** per system (seniority, skill, random draw): each system's spec states its ranking.
+3. **Restoring a lost capability** (0026 open point).

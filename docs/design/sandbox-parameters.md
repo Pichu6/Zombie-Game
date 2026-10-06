@@ -271,7 +271,7 @@ A Stellaris-style tech tree is wanted, and (Decided, 2026-10-06) **a nation's tr
 
 - **A technology unlocks, it doesn't hand out power:** it adds recipes, building parts, procedures and know-how to what researchers and workers can learn, and lifts ceilings (for example the quality a method can reach). It adds no verb the player has and pops don't.
 - **Research is a Project** at labs and schools, done by researchers (§7.4), paid for in money, staff, power and samples, with a research rate and cost curve as parameters. A fallen government or a blackout stalls it.
-- **Spreads by people and trade:** knowledge moves with books, teachers, trade and espionage; losing the people can lose it locally. Whether it can be forgotten is *Open*.
+- **Spreads by people and trade:** knowledge moves with books, teachers, trade and espionage; losing the people, the notes or the establishments loses it locally (Decided: lost, not forgotten by drift, [0026](../decisions/0026-pop-continuity-and-capability-loss.md)).
 - **Parameters:** research speed, cost growth, number of fields, branch breadth, randomness of what is offered (Stellaris offers a few cards), whether the tree is fixed or generated per world, whether other nations' progress is visible. Tree contents, tiers and cadence are *tbd* (§15 open question 3).
 
 ## 12. Outbreak parameters (when enabled)
@@ -349,12 +349,19 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 - **Pop presets:** a template made once per world, plus an optional import (§7.3). Awaiting confirmation.
 - **First slice:** as recommended; macro → micro play style unchanged.
 
+### Answered (2026-10-06, third round, [0026](../decisions/0026-pop-continuity-and-capability-loss.md))
+
+- **Pop templates** (§7.3) and **hidden mystery with reveal** (§12.1): Decided.
+- **A pop is the same at every layer:** Decided; model in [pop continuity](pop-continuity.md).
+- **War:** secondary for now; waits for the Foxhole research.
+- **Capabilities are lost, not forgotten;** loss travels down and up (§11.1, [pop continuity](pop-continuity.md) §5).
+
 ### Open
 
-1. **One person at every zoom level (the hard part).** Officeholders and followed pops stay records (Decided); the spec and benchmark for aggregate agreement, promotion and demotion are still to write ([world simulation](world-simulation.md) §3, [research/detail-levels.md](../research/detail-levels.md)). Needed before any of §5 and §7 is coded.
-2. **Scale of war:** what exists first and how a possessed soldier's fight carries back into the aggregate. Waits on the Foxhole study and the logistics model; recommendation: forces, supply, deterrence and blockades first, invasions after.
-3. **Tech tree contents:** which capabilities, how many tiers, whether a capability can be lost to forgetting rather than only to losing people and buildings.
-4. **Confirm** the spoiler default (§12.1) and the pop template rule (§7.3).
+1. **Pop continuity spec and benchmark** ([pop continuity](pop-continuity.md) §7): record budget, long time steps, layoff selection rules.
+2. **Restoring a lost capability:** impossible, or possible but never chosen by the AI and available to the player as a mission (recommendation: the second).
+3. **War scale and look:** after the Foxhole research.
+4. **Tech tree contents:** which capabilities and how many tiers.
 
 ## 16. Order of work (dependencies only)
 

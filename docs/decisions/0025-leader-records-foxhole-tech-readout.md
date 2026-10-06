@@ -12,5 +12,5 @@
 
 ## Pending the user's confirmation (explained in chat, not decided)
 
-- Mystery outbreak spoilers: hidden by default, with a sandbox reveal button.
+
 - Pop presets are templates made once per world, plus an optional import as a copy.
