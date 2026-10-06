@@ -65,6 +65,10 @@ A restoration is a **Project** ([world simulation](world-simulation.md) §7), th
 - **Mixed:** both can run on one Project: a nation funds it, a player's group does the hard part.
 - **AI:** pops and AI governments do not start the hard restorations on their own (Decided); they do ordinary repairs and maintenance.
 
+### 5.2 Groups that change (Proposal, built in spec 28)
+
+Generated cohorts never change (their aggregate events use the permutation rank). Anything whose members come and go is a **roster**, an explicit list of ids that is the ledger's owner of the relationship ("works here", "lives here", "holds this office"). An aggregate event on a roster picks its members once and stores them, so Macro's count and every pop's own answer are the same list. See [spec 28](../tier0/specs/28-pop-levels.md) rule 11.
+
 ## 6. Invariants and tests (to write when specified)
 
 - Total people, jobs, money and stock are equal before and after promotion, demotion and jump (agreement A1).

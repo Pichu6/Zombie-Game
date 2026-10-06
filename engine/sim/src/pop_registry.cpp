@@ -8,7 +8,7 @@
 namespace zs {
 
 namespace {
-constexpr std::uint64_t kSaveMagic = 0x504f5052454731ull;  // "POPREG1"
+constexpr std::uint64_t kSaveMagic = 0x504f5052454732ull;  // "POPREG2"
 constexpr std::uint64_t kDrawStartAge = 10;                // the `b` key of Purpose::PopLife
 }  // namespace
 
@@ -171,6 +171,10 @@ bool PopRegistry::snapshot(PopId id, double year, PopSnapshot& out) const {
         if (rank >= r.begin && rank < r.end) { out.state_bits |= 1u << k; break; }
     }
   }
+  if (const auto in = rosters_of_.find(id); in != rosters_of_.end())
+    for (std::uint64_t rid : in->second)
+      for (int k = 0; k < static_cast<int>(EffectKind::kCount); ++k)
+        if (rosters_.at(rid).in_state(id, static_cast<EffectKind>(k), year)) out.roster_bits |= 1u << k;
   const std::vector<PopException>* ex = nullptr;
   if (const auto it = records_.find(id); it != records_.end()) {
     out.level = Level::Record;
@@ -184,6 +188,47 @@ bool PopRegistry::snapshot(PopId id, double year, PopSnapshot& out) const {
     for (const PopException& e : *ex)
       if (e.field == ExceptionField::DeathYear) out.base.death_year = e.value;
   return true;
+}
+
+bool PopRegistry::add_roster(std::uint64_t id, std::uint32_t region) {
+  if (rosters_.count(id)) return false;
+  rosters_[id] = Roster(id, region);
+  return true;
+}
+
+const Roster* PopRegistry::roster(std::uint64_t id) const {
+  const auto it = rosters_.find(id);
+  return it == rosters_.end() ? nullptr : &it->second;
+}
+
+bool PopRegistry::roster_join(std::uint64_t id, PopId pop, double year) {
+  const auto it = rosters_.find(id);
+  if (it == rosters_.end() || !exists(pop) || !it->second.join(pop, year)) return false;
+  auto& list = rosters_of_[pop];
+  if (std::find(list.begin(), list.end(), id) == list.end()) list.push_back(id);
+  return true;
+}
+
+bool PopRegistry::roster_leave(std::uint64_t id, PopId pop, double year) {
+  const auto it = rosters_.find(id);
+  return it != rosters_.end() && it->second.leave(pop, year);
+}
+
+bool PopRegistry::roster_apply(std::uint64_t id, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason) {
+  const auto it = rosters_.find(id);
+  return it != rosters_.end() && it->second.apply(seed_, kind, delta, year, reason);
+}
+
+std::uint64_t PopRegistry::roster_count(std::uint64_t id, EffectKind kind, double year) const {
+  const auto it = rosters_.find(id);
+  return it == rosters_.end() ? 0 : it->second.count(kind, year);
+}
+
+std::uint64_t PopRegistry::roster_count_region(std::uint32_t region, EffectKind kind, double year) const {
+  std::uint64_t n = 0;
+  for (const auto& [id, r] : rosters_)
+    if (r.region() == region) n += r.count(kind, year);
+  return n;
 }
 
 DemographyCounts PopRegistry::project_demography(double from, double to, const Fertility& f) const {
@@ -270,6 +315,8 @@ std::vector<std::uint8_t> PopRegistry::save() const {
   for (const auto& [id, r] : records_) { w.u64(id); w.u32(r.office); w.boolean(r.followed); put_exceptions(r.exceptions); }
   w.u64(kept_.size());
   for (const auto& [id, list] : kept_) { w.u64(id); put_exceptions(list); }
+  w.u64(rosters_.size());
+  for (const auto& [id, r] : rosters_) r.save(w);
   return w.bytes();
 }
 
@@ -278,7 +325,7 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
   if (r.u64() != kSaveMagic) throw std::runtime_error("not a pop registry save");
   if (r.u64() != seed_) throw std::runtime_error("pop registry save is from another world seed");
   cohorts_.clear(); by_slot_.clear(); log_.clear(); records_.clear(); kept_.clear();
-  by_cohort_kind_.clear(); by_region_.clear();
+  by_cohort_kind_.clear(); by_region_.clear(); rosters_.clear(); rosters_of_.clear();
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
     Cohort c;
     c.id = r.u64(); c.region = r.u32(); c.first_slot = r.u32(); c.size = r.u64();
@@ -306,6 +353,13 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
     const PopId id = r.u64();
     kept_[id] = get_exceptions();
+  }
+  for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
+    Roster ro;
+    ro.load(r);
+    const std::uint64_t rid = ro.id();
+    for (PopId pop : ro.ever_members()) rosters_of_[pop].push_back(rid);
+    rosters_[rid] = std::move(ro);
   }
   if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
 }

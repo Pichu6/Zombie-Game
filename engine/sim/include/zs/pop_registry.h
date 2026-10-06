@@ -8,11 +8,9 @@
 
 #include "zs/demography.h"
 #include "zs/pop.h"
+#include "zs/roster.h"
 
 namespace zs {
-
-// What an aggregate event can put members into. Append only: the bit index is saved.
-enum class EffectKind : std::uint8_t { LaidOff = 0, Moved = 1, Ill = 2, kCount = 3 };
 
 enum class Level : std::uint8_t { Lazy = 0, Record = 1 };  // Embodied comes with the body (stage 3 code)
 
@@ -43,7 +41,8 @@ struct PopException {
 
 struct PopSnapshot {
   PopBase base;
-  std::uint32_t state_bits = 0;  // bit k set: in EffectKind k at the asked year
+  std::uint32_t state_bits = 0;   // bit k set: in EffectKind k at the asked year, through its generated cohort
+  std::uint32_t roster_bits = 0;  // the same, through any roster it belongs to at that year
   Level level = Level::Lazy;
   std::uint32_t office = 0;      // 0 = none
   bool followed = false;
@@ -84,6 +83,16 @@ class PopRegistry {
   bool set_death_year(PopId id, double year);       // an exception; works at either level
   PopCounts counts() const;
 
+  // Rosters: explicit groups whose members change (a workplace, a household, an office). A pop in a
+  // roster is a listed id, not a record; it is promoted only when touched on its own.
+  bool add_roster(std::uint64_t id, std::uint32_t region);
+  const Roster* roster(std::uint64_t id) const;
+  bool roster_join(std::uint64_t roster, PopId pop, double year);
+  bool roster_leave(std::uint64_t roster, PopId pop, double year);
+  bool roster_apply(std::uint64_t roster, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason);
+  std::uint64_t roster_count(std::uint64_t roster, EffectKind kind, double year) const;
+  std::uint64_t roster_count_region(std::uint32_t region, EffectKind kind, double year) const;
+
   // The jump: births, deaths and who is alive over (from, to] for every founder in every cohort and
   // their descendants, applying death-year exceptions. Pure; cost grows with everyone ever in the trees.
   DemographyCounts project_demography(double from, double to, const Fertility& f = {}) const;
@@ -118,6 +127,8 @@ class PopRegistry {
   std::map<std::uint32_t, std::vector<std::uint64_t>> by_region_;
   std::map<PopId, Record> records_;                    // pinned pops
   std::map<PopId, std::vector<PopException>> kept_;    // exceptions of lazy pops
+  std::map<std::uint64_t, Roster> rosters_;
+  std::map<PopId, std::vector<std::uint64_t>> rosters_of_;  // derived from the rosters; rebuilt on load
 };
 
 }  // namespace zs

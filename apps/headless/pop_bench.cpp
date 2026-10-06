@@ -108,6 +108,34 @@ void b4_long_step(std::uint64_t founders, double years) {
   std::puts("");
 }
 
+// B7: rosters (workplaces and households that change): hires, events and lookups.
+void b7_rosters(std::uint64_t pops, std::uint64_t roster_size) {
+  zs::PopRegistry reg = make_registry(pops, 0);
+  const std::uint64_t rosters = pops / roster_size;
+  auto t0 = Clock::now();
+  for (std::uint64_t r = 0; r < rosters; ++r) {
+    reg.add_roster(r + 1, static_cast<std::uint32_t>(r % 64));
+    for (std::uint64_t i = 0; i < roster_size; ++i) reg.roster_join(r + 1, r * roster_size + i, 0.0);
+  }
+  const double join_us = seconds_since(t0) * 1e6 / static_cast<double>(pops);
+  t0 = Clock::now();
+  const std::uint64_t events = rosters;  // one layoff of 10% in every roster
+  std::uint64_t hit = 0;
+  for (std::uint64_t r = 0; r < events; ++r) hit += reg.roster_apply(r + 1, zs::EffectKind::LaidOff, static_cast<std::int64_t>(roster_size / 10), 1.0, r + 1) ? 1 : 0;
+  const double event_ms = seconds_since(t0) * 1e3 / static_cast<double>(events);
+  zs::PopSnapshot snap;
+  std::uint64_t sink = 0;
+  t0 = Clock::now();
+  for (std::uint64_t i = 0; i < 20000; ++i) { reg.snapshot(random_pop(3, i, pops), 2.0, snap); sink += snap.roster_bits; }
+  const double snap_us = seconds_since(t0) * 1e6 / 20000.0;
+  t0 = Clock::now();
+  for (std::uint64_t i = 0; i < 1000; ++i) sink += reg.roster_count_region(static_cast<std::uint32_t>(i % 64), zs::EffectKind::LaidOff, 2.0);
+  const double count_us = seconds_since(t0) * 1e6 / 1000.0;
+  std::printf("B7 %8llu pops in rosters of %5llu: join %.2f us each, one 10%% layoff %8.3f ms (%llu done), snapshot %.2f us, region count %.1f us%s\n",
+              static_cast<unsigned long long>(pops), static_cast<unsigned long long>(roster_size), join_us, event_ms,
+              static_cast<unsigned long long>(hit), snap_us, count_us, sink == 1 ? " " : "");
+}
+
 }  // namespace
 
 int pop_bench() {
@@ -118,6 +146,7 @@ int pop_bench() {
   b3_promotion(1000000);
   for (double years : {10.0, 60.0, 150.0}) b4_long_step(100000, years);
   b4_long_step(1000000, 60.0);
+  for (std::uint64_t size : {100ull, 1000ull, 10000ull}) b7_rosters(200000, size);
   std::puts("B5 embodied: see `zs_headless --bench` (4 pops + 60 walkers for a game day)");
   std::puts("B6 is partial: the realism report against real data is not written yet");
   return 0;
