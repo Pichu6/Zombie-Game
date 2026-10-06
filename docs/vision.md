@@ -6,6 +6,10 @@ Under it runs **one outbreak simulation of the whole world**, real Earth by defa
 
 Labels: **Decided** (the user confirmed it), **Proposal** (not confirmed), **Open** (pending question). Full concept and its history: [concept v2](research/concept-v2.md). Decision records: [0010](decisions/0010-concept-v2.md), [0012](decisions/0012-world-simulation-layers.md). World layer design: [world simulation](design/world-simulation.md).
 
+## Selling point
+
+The depth of the simulation and the mix of gameplays over it: one world you can watch from the globe, run as a city, or live as one person, where every decision reaches every layer. No game has combined these before; it is ambitious on purpose. Decided (2026-10-06).
+
 ## The core choice
 
 One decision repeats every few minutes: **comfort and progress versus being noticed, paid for with fragile bodies.** Run the generator so the fridge stays cold? It makes 70 dB and the block's dead will come. Light the workshop so the repair goes faster? The window leaks light into the street. Hammer barricades now, loudly, or quietly at dawn? (Proposal)
