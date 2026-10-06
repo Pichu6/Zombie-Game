@@ -2,6 +2,8 @@
 
 A pop is the same person whether you see a count in Macro, a marker in City or a body in Individual. This doc says how, and how loss and gain travel between layers. It extends [world simulation](world-simulation.md) §3 and §8, [27 · detail levels](../tier0/specs/27-detail-levels.md) (places) and [inhabitants](inhabitants.md). Decided intent: [0025](../decisions/0025-leader-records-foxhole-tech-readout.md), [0026](../decisions/0026-pop-continuity-and-capability-loss.md). The model is a **Proposal**; none of it is built. Needed before any nation or office code ([sandbox parameters](sandbox-parameters.md) §5, §7).
 
+Spec: [28 · Pop identity and levels](../tier0/specs/28-pop-levels.md) (the technique, rules, tests and the benchmark plan).
+
 ## 1. The rule
 
 **Identity is fixed; detail varies.** A pop has one id for life. What changes between layers is how much of them is stored and simulated, never who they are, what they have done, or what is true about them.
