@@ -305,6 +305,16 @@ PopCounts PopRegistry::counts() const {
   return n;
 }
 
+std::optional<std::string> PopRegistry::audit() const {
+  const PopCounts n = counts();
+  if (n.records + n.lazy != n.total) return "pop counts do not add up";
+  for (const auto& [id, r] : records_)
+    if (!exists(id)) return "a record is not a pop";
+  for (const auto& [id, list] : kept_)
+    if (records_.count(id)) return "a pop is both a record and a kept lazy pop";
+  return std::nullopt;
+}
+
 std::vector<std::uint8_t> PopRegistry::save() const {
   ArchiveWriter w;
   w.u64(kSaveMagic);

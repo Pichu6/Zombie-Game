@@ -118,6 +118,17 @@ Code: `engine/sim/include/zs/roster.h`, `src/roster.cpp`, hooks in `pop_registry
 - **Cost (release build, one thread):** joining 0.4 µs; a 10% layoff on a roster of 100 is 7 µs, of 1,000 is 70 µs, of 10,000 is 1 ms (about 70 ns per member); a pop snapshot 3–4 µs; a region count 60–90 µs at 200,000 pops. Event cost grows with roster size, so rosters stay workplace-sized.
 - **Known costs to fix later:** a snapshot and a count scan a roster's hit list (an index from pop to hit would make it O(1)); `members()` walks the whole stint map; one stint list per pop makes a roster larger than about 100,000 slow. None matters at workplace sizes.
 
+## In the world (2026-10-06)
+
+Code: `engine/sim/include/zs/pop_system.h`, `src/pop_system.cpp`, tests in `tests/test_pop_system.cpp`. Implemented, not Validated.
+
+- **A world system.** `PopSystem` owns a `PopRegistry` (seeded from the world's seed) and is saved, loaded and hashed with the world, so replay, save and the state hash cover it. Setup access is allowed only while the world's setup is open; after `close_setup` pops change only by command.
+- **Commands** (types 0x1001 and up, so they never meet other systems' numbers): promote a pop, set an office, set followed, roster join, roster leave, roster event, cohort event. The **reason** stored on every effect is the Intent event of the command that caused it, so "why" chains back to the order ([macro layer](../../design/macro-layer.md) §5). A refused command (more members than exist, not a pop, no such group) changes nothing and logs `PopCommandRefused`; an accepted effect logs `PopEffect`.
+- **Time:** game years are calendar days / 365 (the sim has no leap days).
+- **Audit:** when the world checks every tick, the registry checks its own counts and records each tick (throws like a ledger violation).
+- **Not in the ledger, on purpose.** The ledger holds conserved things moved by actions and only mints at setup. A lazy population cannot be transfers every tick, and by rule 4 counts are sums, not stored numbers. The conservation of people is the identity *alive at end = alive at start + births - deaths*, tested in the jump (P5). The Tier 0 census keeps its own `people` ledger resource for its 60 neighbours.
+- **Tests (A1):** save, load, save gives identical bytes and the world hash includes the registry; replaying the input log reproduces the hash after five game days; a load into a continuing world matches never having stopped; effects carry their cause and refusals change nothing; setup is closed afterwards; the audit stays clean; years and commands land correctly. GCC and Clang agree on all 149 tests.
+
 ## Built to be changed (2026-10-06)
 
 We expect to come back and change much of this, so the foundations are arranged to make change safe:

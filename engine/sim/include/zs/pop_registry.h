@@ -4,6 +4,8 @@
 #pragma once
 #include <cstdint>
 #include <map>
+#include <optional>
+#include <string>
 #include <vector>
 
 #include "zs/archive.h"
@@ -100,6 +102,9 @@ class PopRegistry {
   // The jump: births, deaths and who is alive over (from, to] for every founder in every cohort and
   // their descendants, applying death-year exceptions. Pure; cost grows with everyone ever in the trees.
   DemographyCounts project_demography(double from, double to) const;
+
+  // Cheap internal checks; returns a description of the first problem (counts add up, every record is a pop).
+  std::optional<std::string> audit() const;
 
   std::vector<std::uint8_t> save() const;
   void load(const std::vector<std::uint8_t>& bytes);  // into a registry made with the same seed
