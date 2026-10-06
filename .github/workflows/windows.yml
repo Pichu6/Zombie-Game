@@ -11,9 +11,9 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Configure
-        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DZS_BUILD_SANDBOX=ON
+        run: cmake -S . -B build -A x64 -DZS_BUILD_SANDBOX=ON
       - name: Build
         run: cmake --build build --config Release --parallel
       - name: Simulation tests (golden hashes must match Linux)
@@ -28,7 +28,7 @@ jobs:
           Copy-Item build\apps\headless\Release\zs_headless.exe pkg\
           Copy-Item -Recurse data pkg\data
           Set-Content pkg\README.txt "Double-click zs_sandbox.exe. Keys: WASD move, right click actions, Space pause, 1-6 speed, F5 save, F9 load. zs_sandbox.exe --seed N picks another run."
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: juego-zombie-windows
           path: pkg
