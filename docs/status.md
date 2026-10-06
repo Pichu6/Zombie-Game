@@ -16,7 +16,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 | --- | --- | --- |
 | Tier 0 stages 1-4 | foundations, things and places, the body, actions and items | `--map`, `--body-lab`, `--bench`, `--scripted-pop` |
 | Tier 0 stages 6-9 | power, noise, light; the dead; the group; the 14-day run | `--stage6`, `--stage7`, `--group`, `--run` |
-| Content tools | seeded names, pops and towns, six culture packs | `zs_gen town` |
+| Content tools | seeded names, pops and towns, six culture packs, lifepath backgrounds built from places that exist in the town (`data/gen/lifepath.toml`) | `zs_gen town` |
 | Pop levels ([spec 28](tier0/specs/28-pop-levels.md)) | one pop at every layer: ids, random-access lives, births, cohorts and rosters, region-wide events, versioned saves, a world system with commands | `--pop-bench`, `--town` |
 | Nation demographics ([0034](decisions/0034-nation-demographics.md)) | a country's own age, education, work, households as data (placeholder profile only) | `data/setup/nations/` |
 
