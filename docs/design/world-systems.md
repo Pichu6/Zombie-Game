@@ -2,7 +2,7 @@
 
 Everything a generated world is made of, how the parts depend on each other, in what order a starting world is built so that **everything placed follows logic**, how factions hold and change territory, and how a decision at state level reaches pops and buildings and comes back as the state's capability. This is the map; each system gets its own spec before its code ([CLAUDE.md](../../CLAUDE.md)).
 
-Intent **Decided** ([0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md), [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md), [0018](../decisions/0018-sandbox-answers.md)): nations exist when a world starts, placed in logical places, with their cities, sizes, supply chains and grids; the user sets the starting parameters; factions hold areas of control and can expand, shrink, be subjugated or conquer; the loop runs macro → micro → macro, state → pop → state; the simulation must cover economy, flora, fauna, resources, processing, building and the rest. The model below is a **Proposal**. Quantitative laws: [world numbers](world-numbers.md). Research for the new systems is being written to `docs/research/world-systems-*.md` (economy, ecology, resources and networks, factions); until it is in, every number for those systems is open.
+Intent **Decided** ([0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md), [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md), [0018](../decisions/0018-sandbox-answers.md)): nations exist when a world starts, placed in logical places, with their cities, sizes, supply chains and grids; the user sets the starting parameters; factions hold areas of control and can expand, shrink, be subjugated or conquer; the loop runs macro → micro → macro, state → pop → state; the simulation must cover economy, flora, fauna, resources, processing, building and the rest. The model below is a **Proposal**. Quantitative laws: [world numbers](world-numbers.md). Research for the new systems is in `docs/research/world-systems-*.md` ([economy](../research/world-systems-economy.md), [ecology](../research/world-systems-ecology.md), [resources and networks](../research/world-systems-resources-networks.md), [factions](../research/world-systems-factions.md)); section 10 summarises it, section 11 lists the licences. **Evidence caveat as in [world numbers](world-numbers.md):** every number is a second-hand search summary (the data sites could not be opened), several are low confidence, and parameters marked *design* are ours and unsourced.
 
 ## 1. The contract that makes it logical
 
@@ -89,7 +89,7 @@ A **faction** is a state actor ([macro layer](macro-layer.md) §7) that holds pr
 - **Shrinking:** loss in war, secession when legitimacy falls or reach is exceeded, collapse to a lower tier ([world numbers](world-numbers.md) §4.1), always with the same pops and buildings.
 - **AI factions use the same actions as the player** (parity, [vision](../vision.md)): orders, edicts, projects, treaties; the AI only chooses.
 
-Rules, rates and costs for subjection, conquest and integration wait for the faction research note; none is decided here.
+Rules, rates and costs for subjection, conquest and integration are Proposals in section 10.4; none is decided here.
 
 ## 6. State → pop → state, system by system
 
@@ -145,3 +145,78 @@ A first playable slice for the loop: a **single continent of about a dozen provi
 4. **Unequal development at start.** Real nations differ widely. Recommendation: yes, development (hence yield, tax ceiling, transport cost) varies by faction as the capabilities its provinces actually hold.
 5. **Hand-editing the map** before the run (section 7). Recommendation: yes, with a re-audit and a tag on the save.
 6. **Research honesty.** The existing notes are second-hand search summaries; the new ones will be too. A real data pipeline ([world numbers](world-numbers.md) §10) is the way to firm numbers up.
+
+## 10. Laws and anchors for the new systems
+
+Each is a **Proposal** with a realistic band and a wider sandbox band; the research notes hold the full equations, sources and confidence. "Design" means we chose it.
+
+### 10.1 Economy (province level)
+
+| Law | Form | Anchors |
+| --- | --- | --- |
+| Production | `Y = A K^a L^(1−a) × min(1, energy available ÷ needed)`; `A` read from the capabilities the province has | Capital share 0.30–0.45 (textbook band, design here) |
+| Structure | Sector shares move with log income (agriculture falls, industry humps, services rise) | Low income about 59% of jobs and 27% of GDP in agriculture; rich about 75% of jobs in services |
+| Input and output | Leontief closure over six sectors (agriculture, mining and energy, manufacturing, construction, services, government) | Manufacturing about 66% intermediate inputs, whole economy about 45%; other coefficients not found, to come from WIOD or OECD tables |
+| Capital | `K' = (1−d)K + sY`; steady state `K/Y = s/(g+d)` | Investment 25.9% of world GDP; K/Y 3–4; depreciation buildings 1.5–2.3%, machinery 11% |
+| Demand | Food share falls with income, housing flat | Food about 13% of EU budgets against 40–55% in poor countries; housing 24–27% |
+| Prices and shelves | Damped adjustment `p' = p(1 + k·clamp((D−S)/S))` with stocks; a shop is empty when stock plus supply is below demand at the posted price | The equation is design; only the qualitative price-ceiling result is sourced |
+| Trade | Gravity `Y_i Y_j / d^δ`, δ 0.7–1.0, rescaled to an openness target | Openness 25–38% for large economies, 83–400% for small; services about 25% of trade |
+| Process recipes | Inputs, energy and labour per tonne | Steel 10.2 GJ/t (scrap-EAF) to 24.0 (blast furnace); clinker 3.5 GJ/t plus 0.1 MWh/t cement; refinery own use 3–8%; milling 60–100 kWh/t. Labour per tonne not found: derive from labour share of value added |
+| Money | Inflation and credit bands by regime | Credit to GDP 0.2–1.5; inflation 0–4% stable, up to 13.5% (US 1980) |
+
+### 10.2 Flora, fauna, soil and sea
+
+| Law | Form | Anchors |
+| --- | --- | --- |
+| Stocks | Logistic growth with harvest, `dB/dt = rB(1−B/K) − H`, for wood, wild plants, grass | Plantation growth 3–25 m³/ha/yr; fuelwood 0.4 m³ per person a year (Africa 0.67); 7–29 m³ of wood per house |
+| Wood balance | Demand against sustainable supply; stress above 1 drains the stock | Net forest loss about 5 Mha a year |
+| Recovery | Exponential approach, about 29-year time constant | Secondary forest 122 Mg/ha at 20 years; median 66 years to 90% of old-growth biomass |
+| Soil | Fertility regenerates under fallow and is used by crops; erosion by cover | Fallow 7–10 years (about 20 for full recovery); tolerable erosion about 1 t/ha/yr, ploughed fields 10–100 times more; fertiliser feeds 48% of people |
+| Animal density | Damuth, density ∝ body mass^−0.75, scaled to edible production at about 10% per trophic step | 10,000 kg of prey supports about 90 kg of predator; transfer 2–24% |
+| Hunting and fishing | Same logistic; sustainable yield rK/4; warn below 0.3 K; collapse flag at catch under 10% of peak | Fish per person 9.1 kg (1961) to 20.7 kg (2022); 37.7% of stocks overfished; aquaculture 51% of output |
+| Livestock | Animal units from forage; competes with crops | 77% of farmland for 18% of calories; about 6–7 ha per cow on dry range |
+| Pests and blight | A stochastic yield loss | 17–30% of crop yield |
+| Zoonosis | `hazard = base × wild contact × livestock density` | About 60% of new pathogens come from animals |
+| Forage | kcal per hour of hunting or gathering falls as local density falls | About 830 kcal/h hunting, 850–1,200 kcal/h starchy plants |
+
+### 10.3 Resources, processing and networks
+
+| Law | Form | Anchors |
+| --- | --- | --- |
+| Where deposits go | Geological setting decides what a cell can hold: shields (iron, nickel sulphide, gold), arcs and orogens (porphyry copper, gold), sedimentary basins (coal, oil, gas, salt, phosphate), warm wet ultramafic lowland (laterite nickel, bauxite), rivers and coasts (placers), recharge gravels (aquifers) | Banded iron on shields over 60% of iron reserves; about 70% of nickel is laterite; under 40 supergiant oil fields, two thirds in one basin. The table is a generator rule; only some associations are sourced |
+| Deposit size and grade | Lognormal tonnage and grade, Pareto tail for fluids | Porphyry copper median 250 Mt at 0.39% copper; spreads not found (design 1.0–1.8) |
+| Reserves | Deposits whose cost per tonne of metal is under the price; ore per tonne of metal = 100/grade %; the cutoff grade falls with price and technology (Lasky) | Copper cutoff about 0.20–0.25% |
+| Processing | Energy and inputs per tonne (above); plants sited by input: smelting near cheap firm power, cement near limestone, steel near coal, iron and a port, concentrators near the mine | Aluminium 13–15 MWh/t; alumina about 10 GJ/t; 2–2.5 t bauxite per t alumina |
+| Power | Demand from income; capacity from `energy ÷ (8760 × capacity factor)`; mix by what exists (hydro head and flow, basin fuel, wind and sun cells, nuclear only with capability); plants sized from real distributions; transmission as a minimum spanning tree plus loops, distribution as radial trees | World grid loss 8.3% (range 2–19%); capacity factors solar 12–25%, nuclear about 74%; mean plant sizes coal 380 MW, gas combined cycle 500–820 MW, nuclear about 900 MW; high-income electricity use 67 times low |
+| Water | Demand `pop × per-capita × (1 + non-revenue water)`; intake, treatment, storage, mains tree with loops only in the core | Non-revenue water 30–35% (10–60%); safely managed water 74% globally (2024) |
+| Transport | Paved road per capita by income, capped by area; rail only where freight or density justify it; spanning tree plus loops until detour ratio is low, then hubs | Paved road per million people 170 / 1,660 / 10,110 km (low, middle, high income); rail density 0.02–0.07 km per km² |
+| Telecom and pipelines | Tower spacing from density; a pipeline from field to nearest refinery, port or load by minimum cost | Radius 1–2 km urban to 10–32 km sparse; pipeline rule is design |
+
+Every placement keeps a reason string ("aluminium smelter beside the cheapest firm power"), as the pipeline requires.
+
+### 10.4 Factions, subjects and conquest
+
+| Law | Form | Anchors |
+| --- | --- | --- |
+| Control unit | A province holds pops, buildings and resources with owner, controller, claimants and integration in 0–1; faction totals are sums weighted by integration and control | Victoria 3 states and Crusader Kings 3 counties; CK3 loses 1% tax and 0.5% levy per missing point of control |
+| Reach | Projected power decays with distance from the supplied base, `exp(−d/L)`; roads, rail and ships raise `L` | Decay length not found: set so a pre-industrial state projects half power at 1–2 weeks of march |
+| Battle | Strength `N × quality`; effective ratio with terrain, fortification, supply, morale; losses between linear and square law (exponent about 1.5, design); a side breaks on morale or cut supply before annihilation | History fits neither law well; terrain examples from Hearts of Iron |
+| Siege | The shorter of starvation and assault; a relieving army becomes a battle | Most strongholds that fell did so within about two weeks |
+| War score | Value of enemy provinces occupied plus battle wins; exhaustion rises until a side accepts peace | Constants not found |
+| Occupation | Resistance falls and compliance grows with time; yield `base × compliance`; garrison drains the occupier's own manpower; integration 5–30 years for taxes and levies, 100–150 years culturally | Gaul about 100–150 years (low confidence); a failure case if locals are excluded (Dacia) |
+| Subject contract | One structure: tribute share, levy share, autonomy, protection; presets tributary, vassal, puppet, protectorate | CK3 levy shares 16.6 / 25 / 33.3 / 50%; Stellaris tributaries at least 30%; Ming tribute a net transfer to the subject. Real revenue shares mostly not found: game numbers only |
+| Loyalty | Liberty desire from ethnic distance, burdens, protection and overlord strength sets the yearly chance of rebellion; absorb when indirect rule costs more than direct | Assyria annexed vassals into provinces (743–732 BC) |
+| Expansion | Settle when local pops exceed capacity and a neighbour has room; conquer when value over cost beats a threshold; bounded land raises the cost of leaving | Carneiro |
+| Secession and collapse | Yearly chance rises with unrest, falls with control and garrison; collapse when pay cannot be met or legitimacy is low | Empire lifetime about 215 years (a newspaper summary of Turchin); Europe about 500 states (1500) to 25–30 (1900); half of the 1816 states gone; civil wars start about 2.3 a year since 1945 |
+| Diplomacy | Balance the strongest neighbouring threat; opinion as dated modifiers with decay; no abstract diplomacy currency | Walt's balance of threat |
+
+War resolution stays secondary ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)), but the laws above price it in pops, wages and revenue.
+
+## 11. Data licences for these systems
+
+Reported, from search summaries; confirm on each publisher's page before shipping any table.
+
+- **Usable (public domain or CC BY):** USGS (public domain), Natural Earth (public domain), Global Power Plant Database (CC BY), FAOSTAT (CC BY 4.0), TRY plant traits (CC BY 4.0), GBIF (filter to CC0 or CC BY), World Bank, Penn World Table, WIOD, OECD (content from July 2024) and EU KLEMS (all reported CC BY 4.0).
+- **Not usable:** Seshat (CC BY-NC-SA), Sea Around Us (CC BY-NC-SA, use FAO capture data instead), Correlates of War (custom terms), Fragile States Index (CC BY-NC-SA).
+- **Needs a decision:** OpenStreetMap (ODbL, share-alike; the repo already restricts it to the home region as a separate database, [world simulation](world-simulation.md) §3).
+- **Unchecked or restricted:** IEA, Energy Institute, worldsteel, Eurostat, HYDE's licence (reported CC BY 4.0, not confirmed in the factions note).
