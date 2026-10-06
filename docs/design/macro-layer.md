@@ -133,10 +133,23 @@ Each country is a record of numbers; the validator gives each a realistic, sandb
 | State capacity (how well orders are carried out) and public trust | Response lag and compliance. |
 | Infrastructure (roads, grid, phones) | Travel, backup clocks, how far orders reach. |
 | Borders and transport (airports, ports, roads to neighbours) | Spread routes and what a border closure can stop. |
-| Cultures and their shares | The people the census generates. |
+| Cultures, languages, religions, ancestry and values with their shares | The people the census generates, and what children start with (§6.5). |
 | AI priorities | What this government tends to choose: protect the economy, protect lives, protect the regime, help neighbours. |
 
 On real Earth, country numbers start from public data (population, health capacity, infrastructure) and editing them is a sandbox change, tagged as such ([0014](../decisions/0014-open-questions-answered.md) §9).
+
+### 6.5 Creating a country, and how pops inherit (Intent Decided, [0024](../decisions/0024-country-creation-inheritance.md); model Proposal)
+
+Research: `research/global-sim/loop/28-country-creation-inheritance.md`.
+
+- **Screen, in Stellaris order:** People → Values → Government → Economy → Services → Security → Origin → Name and flag. Every field fills from real Earth data, can be edited, randomised or saved as a preset. No point budgets and no trait bonuses.
+- **People:** population, age structure, urbanisation; cultures and languages with shares; religions with shares and devotion; ancestry mix (appearance only); education and health.
+- **Values:** four opposed axes as Stellaris ethics, but as a spread across the population, not one stance, drifting with events (war pulls towards militarism); plus trust and individualism vs collectivism.
+- **Down to pops:** country shares split as whole numbers into cells per region, and each region's census slots map to those cells, so the lazy census stays exact.
+- **Inheritance:** a child's body mixes both parents' genes (looks, height potential, some health risks). Culture, language, religion and political leaning start as the family's beliefs (a mixed family gives a mix), then change at school, between about 15 and 27, and after life events (moving, war, the outbreak). Calibration: in the US, teens match their parents' religion and party roughly 8 times in 10; the party link weakens into the late twenties; immigrant languages mostly fade by the third generation; minorities keep their culture longer when parents work at passing it on (Bisin–Verdier).
+- **New cultures:** a mixed community that lasts for generations can become a new culture record (Crusader Kings 3 hybrid cultures), and the world view shows these shifts as map modes.
+- **No bonuses from ancestry:** differences between pops come only from upbringing, circumstances and their own body.
+- **Where it plugs in:** the culture packs and pop generator in [content tools](content-tools.md) (owned by the content tools thread), the lifepath in [world simulation](world-simulation.md) §3, the pop inspector and the country panel (§3.2).
 
 ### 6.4 Outbreak and cure
 

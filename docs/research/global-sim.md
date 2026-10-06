@@ -31,3 +31,7 @@ Files `loop/22a` (Plague Inc and a virus editor), `22b` (world generation, settl
 ## Sandbox engine vision (2026-10-06)
 
 `loop/27`: precedents for one world played in several modes (Dwarf Fortress, Kenshi, Songs of Syx worked; Spore, early No Man's Sky, Star Citizen's scope are the warnings), war as fronts of real census people that zoom into battles, generations at macro speed only, and the growth order now in [vision](../vision.md).
+
+## Country creation and inheritance (2026-10-06)
+
+`loop/28`: Stellaris species and empire creation, Victoria 3, Crusader Kings 3, RimWorld and Dwarf Fortress models; real data on how religion, party, language and mixed identity pass between generations; genes pass only the body.
