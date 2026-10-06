@@ -71,6 +71,8 @@ Everything in §4–§11 is written so it works with the outbreak off. The outbr
 
 ## 4. World parameters
 
+The laws and realistic bands behind these world parameters (capacity, settlement, nations) are in [world numbers](world-numbers.md).
+
 Intent Decided ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)); model [world simulation](world-simulation.md) §12.
 
 | Group | Parameters | Notes |
