@@ -79,7 +79,7 @@ Code: `engine/sim/src/body.cpp`; scenarios: `engine/sim/src/body_lab.cpp` (`zs_h
 - **Exertion.** Drains above half of VO₂max (0.1 per minute at VO₂max), recovers 0.05 per minute below it. The ceiling is glycogen / 45 % of the store, clamped to 0.3–1 ("the wall").
 - **Daily drift.** VO₂max +0.05 with 60 active minutes, +0.05 more with 30 heavy minutes, −0.03 under 20 active minutes. 30 heavy minutes add 0.1 % muscle (from glycogen); a day under 20 active minutes and no heavy work loses 0.1 %.
 - **Death.** Starvation when muscle falls below 60 % of its starting mass.
-- **Mind.** Fear follows 0.6 × pain (τ 30 min); morale follows 0.75 − 0.25 hunger − 0.25 tiredness − 0.2 pain (τ 8 h). Threats, light and company join in stages 7–8.
+- **Mind.** Fear follows 0.6 × pain (τ 30 min); morale follows 0.75 − 0.25 hunger − 0.25 tiredness − 0.2 pain (τ 8 h). Threats join in stage 8: `threat` is set by the senses (held 1, a walker in reach 0.9, a walker seen 0.8 × (1 − d/20 m)) and fear follows max(0.6 × pain, threat), rising with τ 20 s and falling with τ 30 min. Light and company are later.
 
 **Lab results (seed 1, GCC and Clang):** 14-day fast −6.7 kg; 1600 kcal/day with light work −3.6 kg in 14 days; no water reaches 8 % deficit on day 2.8; 40 h awake gives consciousness 0.55; the 110 kg body burns 1.6× the 60 kg body on the same haul and tires sooner; running to exhaustion lasts 0.27× as long after 30 h without food.
 

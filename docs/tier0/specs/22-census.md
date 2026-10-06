@@ -56,4 +56,6 @@ Code: `engine/sim/src/census.cpp`, table `data/tier0/census.toml` (60 people, ma
 - **Bodies** for every walker: NHANES-like height, BMI 27.5 × e^(0.18 z), Deurenberg body fat, VO2max by age and sex.
 - **Arrivals:** attention gains (metres the generator's audible range and lit windows' seen distance reach past the border) / 1000 per hour and halves every 4 h; arrivals per hour = 0.05 + 0.35 × attention, from a random outdoor border cell. A day with the generator brought about twice the arrivals of a quiet one (test, 6 seeds).
 
-**Known gaps:** survivor slots have no bodies yet (stage 9); arrivals carry body only, no clothes or items; names show in the event log, not up close in a view yet.
+- **Survivors (stage 8):** in a group run the survivor slots are embodied at setup next to the player (`Census::embody`), census fate alive in the group; names are unique within the table.
+
+**Known gaps:** survivor slots outside a group run have no bodies yet (stage 9); arrivals carry body only, no clothes or items; names show in the event log, not up close in a view yet.

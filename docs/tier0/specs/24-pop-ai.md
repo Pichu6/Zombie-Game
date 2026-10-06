@@ -1,6 +1,6 @@
 # 24 · Pop AI
 
-**Status:** Proposal. **Stage:** 8. **Needs:** [11](11-body-composition.md), [14](14-action-executor.md), [15](15-items-recipes.md), [17](17-power-network.md)–[19](19-light-field.md), [21](21-infection.md)–[23](23-walker-brain.md).
+**Status:** Implemented (stage 8, headless; numbers are Proposal). **Stage:** 8. **Needs:** [11](11-body-composition.md), [14](14-action-executor.md), [15](15-items-recipes.md), [17](17-power-network.md)–[19](19-light-field.md), [21](21-infection.md)–[23](23-walker-brain.md).
 
 ## Purpose
 
@@ -44,3 +44,19 @@ No real source for utility weights; tuned so the AI is average and cautious. Fea
 ## Not in Tier 0
 
 Relationships, trust, complaints, learning, dialogue, bandits, belief stores.
+
+## Model as implemented (stage 8)
+
+Code: `engine/sim/src/pop_ai.cpp` (`PopAI`, a saved System updated after Bodies), `zs_headless --group [--seed N] [--days D] [--trace F] [--seeds N]`.
+
+- **Decision step** every 5 s per pop not possessed. Wants in rank order: fight or flee (0); put down the group's dead, treat a wound (1); drink at thirst 0.4 (2); eat at hunger 0.5 (3); sleep at tiredness 0.75 by day, 0.35 at night, upstairs if there is one (4); the order (5); pick up a weapon lying about (6); jobs by priority 1-3 (7); idle (9). A more urgent want cancels the current plan. A want that cannot be planned waits 5 game minutes. Each want becomes a short plan of process steps sent through `World::queue_intent`.
+- **Fight or flee:** fear ≥ 0.7 (brave 0.9) panics: drop everything and run to the safest reachable room (one `Panicked` per scare), unless armed and already in reach. A walker in reach: strike if armed (weapon score ≥ 0.3), else flee. Armed and not afraid: step up to a walker within 4 m indoors. Unarmed: back off from one within 8 m. An armed pop that is not panicking answers a struggle within 15 m on its level (a walker in reach of another pop).
+- **Put down the dead:** an armed pop strikes the head of a dead group member until its brain is destroyed, so the infected do not rise inside the house. One pop per corpse.
+- **Jobs:** refuel keeps the generator going from 08:00 to 18:00 (switch the panel, refuel below 0.3 of the tank, start it) and stops it at night, when its noise carries farthest; barricade boards the nearest unboarded window on its level (one pop per window); guard shouts the sleepers awake when walkers are in sight. One pop per job target.
+- **Refusals** (rule 4) are checked for orders and for job and order steps, never for fight, flee, treat, needs or idle: open ground with walkers in sight when leaving the indoors; a dark room (< 1 lux) it is not already in. An insisted order goes through below fear 0.5. Refused orders log `PopRefused` with the reason.
+- **Traits:** brave with p 0.3, honest with p 0.7, drawn per body. Honest pops log `BiteReported` once; secretive ones never do.
+- **Possession:** the possessed pop gets no AI steps; on release the AI decides again with the same mind, body and job board.
+
+**AI-only run (A3, 4 pops, 14 days, 50 seeds):** 37 of 200 alive at the end; someone alive in 18 of 50 runs. Causes: 124 infection from a bite, 39 bled out. Most bites happen in close fights at windows and doors; infection then kills over 1-2 days.
+
+**Known gaps:** haul, cook and repair have no processes in Tier 0; the live-circuit refusal has no process that touches wiring; no command view until stage 5 (orders and the job board are API calls); walkers use their own mover, so pops do not body-block them; no first aid knowledge or skills; the AI does not isolate the bitten or show mercy; fights are always melee (no cover, no shove).

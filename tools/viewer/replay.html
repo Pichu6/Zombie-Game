@@ -61,6 +61,7 @@ canvas#map { width: 100%; height: auto; display: block; border-radius: 4px; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
 aside { display: grid; gap: 10px; min-width: 0; }
 .card { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: grid; gap: 6px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
 .card h2 { font: 600 13px var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0; }
 .clock { font: 700 34px/1 var(--f-display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 .doing { font-weight: 600; }
@@ -141,6 +142,10 @@ details ol { margin: 8px 0 2px; padding-left: 20px; display: grid; gap: 6px; max
         <div class="meter"><div id="fuelbar" style="background:var(--accent)"></div></div>
         <div class="row"><span>Heard from</span><span id="heard"></span></div>
         <div class="row"><span>Background noise</span><span id="bg"></span></div>
+      </div>
+      <div class="card" id="groupcard" hidden>
+        <h2>The group</h2>
+        <div id="grouplist"></div>
       </div>
       <div class="card" id="deadcard" hidden>
         <h2>The dead</h2>
@@ -231,7 +236,8 @@ function legend() {
     ? [["var(--lamp)", "Lamp light"], ["rgb(var(--night))", "Dark"], ["var(--water)", "Window: how far its light shows (dashed)"]]
     : [["var(--wood)", "Wood floor"], ["var(--concrete)", "Concrete"], ["var(--grass)", "Grass"], ["var(--asphalt)", "Street"]];
   $("legend").innerHTML = items.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("") +
-    `<span><i style="background:var(--accent);border-radius:50%"></i>Survivor</span>` +
+    (GROUP ? `<span><i style="background:${popColors[0]};border-radius:50%"></i>Survivors (initials; grey: dead)</span>`
+           : `<span><i style="background:var(--accent);border-radius:50%"></i>Survivor</span>`) +
     (T.dead ? `<span><i style="background:var(--dead);border-radius:50%"></i>Walker (red ring: pushing or attacking)</span><span><i style="background:var(--bad)"></i>Broken in</span>` : "");
 }
 
@@ -241,6 +247,9 @@ function cellPx() { return map.width / W; }
 const floorColor = { ".": "--wood", ",": "--concrete", '"': "--grass", "_": "--asphalt", ":": "--dirt" };
 const glyph = { generator: "G", fridge: "F", lamp: "L", power_panel: "P", hot_plate: "H", radio: "R", saw: "S", stove: "O", sink: "W", pantry: "K", stockpile: "T" };
 
+const GROUP = frames.some((f) => (f[17] || []).length > 1);
+const popColors = ["#e8a33d", "#6fb3d9", "#9ccc65", "#d98ac9", "#f0d46a", "#7fd1c0"];
+function initials(name) { return name === "You" ? "Y" : name.split(" ").map((w) => w[0]).join("").slice(0, 2); }
 function draw() {
   const c = cellPx(), li = T.levels.indexOf(level), fi = frameAt(tick), f = frames[fi], fld = fieldAt(tick);
   const night = css("--night"), ink = css("--ink"), wall = css("--wall");
@@ -340,6 +349,24 @@ function draw() {
     g.strokeStyle = mode === 3 || mode === 4 ? css("--bad") : css("--paper"); g.lineWidth = mode === 3 || mode === 4 ? 3 : 1.5;
     g.beginPath(); g.arc((wx + .5) * c, (wy + .5) * c, c * .3, 0, Math.PI * 2); g.fill(); g.stroke();
   }
+  // The group (stage 8): every pop, the player first, glides like the walkers; initials on each.
+  if (GROUP) {
+    const ps = f[17] || [], nps = nf[17] || [];
+    ps.forEach(([z, x, y, doing, name, alive], i) => {
+      if (z !== level || T.labels[doing] === "risen as a walker") return;
+      let qx = x, qy = y;
+      const n = nps[i];
+      if (n && n[0] === z && Math.abs(n[1] - x) + Math.abs(n[2] - y) <= 2) {
+        const a = Math.max(0, Math.min(1, (tick - f[0]) / Math.max(1, nf[0] - f[0])));
+        qx += (n[1] - x) * a; qy += (n[2] - y) * a;
+      }
+      g.fillStyle = alive ? popColors[i % popColors.length] : css("--muted"); g.strokeStyle = css("--paper"); g.lineWidth = 2.5;
+      g.beginPath(); g.arc((qx + .5) * c, (qy + .5) * c, c * .36, 0, Math.PI * 2); g.fill(); g.stroke();
+      g.fillStyle = "#1a1a1a"; g.font = `700 ${Math.round(c * .32)}px ${css("--f-mono") || "monospace"}`;
+      g.fillText(initials(T.labels[name]), (qx + .5) * c, (qy + .54) * c);
+    });
+    return;
+  }
   const popLabel = T.labels[f[4]];
   if (pz === level && popLabel !== "risen as a walker") {
     g.fillStyle = popLabel === "dead" ? css("--muted") : css("--accent"); g.strokeStyle = css("--paper"); g.lineWidth = 2.5;
@@ -378,6 +405,11 @@ function readouts() {
     $("wbash").textContent = n(3);
     $("winv").textContent = n(1);
     $("wpur").textContent = n(2) + n(4);
+  }
+  if (GROUP) {
+    $("grouplist").innerHTML = (f[17] || []).map(([z, x, y, doing, name, alive], i) =>
+      `<div class="row"${alive ? "" : ' style="opacity:.55"'}><span><i class="dot" style="background:${alive ? popColors[i % popColors.length] : "var(--muted)"}"></i>${T.labels[name]}</span>` +
+      `<span>${z !== level && alive ? `(${levelNames[z] || "level " + z}) ` : ""}${T.labels[doing]}</span></div>`).join("");
   }
   for (const b of document.querySelectorAll(".events button")) b.classList.toggle("now", +b.dataset.t <= tick && +b.dataset.next > tick);
 }
@@ -445,6 +477,10 @@ $("subtitle").textContent = T.dead
   ? `Seed ${T.seed}, with the dead. The grid fails, one survivor keeps the generator going and fights off what its noise and light bring in.`
   : `Seed ${T.seed}. The grid fails, one survivor keeps the generator going, and the fridge food spoils once the fuel is gone.`;
 if (T.dead) { $("deadcard").hidden = false; $("howdead").hidden = false; }
+if (GROUP) {
+  $("groupcard").hidden = false;
+  $("subtitle").textContent = `Seed ${T.seed}, stage 8: ${(frames[0][17] || []).length} survivors with nobody in control. Each one's AI picks what to do from its own body (thirst, fear, wounds) and the group's jobs: keep the generator going by day, board windows, keep watch, fight or run, and put down their own dead before they rise.`;
+}
 $("foot").textContent = "Map squares are 1 m. Rings are to scale; beyond the map edge they keep going. Noise and light fields are recorded every game hour.";
 legend();
 // Open on the first night with the generator running, so the first view shows something happening.

@@ -53,7 +53,8 @@ build/release/apps/headless/zs_headless --bench     # stage 3: body cost, 4 pops
 build/release/apps/headless/zs_headless --scripted-pop [--ai]  # stage 4: a pop eats, treats a wound, salvages, barricades
 build/release/apps/headless/zs_headless --stage6 [--seed N]  # stage 6: grid fails, generator, fuel, fridge; night noise and light snapshot
 build/release/apps/headless/zs_headless --stage7 [--seed N]  # stage 7: stage 6 with the dead (census, walkers, bites, turning); runs until the pop rises
-# replay viewer: --stage6 or --stage7 with --trace trace.json, then python3 tools/viewer/embed.py trace.json replay.html (open in a browser)
+build/release/apps/headless/zs_headless --group [--seed N] [--days D] [--seeds N]  # stage 8: 4 AI pops with the dead; --seeds runs a batch and counts causes
+# replay viewer: --stage6, --stage7 or --group with --trace trace.json, then python3 tools/viewer/embed.py trace.json replay.html (open in a browser)
 ```
 
 On Windows, run these from a "x64 Native Tools Command Prompt for VS 2022". Golden hashes in the tests are pinned on Linux; Windows must reproduce them (cross-compiler determinism, [spec 01](docs/tier0/specs/01-quantity.md)).
