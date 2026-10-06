@@ -54,7 +54,7 @@ Code: `Walkers::push_edge` in `engine/sim/src/walkers.cpp`.
 
 - **Load** is the sum of the pushing walkers' body push force (`Bodies::push_force_n`, from mass and strength) on that edge this tick, not mass × g × posture factor; it grows with body size the same way.
 - **Damage:** the first working part in the holder's `failure_chain` (the barricade's chain first, then the edge's own) loses 1e6/60 ppm per second × (load / hold − 0.5)², hold = part `hold_force_n` × (0.5 + Q/100), floor 100 N. A part that stops working emits `PartFailed`; a failed barricade comes off (its boards stay), a failed door or window is breached (`EdgeBreached`, room graph dirty).
-- Measured on the block (test): a door holds one 400 N walker indefinitely, two for ~14 h, four for ~3 min; a bare window gives in seconds, a boarded one lasts ~50× longer.
+- Measured on the block (test): a door holds one 400 N walker for more than 28 h (the test cap), two for ~14 h, four for ~3 min (1 s test steps); a bare window gives in seconds, a boarded one lasts ~50× longer.
 - Pushing is a 75 dB noise source at the edge.
 
-**Known gaps:** pushing noise is a fixed level, not from impulse; no posture factor or decay; hits (as opposed to pushes) on doors are not separate; every push curve constant is an estimate to tune in playtests.
+**Known gaps:** pushing noise is a fixed level, not from impulse; no posture factor or decay; hits (as opposed to pushes) on doors are not separate; every push curve constant is an estimate to tune in playtests; a breach has no cause link to the walkers that pushed (spec 25 chain).

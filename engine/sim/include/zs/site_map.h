@@ -92,6 +92,9 @@ class SiteMap : public System {
 
   // Bumped by every edge change and by load: caches of derived fields key on it.
   std::uint64_t version() const { return version_; }
+  // Something on an edge changed that its kind and flags don't show (planks added or taken off):
+  // caches keyed on version() must recompute.
+  void touch() { ++version_; }
   bool air_passes(const EdgeRef& e) const;   // sound and air pass freely
   bool can_walk(const EdgeRef& e) const;     // a body can cross (closed unlocked doors open on the way)
 

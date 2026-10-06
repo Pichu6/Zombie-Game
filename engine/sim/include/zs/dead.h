@@ -138,6 +138,9 @@ class Walkers : public System {
 
   // Senses, shared rules (specs 18, 19).
   bool line_of_sight(const World& w, const Cell& a, const Cell& b) const;
+  // Arm's reach: the same cell, or the next cell with nothing closed between (no diagonals,
+  // nothing through glass or a shut door). Strikes, grabs and bites all use it.
+  bool in_reach(const Cell& a, const Cell& b) const;
   static double sight_range_m(double lux);
   std::vector<NoiseSource> sources(const World& w) const;  // walkers' own noise (pushing)
 

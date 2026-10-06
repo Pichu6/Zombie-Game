@@ -193,7 +193,7 @@ bool GeneratorScenario::drive(Tier0& t) {
     const Cell me = t.actors->actor(t.player).pos;
     EntityId near = 0;
     for (const auto& [id, z] : t.walkers->walkers())
-      if (t.bodies->get(id).alive && z.pos.z == me.z && std::abs(z.pos.x - me.x) + std::abs(z.pos.y - me.y) <= 1) near = id;
+      if (t.bodies->get(id).alive && t.walkers->in_reach(me, z.pos)) near = id;
     if (near) {
       const Action& act = t.actors->actor(t.player).action;
       const auto strike = t.actors->find_process("strike_walker");

@@ -290,7 +290,31 @@ TEST_CASE("stage 7: the scenario with the dead: save/load keeps the hash; golden
   while (at_mid.drive(u)) u.world->step();
   run_hours(u, 2);
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 4765737013501033562ULL;
+  const std::uint64_t golden = 809371108571599772ULL;
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 7 golden world hash: " << t.world->world_hash());
+}
+
+TEST_CASE("stage 7 review: nothing reaches through a shut door or a wall; a dead pop goes quiet") {
+  Tier0 t = make_world(1, true);
+  t.world->check_every_tick = false;
+  // A closed door between the pop and a walker: every swing misses and no hand gets through.
+  std::optional<EdgeRef> door;
+  for (const auto& [id, ref] : t.actors->edges())
+    if (t.items->def(t.items->get(id).def).family == "door" && !t.map->edge(ref).open) door = ref;
+  REQUIRE(door);
+  const Cell in{door->z, door->x, door->y};
+  const Cell out = door->vertical ? Cell{in.z, in.x - 1, in.y} : Cell{in.z, in.x, in.y - 1};
+  CHECK_FALSE(t.walkers->in_reach(in, out));
+  t.actors->actor(t.player).pos = in;
+  const EntityId walker = off_map(t).front();
+  place(t, walker, out);
+  const EntityId crowbar = item_of(t, "crowbar");
+  for (int i = 0; i < 20; ++i) CHECK_FALSE(t.walkers->strike(*t.world, t.player, walker, crowbar, 0));
+  CHECK(t.bodies->get(walker).wounds.empty());
+  // A corpse makes no noise, whatever it was doing when it died.
+  t.actors->actor(t.player).noise_db = 50;
+  t.bodies->kill(*t.world, t.player, DeathCause::Exsanguination, 0);
+  t.world->step();
+  CHECK(t.actors->actor(t.player).noise_db == 0);
 }

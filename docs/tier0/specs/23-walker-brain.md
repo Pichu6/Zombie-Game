@@ -56,4 +56,4 @@ Code: `engine/sim/src/walkers.cpp` (`think`, `plan_path`, `move`, `attack`).
 - **Moves** at body walk speed × 0.5 (× 1.2 pursuing). Measured: lean 1.37 m/s body speed, fat 1.29, lean with a broken shin 0.57 (test).
 - **Generator test:** 4 night hours with the generator running brought 21 walkers within 12 m of it against 8 without (4 seeds).
 
-**Known gaps:** walkers have their own mover, not the action executor (rule 9 deviation, to merge when the executor grows a "push edge" primitive); no herding (rule 7); feed doesn't guard against other walkers; losing a pursuer by breaking line of sight is untested.
+**Known gaps:** walkers have their own mover, not the action executor (rule 9 deviation, to merge when the executor grows a "push edge" primitive); no herding (rule 7); feed doesn't guard against other walkers; losing a pursuer by breaking line of sight is untested; a pursuer that crosses a broken door drops to investigate speed until it next thinks; walkers in the same cell as a pusher don't hear its push.

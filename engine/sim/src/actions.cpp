@@ -745,6 +745,7 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
       caps.skill = std::max(0, a.skill[static_cast<std::size_t>(Trade::Carpentry)]);
       caps.tool = a.action.tool ? items_.get(a.action.tool).quality : 0;
       items_.get(bar).quality = static_cast<int>(made_quality(parts, caps));
+      map_.touch();  // a plank changes how much the opening holds and muffles
       break;
     }
     case EffectOp::Salvage: {
@@ -752,6 +753,7 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
       const auto slots = d.slots;
       for (std::size_t i = 0; i < slots.size(); ++i)
         items_.unmount(w, target, i, floor_at(a.pos), salvage_loss(slots[i].joint));
+      map_.touch();  // salvaged planks may have been on an opening
       break;
     }
     case EffectOp::Take:
@@ -846,6 +848,9 @@ void Actors::update(World& w) {
     if (!b.alive || b.spec.walker) {  // a pop that rose is driven by the walker brain now
       if (a.action.phase != Phase::Idle) interrupt(w, a, Reason::Dead);
       a.queue.clear();
+      a.noise_db = 0;  // a corpse makes no sound; a risen pop's noise is the walker's own
+      if (body_cell)
+        if (auto c = body_cell(a.body)) a.pos = *c;
       continue;
     }
     if (w.clock.is_body_step()) recompute_carried(w, a);  // catches moves made outside the executor

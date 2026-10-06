@@ -165,6 +165,11 @@ std::vector<NoiseSource> Walkers::sources(const World&) const {
 
 // ---- Brain ---------------------------------------------------------------------------------------------
 
+bool Walkers::in_reach(const Cell& a, const Cell& b) const {
+  if (a == b) return true;
+  return a.z == b.z && std::abs(a.x - b.x) + std::abs(a.y - b.y) == 1 && walker_passes(SiteMap::edge_between(a, b));
+}
+
 bool Walkers::walker_passes(const EdgeRef& e) const {
   const Edge& ed = map_.edge(e);
   if (ed.kind == EdgeKind::None || ed.breached) return true;
@@ -241,7 +246,7 @@ void Walkers::think(World& w, WalkerState& z) {
     z.goal = actors_.actor(seen).pos;
     z.memory_db = kSightStrength;
     z.memory_tick = now;
-    z.mode = seen_d <= 1.0 ? Mode::Attack : Mode::Pursue;
+    z.mode = in_reach(z.pos, z.goal) ? Mode::Attack : Mode::Pursue;
   } else {
     // Hearing (rule 2): the strongest sound above the background replaces a weaker memory.
     const double bg = background_db(power_.mains_alive(), w.clock.hour());
@@ -295,10 +300,7 @@ void Walkers::think(World& w, WalkerState& z) {
   }
   if (z.mode == Mode::Pursue && z.target) {
     // In reach: same cell, or next to it with nothing between.
-    const Cell t = actors_.actor(z.target).pos;
-    if (t == z.pos || (t.z == z.pos.z && std::abs(t.x - z.pos.x) + std::abs(t.y - z.pos.y) == 1 &&
-                       walker_passes(SiteMap::edge_between(z.pos, t))))
-      z.mode = Mode::Attack;
+    if (in_reach(z.pos, actors_.actor(z.target).pos)) z.mode = Mode::Attack;
   }
   if (!(z.goal == old_goal) || (z.path.empty() && !(z.goal == z.pos)) || z.next >= z.path.size()) plan_path(z);
 }
@@ -350,10 +352,7 @@ void Walkers::attack(World& w, WalkerState& z) {
     held_.erase(z.target);
     return;
   }
-  const Cell t = actors_.actor(z.target).pos;
-  const bool reach = t == z.pos || (t.z == z.pos.z && std::abs(t.x - z.pos.x) + std::abs(t.y - z.pos.y) == 1 &&
-                                    walker_passes(SiteMap::edge_between(z.pos, t)));
-  if (!reach) {
+  if (!in_reach(z.pos, actors_.actor(z.target).pos)) {
     if (auto it = held_.find(z.target); it != held_.end() && it->second == z.body) held_.erase(it);
     z.mode = Mode::Pursue;
     return;
@@ -441,7 +440,7 @@ bool Walkers::strike(World& w, EntityId attacker, EntityId target, EntityId tool
   auto it = walkers_.find(target);
   const auto from = actors_.cell_of(w, attacker);
   bool destroyed = false;
-  if (it != walkers_.end() && from && from->z == it->second.pos.z && distance_m(*from, it->second.pos) <= 1.5) {
+  if (it != walkers_.end() && from && in_reach(*from, it->second.pos)) {
     const Body& a = bodies_.get(attacker);
     const double aim = kHeadHitChance * (1 - 0.5 * a.fear) * detmath::sqrt(std::max(0.05, a.exertion));
     Wound wd;
@@ -563,9 +562,11 @@ void Walkers::update(World& w) {
     if (push_edge(w, p.first, p.second, kTickSeconds, 0))
       for (auto& [id, z] : walkers_)
         if (z.pushing && key_of(*z.pushing) == k) z.pushing.reset();
-  // Holds end when the holder is gone or the victim died.
+  // Holds end when the holder is gone or has let go (turned to something else), or the victim died.
   for (auto it = held_.begin(); it != held_.end();) {
-    const bool gone = !walkers_.contains(it->second) || !bodies_.get(it->first).alive;
+    const auto holder = walkers_.find(it->second);
+    const bool gone = holder == walkers_.end() || holder->second.mode != Mode::Attack ||
+                      holder->second.target != it->first || !bodies_.get(it->first).alive;
     it = gone ? held_.erase(it) : std::next(it);
   }
   if (w.clock.is_body_step()) step_turnings(w);
