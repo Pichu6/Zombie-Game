@@ -1,0 +1,79 @@
+# Lifepath rules for pop backgrounds (docs/design/content-tools.md section 4.1).
+# A pop's past is a list of terms (school, study, service, jobs, gaps) built back from who they are
+# today, Traveller style. Every place a term names exists: a business or institution in the town
+# directory, or a real city from a culture pack when they lived elsewhere.
+# Numbers are estimates unless a source is named.
+
+year = 2026                 # the year the run starts (present day, 0011)
+term_years = [2, 9]         # length of one past job term, uniform
+gap_chance = 0.1            # a past term is a spell out of work instead of a job
+same_job = 0.55             # an earlier term keeps the later term's job (careers stick); terms under 3 years teach no skills
+service_share = 0.06        # adults with a military term (US veterans ~6% of adults, VA 2023)
+service_years = [2, 6]
+
+# Events that can happen during a term. chance is per term; kind limits them to "any", "work" or
+# "school" terms; skill is know-how the event leaves (TTRPG style: your past gives you skills).
+[[event]]
+text = "broke an arm"
+chance = 0.03
+kind = "any"
+min_age = 6
+
+[[event]]
+text = "was in a car accident"
+chance = 0.03
+kind = "any"
+min_age = 16
+
+[[event]]
+text = "had surgery"
+chance = 0.03
+kind = "any"
+min_age = 35
+
+[[event]]
+text = "lost a parent"
+chance = 0.05
+kind = "any"
+min_age = 30
+
+[[event]]
+text = "was laid off"
+chance = 0.08
+kind = "work"
+min_age = 18
+
+[[event]]
+text = "learned to hunt"
+chance = 0.03
+kind = "any"
+min_age = 12
+skill = "firearms"
+
+[[event]]
+text = "took a first aid course"
+chance = 0.04
+kind = "any"
+min_age = 16
+skill = "first_aid"
+
+[[event]]
+text = "fixed up an old car"
+chance = 0.03
+kind = "any"
+min_age = 16
+skill = "mechanics"
+
+[[event]]
+text = "played school football"
+chance = 0.06
+kind = "school"
+min_age = 14
+skill = "fitness"
+
+[[event]]
+text = "went camping every summer"
+chance = 0.04
+kind = "school"
+min_age = 8
+skill = "outdoors"

@@ -140,6 +140,24 @@ Catalog load_catalog(const std::string& dir) {
         auto& out = b->culture_forms[std::string(cid.str())];
         for (const auto& e : *list.as_array()) out.push_back(e.value<std::string>().value());
       }
+  const toml::table life = toml::parse_file(dir + "/lifepath.toml");
+  LifepathRules& lr = cat.life;
+  lr.year = life["year"].value_or(2026);
+  const auto term = numbers(life["term_years"], "lifepath.term_years");
+  const auto service = numbers(life["service_years"], "lifepath.service_years");
+  lr.term_min = static_cast<int>(term.at(0));
+  lr.term_max = static_cast<int>(term.at(1));
+  lr.service_min = static_cast<int>(service.at(0));
+  lr.service_max = static_cast<int>(service.at(1));
+  lr.gap_chance = life["gap_chance"].value_or(0.1);
+  lr.same_job = life["same_job"].value_or(0.55);
+  lr.service_share = life["service_share"].value_or(0.0);
+  for (const auto& n : *life["event"].as_array()) {
+    const auto& x = *n.as_table();
+    lr.events.push_back({x["text"].value<std::string>().value(), x["kind"].value_or(std::string("any")),
+                         x["skill"].value_or(std::string{}), x["chance"].value<double>().value(), x["min_age"].value_or(0)});
+  }
+
   for (const Job& j : cat.jobs)
     if (!j.workplace.empty() && !std::any_of(cat.businesses.begin(), cat.businesses.end(), [&](const BusinessType& b) {
           return b.id == j.workplace || b.id.ends_with("_" + j.workplace);

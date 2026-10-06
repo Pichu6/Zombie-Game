@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
       std::cout << "\nBusinesses:\n";
       for (const auto& b : town.businesses) std::cout << "  " << b.type << ": " << b.name << "\n";
       std::cout << "\n" << town.households.size() << " households, " << town.pops.size() << " people\n\n";
-      for (const auto& p : town.pops) std::cout << zs::gen::dossier(town, p);
+      for (const auto& p : town.pops) std::cout << zs::gen::dossier(town, p, cat.life.year);
       return 0;
     }
     if (cmd == "names") {

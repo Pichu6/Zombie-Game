@@ -69,7 +69,7 @@ std::string markov_root(const Culture& c, const Keyed& r, std::uint64_t id) {
       s += ch;
     }
     std::string root = s.substr(2);
-    if (root.size() < 4 || root.size() > 10 || known.count(root)) continue;
+    if (root.size() < 4 || root.size() > 8 || known.count(root)) continue;
     root[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(root[0])));
     return root;
   }

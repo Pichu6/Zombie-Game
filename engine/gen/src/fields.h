@@ -12,6 +12,8 @@ enum : std::uint32_t {
   Skin = 40, Hair = 41, Eyes = 42, Gray = 43, EyesFromParent = 44, Body = 45,
   Work = 50, Job = 51, Education = 52, YearsInJob = 53, PastJob = 54, Workplace = 55, School = 56,
   TownName = 60, Streets = 61, Survivor = 62,
+  LifeCity = 70, LifeTerm = 71, LifeJob = 72, LifeGap = 73, LifeService = 74, LifeEvent = 75, LifeMarried = 76,
+  LifeRetire = 77, LifeEmployer = 78,
 };
 }  // namespace zs::gen::field
 

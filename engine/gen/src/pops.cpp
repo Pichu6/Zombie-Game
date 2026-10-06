@@ -11,6 +11,7 @@
 #include "toml.hpp"
 #include "zs/gen/keyed.h"
 #include "zs/gen/names.h"
+#include "lifepath_text.h"
 
 namespace zs::gen {
 namespace {
@@ -134,7 +135,7 @@ struct Builder {
     p.full_name = full_name(order, shown, p.sex);
   }
 
-  void origin(Pop& p, int household_years, const Pop* parent) {
+  void origin(Pop& p, int household_years, const Pop* parent, const std::string& before_city) {
     const Culture& c = cat.culture(p.culture);
     if (p.born_abroad) {
       p.birth_country = c.country;
@@ -145,9 +146,13 @@ struct Builder {
       p.nationality = citizen ? host->nationality + " (naturalized)" : c.nationality;
     } else {
       p.birth_country = host->country;
-      const bool in_town = p.age <= household_years || r.chance(p.id, field::BornInTown, 0.35);
+      // Born in the town only if they have lived here all their life; children born before the
+      // household moved here were born in the city it came from.
+      const bool in_town = p.age <= household_years;
       const Culture& place_culture = c.country == host->country ? c : *host;
-      p.birthplace = in_town ? town.name : place_culture.places[r.below(p.id, field::Birthplace, place_culture.places.size())];
+      p.birthplace = in_town ? town.name
+                     : p.role == "child" ? before_city
+                                         : place_culture.places[r.below(p.id, field::Birthplace, place_culture.places.size())];
       p.nationality = host->nationality;
     }
     p.years_in_town = std::min(p.age, household_years);
@@ -195,11 +200,13 @@ struct Builder {
     const double u = r.u01(p.id, field::Work, 1);
     if (u < retire) {
       p.occupation = "retired " + job.label;
+      p.last_job_id = job.id;
       p.skills = job.skills;
       return;
     }
     if (u < retire + 0.05) {
       p.occupation = "out of work";
+      p.last_job_id = job.id;
       p.past_job = job.label;
       return;
     }
@@ -258,9 +265,19 @@ struct Builder {
     // Moves: first-generation adults came at some age; the household has lived here for `years`.
     for (Pop& p : people)
       if (p.born_abroad) p.moved_at = r.range(p.id, field::MovedAt, std::min(p.age, 16), std::min(p.age - 1, 45));
+    // An immigrant couple of one culture came together, or the partner followed within a few years.
+    if (couple && people[0].born_abroad && people[1].born_abroad && people[0].culture == people[1].culture) {
+      const int head_years = people[0].age - people[0].moved_at;
+      const int years = head_years - r.range(people[1].id, field::MovedAt, 0, std::min(3, head_years - 1), 1);
+      people[1].moved_at = std::clamp(people[1].age - years, 0, people[1].age - 1);
+    }
     int cap = 40;
     for (const Pop& p : people) cap = std::min(cap, std::max(1, years_cap(p) - (p.moved_at >= 0 ? 0 : 18)));
     hh.years = r.range(hid, field::Years, 1, std::max(1, cap));
+    {
+      const Culture& hc = cat.culture(g.culture).country == host->country ? cat.culture(g.culture) : *host;
+      hh.before_city = hc.places[r.below(hid, field::LifeCity, hc.places.size())];
+    }
 
     // Children and (often) a partner take the family name of the father, or else of the head.
     const bool hetero = couple && people[0].sex != people[1].sex;
@@ -312,7 +329,7 @@ struct Builder {
       }
     }
     for (Pop& p : people) {
-      origin(p, hh.years, p.role == "child" ? &people[0] : nullptr);
+      origin(p, hh.years, p.role == "child" ? &people[0] : nullptr, hh.before_city);
       work(p);
       gray(p);
       p.body_seed = r.bits(p.id, field::Body);
@@ -389,10 +406,11 @@ Town generate_town(const Catalog& cat, const Mix& mix, std::uint64_t seed) {
     size = std::min(size, mix.people - static_cast<int>(b.town.pops.size()));
     b.make_household(h, size);
   }
+  add_lifepaths(cat, b.town);  // last: backgrounds only name what already exists
   return b.town;
 }
 
-std::string dossier(const Town& t, const Pop& p) {
+std::string dossier(const Town& t, const Pop& p, int year) {
   const Household& hh = t.households[static_cast<std::size_t>(p.household)];
   std::ostringstream o;
   o << p.full_name << ", " << p.age << ", " << (p.sex == 'f' ? "female" : "male") << " | " << p.nationality;
@@ -413,6 +431,7 @@ std::string dossier(const Town& t, const Pop& p) {
     for (std::size_t i = 0; i < p.skills.size(); ++i) o << (i ? ", " : "") << p.skills[i];
   }
   o << "\n";
+  if (year > 0) o << timeline(p, year);
   return o.str();
 }
 
