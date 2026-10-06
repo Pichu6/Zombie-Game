@@ -45,7 +45,7 @@ Every system obeys these rules; they are what make "same rules for player and po
 | Record | Anyone the simulation has touched (met, hired, bitten, story tie) | ~64 bytes, up to 0.5–2 KB once they have been near the player |
 | Embodied | People near the player's body | Full body simulation; "hundreds" is safe, more needs a benchmark |
 
-- Looking at someone is a pure read and never changes them. Detail follows the player's body, never the camera.
+- Looking at someone is a pure read and never changes them. Detail follows the player's body, never the camera. The same detail levels and per-building and per-street chunks for places and things: [research/detail-levels.md](../research/detail-levels.md).
 - **Human generator:** one pure function makes every person (player, pops, zombies) from a seed: census slot, body from real measurement data, health conditions with medicine clocks, job and skills, personality, name, face genes (families resemble each other), clothes, then traits as readouts.
 - **Lifepath** (TTRPG style, Traveller / Twilight: 2000): each pop's past is sampled term by term backwards from who they are today, with real rates (school, training, jobs, service, marriage, children, injuries). Draws that shape the present always run; the prose biography is lazy. Shared events (a marriage, a workplace) are generated once so both people remember the same past.
 - **Custom character:** takes a matching census slot before the game starts, so the world stays consistent. Profession starts: Civilian, Police, Military, Reservist, Nurse, Responder. Kit follows real custody rules (Decided).
