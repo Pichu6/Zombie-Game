@@ -1,9 +1,12 @@
 // Headless runner: runs the simulation with no window. Spec: docs/tier0/specs/16-view-2d.md rule 2.
 // Stage 1: runs the demo scenario and prints one line per game day.
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
+#include <map>
 #include <string>
 
 #include "zs/body_lab.h"
@@ -20,7 +23,8 @@ void usage() {
             "       zs_headless --body-lab     run the body calibration scenarios\n"
             "       zs_headless --bench        body cost: 4 pops and 60 walkers for one game day\n"
             "       zs_headless --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades\n"
-            "       zs_headless --stage6 [--seed N]  the grid fails; generator, fuel, fridge, noise and light");
+            "       zs_headless --stage6 [--seed N] [--trace FILE]  the grid fails; generator, fuel, fridge, noise and light\n"
+            "                  (--trace writes a JSON replay for the web viewer, tools/viewer)");
 }
 
 }  // namespace
@@ -166,15 +170,153 @@ void night_snapshot(const zs::tier0::Tier0& t) {
   std::printf("---\n\n");
 }
 
-int stage6(std::uint64_t seed) {
+// A replay of the stage 6 run for the web viewer: the map once, a frame per game minute, the noise
+// and light fields every game hour, and the notable events. Plain JSON, written by hand.
+struct Trace {
+  std::string frames, fields, events;
+  std::vector<std::string> labels;
+  std::map<std::string, int> label_ids;
+
+  int label(const std::string& s) {
+    auto [it, fresh] = label_ids.emplace(s, static_cast<int>(labels.size()));
+    if (fresh) labels.push_back(s);
+    return it->second;
+  }
+  static std::string quote(const std::string& s) {
+    std::string o = "\"";
+    for (char c : s) o += c == '"' || c == '\\' ? std::string("\\") + c : std::string(1, c);
+    return o + "\"";
+  }
+
+  void frame(const zs::tier0::Tier0& t) {
+    using namespace zs;
+    const World& w = *t.world;
+    const Power& p = *t.power;
+    const Actor& a = t.actors->actor(t.player);
+    const Body& b = t.bodies->get(t.player);
+    std::string doing = "idle";
+    if (b.activity.asleep) doing = "sleeping";
+    else if (a.action.phase == Phase::Approach) doing = a.action.process >= 0 ? "walking to: " + t.actors->processes()[static_cast<std::size_t>(a.action.process)].name : "walking";
+    else if (a.action.phase == Phase::Work && a.action.process >= 0) doing = t.actors->processes()[static_cast<std::size_t>(a.action.process)].name;
+    long long powered = 0;
+    for (std::size_t i = 0; i < p.receivers().size(); ++i) powered |= (p.receivers()[i].powered ? 1LL : 0LL) << i;
+    char buf[256];
+    std::snprintf(buf, sizeof buf, "%s[%lld,%d,%d,%d,%d,%lld,%.0f,%d,%d,%d,%.1f,%.0f,%lld,%.0f,%.0f,%.0f]",
+                  frames.empty() ? "" : ",", static_cast<long long>(w.clock.tick), a.pos.z, a.pos.x, a.pos.y, label(doing),
+                  static_cast<long long>(p.fuel_ul(w) / 1000), p.load_w(), p.generator_running() ? 1 : 0,
+                  static_cast<int>(p.transfer()), p.mains_alive() ? 1 : 0, p.fridge_temp_c(), p.spoil_progress() * 100, powered,
+                  t.bodies->needs(b).thirst * 100, t.bodies->needs(b).hunger * 100,
+                  t.bodies->needs(b).tiredness * 100);
+    frames += buf;
+  }
+
+  void field(const zs::tier0::Tier0& t) {
+    using namespace zs;
+    const World& w = *t.world;
+    const Power& p = *t.power;
+    const double bg = background_db(p.mains_alive(), w.clock.hour());
+    const auto noise = noise_field(*t.map, *t.items, noise_sources(w, *t.actors, p));
+    std::string n, l;
+    for (int z : t.map->levels())
+      for (int y = 0; y < t.map->height(); ++y)
+        for (int x = 0; x < t.map->width(); ++x) {
+          const Cell c{z, x, y};
+          const int margin = static_cast<int>(noise_at(*t.map, noise, c) - bg - 3);
+          n += std::to_string(std::max(-1, std::min(90, margin))) + ",";
+          const double lux = t.map->walkable(c) ? p.lux_at(w, c) : 0;
+          l += std::to_string(lux > 0 ? static_cast<int>(10 * std::log10(lux)) : -99) + ",";
+        }
+    n.pop_back();
+    l.pop_back();
+    std::string win;
+    for (const WindowLeak& k : p.window_leaks(w)) {
+      char buf[128];
+      std::snprintf(buf, sizeof buf, "%s[%d,%d,%d,%d,%.0f,%.2f,%.1f]", win.empty() ? "" : ",", k.edge.z, k.edge.x, k.edge.y,
+                    k.edge.vertical ? 1 : 0, k.seen_m, k.cover, k.room_lux);
+      win += buf;
+    }
+    const NoiseSource gen{p.generator_cell(), p.generator().noise_db_1m};
+    char head[160];
+    std::snprintf(head, sizeof head, "%s{\"tick\":%lld,\"bg\":%.0f,\"ambient\":%.3f,\"gen_range\":%.0f,", fields.empty() ? "" : ",",
+                  static_cast<long long>(w.clock.tick), bg, Power::ambient_lux(w.clock.hour()),
+                  p.generator_running() ? audible_range_m(*t.map, *t.items, gen, bg) : 0.0);
+    fields += std::string(head) + "\"noise\":[" + n + "],\"light\":[" + l + "],\"windows\":[" + win + "]}";
+  }
+
+  void event(std::int64_t tick, const char* kind, const std::string& text) {
+    events += (events.empty() ? "" : ",") + std::string("[") + std::to_string(tick) + "," + quote(kind) + "," + quote(text) + "]";
+  }
+
+  void write(const zs::tier0::Tier0& t, std::uint64_t seed, const std::string& path) {
+    using namespace zs;
+    const SiteMap& m = *t.map;
+    std::string floors, edges, objects, receivers;
+    for (int z : m.levels()) {
+      std::string rows;
+      for (int y = 0; y < m.height(); ++y) {
+        std::string row;
+        for (int x = 0; x < m.width(); ++x) {
+          const Floor f = m.floor({z, x, y});
+          row += f == Floor::None ? ' ' : f == Floor::Wood ? '.' : f == Floor::Concrete ? ',' : f == Floor::Grass ? '"' : f == Floor::Asphalt ? '_' : ':';
+        }
+        rows += (rows.empty() ? "" : ",") + quote(row);
+      }
+      floors += (floors.empty() ? "" : ",") + std::string("[") + rows + "]";
+    }
+    for (int z : m.levels())
+      for (int v = 0; v < 2; ++v)
+        for (int y = 0; y <= m.height() - v; ++y)
+          for (int x = 0; x <= m.width() - (v ? 0 : 1); ++x) {
+            const EdgeRef r{z, x, y, v == 1};
+            const Edge& e = m.edge(r);
+            const char* k = "";
+            switch (e.kind) {
+              case EdgeKind::WallInterior: k = "wall"; break;
+              case EdgeKind::WallExterior: k = "outer"; break;
+              case EdgeKind::DoorInterior: k = "door"; break;
+              case EdgeKind::DoorExterior: k = "outer_door"; break;
+              case EdgeKind::Window: k = "window"; break;
+              case EdgeKind::Fence: k = "fence"; break;
+              case EdgeKind::Gate: k = "gate"; break;
+              default: continue;
+            }
+            edges += (edges.empty() ? "" : ",") + std::string("[") + std::to_string(z) + "," + std::to_string(x) + "," +
+                     std::to_string(y) + "," + std::to_string(v) + "," + quote(k) + "," + (e.barricade ? "1" : "0") + "]";
+          }
+    for (const MapObject& o : m.objects())
+      objects += (objects.empty() ? "" : ",") + std::string("[") + quote(o.kind) + "," + quote(o.id) + "," +
+                 std::to_string(o.at.z) + "," + std::to_string(o.at.x) + "," + std::to_string(o.at.y) + "]";
+    for (const Receiver& r : t.power->receivers())
+      receivers += (receivers.empty() ? "" : ",") + std::string("[") + quote(t.power->receiver_defs()[r.def].kind) + "," +
+                   std::to_string(r.at.z) + "," + std::to_string(r.at.x) + "," + std::to_string(r.at.y) + "]";
+    std::string labels_json;
+    for (const std::string& s : labels) labels_json += (labels_json.empty() ? "" : ",") + quote(s);
+    std::string levels;
+    for (int z : m.levels()) levels += (levels.empty() ? "" : ",") + std::to_string(z);
+    std::ofstream out(path);
+    out << "{\"seed\":" << seed << ",\"width\":" << m.width() << ",\"height\":" << m.height() << ",\"levels\":[" << levels
+        << "],\"ticks_per_hour\":" << kTicksPerGameHour << ",\"start_hour\":8,\"tank_ml\":" << t.power->tank_ul() / 1000
+        << ",\"floors\":[" << floors << "],\"edges\":[" << edges << "],\"objects\":[" << objects << "],\"receivers\":["
+        << receivers << "],\"labels\":[" << labels_json << "],\"frames\":[" << frames << "],\"fields\":[" << fields
+        << "],\"events\":[" << events << "]}";
+  }
+};
+
+int stage6(std::uint64_t seed, const std::string& trace_path = "") {
   using namespace zs;
   auto t = tier0::make_world(seed);
   tier0::GeneratorScenario script(false);
   std::printf("grid failure drawn for %s\n", clock_text(t.power->grid_failure_tick()).c_str());
   std::size_t seen = 0;
   bool snap = false;
+  Trace trace;
+  const bool tracing = !trace_path.empty();
   while (script.drive(t)) {
     t.world->step();
+    // A frame every game minute, and every 5 game s while the pop walks so the replay can follow it.
+    const bool walking = t.actors->actor(t.player).action.phase == Phase::Approach;
+    if (tracing && t.world->clock.tick % (walking ? 10 : kBodyStepTicks) == 0) trace.frame(t);
+    if (tracing && t.world->clock.tick % kTicksPerGameHour == 0) trace.field(t);
     const auto& log = t.world->log.all();
     for (; seen < log.size(); ++seen) {
       const Event& e = log[seen];
@@ -196,12 +338,31 @@ int stage6(std::uint64_t seed) {
         case EventType::Death: std::printf("%s  the pop died\n", at.c_str()); break;
         default: break;
       }
+      if (tracing) {
+        switch (e.type) {
+          case EventType::ActionDone: trace.event(e.tick, "done", proc); break;
+          case EventType::ActionRefused: trace.event(e.tick, "refused", std::string(proc) + " (" + to_string(static_cast<Reason>(e.b)) + ")"); break;
+          case EventType::ActionInterrupted: trace.event(e.tick, "interrupted", std::string(proc) + " (" + to_string(static_cast<Reason>(e.b)) + ")"); break;
+          case EventType::GridFailed: trace.event(e.tick, "alert", "The grid failed"); break;
+          case EventType::GeneratorStalled: trace.event(e.tick, "alert", "The generator stalled"); break;
+          case EventType::GeneratorOutOfFuel: trace.event(e.tick, "alert", "The generator ran out of fuel"); break;
+          case EventType::BreakerTripped: trace.event(e.tick, "alert", "Breaker tripped: " + t.power->circuits()[static_cast<std::size_t>(e.a)].id); break;
+          case EventType::FoodSpoiled: trace.event(e.tick, "alert", "The fridge food spoiled"); break;
+          case EventType::FellAsleep: trace.event(e.tick, "body", "Fell asleep"); break;
+          case EventType::WokeUp: trace.event(e.tick, "body", "Woke up"); break;
+          default: break;
+        }
+      }
     }
     if (!snap && t.power->generator_running() && t.world->clock.hour() >= 23 &&
         t.world->clock.tick % kTicksPerGameHour == 0 && t.actors->covered(*t.world, *tier0::GeneratorScenario::front_window(t))) {
       snap = true;
       night_snapshot(t);
     }
+  }
+  if (tracing) {
+    trace.write(t, seed, trace_path);
+    std::printf("trace written to %s\n", trace_path.c_str());
   }
   std::printf("ended %s: refueled %s, fridge %.1f C, world hash %016llx\n", clock_text(t.world->clock.tick).c_str(),
               script.refueled() ? "yes" : "no", t.power->fridge_temp_c(),
@@ -211,7 +372,15 @@ int stage6(std::uint64_t seed) {
 
 int main(int argc, char** argv) {
   if (argc >= 2 && !std::strcmp(argv[1], "--stage6"))
-    return stage6(argc >= 4 && !std::strcmp(argv[2], "--seed") ? std::strtoull(argv[3], nullptr, 10) : 1);
+  {
+    std::uint64_t seed = 1;
+    std::string trace;
+    for (int i = 2; i + 1 < argc; i += 2) {
+      if (!std::strcmp(argv[i], "--seed")) seed = std::strtoull(argv[i + 1], nullptr, 10);
+      else if (!std::strcmp(argv[i], "--trace")) trace = argv[i + 1];
+    }
+    return stage6(seed, trace);
+  }
   if (argc >= 2 && !std::strcmp(argv[1], "--scripted-pop"))
     return scripted_pop(argc >= 3 && !std::strcmp(argv[2], "--ai"));
   if (argc >= 2 && !std::strcmp(argv[1], "--body-lab")) return body_lab();

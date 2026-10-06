@@ -1,0 +1,410 @@
+<title>Block Replay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the block plan as a big canvas on the left, a field-notebook column of readouts on the right,
+   a transport bar with the run's timeline underneath. Blueprint paper by day, a night-ops slate in dark. */
+:root {
+  --bg: #eef1ee;
+  --paper: #f8faf7;
+  --ink: #18201c;
+  --muted: #5d6a63;
+  --line: #c9d1cb;
+  --accent: #c8611d;     /* generator orange */
+  --lamp: #e4b42a;
+  --water: #2f7ea6;
+  --good: #2f8a55;
+  --bad: #b8382e;
+  --wood: #e2d6c2;
+  --concrete: #d6d9d6;
+  --grass: #cfdcc4;
+  --asphalt: #bfc3c2;
+  --dirt: #d7ccb6;
+  --wall: #3a443f;
+  --night: 12, 20, 40;
+  --f-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111614; --paper: #182019; --ink: #e5ece7; --muted: #93a39a; --line: #2c3731;
+    --accent: #ec8a46; --lamp: #f2c94c; --water: #5fb0d8; --good: #5fc489; --bad: #ee6b5f;
+    --wood: #4a4234; --concrete: #3d413f; --grass: #2f3d2a; --asphalt: #2c3030; --dirt: #463e31; --wall: #c9d3cd;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111614; --paper: #182019; --ink: #e5ece7; --muted: #93a39a; --line: #2c3731;
+  --accent: #ec8a46; --lamp: #f2c94c; --water: #5fb0d8; --good: #5fc489; --bad: #ee6b5f;
+  --wood: #4a4234; --concrete: #3d413f; --grass: #2f3d2a; --asphalt: #2c3030; --dirt: #463e31; --wall: #c9d3cd;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--f-body); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 28px; display: grid; gap: 14px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+h1 { font: 700 30px/1 var(--f-display); letter-spacing: .02em; margin: 0; text-transform: uppercase; }
+.sub { color: var(--muted); margin: 0; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.board { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 10px; display: grid; gap: 8px; min-width: 0; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.seg button { font: 600 13px var(--f-display); letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--muted); border: 0; padding: 5px 10px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+canvas#map { width: 100%; height: auto; display: block; border-radius: 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 12px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+aside { display: grid; gap: 10px; min-width: 0; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: grid; gap: 6px; }
+.card h2 { font: 600 13px var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.clock { font: 700 34px/1 var(--f-display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.doing { font-weight: 600; }
+.row { display: flex; justify-content: space-between; gap: 8px; font-variant-numeric: tabular-nums; }
+.row span:first-child { color: var(--muted); }
+.mono { font-family: var(--f-mono); font-size: 12.5px; }
+.meter { height: 7px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.meter > div { height: 100%; background: var(--water); }
+.pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.pill { font: 600 12px var(--f-display); letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; border: 1px solid var(--line); color: var(--muted); }
+.pill.on { border-color: var(--good); color: var(--good); }
+.pill.off { border-color: var(--bad); color: var(--bad); }
+.pill.gen { border-color: var(--accent); color: var(--accent); }
+.transport { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 10px; display: grid; gap: 8px; }
+.tline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+#play { font: 700 15px var(--f-display); letter-spacing: .08em; text-transform: uppercase; background: var(--accent); color: #fff; border: 0; border-radius: 5px; padding: 6px 16px; cursor: pointer; min-width: 84px; }
+canvas#strip { width: 100%; height: 46px; display: block; cursor: pointer; border-radius: 3px; }
+.events { max-height: 230px; overflow: auto; display: grid; gap: 1px; }
+.events button { all: unset; cursor: pointer; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 6px; padding: 2px 4px; border-radius: 3px; font-size: 12.5px; }
+.events button:hover, .events button.now { background: var(--bg); }
+.events .t { font-family: var(--f-mono); color: var(--muted); font-size: 11.5px; }
+.events .alert { color: var(--bad); font-weight: 600; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
+summary { cursor: pointer; font: 600 15px var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+details ol { margin: 8px 0 2px; padding-left: 20px; display: grid; gap: 6px; max-width: 75ch; }
+.note { color: var(--muted); font-size: 12.5px; max-width: 75ch; margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Block Replay</h1>
+    <p class="sub" id="subtitle">Stage 6 run: the grid fails and one survivor keeps the generator going.</p>
+  </header>
+
+  <details>
+    <summary>How this is simulated</summary>
+    <ol>
+      <li>The C++ simulation steps the whole world every half game second: commands first, then each system in a fixed order (items and map, actions, power, body), then scheduled events like the grid failure.</li>
+      <li>The survivor is driven by a small script that sends the same commands a player's clicks would send ("drink at the sink", "start the generator"). The simulation decides how long each takes, how far the walk is, whether it's possible, and what it costs the body.</li>
+      <li>Everything on this page was recorded from that run (a frame per game minute, the noise and light fields every game hour). This page only replays it; it doesn't simulate anything itself.</li>
+      <li>The tests run scenarios like this one and check the numbers against real references: fuel use against generator spec sheets, how far the generator is heard against the night background, how long fridge food keeps.</li>
+    </ol>
+  </details>
+
+  <div class="main">
+    <section class="board" aria-label="Map">
+      <div class="bar">
+        <div class="seg" role="group" aria-label="Floor" id="levels"></div>
+        <div class="seg" role="group" aria-label="Overlay" id="overlays">
+          <button type="button" data-o="plain" aria-pressed="false">Plain</button>
+          <button type="button" data-o="noise" aria-pressed="false">Noise</button>
+          <button type="button" data-o="light" aria-pressed="true">Light</button>
+        </div>
+      </div>
+      <canvas id="map" width="960" height="840" aria-label="Plan of the block with the survivor"></canvas>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <div class="clock" id="clock">Day 0 08:00</div>
+        <div class="doing" id="doing">idle</div>
+        <div class="row"><span>Thirst</span><span id="thirst"></span></div>
+        <div class="meter"><div id="thirstbar"></div></div>
+        <div class="row"><span>Hunger</span><span id="hunger"></span></div>
+        <div class="meter"><div id="hungerbar" style="background:var(--accent)"></div></div>
+        <div class="row"><span>Tiredness</span><span id="tired"></span></div>
+        <div class="meter"><div id="tiredbar" style="background:var(--muted)"></div></div>
+      </div>
+      <div class="card">
+        <h2>Power</h2>
+        <div class="pills" id="pills"></div>
+        <div class="row"><span>Load</span><span id="load"></span></div>
+        <div class="row"><span>Generator tank</span><span id="fuel"></span></div>
+        <div class="meter"><div id="fuelbar" style="background:var(--accent)"></div></div>
+        <div class="row"><span>Heard from</span><span id="heard"></span></div>
+        <div class="row"><span>Background noise</span><span id="bg"></span></div>
+      </div>
+      <div class="card">
+        <h2>Fridge</h2>
+        <div class="row"><span>Inside</span><span id="fridge"></span></div>
+        <div class="row"><span>Food spoiling</span><span id="spoil"></span></div>
+        <div class="meter"><div id="spoilbar" style="background:var(--bad)"></div></div>
+      </div>
+      <div class="card">
+        <h2>Lit windows</h2>
+        <div id="windows" class="mono"></div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="transport" aria-label="Timeline">
+    <div class="tline">
+      <button type="button" id="play">Play</button>
+      <div class="seg" role="group" aria-label="Speed" id="speeds"></div>
+      <span class="note" id="speednote"></span>
+    </div>
+    <canvas id="strip" width="1200" height="46" aria-label="Run timeline; click to jump"></canvas>
+    <div class="events" id="events"></div>
+  </section>
+  <p class="note" id="foot"></p>
+</div>
+
+<script>
+const T = /*__TRACE__*/null;
+const $ = (id) => document.getElementById(id);
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const W = T.width, H = T.height, TPH = T.ticks_per_hour, PER_LEVEL = W * H;
+const frames = T.frames, fields = T.fields;
+const endTick = frames[frames.length - 1][0];
+const levelNames = { "-1": "Basement", "0": "Ground", "1": "Upstairs" };
+let level = 0, overlay = "light", tick = 0, playing = false, speed = 60, last = 0;
+
+function clockText(t) {
+  const s = t + T.start_hour * TPH, day = Math.floor(s / (24 * TPH)), h = (s % (24 * TPH)) / TPH;
+  return `Day ${day} ${String(Math.floor(h)).padStart(2, "0")}:${String(Math.floor((h % 1) * 60)).padStart(2, "0")}`;
+}
+function hourOf(t) { return ((t + T.start_hour * TPH) % (24 * TPH)) / TPH; }
+function frameAt(t) {
+  let lo = 0, hi = frames.length - 1;
+  while (lo < hi) { const m = (lo + hi + 1) >> 1; if (frames[m][0] <= t) lo = m; else hi = m - 1; }
+  return lo;
+}
+function fieldAt(t) {
+  let f = fields[0];
+  for (const x of fields) { if (x.tick <= t) f = x; else break; }
+  return f;
+}
+
+// ---- Controls ----
+const levelsEl = $("levels");
+for (const z of T.levels) {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = levelNames[z] || `Level ${z}`; b.dataset.z = z;
+  b.setAttribute("aria-pressed", z === level ? "true" : "false");
+  b.onclick = () => { level = z; for (const c of levelsEl.children) c.setAttribute("aria-pressed", String(+c.dataset.z === z)); draw(); };
+  levelsEl.appendChild(b);
+}
+for (const b of $("overlays").children) b.onclick = () => {
+  overlay = b.dataset.o;
+  for (const c of $("overlays").children) c.setAttribute("aria-pressed", String(c === b));
+  legend(); draw();
+};
+const speeds = [[10, "10 min/s"], [60, "1 h/s"], [240, "4 h/s"], [720, "12 h/s"]];
+for (const [v, label] of speeds) {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = label; b.setAttribute("aria-pressed", String(v === speed));
+  b.onclick = () => { speed = v; for (const c of $("speeds").children) c.setAttribute("aria-pressed", String(c === b)); };
+  $("speeds").appendChild(b);
+}
+$("speednote").textContent = "Game time per real second.";
+$("play").onclick = () => { playing = !playing; if (tick >= endTick) tick = 0; $("play").textContent = playing ? "Pause" : "Play"; last = performance.now(); if (playing) requestAnimationFrame(loop); };
+
+function legend() {
+  const items = overlay === "noise"
+    ? [["var(--accent)", "Louder than the background (darker = louder)"], ["var(--line)", "Can't be heard"]]
+    : overlay === "light"
+    ? [["var(--lamp)", "Lamp light"], ["rgb(var(--night))", "Dark"], ["var(--water)", "Window: how far its light shows (dashed)"]]
+    : [["var(--wood)", "Wood floor"], ["var(--concrete)", "Concrete"], ["var(--grass)", "Grass"], ["var(--asphalt)", "Street"]];
+  $("legend").innerHTML = items.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("") +
+    `<span><i style="background:var(--accent);border-radius:50%"></i>Survivor</span>`;
+}
+
+// ---- Map ----
+const map = $("map"), g = map.getContext("2d");
+function cellPx() { return map.width / W; }
+const floorColor = { ".": "--wood", ",": "--concrete", '"': "--grass", "_": "--asphalt", ":": "--dirt" };
+const glyph = { generator: "G", fridge: "F", lamp: "L", power_panel: "P", hot_plate: "H", radio: "R", saw: "S", stove: "O", sink: "W", pantry: "K", stockpile: "T" };
+
+function draw() {
+  const c = cellPx(), li = T.levels.indexOf(level), fi = frameAt(tick), f = frames[fi], fld = fieldAt(tick);
+  const night = css("--night"), ink = css("--ink"), wall = css("--wall");
+  g.clearRect(0, 0, map.width, map.height);
+  g.fillStyle = css("--bg"); g.fillRect(0, 0, map.width, map.height);
+  const rows = T.floors[li];
+  // Floors and overlay.
+  const amb = fld ? fld.ambient : 10000;
+  const outdoorDark = Math.max(0, Math.min(0.75, (4 - Math.log10(Math.max(amb, 0.01))) / 6));
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const ch = rows[y][x];
+    if (ch === " ") continue;
+    g.fillStyle = css(floorColor[ch] || "--concrete");
+    g.fillRect(x * c, y * c, c, c);
+    const i = li * PER_LEVEL + y * W + x;
+    if (overlay === "noise" && fld) {
+      const m = fld.noise[i];
+      if (m > 0) { g.fillStyle = `rgba(200, 80, 20, ${Math.min(0.85, 0.15 + m / 70)})`; g.fillRect(x * c, y * c, c, c); }
+    } else if (overlay === "light" && fld) {
+      const lux = fld.light[i] / 10;  // log10 lux
+      const dark = Math.max(0, Math.min(0.82, (2 - lux) / 3.2));
+      g.fillStyle = `rgba(${night}, ${dark})`; g.fillRect(x * c, y * c, c, c);
+    } else if (overlay === "plain" && !".,".includes(ch)) {
+      g.fillStyle = `rgba(${night}, ${outdoorDark})`; g.fillRect(x * c, y * c, c, c);
+    }
+    g.strokeStyle = "rgba(128,128,128,0.12)"; g.strokeRect(x * c + .5, y * c + .5, c - 1, c - 1);
+  }
+  // Edges.
+  for (const [z, x, y, v, kind, barricade] of T.edges) {
+    if (z !== level) continue;
+    const x0 = x * c, y0 = y * c, x1 = v ? x0 : x0 + c, y1 = v ? y0 + c : y0;
+    g.lineCap = "butt";
+    if (kind === "window") { g.strokeStyle = css("--water"); g.lineWidth = c * .22; }
+    else if (kind === "door" || kind === "outer_door") { g.strokeStyle = css("--accent"); g.lineWidth = c * .12; g.setLineDash([c * .25, c * .15]); }
+    else if (kind === "fence" || kind === "gate") { g.strokeStyle = css("--muted"); g.lineWidth = c * .08; g.setLineDash([c * .1, c * .1]); }
+    else { g.strokeStyle = wall; g.lineWidth = kind === "outer" ? c * .26 : c * .12; }
+    g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); g.setLineDash([]);
+    if (barricade) { g.strokeStyle = "#8a5a2b"; g.lineWidth = c * .3; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }
+  }
+  // Window reach (light overlay).
+  if (overlay === "light" && fld) for (const [z, x, y, v, seen, cover] of fld.windows) {
+    if (z !== level || seen <= 0) continue;
+    const cx = v ? x * c : (x + .5) * c, cy = v ? (y + .5) * c : y * c;
+    g.strokeStyle = css("--water"); g.lineWidth = 1.5; g.setLineDash([5, 4]);
+    g.beginPath(); g.arc(cx, cy, seen * c, 0, Math.PI * 2); g.stroke(); g.setLineDash([]);
+  }
+  // Generator reach (noise overlay): the ring is to scale where it fits.
+  const genObj = T.objects.find((o) => o[0] === "generator");
+  if (overlay === "noise" && fld && fld.gen_range > 0 && genObj && genObj[2] === level) {
+    g.strokeStyle = css("--accent"); g.lineWidth = 2; g.setLineDash([8, 5]);
+    g.beginPath(); g.arc((genObj[3] + .5) * c, (genObj[4] + .5) * c, fld.gen_range * c, 0, Math.PI * 2); g.stroke(); g.setLineDash([]);
+  }
+  // Objects.
+  const powered = f[12];
+  g.textAlign = "center"; g.textBaseline = "middle"; g.font = `600 ${Math.round(c * .55)}px ${css("--f-mono") || "monospace"}`;
+  for (const [kind, id, z, x, y] of T.objects) {
+    if (z !== level || !glyph[kind]) continue;
+    const ri = T.receivers.findIndex((r) => r[0] === kind && r[1] === z && r[2] === x && r[3] === y);
+    const on = ri >= 0 && (powered >> ri) & 1;
+    const isGen = kind === "generator", running = isGen && f[7];
+    if (on && kind === "lamp") {
+      const grd = g.createRadialGradient((x + .5) * c, (y + .5) * c, 0, (x + .5) * c, (y + .5) * c, c * 2.2);
+      grd.addColorStop(0, "rgba(242, 201, 76, .55)"); grd.addColorStop(1, "rgba(242, 201, 76, 0)");
+      g.fillStyle = grd; g.fillRect((x - 2) * c, (y - 2) * c, c * 5, c * 5);
+    }
+    g.fillStyle = on || running ? (kind === "lamp" ? css("--lamp") : isGen ? css("--accent") : css("--good")) : css("--paper");
+    g.strokeStyle = ink; g.lineWidth = 1;
+    g.fillRect(x * c + c * .12, y * c + c * .12, c * .76, c * .76); g.strokeRect(x * c + c * .12, y * c + c * .12, c * .76, c * .76);
+    g.fillStyle = on || running ? "#1a1a1a" : ink; g.fillText(glyph[kind], (x + .5) * c, (y + .54) * c);
+  }
+  // Survivor, interpolated between frames.
+  const nf = frames[Math.min(fi + 1, frames.length - 1)];
+  let px = f[2], py = f[3], pz = f[1];
+  if (nf !== f && nf[1] === f[1] && Math.abs(nf[2] - f[2]) + Math.abs(nf[3] - f[3]) <= 2) {
+    const a = Math.max(0, Math.min(1, (tick - f[0]) / Math.max(1, nf[0] - f[0])));
+    px += (nf[2] - f[2]) * a; py += (nf[3] - f[3]) * a;
+  }
+  if (pz === level) {
+    g.fillStyle = css("--accent"); g.strokeStyle = css("--paper"); g.lineWidth = 2.5;
+    g.beginPath(); g.arc((px + .5) * c, (py + .5) * c, c * .36, 0, Math.PI * 2); g.fill(); g.stroke();
+  }
+}
+
+// ---- Readouts ----
+function pct(v) { return `${Math.round(Math.max(0, v))} %`; }
+function readouts() {
+  const fi = frameAt(tick), f = frames[fi], fld = fieldAt(tick);
+  $("clock").textContent = clockText(tick);
+  $("doing").textContent = (f[1] !== level ? `(${levelNames[f[1]] || "level " + f[1]}) ` : "") + T.labels[f[4]];
+  $("thirst").textContent = pct(f[13]); $("thirstbar").style.width = Math.min(100, f[13]) + "%";
+  $("hunger").textContent = pct(f[14]); $("hungerbar").style.width = Math.min(100, f[14]) + "%";
+  $("tired").textContent = pct(f[15]); $("tiredbar").style.width = Math.min(100, f[15]) + "%";
+  const panel = ["Off", "Mains", "Generator"][f[8]];
+  $("pills").innerHTML =
+    `<span class="pill ${f[9] ? "on" : "off"}">Mains ${f[9] ? "on" : "dead"}</span>` +
+    `<span class="pill">Panel: ${panel}</span>` +
+    `<span class="pill ${f[7] ? "gen" : ""}">Generator ${f[7] ? "running" : "stopped"}</span>`;
+  $("load").textContent = `${f[6]} W`;
+  $("fuel").textContent = `${(f[5] / 1000).toFixed(2)} L of ${T.tank_ml / 1000} L`;
+  $("fuelbar").style.width = (100 * f[5] / T.tank_ml) + "%";
+  $("heard").textContent = fld && fld.gen_range > 0 ? `${fld.gen_range} m away` : "not running";
+  $("bg").textContent = fld ? `${fld.bg} dB (${f[9] ? "city still running" : "grid dead, quiet"})` : "";
+  $("fridge").textContent = `${f[10].toFixed(1)} °C`;
+  $("spoil").textContent = pct(f[11]); $("spoilbar").style.width = Math.min(100, f[11]) + "%";
+  const lit = fld ? fld.windows.filter((w) => w[6] > 0) : [];
+  $("windows").innerHTML = lit.length
+    ? lit.map((w) => `<div class="row"><span>${levelNames[w[0]] || w[0]} (${w[1]},${w[2]})${w[5] > 0 ? " covered " + Math.round(w[5] * 100) + "%" : ""}</span><span>${w[4] > 0 ? "seen " + w[4] + " m" : "hidden"}</span></div>`).join("")
+    : `<span class="note">No lamp is lighting a window.</span>`;
+  for (const b of document.querySelectorAll(".events button")) b.classList.toggle("now", +b.dataset.t <= tick && +b.dataset.next > tick);
+}
+
+// ---- Timeline strip ----
+const strip = $("strip"), s = strip.getContext("2d");
+function drawStrip() {
+  const w = strip.width, h = strip.height;
+  s.clearRect(0, 0, w, h);
+  s.fillStyle = css("--bg"); s.fillRect(0, 0, w, h);
+  for (let t = 0; t < endTick; t += TPH / 2) {
+    const hr = hourOf(t), x = (t / endTick) * w, dx = (TPH / 2 / endTick) * w + 1;
+    if (hr < 6 || hr >= 21) { s.fillStyle = `rgba(${css("--night")}, .35)`; s.fillRect(x, 0, dx, h); }
+  }
+  // Fuel line.
+  s.strokeStyle = css("--accent"); s.lineWidth = 1.5; s.beginPath();
+  for (let i = 0; i < frames.length; i += 20) {
+    const x = (frames[i][0] / endTick) * w, y = h - 4 - (frames[i][5] / T.tank_ml) * (h - 10);
+    i ? s.lineTo(x, y) : s.moveTo(x, y);
+  }
+  s.stroke();
+  for (const [t, kind] of T.events) {
+    if (kind !== "alert") continue;
+    const x = (t / endTick) * w;
+    s.fillStyle = css("--bad"); s.fillRect(x - 1, 0, 2, h);
+  }
+  const x = (tick / endTick) * w;
+  s.fillStyle = css("--ink"); s.fillRect(x - 1.5, 0, 3, h);
+}
+strip.onclick = (e) => { const r = strip.getBoundingClientRect(); seek(((e.clientX - r.left) / r.width) * endTick); };
+
+// ---- Event log ----
+const ev = $("events");
+T.events.forEach(([t, kind, text], i) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.dataset.t = t; b.dataset.next = i + 1 < T.events.length ? T.events[i + 1][0] : 1e15;
+  b.innerHTML = `<span class="t">${clockText(t)}</span><span class="${kind === "alert" ? "alert" : ""}">${kind === "done" ? "Done: " : ""}${text}</span>`;
+  b.onclick = () => seek(t);
+  ev.appendChild(b);
+});
+
+function seek(t) { tick = Math.max(0, Math.min(endTick, Math.round(t))); render(); }
+function render() { draw(); readouts(); drawStrip(); }
+function loop(now) {
+  if (!playing) return;
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  tick += dt * speed * (TPH / 60);
+  if (tick >= endTick) { tick = endTick; playing = false; $("play").textContent = "Play"; }
+  render();
+  if (playing) requestAnimationFrame(loop);
+}
+
+function fit() {
+  const r = map.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const cw = Math.max(320, Math.round(r.width * dpr));
+  map.width = cw; map.height = Math.round(cw * H / W);
+  const sr = strip.getBoundingClientRect();
+  strip.width = Math.max(300, Math.round(sr.width * dpr)); strip.height = Math.round(46 * dpr);
+  render();
+}
+window.addEventListener("resize", fit);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+
+$("subtitle").textContent = `Seed ${T.seed}. The grid fails, one survivor keeps the generator going, and the fridge food spoils once the fuel is gone.`;
+$("foot").textContent = "Map squares are 1 m. Rings are to scale; beyond the map edge they keep going. Noise and light fields are recorded every game hour.";
+legend();
+// Open on the first night with the generator running, so the first view shows something happening.
+const firstNight = frames.find((f) => f[7] && hourOf(f[0]) >= 23);
+tick = firstNight ? firstNight[0] : 0;
+fit();
+</script>

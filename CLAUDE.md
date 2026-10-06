@@ -52,6 +52,7 @@ build/release/apps/headless/zs_headless --body-lab  # stage 3: body calibration 
 build/release/apps/headless/zs_headless --bench     # stage 3: body cost, 4 pops + 60 walkers for a game day
 build/release/apps/headless/zs_headless --scripted-pop [--ai]  # stage 4: a pop eats, treats a wound, salvages, barricades
 build/release/apps/headless/zs_headless --stage6 [--seed N]  # stage 6: grid fails, generator, fuel, fridge; night noise and light snapshot
+# replay viewer: --stage6 --trace trace.json, then python3 tools/viewer/embed.py trace.json replay.html (open in a browser)
 ```
 
 On Windows, run these from a "x64 Native Tools Command Prompt for VS 2022". Golden hashes in the tests are pinned on Linux; Windows must reproduce them (cross-compiler determinism, [spec 01](docs/tier0/specs/01-quantity.md)).
