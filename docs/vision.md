@@ -43,7 +43,7 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 ## How you play
 
 - **Real time, no turns.** Decided.
-- **Time scale:** 1 real hour per game day at 1× (1 game hour = 2.5 real minutes), plus 3×, 10× and rest-until-event. One global clock. Combat forces 1×. Events (alarm, attack, injury, breakdown, new symptom) drop to 1× and can pause; seeing a distant zombie does not. Also a sandbox setting. Decided (event rule: Proposal).
+- **Time scale:** real time and real Earth data are the reference for every rate and duration; the usual play speed is 1 real hour per game day ([0028](decisions/0028-real-time-reference-and-generational-runs.md)). Earlier wording: 1 real hour per game day at 1× (1 game hour = 2.5 real minutes), plus 3×, 10× and rest-until-event. One global clock. Combat forces 1×. Events (alarm, attack, injury, breakdown, new symptom) drop to 1× and can pause; seeing a distant zombie does not. Also a sandbox setting. Decided (event rule: Proposal).
 - **Command layer:** squad orders (go, hold, follow, attack, retreat) and a job board with priorities. Proposal.
 - **Possession:** click a survivor to play them directly. Tier 0: direct WASD control; Tier 1: iso zoom-in; Tier 2: over-the-shoulder 3rd person. Camera and control code is mode-agnostic from day one. Possession gives control, not power: the body still sets speed, strength and stamina. Proposal.
 - **Why possess:** the AI is cautious and average on purpose, and panics or refuses in specific situations (a dark basement, an open yard with dead in sight, a live wire). Proposal.

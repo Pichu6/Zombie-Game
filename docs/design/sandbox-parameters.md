@@ -60,7 +60,7 @@ Everything in §4–§11 is written so it works with the outbreak off. The outbr
 | Seed | integer or text | random, shown | Same seed and settings give the same world (determinism, [spec 02](../tier0/specs/02-draw.md)) |
 | Play style | micro → macro, macro → micro, one layer only, spectator | micro → macro | Decided ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)) |
 | Starting role | civilian, a chair in an office (mayor, minister, CEO, board member), a household head, spectator | civilian | In micro → macro the role limits orders; other styles may take any chair (Decided, [0018](../decisions/0018-sandbox-answers.md)) |
-| Time scale | **Pause**, **slow down** (½×, ¼×), 1×, 3×, 10×, rest-until-event, and **long steps** (day, week, month, year per second) | 1 game day per real hour at 1× | Pause, acceleration and slow-down are Decided ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)); the exact steps and the long steps are Proposals. Long steps only at Macro/City, with Individual dormant. Combat forces 1× but allows pause and slow-down. Events never wait for the player ([0022](../decisions/0022-macro-layer-intent.md)), so in a future multiplayer game pause needs its own rule |
+| Time scale | **Pause**, **slow down** (½×, ¼×), **1:1 real time (the reference)**, 1 hour = 1 day (the usual speed, 24×), 3×, 10×, rest-until-event, and **long steps** (day, week, month, year per second) | start at 1 hour = 1 day (Open, see §15) | Real time is the reference and real Earth data the default for every value; the usual play speed is 1 hour = 1 day ([0028](../decisions/0028-real-time-reference-and-generational-runs.md)). Pause, acceleration and slow-down are Decided ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)); the exact steps and long steps are Proposals. Long steps only at Macro/City, with Individual dormant. Combat forces the usual speed or slower, never faster, and allows pause. Events never wait for the player ([0022](../decisions/0022-macro-layer-intent.md)), so in a future multiplayer game pause needs its own rule |
 | Real-time durations | Every action and process takes its real-life duration in game time (cooking, healing, building, travel, research, pregnancy, growing up) | on, always | Decided as the standard ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)). Only the clock speed changes, never the duration. A "faster processes" multiplier is a sandbox change, tagged |
 | Playable age | Youngest age a pop can be possessed or chosen as a character | 16 (Proposal; sandbox 12–25) | Decided that a minimum exists. Younger pops age as records and can be followed, never played |
 | Auto-pause classes | per event type: ignore, log, toast, pop-up, pop-up and pause | toast/pop-up, no auto-pause | [macro layer](macro-layer.md) §4.2 |
@@ -315,6 +315,23 @@ A scenario only sets numbers or starting state, schedules real events and adds o
 | **Survival** | Survive N days (the existing Tier 0 goal), keep a cordon, reach a cure |
 | **Failure to avoid** | Collapse of state, famine, bankruptcy of the player's company |
 
+### 13.1 Realism checks for long runs (Decided as a use, [0028](../decisions/0028-real-time-reference-and-generational-runs.md); model Proposal)
+
+A no-outbreak run left to run for decades (a few generations) is a test of the whole sim: do the pops behave like real people? The headless runner produces a **realism report** compared with real data for the world's settings, never with a feel:
+
+| Check | Compared with |
+| --- | --- |
+| Age pyramid, life expectancy, deaths by age and cause | Real demography for the nation and culture |
+| Births per woman, age at first child, marriage and divorce rates | Real fertility and family data |
+| Household size and structure over time | Real household statistics |
+| Employment by job, unemployment, job changes, retirement | Real labour data ([content tools](content-tools.md) §4) |
+| Wealth distribution (Gini), mobility between generations | Real inequality and mobility data |
+| Business formation, survival and closure | Real firm-demography data |
+| Migration, urbanisation | Real rates |
+| Crime and unrest | Real rates, tuned by culture |
+
+Failures are reported as a band, not a pass or fail: "fertility 1.1, real 1.6–1.9". Runs with the same seed and settings give the same report (determinism). A population that dies out, explodes, or freezes in its starting shape is a finding about the model, not about the player. The data sources follow the licence list in [world simulation](world-simulation.md) §3. A run needs the long steps and the lazy-pop jumps from [pop continuity](pop-continuity.md) to be fast enough: that is part of its benchmark.
+
 ## 14. Presets (Proposal)
 
 Whole-world presets, each a set of nation, culture, government and corporation presets.
@@ -323,6 +340,7 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 | --- | --- | --- |
 | **Seven days (default)** | on | The warning week, then the outbreak ([vision](../vision.md)) |
 | **Quiet world** | off | Real Earth, watch it run, no goals |
+| **Generations** | off | Long steps over decades; a realism report at the end ([§13.1](#131-realism-checks-for-long-runs-decided-as-a-use-0028-model-proposal)) |
 | **Small town sim** | off | One town, Sims life, local politics and shops |
 | **Nation builder** | off | One generated nation, a government chair, Cities: Skylines meets Stellaris |
 | **Corporate ladder** | off | A company, a market, regulators |
@@ -364,7 +382,7 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 2. **Restoring a lost capability:** Decided ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): nearly impossible, never done by the AI on its own, a human goal or late-game play needing trade and cooperation. Open: the exact cost model (what "nearly" means in parts, people, time and partners).
 3. **War scale and look:** after the Foxhole research.
 4. **Tech tree contents:** which capabilities and how many tiers.
-5. **Default speed:** keep 1 real hour per game day at 1× (Decided earlier) or make 1:1 real time the default with the rest as acceleration? Recommendation: keep it, and offer 1:1 as a named speed and a sandbox default. Durations are real either way.
+5. **Starting speed of a new game:** Decided that real time is the reference and 1 hour = 1 day the usual speed ([0028](../decisions/0028-real-time-reference-and-generational-runs.md)). Open: does a new game start at 1 hour = 1 day or at 1:1? Recommendation: 1 hour = 1 day, with 1:1 one key away.
 
 ## 16. Order of work (dependencies only)
 
