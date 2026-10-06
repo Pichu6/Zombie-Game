@@ -23,7 +23,12 @@ bool PopRegistry::add_cohort(const Cohort& c) {
   }
   cohorts_[c.id] = c;
   by_slot_[c.first_slot] = c.id;
+  by_region_[c.region].push_back(c.id);
   return true;
+}
+
+void PopRegistry::index_effect(const CohortEffect& e) {
+  by_cohort_kind_[{e.cohort, static_cast<std::uint8_t>(e.kind)}].push_back(e);
 }
 
 const Cohort* PopRegistry::cohort(std::uint64_t id) const {
@@ -38,8 +43,10 @@ CohortPermutation PopRegistry::permutation(const Cohort& c, EffectKind kind) con
 std::vector<PopRegistry::Range> PopRegistry::ranges(std::uint64_t cohort_id, EffectKind kind, double year) const {
   std::vector<Range> stack;  // the members in the state, as rank ranges, newest last
   std::uint64_t total = 0;
-  for (const CohortEffect& e : log_) {
-    if (e.cohort != cohort_id || e.kind != kind || e.year > year) continue;
+  const auto found = by_cohort_kind_.find({cohort_id, static_cast<std::uint8_t>(kind)});
+  if (found == by_cohort_kind_.end()) return stack;
+  for (const CohortEffect& e : found->second) {
+    if (e.year > year) break;  // in time order
     if (e.delta >= 0) {
       stack.push_back({total, total + static_cast<std::uint64_t>(e.delta), e.reason});
       total += static_cast<std::uint64_t>(e.delta);
@@ -65,6 +72,7 @@ bool PopRegistry::apply(const CohortEffect& e) {
   if (e.delta >= 0 && now + static_cast<std::uint64_t>(e.delta) > c->size) return false;
   if (e.delta < 0 && static_cast<std::uint64_t>(-e.delta) > now) return false;
   log_.push_back(e);
+  index_effect(e);
   return true;
 }
 
@@ -76,8 +84,9 @@ std::uint64_t PopRegistry::count(std::uint64_t cohort_id, EffectKind kind, doubl
 
 std::uint64_t PopRegistry::count_region(std::uint32_t region, EffectKind kind, double year) const {
   std::uint64_t n = 0;
-  for (const auto& [id, c] : cohorts_)
-    if (c.region == region) n += count(id, kind, year);
+  const auto it = by_region_.find(region);
+  if (it == by_region_.end()) return 0;
+  for (std::uint64_t id : it->second) n += count(id, kind, year);
   return n;
 }
 
@@ -219,16 +228,19 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
   if (r.u64() != kSaveMagic) throw std::runtime_error("not a pop registry save");
   if (r.u64() != seed_) throw std::runtime_error("pop registry save is from another world seed");
   cohorts_.clear(); by_slot_.clear(); log_.clear(); records_.clear(); kept_.clear();
+  by_cohort_kind_.clear(); by_region_.clear();
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
     Cohort c;
     c.id = r.u64(); c.region = r.u32(); c.first_slot = r.u32(); c.size = r.u64();
     cohorts_[c.id] = c;
     by_slot_[c.first_slot] = c.id;
+    by_region_[c.region].push_back(c.id);
   }
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
     CohortEffect e;
     e.cohort = r.u64(); e.kind = static_cast<EffectKind>(r.u8()); e.delta = r.i64(); e.year = r.f64(); e.reason = r.u64();
     log_.push_back(e);
+    index_effect(e);
   }
   const auto get_exceptions = [&] {
     std::vector<PopException> list(r.u32());

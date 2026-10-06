@@ -96,11 +96,15 @@ class PopRegistry {
   CohortPermutation permutation(const Cohort& c, EffectKind kind) const;
   std::vector<Range> ranges(std::uint64_t cohort, EffectKind kind, double year) const;
   void set_exception(std::vector<PopException>& list, const PopException& e);
+  void index_effect(const CohortEffect& e);
 
   std::uint64_t seed_;
   std::map<std::uint64_t, Cohort> cohorts_;            // by id
   std::map<std::uint32_t, std::uint64_t> by_slot_;     // first_slot -> cohort id
   std::vector<CohortEffect> log_;                      // append-only, the single truth for effects
+  // Derived from log_ (rebuilt on load): a cohort's effects of one kind, in order, and a region's cohorts.
+  std::map<std::pair<std::uint64_t, std::uint8_t>, std::vector<CohortEffect>> by_cohort_kind_;
+  std::map<std::uint32_t, std::vector<std::uint64_t>> by_region_;
   std::map<PopId, Record> records_;                    // pinned pops
   std::map<PopId, std::vector<PopException>> kept_;    // exceptions of lazy pops
 };

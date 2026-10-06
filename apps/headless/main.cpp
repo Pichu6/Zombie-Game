@@ -13,6 +13,7 @@
 #include "zs/noise.h"
 #include "zs/site_map.h"
 #include "zs/tier0.h"
+#include "pop_bench.h"
 
 namespace {
 
@@ -21,6 +22,7 @@ void usage() {
             "       zs_headless --map [FILE]   print the room graph of a map (default: the Tier 0 block)\n"
             "       zs_headless --body-lab     run the body calibration scenarios\n"
             "       zs_headless --bench        body cost: 4 pops and 60 walkers for one game day\n"
+            "       zs_headless --pop-bench    spec 28: what records, lazy pops and promotion cost\n"
             "       zs_headless --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades\n"
             "       zs_headless --stage6 [--seed N] [--trace FILE]  the grid fails; generator, fuel, fridge, noise and light\n"
             "                  (--trace writes a JSON replay for the web viewer, tools/viewer)");
@@ -689,6 +691,7 @@ int main(int argc, char** argv) {
     return scripted_pop(argc >= 3 && !std::strcmp(argv[2], "--ai"));
   if (argc >= 2 && !std::strcmp(argv[1], "--body-lab")) return body_lab();
   if (argc >= 2 && !std::strcmp(argv[1], "--bench")) return bench();
+  if (argc >= 2 && !std::strcmp(argv[1], "--pop-bench")) return pop_bench();
   if (argc >= 2 && !std::strcmp(argv[1], "--map")) {
     try {
       return print_map(argc >= 3 ? argv[2] : std::string(ZS_DATA_DIR) + "/tier0/map/block.toml");

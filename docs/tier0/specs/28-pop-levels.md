@@ -80,6 +80,26 @@ A headless command, `zs_headless --pop-bench`, using the Tier 0 core and the gen
 
 Starting budget to test (estimates from the research note): 50–300 embodied, 10,000–100,000 records, lazy unbounded.
 
+### First measurement (2026-10-06, `zs_headless --pop-bench`, release build, one thread, a cloud container; GCC)
+
+Measured, not estimated. The records are **thin** (only office, followed flag and exceptions), so the memory figure is a floor: real records with ties, beliefs, wounds and items will be several times larger.
+
+| Case | Result |
+| --- | --- |
+| B1 records, 1,000,000 | built in 0.45 s (0.45 µs each); 72 bytes per record of process memory (std::map nodes included); 17 bytes per record saved |
+| B2 lazy snapshot, 1M to 10M pops | 1.6–2.2 µs per pop, flat with census size; with 10,000 aggregate effects in the log 2.1 µs |
+| B2 region count (1M pops, 10,000 effects) | 6.8 µs; 10M pops and 100 effects: 4.4 µs |
+| B3 promotion | lazy → record 0.7 µs; record → lazy 0.4 µs |
+| B4, B6 | not yet (need P5: life-event jumps) |
+| B5 | existing `--bench`: 4 pops + 60 walkers for a game day in about 0.2 s |
+
+What it shows:
+
+- **Records are not the limit at this size.** A million thin records is 72 MB and 0.45 s. The limit will be what a record holds and how often it is updated, which P5 and the systems that add fields decide. The research estimate of 10,000–100,000 records is conservative for thin records.
+- **Lazy is genuinely cheap:** about 2 µs a pop to read, flat as the census grows tenfold.
+- **The first version replayed the whole effect log on every query** (27 µs a snapshot and 377 µs a region count at 10,000 effects). An index per (cohort, kind) and per region fixed it (2.1 µs and 6.8 µs). This is the kind of cost the benchmark exists to find.
+- **Not measured yet:** long steps, life-event updates, realistic record size, several threads, other machines, MSVC. The numbers are one container's; treat them as orders of magnitude.
+
 ## Calibration
 
 | Value | Source |
