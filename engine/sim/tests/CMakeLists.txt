@@ -14,6 +14,7 @@ add_executable(zs_sim_tests
   test_stage7.cpp
   test_stage8.cpp
   test_stage9.cpp
+  test_pop.cpp
 )
 target_include_directories(zs_sim_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest)
 target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck)

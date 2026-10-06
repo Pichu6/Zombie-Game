@@ -100,4 +100,4 @@ Offices and their work, the economy, the UI of following and possessing, war ([s
 
 ## Implementation order
 
-P1 PopId, `derive`, the permutation, with the purity and rank tests → P2 cohort events and count agreement → P3 record store, promotion and demotion, round-trip and save tests → P4 `--pop-bench` and its first measurement → P5 jump forms for life events → P6 realism report.
+P1 PopId, `derive`, the permutation, with the purity and rank tests (**Implemented 2026-10-06**: `engine/sim/include/zs/pop.h`, `src/pop.cpp`, `tests/test_pop.cpp`; mortality is a placeholder, not yet calibrated; not yet Validated) → P2 cohort events and count agreement → P3 record store, promotion and demotion, round-trip and save tests → P4 `--pop-bench` and its first measurement → P5 jump forms for life events → P6 realism report.
