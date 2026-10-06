@@ -1,6 +1,6 @@
 # Foxhole, as a reference for war and logistics
 
-- **Date:** 2026-10-06. **Status:** research note, not a decision. From general knowledge of the game; **not re-checked against the game or its wiki**. Verify before relying on any detail.
+- **Date:** 2026-10-06. **Status:** research note, not a decision. First written from general knowledge; see "Checked on 2026-10-06" below for what was verified. Check results come from web-search summaries of the pages cited (the wiki itself could not be fetched directly from the research environment), so treat numbers as secondary until read on the wiki.
 
 ## Why it is relevant
 
@@ -29,3 +29,21 @@ A persistent online war between two factions where almost everything is player-m
 4. How the game keeps large numbers readable.
 
 Findings go here as dated notes; decisions go in `docs/decisions/`.
+
+## Checked on 2026-10-06
+
+Method: web search; direct fetches of foxhole.wiki.gg and fandom were blocked, so each line below is what the search summary of the cited page said. Numbers were not read first-hand on the wiki.
+
+| Claim in this note | Result | Source |
+| --- | --- | --- |
+| Persistent online war, almost everything player-made | Confirmed: "every bullet, weapon, vehicle, and drop of fuel is produced and supplied by real players". | https://www.pcgamer.com/foxholes-latest-update-adds-mass-production-to-fuel-the-mmo-war/ |
+| Wars last weeks and then reset | Confirmed, with detail: a war ends when a side holds enough victory towns (32 on the full map by default); then a 15-minute celebration, then a Resistance Phase of usually 1 or 2 days before a new war. | https://foxhole.wiki.gg/wiki/World_Conquest , https://foxhole.wiki.gg/wiki/Short_War , https://www.foxholegame.com/about-foxhole |
+| War length | Long outliers reported: War 100 about 55.8 days; a later war (Charlie 9) 71 days. Typical length not found. | https://www.pcgamesn.com/foxhole/longest-deadliest-war |
+| Resources become items through real stages | Confirmed: raw resources -> materials at a Refinery -> supplies (crates of weapons, ammo, tools, medical, base supplies) at a Factory. Mass Production Factories (added to the largest industrial towns) make bigger batches at a discount, far from the front, and can make vehicles in bulk. | https://foxhole.wiki.gg/wiki/Community_Guides/Logistics , https://www.pcgamer.com/foxholes-latest-update-adds-mass-production-to-fuel-the-mmo-war/ |
+| Facilities and supply networks decide where a front can hold | Partly confirmed: Storage Depots and Seaports hold crates (Seaport public stockpile: 1000 of each crate type, 100 shippable crates of each); a Relic Base is the home base where players spawn and rearm, is very durable, and owning it owns its region; supply cutting and sabotage can win battles. How a front "holds" as a rule: not found. | https://foxhole.wiki.gg/wiki/Seaport , https://foxhole.wiki.gg/wiki/Relic_Base , https://foxhole.wiki.gg/wiki/Community_Guides/Logistics |
+| How the front moves | Both sides capture enemy town halls; frontline builders extend trenches and bases behind the infantry advance. A precise capture rule: not found. | https://en.wikipedia.org/wiki/Foxhole_(video_game) , https://foxholeacademy.blogspot.com/2021/07/how-to-urban-defenses.html |
+| Regiments (player groups) with ranks | Confirmed and corrected: regiments are persistent between wars, up to 2000 members (update 1.61); creation needs a minimum rank (sig for Colonials, cpl for Wardens); squads are separate, max 40. | https://foxhole.wiki.gg/wiki/Regiment , https://grokipedia.com/page/Regiments_in_Foxhole |
+| Scale | Reported to support up to about 4000 players in one world. Per-side split: not found. | https://foxhole.wiki.gg/wiki/Regiment (search summary) |
+| Is logistics fun? | Divided: some find it a repetitive time sink (macros and autoclickers mentioned), others enjoy it and run public logistics groups. | https://steamcommunity.com/app/505460/discussions/0/3164335241626298436/ |
+
+Still open from the list above: what a commander sees (not found), and how large numbers stay readable (not found beyond the map of towns and regions). See [war in other games](war-in-other-games.md).
