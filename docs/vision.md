@@ -43,7 +43,7 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 - **Command layer:** squad orders (go, hold, follow, attack, retreat) and a job board with priorities. Proposal.
 - **Possession:** click a survivor to play them directly. Tier 0: direct WASD control; Tier 1: iso zoom-in; Tier 2: over-the-shoulder 3rd person. Camera and control code is mode-agnostic from day one. Possession gives control, not power: the body still sets speed, strength and stamina. Proposal.
 - **Why possess:** the AI is cautious and average on purpose, and panics or refuses in specific situations (a dark basement, an open yard with dead in sight, a live wire). Proposal.
-- **Setup:** create the world from parameters (real Earth by default; generated worlds in sandbox, where pops settle where conditions are best and towns, roads and trade follow), then the outbreak in a Plague Inc style virus editor (or no virus), the scenario and the character. Decided ([0016](decisions/0016-sandbox-setup-and-layer-flow.md)).
+- **Setup:** create the world from parameters (real Earth by default; generated worlds in sandbox, where pops settle where conditions are best and towns, roads and trade follow), then the outbreak in a Plague Inc style virus editor with sliders (or no virus, which turns the game into city building, world management, politics and a Sims-like life), the scenario and the character. Decided ([0016](decisions/0016-sandbox-setup-and-layer-flow.md)).
 - **Character:** pick a pop or create one, Project Zomboid style (civilian, police, military, nurse, custom). Starting weapons follow real custody rules by default. Every pop has a TTRPG-style lifepath behind them. Decided.
 - **Warning week:** about 7 days from first news to arrival (realistic for the virus settings), all live play by default: work, buy, prepare, hear the news. Decided.
 - **Fog:** playing an individual, the layers above show what that character believes, and a pop's dossier can be wrong. Decided.
@@ -83,13 +83,8 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-Earlier questions were answered on 2026-10-05 ([0014](decisions/0014-open-questions-answered.md); tone in [0015](decisions/0015-tone-realistic-damage.md)). From the sandbox and layer ideas ([0016](decisions/0016-sandbox-setup-and-layer-flow.md)), recommendations are Proposals:
+Earlier questions were answered in [0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md) and [0018](decisions/0018-sandbox-answers.md). Recommendations are Proposals.
 
-1. Playing micro → macro, do your orders depend on your character's role (a civilian can't order a power plant)? Recommended: yes; in the other play styles you can take any role.
-2. Watch towns grow before the outbreak? Recommended: a short timelapse at world creation only; real growth of camps and trade happens after the collapse.
-3. Virus editor with points (Plague Inc DNA) or free sliders? Recommended: sliders and trait cards, with an optional point budget as a Sandbox challenge.
-4. Cure by default? Recommended: treatment works before turning, a vaccine is a long lab project, nothing cures a turned zombie.
-5. "No virus" (pure life and city sim) in the base game? Recommended: yes.
-6. Can repetitive work always be handed to pops, so your own hands do the skilled or dangerous step? Recommended: yes; the work stays slow and hard, just not tedious clicking ([0017](decisions/0017-slow-endgame-and-generation-on-the-go.md)).
+1. Can repetitive work always be handed to pops, so your own hands do the skilled or dangerous step? Recommended: yes; the work stays slow and hard, just not tedious clicking ([0017](decisions/0017-slow-endgame-and-generation-on-the-go.md)).
 
 Also still open: ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).
