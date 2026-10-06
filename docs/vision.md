@@ -88,6 +88,6 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-All design questions so far are answered ([0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md), [0018](decisions/0018-sandbox-answers.md)–[0021](decisions/0021-recommended-defaults.md)).
+All design questions so far are answered ([0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md), [0018](decisions/0018-sandbox-answers.md)–[0022](decisions/0022-macro-layer-intent.md)).
 
 Only tuning remains: ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).

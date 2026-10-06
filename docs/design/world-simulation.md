@@ -9,7 +9,7 @@ Labels: **Decided** (the user confirmed it, see [0012](../decisions/0012-world-s
 | Part | What it is | Status |
 | --- | --- | --- |
 | Setup | Four screens: World (real Earth or generated), Outbreak (origin, virus numbers), Scenario (start), Character (pick a local, profession start, or custom). They only set numbers and the starting state. | Decided (screens), Proposal (split into four) |
-| Macro layer | Globe and regions. Watch the outbreak, use time controls, overlays and a chronicle; issue laws and edicts. | Decided |
+| Macro layer | Globe and regions. Watch the outbreak, use time controls, overlays and a chronicle; issue laws and edicts. Play, country panel, events and world setup: [macro layer](macro-layer.md) ([0022](../decisions/0022-macro-layer-intent.md)). | Decided |
 | City layer | Isometric RTS over the local zone: pops, resources, buildings, projects, the local effect of decisions. | Decided |
 | Individual layer | Play one pop, isometric or over the shoulder. | Decided |
 | Play style | Chosen in setup: micro → macro, macro → micro, one layer only, or spectator. | Decided |

@@ -37,4 +37,4 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Waiting on the user
 
-- Nothing. All design questions are answered (up to [0021](decisions/0021-recommended-defaults.md)).
+- Nothing. All design questions are answered (up to [0022](decisions/0022-macro-layer-intent.md)).
