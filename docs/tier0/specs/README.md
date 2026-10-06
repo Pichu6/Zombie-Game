@@ -44,3 +44,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 24 | [Pop AI](24-pop-ai.md) | Agent (policy) | 8 |
 | 25 | [Chronicle and cause of death](25-chronicle.md) | Event | 7, 9 |
 | 26 | [The run: "The generator problem"](26-run.md) | Scenario | 9 |
+| 27 | [Detail levels and chunks](27-detail-levels.md) | World (levels, chunks) | 8 rules; Tier 1 split |
