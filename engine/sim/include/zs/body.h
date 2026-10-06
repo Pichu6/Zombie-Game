@@ -135,6 +135,7 @@ class Bodies : public System {
 
   // Creates a body and mints its tissues (setup only).
   EntityId create(World& w, const BodySpec& spec, const std::string& label);
+  bool exists(EntityId id) const { return bodies_.contains(id); }
   const Body& get(EntityId id) const { return bodies_.at(id); }
   Body& get(EntityId id) { return bodies_.at(id); }
   const std::map<EntityId, Body>& all() const { return bodies_; }

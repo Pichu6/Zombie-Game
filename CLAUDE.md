@@ -56,6 +56,7 @@ build/release/apps/headless/zs_headless --stage7 [--seed N]  # stage 7: stage 6 
 build/release/apps/headless/zs_headless --group [--seed N] [--days D] [--seeds N]  # stage 8: 4 AI pops with the dead; --seeds runs a batch and counts causes
 build/release/apps/headless/zs_headless --run [--seed N] [--seeds N] [--careless]  # stage 9: the 14-day run (found survivors, stranger, radio), death screen and day-by-day chronicle
 build/release/apps/gen/zs_gen town --seed 1   # content tools: a generated town with every pop's dossier (also: census, names, cultures)
+# sandbox window (spec 16): -DZS_BUILD_SANDBOX=ON (default on Windows) builds apps/sandbox/zs_sandbox [--seed N] [--watch]; --shot f.bmp [--ticks N] [--menu x,y] [--overlay noise|light] renders offscreen
 # replay viewer: --stage6, --stage7, --group or --run with --trace trace.json, then python3 tools/viewer/embed.py trace.json replay.html [--max-mb 12] (open in a browser; --max-mb thins long runs)
 ```
 

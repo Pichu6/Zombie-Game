@@ -837,13 +837,13 @@ void PopAI::load(ArchiveReader& r) {
     m.target = r.u64();
     m.doing = static_cast<Doing>(r.u8());
     m.plan.clear();
-    for (std::uint64_t n = r.u64(); n > 0; --n) {
+    for (std::uint64_t k = r.u64(); k > 0; --k) {
       const auto p = static_cast<int>(r.i64());
       m.plan.emplace_back(p, r.u64());
     }
     m.next_decide = r.i64();
     m.retry_after.clear();
-    for (std::uint64_t n = r.u64(); n > 0; --n) {
+    for (std::uint64_t k = r.u64(); k > 0; --k) {
       const auto d = static_cast<Doing>(r.u8());
       m.retry_after[d] = r.i64();
     }

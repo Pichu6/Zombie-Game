@@ -512,38 +512,26 @@ GroupResult group_run(std::uint64_t seed, int days, const std::string& trace_pat
     const auto& log = t.world->log.all();
     for (; seen < log.size(); ++seen) {
       const Event& e = log[seen];
-      std::string line;
-      const char* kind = "alert";
+      const auto el = tier0::event_line(t, e);
+      if (!el) continue;
+      std::string line = el->text;
+      const char* kind = el->kind;
       switch (e.type) {
-        case EventType::GridFailed: line = "The grid failed"; out.grid_day = static_cast<double>(e.tick) / kTicksPerGameDay; break;
+        case EventType::GridFailed: out.grid_day = static_cast<double>(e.tick) / kTicksPerGameDay; break;
         case EventType::GeneratorOutOfFuel:
-          line = "The generator ran out of fuel";
           if (out.crunch_day < 0 && fuel_left_l(t) < 1) {
             out.crunch_day = static_cast<double>(e.tick) / kTicksPerGameDay;
             line += ", and there is none left";
           }
           break;
-        case EventType::Joined: line = name(e.subject) + " joined the group"; ++out.joined; break;
-        case EventType::StrangerArrived: line = name(e.subject) + " is at the yard gate"; break;
-        case EventType::Searched: line = name(e.subject) + " searched a house"; break;
-        case EventType::RadioRepaired: line = name(e.subject) + " repaired the radio"; break;
-        case EventType::RadioStatic: line = name(e.subject) + " listened to the radio: static"; kind = "body"; break;
-        case EventType::RadioHeard: line = name(e.subject) + " heard the evacuation broadcast: it names the pickup"; break;
-        case EventType::ControlPassed: line = "Control passes to " + name(e.subject); break;
-        case EventType::RunEnded: line = std::string("The run ends: ") + to_string(static_cast<RunOutcome>(e.a)); break;
-        case EventType::FoodSpoiled: line = "The fridge food spoiled"; break;
+        case EventType::Joined: ++out.joined; break;
+        case EventType::ActionRefused: continue;  // the AI's own tries
         case EventType::Death:
-          line = tier0::death_sentence(t, e);
-          kind = "dead";
           if (!e.b) out.deaths.push_back(line);
           break;
-        case EventType::WalkerArrived: line = name(e.subject) + " arrived, dead"; kind = "dead"; break;
-        case EventType::Bite: line = name(e.subject) + " bit " + name(static_cast<EntityId>(e.a)) + " (" + to_string(static_cast<Region>(e.b)) + ")"; break;
-        case EventType::Reanimated: line = name(e.subject) + " rose as a walker"; break;
         case EventType::EdgeBreached: {
           const EdgeRef r = t.actors->edges().at(e.subject);
-          line = "The " + t.items->def(t.items->get(e.subject).def).id + " was broken in";
-          if (tracing) trace.event(e.tick, "alert", line, &r);
+          if (tracing) trace.event(e.tick, kind, line, &r);
           if (verbose) std::printf("%s  %s\n", clock_text(e.tick).c_str(), line.c_str());
           continue;
         }
@@ -552,31 +540,9 @@ GroupResult group_run(std::uint64_t seed, int days, const std::string& trace_pat
           auto& last = last_refusal[{e.subject, e.a}];
           if (last && e.tick - last < kTicksPerGameHour) continue;
           last = e.tick;
-          line = name(e.subject) + " refused (" + to_string(static_cast<Doing>(e.b)) + "): " + to_string(static_cast<Refusal>(e.a));
-          kind = "body";
           break;
         }
-        case EventType::Panicked: line = name(e.subject) + " panicked and ran"; kind = "body"; break;
-        case EventType::BiteReported: line = name(e.subject) + " told the others: \"I've been bitten\""; break;
-        case EventType::Hit: {
-          const EntityId v = static_cast<EntityId>(e.a);
-          if (!e.b || t.bodies->get(v).spec.walker) continue;  // walkers put down have their own line
-          line = name(e.subject) + " made sure " + (v == t.player ? std::string("you stay") : name(v) + " stays") + " down";
-          kind = "dead";
-          break;
-        }
-        case EventType::ActionDone: {
-          const auto& procs = t.actors->processes();
-          if (e.a < 0 || static_cast<std::size_t>(e.a) >= procs.size()) continue;
-          const std::string& id = procs[static_cast<std::size_t>(e.a)].id;
-          if (id != "barricade" && id != "refuel_generator" && id != "start_generator" &&
-              id != "switch_to_generator" && id != "shout" && id != "dress_wound")
-            continue;
-          line = name(e.subject) + ": " + procs[static_cast<std::size_t>(e.a)].name;
-          kind = "done";
-          break;
-        }
-        default: continue;
+        default: break;
       }
       if (tracing) trace.event(e.tick, kind, line);
       if (verbose) std::printf("%s  %s\n", clock_text(e.tick).c_str(), line.c_str());

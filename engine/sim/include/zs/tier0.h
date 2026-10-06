@@ -88,6 +88,13 @@ std::string death_sentence(const Tier0& t, const Event& death);
 // missed counters as one clause each ("the wound was never cleaned").
 std::vector<std::string> danger_tags(const Tier0& t, const Event& death);
 std::vector<std::string> missed_counters(const Tier0& t, const Event& death);
+// One event as a plain log line for the player (spec 25), with its kind: "alert", "dead", "body" or
+// "done". Events the player does not read (intents, routine actions) give nothing.
+struct EventLine {
+  std::string text;
+  const char* kind = "alert";
+};
+std::optional<EventLine> event_line(const Tier0& t, const Event& e);
 // The day's notable events (top five by score, in time order) as plain lines.
 std::vector<std::string> day_summary(const Tier0& t, int day);
 

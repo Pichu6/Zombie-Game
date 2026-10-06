@@ -466,6 +466,65 @@ std::vector<std::string> missed_counters(const Tier0& t, const Event& death) {
   return out;
 }
 
+std::optional<EventLine> event_line(const Tier0& t, const Event& e) {
+  auto name = [&](EntityId b) { return t.census ? t.census->name_of(b) : std::string(b == t.player ? "You" : "someone"); };
+  std::string line;
+  const char* kind = "alert";
+  switch (e.type) {
+    case EventType::GridFailed: line = "The grid failed"; break;
+    case EventType::GeneratorOutOfFuel: line = "The generator ran out of fuel"; break;
+    case EventType::Joined: line = name(e.subject) + " joined the group"; break;
+    case EventType::StrangerArrived: line = name(e.subject) + " is at the yard gate"; break;
+    case EventType::Searched: line = name(e.subject) + " searched a house"; break;
+    case EventType::RadioRepaired: line = name(e.subject) + " repaired the radio"; break;
+    case EventType::RadioStatic: line = name(e.subject) + " listened to the radio: static"; kind = "body"; break;
+    case EventType::RadioHeard: line = name(e.subject) + " heard the evacuation broadcast: it names the pickup"; break;
+    case EventType::ControlPassed: line = "Control passes to " + name(e.subject); break;
+    case EventType::RunEnded: line = std::string("The run ends: ") + to_string(static_cast<RunOutcome>(e.a)); break;
+    case EventType::FoodSpoiled: line = "The fridge food spoiled"; break;
+    case EventType::Death: line = death_sentence(t, e); kind = "dead"; break;
+    case EventType::WalkerArrived: line = name(e.subject) + " arrived, dead"; kind = "dead"; break;
+    case EventType::Bite:
+      line = name(e.subject) + " bit " + name(static_cast<EntityId>(e.a)) + " (" + to_string(static_cast<Region>(e.b)) + ")";
+      break;
+    case EventType::Reanimated: line = name(e.subject) + " rose as a walker"; break;
+    case EventType::EdgeBreached: line = "The " + t.items->def(t.items->get(e.subject).def).id + " was broken in"; break;
+    case EventType::PopRefused:
+      line = name(e.subject) + " refused (" + to_string(static_cast<Doing>(e.b)) + "): " + to_string(static_cast<Refusal>(e.a));
+      kind = "body";
+      break;
+    case EventType::ActionRefused:
+      if (e.subject != t.player && !(t.run && e.subject == t.run->controlled())) return std::nullopt;
+      line = "Can't " + (e.a >= 0 && static_cast<std::size_t>(e.a) < t.actors->processes().size()
+                             ? t.actors->processes()[static_cast<std::size_t>(e.a)].name : std::string("do that")) +
+             ": " + to_string(static_cast<Reason>(e.b));
+      kind = "body";
+      break;
+    case EventType::Panicked: line = name(e.subject) + " panicked and ran"; kind = "body"; break;
+    case EventType::BiteReported: line = name(e.subject) + " told the others: \"I've been bitten\""; break;
+    case EventType::Hit: {
+      const EntityId v = static_cast<EntityId>(e.a);
+      if (!e.b || t.bodies->get(v).spec.walker) return std::nullopt;  // walkers put down have their own line
+      line = name(e.subject) + " made sure " + (v == t.player ? std::string("you stay") : name(v) + " stays") + " down";
+      kind = "dead";
+      break;
+    }
+    case EventType::ActionDone: {
+      const auto& procs = t.actors->processes();
+      if (e.a < 0 || static_cast<std::size_t>(e.a) >= procs.size()) return std::nullopt;
+      const std::string& id = procs[static_cast<std::size_t>(e.a)].id;
+      if (id != "barricade" && id != "refuel_generator" && id != "start_generator" && id != "switch_to_generator" &&
+          id != "shout" && id != "dress_wound")
+        return std::nullopt;
+      line = name(e.subject) + ": " + procs[static_cast<std::size_t>(e.a)].name;
+      kind = "done";
+      break;
+    }
+    default: return std::nullopt;
+  }
+  return EventLine{line, kind};
+}
+
 std::vector<std::string> day_summary(const Tier0& t, int day) {
   auto name = [&](EntityId b) { return t.census ? t.census->name_of(b) : std::string("someone"); };
   struct Line { int score; std::int64_t tick; std::string text; };

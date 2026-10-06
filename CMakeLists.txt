@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(ZS_BUILD_TESTS "Build the simulation tests" ON)
+# The window fetches SDL3 and Dear ImGui; on by default on Windows (the user's PC), off elsewhere.
+option(ZS_BUILD_SANDBOX "Build the sandbox window (spec 16)" ${WIN32})
 
 # Strict floating point everywhere: same binary, same result; see docs/tier0/specs/01-quantity.md.
 add_library(zs_strict_fp INTERFACE)
@@ -22,6 +24,9 @@ add_subdirectory(engine/sim)
 add_subdirectory(engine/gen)
 add_subdirectory(apps/headless)
 add_subdirectory(apps/gen)
+if(ZS_BUILD_SANDBOX)
+  add_subdirectory(apps/sandbox)
+endif()
 
 if(ZS_BUILD_TESTS)
   enable_testing()
