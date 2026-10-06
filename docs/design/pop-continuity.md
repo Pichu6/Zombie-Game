@@ -42,7 +42,7 @@ Macro counts are never a separate stored number. A region's counts (by age, job,
 
 Every change carries its reason, as already planned for the ledger ([macro layer](macro-layer.md) §5), so the inspector can answer "why".
 
-**Lost capabilities.** A capability is lost when the establishments, parts or people that make it are gone, never by a timer. Knowledge held by living people can be lost with them (and with their notes), not "forgotten" by drift (Decided, [0026](../decisions/0026-pop-continuity-and-capability-loss.md)). Whether a lost capability can be **restored** is Open: see the decision's open point (recommendation: possible, slow and hard, never chosen by the AI on its own; the player can take it as a mission).
+**Lost capabilities.** A capability is lost when the establishments, parts or people that make it are gone, never by a timer. Knowledge held by living people can be lost with them (and with their notes), not "forgotten" by drift (Decided, [0026](../decisions/0026-pop-continuity-and-capability-loss.md)). A lost capability **can** be restored but only with great effort (Decided, [0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): the AI never chooses it on its own; it is a human goal or late-game play that needs trade, cooperation and real time. The cost model (what it needs in parts, people, time and partners) is Open.
 
 ## 6. Invariants and tests (to write when specified)
 
@@ -57,4 +57,5 @@ Every change carries its reason, as already planned for the ledger ([macro layer
 
 1. **Budget:** how many records the sim can hold and update on a normal PC, and how a Macro run at "years per second" drives lazy jumps. Needs a benchmark.
 2. **Selection rules for layoffs and similar aggregate events** per system (seniority, skill, random draw): each system's spec states its ranking.
-3. **Restoring a lost capability** (0026 open point).
+3. **Cost model for restoring a lost capability** (what "nearly impossible" means in parts, people, time and partners).
+4. **Age gate:** a pop younger than the playable age is a record the player can follow but not possess ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)).

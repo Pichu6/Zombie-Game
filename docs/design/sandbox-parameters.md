@@ -60,7 +60,9 @@ Everything in §4–§11 is written so it works with the outbreak off. The outbr
 | Seed | integer or text | random, shown | Same seed and settings give the same world (determinism, [spec 02](../tier0/specs/02-draw.md)) |
 | Play style | micro → macro, macro → micro, one layer only, spectator | micro → macro | Decided ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)) |
 | Starting role | civilian, a chair in an office (mayor, minister, CEO, board member), a household head, spectator | civilian | In micro → macro the role limits orders; other styles may take any chair (Decided, [0018](../decisions/0018-sandbox-answers.md)) |
-| Time scale | 1×, 3×, 10×, rest-until-event, and **long steps** (day, week, month, year per second) | 1 game day per real hour | Long steps only at Macro/City. A sandbox setting (Decided in [vision](../vision.md)); the long steps are a Proposal |
+| Time scale | **Pause**, **slow down** (½×, ¼×), 1×, 3×, 10×, rest-until-event, and **long steps** (day, week, month, year per second) | 1 game day per real hour at 1× | Pause, acceleration and slow-down are Decided ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)); the exact steps and the long steps are Proposals. Long steps only at Macro/City, with Individual dormant. Combat forces 1× but allows pause and slow-down. Events never wait for the player ([0022](../decisions/0022-macro-layer-intent.md)), so in a future multiplayer game pause needs its own rule |
+| Real-time durations | Every action and process takes its real-life duration in game time (cooking, healing, building, travel, research, pregnancy, growing up) | on, always | Decided as the standard ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)). Only the clock speed changes, never the duration. A "faster processes" multiplier is a sandbox change, tagged |
+| Playable age | Youngest age a pop can be possessed or chosen as a character | 16 (Proposal; sandbox 12–25) | Decided that a minimum exists. Younger pops age as records and can be followed, never played |
 | Auto-pause classes | per event type: ignore, log, toast, pop-up, pop-up and pause | toast/pop-up, no auto-pause | [macro layer](macro-layer.md) §4.2 |
 | Fog | on (what the character believes) or off (truth) | on in micro → macro | Decided |
 | Instant build / god tools | off, sandbox only | off | Decided ([0014](../decisions/0014-open-questions-answered.md)); tagged |
@@ -359,9 +361,10 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 ### Open
 
 1. **Pop continuity spec and benchmark** ([pop continuity](pop-continuity.md) §7): record budget, long time steps, layoff selection rules.
-2. **Restoring a lost capability:** impossible, or possible but never chosen by the AI and available to the player as a mission (recommendation: the second).
+2. **Restoring a lost capability:** Decided ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): nearly impossible, never done by the AI on its own, a human goal or late-game play needing trade and cooperation. Open: the exact cost model (what "nearly" means in parts, people, time and partners).
 3. **War scale and look:** after the Foxhole research.
 4. **Tech tree contents:** which capabilities and how many tiers.
+5. **Default speed:** keep 1 real hour per game day at 1× (Decided earlier) or make 1:1 real time the default with the rest as acceleration? Recommendation: keep it, and offer 1:1 as a named speed and a sandbox default. Durations are real either way.
 
 ## 16. Order of work (dependencies only)
 
