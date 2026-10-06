@@ -2,10 +2,11 @@
 #include "zs/tier0.h"
 
 #include <algorithm>
+#include <cstdio>
 
 namespace zs::tier0 {
 
-Tier0 make_world(std::uint64_t seed) {
+Tier0 make_world(std::uint64_t seed, bool with_dead) {
   Tier0 t;
   t.world = std::make_unique<World>(seed);
   World& w = *t.world;
@@ -14,16 +15,28 @@ Tier0 make_world(std::uint64_t seed) {
   auto bodies = std::make_unique<Bodies>(w);  // registers its ledger resources first
   auto actors = std::make_unique<Actors>(w, *items, *map, *bodies);
   auto power = std::make_unique<Power>(w, *map, *items, *actors);
+  std::unique_ptr<Census> census;
+  std::unique_ptr<Walkers> walkers;
+  if (with_dead) {
+    census = std::make_unique<Census>(w, *map, *items, *bodies, *power);
+    walkers = std::make_unique<Walkers>(w, *map, *items, *bodies, *actors, *power, *census);
+  }
   t.items = items.get();
   t.map = map.get();
   t.bodies = bodies.get();
   t.actors = actors.get();
   t.power = power.get();
-  // Order: things and places, then the executor and movement, power, then the body.
+  t.census = census.get();
+  t.walkers = walkers.get();
+  // Order: things and places, the executor and movement, power, the dead, then the body.
   w.add_system(std::move(items));
   w.add_system(std::move(map));
   w.add_system(std::move(actors));
   w.add_system(std::move(power));
+  if (with_dead) {
+    w.add_system(std::move(census));
+    w.add_system(std::move(walkers));
+  }
   w.add_system(std::move(bodies));
   const std::string data = ZS_DATA_DIR;
   load_item_defs(*t.items, data + "/tier0/items.toml");
@@ -35,6 +48,11 @@ Tier0 make_world(std::uint64_t seed) {
   BodySpec spec;  // an average adult (spec 11 defaults)
   t.player = t.bodies->create(w, spec, "player");
   t.actors->add_actor(w, t.player, *t.map->find_object("pop_start", "player"));
+  if (with_dead) {
+    t.walkers->setup(w);
+    t.census->load_file(w, data + "/tier0/census.toml", *t.walkers);
+    t.census->add_pop(w, t.player, "You");
+  }
   w.close_setup();
   return t;
 }
@@ -163,9 +181,34 @@ bool GeneratorScenario::drive(Tier0& t) {
   World& w = *t.world;
   Power& p = *t.power;
   const Body& b = t.bodies->get(t.player);
-  if (!b.alive || w.clock.day() >= 10) return false;
+  if (!b.alive || b.spec.walker || w.clock.day() >= 10) return false;
   for (EventId id : w.events_this_tick())
     if (w.log.get(id)->type == EventType::FoodSpoiled && out_twice_) return false;
+  if (t.walkers && !b.activity.asleep) {
+    if (!armed_) {
+      armed_ = true;
+      if (auto bar = loose_item(t, "crowbar")) todo_.push_front({"take", *bar});
+    }
+    // Fight back: the nearest walker within reach gets the crowbar (a stand-in for the pop AI, stage 8).
+    const Cell me = t.actors->actor(t.player).pos;
+    EntityId near = 0;
+    for (const auto& [id, z] : t.walkers->walkers())
+      if (t.bodies->get(id).alive && z.pos.z == me.z && std::abs(z.pos.x - me.x) + std::abs(z.pos.y - me.y) <= 1) near = id;
+    if (near) {
+      const Action& act = t.actors->actor(t.player).action;
+      const auto strike = t.actors->find_process("strike_walker");
+      if (!t.actors->idle(t.player) && act.process != static_cast<int>(*strike)) {
+        Command c;
+        c.type = static_cast<std::uint16_t>(CommandType::Cancel);
+        c.subject = t.player;
+        if (as_ai_) w.queue_intent(c);
+        else w.submit(c);
+      } else if (t.actors->idle(t.player)) {
+        use(t, "strike_walker", near);
+      }
+      return true;
+    }
+  }
   if (!t.actors->idle(t.player) || b.activity.asleep) return true;
   if (!todo_.empty()) {
     const auto [process, target] = todo_.front();
@@ -202,6 +245,40 @@ bool GeneratorScenario::drive(Tier0& t) {
     }
   }
   return true;
+}
+
+std::string time_text(std::int64_t tick) {
+  Clock c;
+  c.tick = tick;
+  const double h = c.hour();
+  char buf[32];
+  std::snprintf(buf, sizeof buf, "day %lld %02d:%02d", static_cast<long long>(c.calendar_day()), static_cast<int>(h),
+                static_cast<int>((h - static_cast<int>(h)) * 60));
+  return buf;
+}
+
+std::string death_sentence(const Tier0& t, const Event& death) {
+  auto name = [&](EntityId b) { return t.census ? t.census->name_of(b) : std::string("someone"); };
+  const Body& b = t.bodies->get(death.subject);
+  std::string s = name(death.subject) + ", " + std::to_string(static_cast<int>(b.spec.age)) +
+                  (death.b ? ", walker, was put down " : ", died ") + time_text(death.tick) + ": " +
+                  to_string(static_cast<DeathCause>(death.a)) + ".";
+  // Walk the cause chain to the first bite or strike.
+  for (EventId id = death.cause; id != 0;) {
+    const Event* e = t.world->log.get(id);
+    if (!e) break;
+    if (e->type == EventType::Bite) {
+      s += " Bitten on the " + std::string(to_string(static_cast<Region>(e->b))) + " by " + name(e->subject) + ", " +
+           time_text(e->tick) + ".";
+      break;
+    }
+    if (e->type == EventType::Hit) {
+      s += " Struck by " + name(e->subject) + ".";
+      break;
+    }
+    id = e->cause;
+  }
+  return s;
 }
 
 }  // namespace zs::tier0

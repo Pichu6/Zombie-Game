@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Block Replay</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -14,7 +15,7 @@
   --lamp: #e4b42a;
   --water: #2f7ea6;
   --good: #2f8a55;
-  --bad: #b8382e;
+  --bad: #b8382e; --dead: #5d7a3a;
   --wood: #e2d6c2;
   --concrete: #d6d9d6;
   --grass: #cfdcc4;
@@ -29,14 +30,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #111614; --paper: #182019; --ink: #e5ece7; --muted: #93a39a; --line: #2c3731;
-    --accent: #ec8a46; --lamp: #f2c94c; --water: #5fb0d8; --good: #5fc489; --bad: #ee6b5f;
+    --accent: #ec8a46; --lamp: #f2c94c; --water: #5fb0d8; --good: #5fc489; --bad: #ee6b5f; --dead: #8fb35e;
     --wood: #4a4234; --concrete: #3d413f; --grass: #2f3d2a; --asphalt: #2c3030; --dirt: #463e31; --wall: #c9d3cd;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #111614; --paper: #182019; --ink: #e5ece7; --muted: #93a39a; --line: #2c3731;
-  --accent: #ec8a46; --lamp: #f2c94c; --water: #5fb0d8; --good: #5fc489; --bad: #ee6b5f;
+  --accent: #ec8a46; --lamp: #f2c94c; --water: #5fb0d8; --good: #5fc489; --bad: #ee6b5f; --dead: #8fb35e;
   --wood: #4a4234; --concrete: #3d413f; --grass: #2f3d2a; --asphalt: #2c3030; --dirt: #463e31; --wall: #c9d3cd;
   color-scheme: dark;
 }
@@ -82,6 +83,7 @@ canvas#strip { width: 100%; height: 46px; display: block; cursor: pointer; borde
 .events button:hover, .events button.now { background: var(--bg); }
 .events .t { font-family: var(--f-mono); color: var(--muted); font-size: 11.5px; }
 .events .alert { color: var(--bad); font-weight: 600; }
+.events .dead { color: var(--dead); }
 details { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
 summary { cursor: pointer; font: 600 15px var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
 details ol { margin: 8px 0 2px; padding-left: 20px; display: grid; gap: 6px; max-width: 75ch; }
@@ -101,6 +103,7 @@ details ol { margin: 8px 0 2px; padding-left: 20px; display: grid; gap: 6px; max
       <li>The C++ simulation steps the whole world every half game second: commands first, then each system in a fixed order (items and map, actions, power, body), then scheduled events like the grid failure.</li>
       <li>The survivor is driven by a small script that sends the same commands a player's clicks would send ("drink at the sink", "start the generator"). The simulation decides how long each takes, how far the walk is, whether it's possible, and what it costs the body.</li>
       <li>Everything on this page was recorded from that run (a frame per game minute, the noise and light fields every game hour). This page only replays it; it doesn't simulate anything itself.</li>
+      <li id="howdead" hidden>With the dead on: sixty neighbours each have a drawn fate (fled, dead, walker at home, walker somewhere off the map). Walkers off the map arrive at the edges, more often while the generator's noise and lit windows reach past the block. A walker hears and sees with the same noise and light fields shown here, walks to what it noticed, pushes on doors and windows part by part until they give, grabs and bites. A bite may carry the infection; the bitten die on a drawn schedule and rise with what they had.</li>
       <li>The tests run scenarios like this one and check the numbers against real references: fuel use against generator spec sheets, how far the generator is heard against the night background, how long fridge food keeps.</li>
     </ol>
   </details>
@@ -138,6 +141,13 @@ details ol { margin: 8px 0 2px; padding-left: 20px; display: grid; gap: 6px; max
         <div class="meter"><div id="fuelbar" style="background:var(--accent)"></div></div>
         <div class="row"><span>Heard from</span><span id="heard"></span></div>
         <div class="row"><span>Background noise</span><span id="bg"></span></div>
+      </div>
+      <div class="card" id="deadcard" hidden>
+        <h2>The dead</h2>
+        <div class="row"><span>Walkers on the map</span><span id="wcount"></span></div>
+        <div class="row"><span>Pushing a door or window</span><span id="wbash"></span></div>
+        <div class="row"><span>Following a sound or light</span><span id="winv"></span></div>
+        <div class="row"><span>After someone</span><span id="wpur"></span></div>
       </div>
       <div class="card">
         <h2>Fridge</h2>
@@ -221,7 +231,8 @@ function legend() {
     ? [["var(--lamp)", "Lamp light"], ["rgb(var(--night))", "Dark"], ["var(--water)", "Window: how far its light shows (dashed)"]]
     : [["var(--wood)", "Wood floor"], ["var(--concrete)", "Concrete"], ["var(--grass)", "Grass"], ["var(--asphalt)", "Street"]];
   $("legend").innerHTML = items.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("") +
-    `<span><i style="background:var(--accent);border-radius:50%"></i>Survivor</span>`;
+    `<span><i style="background:var(--accent);border-radius:50%"></i>Survivor</span>` +
+    (T.dead ? `<span><i style="background:var(--dead);border-radius:50%"></i>Walker (red ring: pushing or attacking)</span><span><i style="background:var(--bad)"></i>Broken in</span>` : "");
 }
 
 // ---- Map ----
@@ -269,6 +280,13 @@ function draw() {
     g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); g.setLineDash([]);
     if (barricade) { g.strokeStyle = "#8a5a2b"; g.lineWidth = c * .3; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }
   }
+  // Doors and windows broken in so far.
+  for (const [t, kind, text, z, x, y, v] of T.events) {
+    if (z === undefined || t > tick || z !== level) continue;
+    const x0 = x * c, y0 = y * c;
+    g.strokeStyle = css("--bad"); g.lineWidth = c * .3; g.setLineDash([c * .15, c * .1]);
+    g.beginPath(); g.moveTo(x0, y0); g.lineTo(v ? x0 : x0 + c, v ? y0 + c : y0); g.stroke(); g.setLineDash([]);
+  }
   // Window reach (light overlay).
   if (overlay === "light" && fld) for (const [z, x, y, v, seen, cover] of fld.windows) {
     if (z !== level || seen <= 0) continue;
@@ -307,8 +325,24 @@ function draw() {
     const a = Math.max(0, Math.min(1, (tick - f[0]) / Math.max(1, nf[0] - f[0])));
     px += (nf[2] - f[2]) * a; py += (nf[3] - f[3]) * a;
   }
-  if (pz === level) {
-    g.fillStyle = css("--accent"); g.strokeStyle = css("--paper"); g.lineWidth = 2.5;
+  // Walkers, matched by name between frames so they glide like the survivor.
+  const ws = f[16] || [], nws = nf[16] || [];
+  const nextOf = new Map(nws.map((w) => [w[4], w]));
+  for (const [z, x, y, mode, name] of ws) {
+    if (z !== level) continue;
+    let wx = x, wy = y;
+    const n = nextOf.get(name);
+    if (n && n[0] === z && Math.abs(n[1] - x) + Math.abs(n[2] - y) <= 2) {
+      const a = Math.max(0, Math.min(1, (tick - f[0]) / Math.max(1, nf[0] - f[0])));
+      wx += (n[1] - x) * a; wy += (n[2] - y) * a;
+    }
+    g.fillStyle = css("--dead");
+    g.strokeStyle = mode === 3 || mode === 4 ? css("--bad") : css("--paper"); g.lineWidth = mode === 3 || mode === 4 ? 3 : 1.5;
+    g.beginPath(); g.arc((wx + .5) * c, (wy + .5) * c, c * .3, 0, Math.PI * 2); g.fill(); g.stroke();
+  }
+  const popLabel = T.labels[f[4]];
+  if (pz === level && popLabel !== "risen as a walker") {
+    g.fillStyle = popLabel === "dead" ? css("--muted") : css("--accent"); g.strokeStyle = css("--paper"); g.lineWidth = 2.5;
     g.beginPath(); g.arc((px + .5) * c, (py + .5) * c, c * .36, 0, Math.PI * 2); g.fill(); g.stroke();
   }
 }
@@ -338,6 +372,13 @@ function readouts() {
   $("windows").innerHTML = lit.length
     ? lit.map((w) => `<div class="row"><span>${levelNames[w[0]] || w[0]} (${w[1]},${w[2]})${w[5] > 0 ? " covered " + Math.round(w[5] * 100) + "%" : ""}</span><span>${w[4] > 0 ? "seen " + w[4] + " m" : "hidden"}</span></div>`).join("")
     : `<span class="note">No lamp is lighting a window.</span>`;
+  if (T.dead) {
+    const ws = f[16] || [], n = (m) => ws.filter((w) => w[3] === m).length;
+    $("wcount").textContent = ws.length;
+    $("wbash").textContent = n(3);
+    $("winv").textContent = n(1);
+    $("wpur").textContent = n(2) + n(4);
+  }
   for (const b of document.querySelectorAll(".events button")) b.classList.toggle("now", +b.dataset.t <= tick && +b.dataset.next > tick);
 }
 
@@ -373,7 +414,7 @@ const ev = $("events");
 T.events.forEach(([t, kind, text], i) => {
   const b = document.createElement("button");
   b.type = "button"; b.dataset.t = t; b.dataset.next = i + 1 < T.events.length ? T.events[i + 1][0] : 1e15;
-  b.innerHTML = `<span class="t">${clockText(t)}</span><span class="${kind === "alert" ? "alert" : ""}">${kind === "done" ? "Done: " : ""}${text}</span>`;
+  b.innerHTML = `<span class="t">${clockText(t)}</span><span class="${kind === "alert" ? "alert" : kind === "dead" ? "dead" : ""}">${kind === "done" ? "Done: " : ""}${text}</span>`;
   b.onclick = () => seek(t);
   ev.appendChild(b);
 });
@@ -400,11 +441,15 @@ function fit() {
 window.addEventListener("resize", fit);
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
 
-$("subtitle").textContent = `Seed ${T.seed}. The grid fails, one survivor keeps the generator going, and the fridge food spoils once the fuel is gone.`;
+$("subtitle").textContent = T.dead
+  ? `Seed ${T.seed}, with the dead. The grid fails, one survivor keeps the generator going and fights off what its noise and light bring in.`
+  : `Seed ${T.seed}. The grid fails, one survivor keeps the generator going, and the fridge food spoils once the fuel is gone.`;
+if (T.dead) { $("deadcard").hidden = false; $("howdead").hidden = false; }
 $("foot").textContent = "Map squares are 1 m. Rings are to scale; beyond the map edge they keep going. Noise and light fields are recorded every game hour.";
 legend();
 // Open on the first night with the generator running, so the first view shows something happening.
 const firstNight = frames.find((f) => f[7] && hourOf(f[0]) >= 23);
-tick = firstNight ? firstNight[0] : 0;
+const firstBreach = T.events.find((e) => e[3] !== undefined);
+tick = T.dead && firstBreach ? Math.max(0, firstBreach[0] - TPH / 2) : firstNight ? firstNight[0] : 0;
 fit();
 </script>

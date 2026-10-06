@@ -25,6 +25,10 @@ double edge_loss_db(const SiteMap& map, const Assemblies& items, const EdgeRef& 
 // Unreachable cells get kSilentDb.
 inline constexpr double kSilentDb = -100;
 std::vector<double> noise_field(const SiteMap& map, const Assemblies& items, const std::vector<NoiseSource>& sources);
+// Least total edge loss (dB) from `from` to every cell (same indexing); 1e300 where unreachable.
+std::vector<double> path_loss(const SiteMap& map, const Assemblies& items, const Cell& from);
+std::size_t cell_index(const SiteMap& map, const Cell& c);
+double distance_m(const Cell& a, const Cell& b);
 double noise_at(const SiteMap& map, const std::vector<double>& field, const Cell& c);
 // How far from its best way outdoors a source stays audible (signal - background > 3 dB), in m.
 double audible_range_m(const SiteMap& map, const Assemblies& items, const NoiseSource& s, double background);

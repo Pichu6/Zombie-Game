@@ -47,3 +47,13 @@ The first, small version of the one damage system for bodies and buildings ([001
 ## Not in Tier 0
 
 Firearms and ballistics, explosives, crushing by collapse, severed limbs as separate objects, fire.
+
+## Model as implemented (Proposal, 2026-10-06)
+
+Code: `Walkers::strike`, `Walkers::bite`, `Walkers::attack` in `engine/sim/src/walkers.cpp`; the `strike_walker` process (`data/tier0/processes.toml`, effect `hit`).
+
+- **Strike:** energy = 25 J × (push force / 500 N) × (1 + 3 × tool), tool = best of blunt, 0.9 × lever, 0.6 × edge. Aim hits the head with 0.6 × (1 − 0.5 fear) × √exertion, else the chest. A head hit delivers energy × U(0.6, 1.2); ≥ 60 J destroys the brain (death `BrainDestroyed`, census `Destroyed`); ≥ 36 J leaves a fracture, less a contusion. Average adult with a crowbar ≈ 100 J; in 50 strikes the strongest neighbour put walkers down 30 times, the weakest 6 (test).
+- **Walker attack** every 3 s when in reach: grab 0.5; held victims escape with 0.2 × strength ratio, else a bite with 0.4. After a bite the walker worries it for 30 s before biting again. At most 3 walkers get at one person; the rest crowd behind.
+- **Bite wound:** region weighted to forearms and hands (neck 8 %), depth skin 0.3 / fat 0.35 / muscle, 25–45 mm, contamination 0.9, pathogen dose 1. A bite wakes a sleeper.
+
+**Known gaps:** two zones only (head, chest); no layer-by-layer spend; no clothing; no jaw, arm or leg destruction on walkers; no scratches; strikes make no noise yet; the scripted pop has no flee or shove.

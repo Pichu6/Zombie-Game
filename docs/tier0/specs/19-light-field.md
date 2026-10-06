@@ -25,7 +25,7 @@ Code: `Power::lux_at`, `Power::window_leaks` in `engine/sim/src/power.cpp`.
 - **Seen from** d = sqrt(leak × 1.2 m² / π / (0.02 × outdoor ambient + 0.0002)): the lit pane as a small diffuse source whose light at the observer must beat 2 % of ambient plus a floor. This is an attention distance (what pulls a walker), not the limit of sight, which is far longer. The kitchen lamp's window shows at ~53 m at night, curtained ~9 m, boarded never, by day never.
 - **Work:** fine, strike, pry and cut work runs at 0.5 below 10 lux, rising log-linearly to 1 at 100 lux.
 
-**Known gaps:** the attention constants are estimates; light is recomputed on every query (cheap now; spec rule 5 wants on change); no flashlights or flames; light doesn't spill through open doors; windowless rooms still get the 2 % daylight share; sight (rule 2) waits for walkers and pop AI; a hung curtain can't be taken down yet.
+**Known gaps:** the attention constants are estimates; light is recomputed on every query (cheap now; spec rule 5 wants on change); no flashlights or flames; light doesn't spill through open doors; windowless rooms still get the 2 % daylight share; sight (rule 2) is used by walkers only, the pop AI waits for stage 8.
 
 ## Rules
 

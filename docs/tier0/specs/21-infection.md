@@ -47,3 +47,13 @@ How a living body becomes a walker, with the default origin: a hidden bite, 1–
 ## Not in Tier 0
 
 Long incubation (weeks), cures and treatments, airborne routes, SEIRZ spread across the town.
+
+## Model as implemented (Proposal, 2026-10-06)
+
+Code: `Walkers::bite`, `Walkers::step_turnings`, `Walkers::rise`; `Bodies::kill`, `Bodies::reanimate`.
+
+- A bite establishes the infection once per person: 0.5 if skin-deep, 0.9 deeper (default preset; 74 of 100 test bites). Times are drawn at the bite: prodrome 6–12 h, death 24–48 h, rising 10–60 min after death (spec 21 band, test over 100 bites).
+- At the drawn time an infected body still alive dies (`Pathogen`). Any infected body that dies of anything but a destroyed brain rises: same body, wounds and items, the walker flag set, `Reanimated`, census back to walker on the map.
+- `Walkers::turning_of` is the debug truth; nothing in the player view shows it.
+
+**Known gaps:** bites only (no scratch or splash route, dose unused); prodrome is a recorded time with no symptoms or tells yet; the walker profile is only "doesn't bleed to death, isn't driven by the pop executor"; no settings beyond the default preset.

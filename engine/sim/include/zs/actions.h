@@ -38,7 +38,7 @@ std::optional<Primitive> primitive_from(const std::string& name);
 
 // ---- Processes: contextual actions, in data ----
 
-enum class TargetKind : std::uint8_t { Self, Wound, Object, Item, Edge };
+enum class TargetKind : std::uint8_t { Self, Wound, Object, Item, Edge, Body };  // Body: another body ("body:walker")
 enum class Trade : std::uint8_t { Everyday, FirstAid, Carpentry, Mechanics, Electronics, Count };
 inline constexpr std::size_t kTradeCount = static_cast<std::size_t>(Trade::Count);
 
@@ -73,6 +73,7 @@ enum class EffectOp : std::uint8_t {
   Sleep,      // sleep until the body wakes
   Power,      // how = start | stop | refuel | on | off | transfer_generator | transfer_mains | reset (spec 17)
   Cover,      // hang the first carried `uses` item over the target window (a curtain; spec 19)
+  Hit,        // strike the target body with the tool in hand (spec 20)
 };
 
 struct Effect {
@@ -106,7 +107,7 @@ Cell unpack_cell(std::int64_t v);
 enum class Reason : std::uint8_t {
   Ok, UnknownProcess, WrongTarget, Dead, Unconscious, CannotMove, CannotUseHands, NoTool, MissingItem,
   MissingStock, NoRoute, TargetGone, InUse, Full, Interrupted, Asleep, TooHeavy,
-  AlreadyDone, NoFuel
+  AlreadyDone, NoFuel, Held
 };
 const char* to_string(Reason r);
 
@@ -196,6 +197,10 @@ class Actors : public System {
   std::function<Reason(const World&, EntityId body, EntityId target, const std::string& how)> power_check;
   std::function<void(World&, EntityId body, EntityId target, const std::string& how, EventId cause)> power_apply;
   std::function<double(const World&, const Cell&)> light_lux;  // illuminance where a pop works (spec 19)
+  // Stage 7: where a walker body is, whether a body is held by a walker, and a strike landing.
+  std::function<std::optional<Cell>(EntityId body)> body_cell;
+  std::function<bool(EntityId body)> held;
+  std::function<void(World&, EntityId attacker, EntityId target, EntityId tool, EventId cause)> hit;
   // Work-rate factor from light for fine, strike, pry and cut work: 0.5 below 10 lux, 1 from 100 lux.
   double light_factor(const World& w, const Actor& a, const ProcessDef& p) const;
 

@@ -350,3 +350,15 @@ contents = { gasoline_l = 15 }
 kind = "item"
 at = [0, 9, 8]
 id = "blanket"
+
+# Stage 7: homes on the map (spec 22). Neighbours living here may be walkers inside at the start.
+
+[[object]]
+kind = "home"
+at = [0, 24, 6]
+id = "house_a"
+
+[[object]]
+kind = "home"
+at = [0, 24, 20]
+id = "house_b"

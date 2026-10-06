@@ -57,7 +57,7 @@ struct Wound {
 
 enum class Sex : std::uint8_t { Male, Female };
 enum class Posture : std::uint8_t { Stand, Crouch, Sit, Lie };
-enum class DeathCause : std::uint8_t { None, Exsanguination, Dehydration, Starvation, Sepsis };
+enum class DeathCause : std::uint8_t { None, Exsanguination, Dehydration, Starvation, Sepsis, Pathogen, BrainDestroyed };
 const char* to_string(DeathCause c);
 const char* to_string(Region r);
 const char* to_string(WoundType t);
@@ -150,6 +150,10 @@ class Bodies : public System {
   void dress(EntityId body, EntityId wound, bool on);
   void splint(EntityId body, EntityId wound, bool on);
   void tourniquet(EntityId body, EntityId wound, bool on);
+  // Stage 7: death from outside the body model (the pathogen, a destroyed brain), and rising as a
+  // walker with everything the body had (spec 21 rule 4).
+  void kill(World& w, EntityId body, DeathCause c, EventId cause);
+  void reanimate(World& w, EntityId body, EventId cause);
 
   // Derived readouts: pure functions of the state.
   double region_pain(const Body& b, Region r, std::int64_t now) const;

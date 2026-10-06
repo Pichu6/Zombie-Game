@@ -60,7 +60,7 @@ EffectOp op_from(const std::string& s) {
       {"eat", EffectOp::Eat},       {"drink", EffectOp::Drink},   {"fill", EffectOp::Fill},
       {"use_stock", EffectOp::UseStock}, {"treat", EffectOp::Treat}, {"board", EffectOp::Board},
       {"salvage", EffectOp::Salvage}, {"take", EffectOp::Take},   {"sleep", EffectOp::Sleep},
-      {"power", EffectOp::Power},     {"cover", EffectOp::Cover}};
+      {"power", EffectOp::Power},     {"cover", EffectOp::Cover},   {"hit", EffectOp::Hit}};
   for (const auto& [name, op] : ops)
     if (s == name) return op;
   throw std::runtime_error("processes: unknown effect op " + s);
@@ -119,6 +119,7 @@ const char* to_string(Reason r) {
     case Reason::TooHeavy: return "too heavy to carry";
     case Reason::AlreadyDone: return "already that way";
     case Reason::NoFuel: return "no fuel";
+    case Reason::Held: return "held by a walker";
   }
   return "?";
 }
@@ -150,6 +151,7 @@ void Actors::load_processes(const std::string& path) {
     else if (kind == "object") p.target = TargetKind::Object;
     else if (kind == "item") p.target = TargetKind::Item;
     else if (kind == "edge") p.target = TargetKind::Edge;
+    else if (kind == "body") p.target = TargetKind::Body;
     else throw std::runtime_error("processes: unknown target " + target);
     p.trade = trade_from(pt["trade"].value_or(std::string("everyday")));
     p.time_s = pt["time_s"].value_or(10.0);
@@ -286,6 +288,8 @@ std::optional<Cell> Actors::floor_cell(EntityId e) const {
 }
 
 std::optional<Cell> Actors::cell_of(const World& w, EntityId e) const {
+  if (body_cell)
+    if (auto c = body_cell(e)) return c;  // a walker
   for (int depth = 0; depth < 64 && e != Locations::kWorld; ++depth) {
     if (auto it = actors_.find(e); it != actors_.end()) return it->second.pos;
     if (auto c = floor_cell(e)) return c;
@@ -377,6 +381,12 @@ bool Actors::target_matches(const World& w, const ProcessDef& p, const Actor& a,
       if (edge_of_.contains(parent)) return items_.prop(target, Prop::ClothAreaM2) >= 1.0;  // a hung curtain
       return floor_cell(parent).has_value() || object_index_.contains(parent);
     }
+    case TargetKind::Body: {
+      const auto& all = bodies_.all();
+      auto it = all.find(target);
+      if (it == all.end() || !it->second.alive || target == a.body) return false;
+      return p.target_match.empty() || (p.target_match == "walker") == it->second.spec.walker;
+    }
     case TargetKind::Edge: {
       auto it = edge_of_.find(target);
       return it != edge_of_.end() &&
@@ -390,6 +400,13 @@ std::vector<Cell> Actors::reach_cells(const World& w, const ProcessDef& p, const
   switch (p.target) {
     case TargetKind::Self:
     case TargetKind::Wound: return {a.pos};
+    case TargetKind::Body: {
+      // In reach already (same or next cell): strike from where it stands.
+      auto c = cell_of(w, target);
+      if (!c) return {};
+      if (c->z == a.pos.z && std::abs(c->x - a.pos.x) + std::abs(c->y - a.pos.y) <= 1) return {a.pos};
+      return {*c};
+    }
     case TargetKind::Edge: {
       const EdgeRef& r = edge_of_.at(target);
       const Cell inner{r.z, r.x, r.y};
@@ -748,6 +765,9 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
     case EffectOp::Power:
       if (power_apply) power_apply(w, a.body, target, e.how, a.cause);
       break;
+    case EffectOp::Hit:
+      if (hit) hit(w, a.body, target, a.action.tool, a.cause);
+      break;
     case EffectOp::Cover:
       for (const UseNeed& u : p.uses)
         if (auto item = carried_with(w, a, u.prop, u.min)) w.locations.place(*item, target);
@@ -823,7 +843,7 @@ void Actors::set_body_activity(World& w, Actor& a) {
 void Actors::update(World& w) {
   for (auto& [id, a] : actors_) {
     Body& b = bodies_.get(a.body);
-    if (!b.alive) {
+    if (!b.alive || b.spec.walker) {  // a pop that rose is driven by the walker brain now
       if (a.action.phase != Phase::Idle) interrupt(w, a, Reason::Dead);
       a.queue.clear();
       continue;
@@ -839,6 +859,7 @@ void Actors::update(World& w) {
       if (!sleeping && b.activity.asleep) interrupt(w, a, Reason::Asleep);
       else if (!sleeping && c.consciousness < 0.3) interrupt(w, a, Reason::Unconscious);
       else if (act.phase == Phase::Approach && c.moving <= 0) interrupt(w, a, Reason::CannotMove);
+      else if (act.phase == Phase::Approach && held && held(a.body)) interrupt(w, a, Reason::Held);
       else if (p && act.phase == Phase::Work && !target_matches(w, *p, a, act.target) && act.held == 0)
         interrupt(w, a, Reason::TargetGone);
       else if (act.phase == Phase::Approach) {

@@ -46,3 +46,14 @@ About 60 neighbours from a fixed table, so every walker is a specific former per
 ## Not in Tier 0
 
 Records, lifepaths, SEIRZ cells, warm neighbours who act, the human generator.
+
+## Model as implemented (Proposal, 2026-10-06)
+
+Code: `engine/sim/src/census.cpp`, table `data/tier0/census.toml` (60 people, made by `tools/census/make_census.py`).
+
+- **Ledger:** resource `people`, one owner per fate (fled, dead, survivor slot, walker off the map, walker on the map, destroyed, alive in the group). Every change is a transfer, so conservation is the ledger check; the player joins as one more person.
+- **Fates** at setup: people living on the map (house_a, house_b) are walkers at home with 0.5, else fled; off-map neighbours are walkers 0.35, dead 0.15, fled otherwise; three rows are survivor slots.
+- **Bodies** for every walker: NHANES-like height, BMI 27.5 × e^(0.18 z), Deurenberg body fat, VO2max by age and sex.
+- **Arrivals:** attention gains (metres the generator's audible range and lit windows' seen distance reach past the border) / 1000 per hour and halves every 4 h; arrivals per hour = 0.05 + 0.35 × attention, from a random outdoor border cell. A day with the generator brought about twice the arrivals of a quiet one (test, 6 seeds).
+
+**Known gaps:** survivor slots have no bodies yet (stage 9); arrivals carry body only, no clothes or items; names show in the event log, not up close in a view yet.

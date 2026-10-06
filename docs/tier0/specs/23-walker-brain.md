@@ -46,3 +46,14 @@ The policy that drives a walker's body. It perceives, weighs drives and requests
 ## Not in Tier 0
 
 Smell, swimming, climbing, other threat types.
+
+## Model as implemented (Proposal, 2026-10-06)
+
+Code: `engine/sim/src/walkers.cpp` (`think`, `plan_path`, `move`, `attack`).
+
+- **Thinks** every 5 s (staggered). In order: the nearest living person in line of sight within sight range for the light at their cell (~3 m moonlight to ~35 m day) → pursue; else the loudest noise heard over the background (same path loss as spec 18, cached per map version) → investigate; else a lit window seen from where it stands → investigate; else memory fades at 0.02 dB/s, then idle with a 10 % chance of a one-cell drift. A new sound must beat the remembered one by 1 dB, so a feeding walker (memory at sight strength) is pulled away only by a person seen or a very loud sound.
+- **Paths** over cells (Dijkstra): walls block; closed or barricaded doors and windows cost 26 (it will push them); stairs cost 4.
+- **Moves** at body walk speed × 0.5 (× 1.2 pursuing). Measured: lean 1.37 m/s body speed, fat 1.29, lean with a broken shin 0.57 (test).
+- **Generator test:** 4 night hours with the generator running brought 21 walkers within 12 m of it against 8 without (4 seeds).
+
+**Known gaps:** walkers have their own mover, not the action executor (rule 9 deviation, to merge when the executor grows a "push edge" primitive); no herding (rule 7); feed doesn't guard against other walkers; losing a pursuer by breaking line of sight is untested.

@@ -3,7 +3,6 @@
 #include <chrono>
 #include <cmath>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <map>
@@ -195,7 +194,10 @@ struct Trace {
     const Actor& a = t.actors->actor(t.player);
     const Body& b = t.bodies->get(t.player);
     std::string doing = "idle";
-    if (b.activity.asleep) doing = "sleeping";
+    if (b.spec.walker) doing = "risen as a walker";
+    else if (!b.alive) doing = "dead";
+    else if (t.walkers && t.walkers->held(t.player)) doing = "held by a walker";
+    else if (b.activity.asleep) doing = "sleeping";
     else if (a.action.phase == Phase::Approach) doing = a.action.process >= 0 ? "walking to: " + t.actors->processes()[static_cast<std::size_t>(a.action.process)].name : "walking";
     else if (a.action.phase == Phase::Work && a.action.process >= 0) doing = t.actors->processes()[static_cast<std::size_t>(a.action.process)].name;
     long long powered = 0;
@@ -208,6 +210,28 @@ struct Trace {
                   t.bodies->needs(b).thirst * 100, t.bodies->needs(b).hunger * 100,
                   t.bodies->needs(b).tiredness * 100);
     frames += buf;
+    // Walkers on the map: [z, x, y, mode, name label], in body order.
+    frames.pop_back();
+    frames += ",[";
+    if (t.walkers) {
+      bool first = true;
+      for (const auto& [id, z] : t.walkers->walkers()) {
+        if (!t.bodies->get(id).alive) continue;
+        std::snprintf(buf, sizeof buf, "%s[%d,%d,%d,%d,%d]", first ? "" : ",", z.pos.z, z.pos.x, z.pos.y,
+                      static_cast<int>(z.mode), label(t.census->name_of(id)));
+        frames += buf;
+        first = false;
+      }
+    }
+    frames += "]]";
+  }
+
+  // True when some walker is doing more than standing about (frames then come often, like walking).
+  static bool walkers_busy(const zs::tier0::Tier0& t) {
+    if (!t.walkers) return false;
+    for (const auto& [id, z] : t.walkers->walkers())
+      if (z.mode != zs::Mode::Idle && t.bodies->get(id).alive) return true;
+    return false;
   }
 
   void field(const zs::tier0::Tier0& t) {
@@ -243,8 +267,10 @@ struct Trace {
     fields += std::string(head) + "\"noise\":[" + n + "],\"light\":[" + l + "],\"windows\":[" + win + "]}";
   }
 
-  void event(std::int64_t tick, const char* kind, const std::string& text) {
-    events += (events.empty() ? "" : ",") + std::string("[") + std::to_string(tick) + "," + quote(kind) + "," + quote(text) + "]";
+  void event(std::int64_t tick, const char* kind, const std::string& text, const zs::EdgeRef* at = nullptr) {
+    events += (events.empty() ? "" : ",") + std::string("[") + std::to_string(tick) + "," + quote(kind) + "," + quote(text);
+    if (at) events += "," + std::to_string(at->z) + "," + std::to_string(at->x) + "," + std::to_string(at->y) + "," + (at->vertical ? "1" : "0");
+    events += "]";
   }
 
   void write(const zs::tier0::Tier0& t, std::uint64_t seed, const std::string& path) {
@@ -294,7 +320,7 @@ struct Trace {
     std::string levels;
     for (int z : m.levels()) levels += (levels.empty() ? "" : ",") + std::to_string(z);
     std::ofstream out(path);
-    out << "{\"seed\":" << seed << ",\"width\":" << m.width() << ",\"height\":" << m.height() << ",\"levels\":[" << levels
+    out << "{\"seed\":" << seed << ",\"dead\":" << (t.walkers ? 1 : 0) << ",\"width\":" << m.width() << ",\"height\":" << m.height() << ",\"levels\":[" << levels
         << "],\"ticks_per_hour\":" << kTicksPerGameHour << ",\"start_hour\":8,\"tank_ml\":" << t.power->tank_ul() / 1000
         << ",\"floors\":[" << floors << "],\"edges\":[" << edges << "],\"objects\":[" << objects << "],\"receivers\":["
         << receivers << "],\"labels\":[" << labels_json << "],\"frames\":[" << frames << "],\"fields\":[" << fields
@@ -302,19 +328,29 @@ struct Trace {
   }
 };
 
-int stage6(std::uint64_t seed, const std::string& trace_path = "") {
+int stage6(std::uint64_t seed, const std::string& trace_path = "", bool with_dead = false) {
   using namespace zs;
-  auto t = tier0::make_world(seed);
+  auto t = tier0::make_world(seed, with_dead);
   tier0::GeneratorScenario script(false);
   std::printf("grid failure drawn for %s\n", clock_text(t.power->grid_failure_tick()).c_str());
   std::size_t seen = 0;
   bool snap = false;
   Trace trace;
   const bool tracing = !trace_path.empty();
-  while (script.drive(t)) {
+  // With the dead, the run goes on after the pop is gone, until it rises (or day 10).
+  std::int64_t stop_at = -1;
+  auto running = [&]() {
+    if (script.drive(t)) return true;
+    if (!with_dead || t.world->clock.day() >= 10) return false;
+    if (stop_at < 0) stop_at = t.world->clock.tick + 3 * kTicksPerGameHour;
+    for (const auto& tr : t.walkers->turnings())
+      if (tr.body == t.player && !tr.risen) stop_at = std::max(stop_at, t.world->clock.tick + 1);
+    return t.world->clock.tick < stop_at;
+  };
+  while (running()) {
     t.world->step();
     // A frame every game minute, and every 5 game s while the pop walks so the replay can follow it.
-    const bool walking = t.actors->actor(t.player).action.phase == Phase::Approach;
+    const bool walking = t.actors->actor(t.player).action.phase == Phase::Approach || Trace::walkers_busy(t);
     if (tracing && t.world->clock.tick % (walking ? 10 : kBodyStepTicks) == 0) trace.frame(t);
     if (tracing && t.world->clock.tick % kTicksPerGameHour == 0) trace.field(t);
     const auto& log = t.world->log.all();
@@ -335,7 +371,14 @@ int stage6(std::uint64_t seed, const std::string& trace_path = "") {
         case EventType::GeneratorOutOfFuel: std::printf("%s  generator out of fuel\n", at.c_str()); break;
         case EventType::BreakerTripped: std::printf("%s  breaker tripped: %s\n", at.c_str(), t.power->circuits()[static_cast<std::size_t>(e.a)].id.c_str()); break;
         case EventType::FoodSpoiled: std::printf("%s  fridge food spoiled (%.0f kJ)\n", at.c_str(), static_cast<double>(e.a) / 1000); break;
-        case EventType::Death: std::printf("%s  the pop died\n", at.c_str()); break;
+        case EventType::Death:
+          std::printf("%s  %s\n", at.c_str(), zs::tier0::death_sentence(t, e).c_str());
+          break;
+        case EventType::WalkerArrived: std::printf("%s  %s arrived, dead\n", at.c_str(), t.census->name_of(e.subject).c_str()); break;
+        case EventType::Grabbed: std::printf("%s  %s grabbed %s\n", at.c_str(), t.census->name_of(e.subject).c_str(), t.census->name_of(static_cast<EntityId>(e.a)).c_str()); break;
+        case EventType::Bite: std::printf("%s  %s bit %s (%s)\n", at.c_str(), t.census->name_of(e.subject).c_str(), t.census->name_of(static_cast<EntityId>(e.a)).c_str(), to_string(static_cast<Region>(e.b))); break;
+        case EventType::EdgeBreached: std::printf("%s  BREACHED: %s at (%d,%d,%d)\n", at.c_str(), t.items->def(t.items->get(e.subject).def).id.c_str(), t.actors->edges().at(e.subject).z, t.actors->edges().at(e.subject).x, t.actors->edges().at(e.subject).y); break;
+        case EventType::Reanimated: std::printf("%s  %s rose as a walker\n", at.c_str(), t.census->name_of(e.subject).c_str()); break;
         default: break;
       }
       if (tracing) {
@@ -350,6 +393,16 @@ int stage6(std::uint64_t seed, const std::string& trace_path = "") {
           case EventType::FoodSpoiled: trace.event(e.tick, "alert", "The fridge food spoiled"); break;
           case EventType::FellAsleep: trace.event(e.tick, "body", "Fell asleep"); break;
           case EventType::WokeUp: trace.event(e.tick, "body", "Woke up"); break;
+          case EventType::Death: trace.event(e.tick, "dead", tier0::death_sentence(t, e)); break;
+          case EventType::WalkerArrived: trace.event(e.tick, "dead", t.census->name_of(e.subject) + " arrived, dead"); break;
+          case EventType::Grabbed: trace.event(e.tick, "dead", t.census->name_of(e.subject) + " grabbed " + t.census->name_of(static_cast<EntityId>(e.a))); break;
+          case EventType::Bite: trace.event(e.tick, "alert", t.census->name_of(e.subject) + " bit " + t.census->name_of(static_cast<EntityId>(e.a)) + " (" + to_string(static_cast<Region>(e.b)) + ")"); break;
+          case EventType::Reanimated: trace.event(e.tick, "alert", t.census->name_of(e.subject) + " rose as a walker"); break;
+          case EventType::EdgeBreached: {
+            const EdgeRef r = t.actors->edges().at(e.subject);
+            trace.event(e.tick, "alert", "The " + t.items->def(t.items->get(e.subject).def).id + " was broken in", &r);
+            break;
+          }
           default: break;
         }
       }
@@ -379,7 +432,16 @@ int main(int argc, char** argv) {
       if (!std::strcmp(argv[i], "--seed")) seed = std::strtoull(argv[i + 1], nullptr, 10);
       else if (!std::strcmp(argv[i], "--trace")) trace = argv[i + 1];
     }
-    return stage6(seed, trace);
+    return stage6(seed, trace, false);
+  }
+  if (argc >= 2 && !std::strcmp(argv[1], "--stage7")) {
+    std::uint64_t seed = 1;
+    std::string trace;
+    for (int i = 2; i + 1 < argc; i += 2) {
+      if (!std::strcmp(argv[i], "--seed")) seed = std::strtoull(argv[i + 1], nullptr, 10);
+      else if (!std::strcmp(argv[i], "--trace")) trace = argv[i + 1];
+    }
+    return stage6(seed, trace, true);
   }
   if (argc >= 2 && !std::strcmp(argv[1], "--scripted-pop"))
     return scripted_pop(argc >= 3 && !std::strcmp(argv[2], "--ai"));

@@ -21,7 +21,7 @@ enum class EventType : std::uint16_t {
   Breakdown = 6,
   NewSymptom = 7,
   SurvivorFound = 8,
-  Death = 9,             // a = DeathCause
+  Death = 9,             // a = DeathCause, b = 1 if the body was a walker
   InfectionVisible = 10,  // subject = body, a = wound id
   InfectionWorse = 11,    // a = wound id, b = new stage
   WoundHealed = 12,       // a = wound id
@@ -35,6 +35,13 @@ enum class EventType : std::uint16_t {
   BreakerTripped = 20,     // a = circuit index
   FoodSpoiled = 21,        // subject = the fridge, a = J spoiled
   GeneratorOutOfFuel = 22,
+  Reanimated = 23,        // subject = body, now a walker
+  WalkerArrived = 24,     // subject = walker body, a = census person index
+  Bite = 25,              // subject = walker, a = victim body, b = Region
+  Grabbed = 26,           // subject = walker, a = victim body
+  PartFailed = 27,        // subject = the failed part, a = the edge assembly
+  EdgeBreached = 28,      // subject = the edge assembly
+  Hit = 29,               // subject = attacker, a = target body, b = 1 if it destroyed the brain
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

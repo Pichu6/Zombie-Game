@@ -37,3 +37,11 @@ None. Readability is checked in playtests (fun question 5 and 7).
 ## Not in Tier 0
 
 The after-death truth replay and the macro chronicle of the full game.
+
+## Model as implemented (Proposal, 2026-10-06)
+
+Code: `tier0::death_sentence` in `engine/sim/src/tier0.cpp`.
+
+- One sentence per `Death` event: name, age, when, cause, then the first bite or strike up the cause chain ("You, 30, died day 2 10:48: the infection from a bite. Bitten on the neck by David Silva, day 1 05:03."). Bleeding deaths link to the wound that bled most. Walkers read "was put down".
+
+**Known gaps:** no missed counters (never cleaned, no power for 18 h), no death screen, no danger tags.

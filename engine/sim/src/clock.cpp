@@ -30,6 +30,11 @@ bool TimeControl::is_slow_down_event(EventType type) {
     case EventType::BreakerTripped:
     case EventType::FoodSpoiled:
     case EventType::GeneratorOutOfFuel:
+    case EventType::Reanimated:
+    case EventType::WalkerArrived:
+    case EventType::Bite:
+    case EventType::Grabbed:
+    case EventType::EdgeBreached:
       return true;
     default:
       return false;

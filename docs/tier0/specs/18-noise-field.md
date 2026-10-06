@@ -25,7 +25,7 @@ Code: `engine/sim/src/noise.cpp`. Stateless: callers evaluate it when something 
 - **Carry outdoors:** audible range = 10^((L − best loss to any outdoor cell − background − 3) / 20). An open-frame generator (89 dB) carries ~112 m at night before the grid fails and ~630 m after.
 - **Sources** now: the running generator and each pop's current primitive or footsteps.
 
-**Known gaps:** spreading uses the straight-line distance, not the length of the best path (a sound around corners carries a bit too far); no listeners yet (walkers come in stage 7); no direction or certainty from the margin; border attention for the census (rule 4) is not wired; no cache.
+**Known gaps:** spreading uses the straight-line distance, not the length of the best path (a sound around corners carries a bit too far); no direction or certainty from the margin; no cache.
 
 ## Rules
 

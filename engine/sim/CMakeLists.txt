@@ -17,6 +17,8 @@ add_library(zs_sim
   src/tier0.cpp
   src/power.cpp
   src/noise.cpp
+  src/census.cpp
+  src/walkers.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

@@ -185,6 +185,8 @@ const char* to_string(DeathCause c) {
     case DeathCause::Dehydration: return "dehydration";
     case DeathCause::Starvation: return "starvation";
     case DeathCause::Sepsis: return "sepsis from an infected wound";
+    case DeathCause::Pathogen: return "the infection from a bite";
+    case DeathCause::BrainDestroyed: return "a destroyed brain";
   }
   return "?";
 }
@@ -525,7 +527,13 @@ void Bodies::fine_tick(World& w, Body& b) {
   if (bleed <= 0) return;
   const std::int64_t ul = flow(b.carry[kBleed], bleed * 1000.0 * kTickSeconds / 60.0);
   if (ul > 0) w.ledger.transfer(w.clock.tick, b.owner, L_.blood_lost, L_.blood_ul, ul, 0);
-  if (!b.spec.walker && blood_loss_fraction(b) >= kDeathBloodLoss) die(w, b, DeathCause::Exsanguination, 0);
+  if (!b.spec.walker && blood_loss_fraction(b) >= kDeathBloodLoss) {
+    // The chronicle's cause: the wound that bleeds most.
+    const Wound* worst = nullptr;
+    for (const Wound& wd : b.wounds)
+      if (!worst || wound_bleed(b, wd) > wound_bleed(b, *worst)) worst = &wd;
+    die(w, b, DeathCause::Exsanguination, worst ? worst->cause : 0);
+  }
 }
 
 void Bodies::body_step(World& w, Body& b) {
@@ -734,7 +742,21 @@ void Bodies::die(World& w, Body& b, DeathCause c, EventId cause) {
   b.death_cause = c;
   b.activity = Activity{};
   b.posture = Posture::Lie;
-  w.emit(EventType::Death, b.id, cause, static_cast<std::int64_t>(c));
+  w.emit(EventType::Death, b.id, cause, static_cast<std::int64_t>(c), b.spec.walker ? 1 : 0);
+}
+
+void Bodies::kill(World& w, EntityId body, DeathCause c, EventId cause) { die(w, bodies_.at(body), c, cause); }
+
+void Bodies::reanimate(World& w, EntityId body, EventId cause) {
+  Body& b = bodies_.at(body);
+  if (b.alive || b.spec.walker || b.death_cause == DeathCause::BrainDestroyed) return;
+  b.alive = true;
+  b.spec.walker = true;
+  b.sleep_pressure = 0;
+  b.activity = Activity{};
+  b.posture = Posture::Stand;
+  b.fear = 0;
+  w.emit(EventType::Reanimated, b.id, cause);
 }
 
 // ---- Persistence -------------------------------------------------------------------------------------
@@ -744,6 +766,7 @@ void Bodies::save(ArchiveWriter& a) const {
   for (const auto& [id, b] : bodies_) {
     a.u64(id);
     a.boolean(b.alive);
+    a.boolean(b.spec.walker);
     a.u8(static_cast<std::uint8_t>(b.death_cause));
     a.u8(static_cast<std::uint8_t>(b.posture));
     a.f64(b.activity.met);
@@ -766,6 +789,7 @@ void Bodies::load(ArchiveReader& a) {
   for (auto& [id, b] : bodies_) {
     if (a.u64() != id) throw std::runtime_error("save: body ids differ");
     b.alive = a.boolean();
+    b.spec.walker = a.boolean();
     b.death_cause = static_cast<DeathCause>(a.u8());
     b.posture = static_cast<Posture>(a.u8());
     b.activity.met = a.f64();

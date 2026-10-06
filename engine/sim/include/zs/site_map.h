@@ -90,6 +90,8 @@ class SiteMap : public System {
   void set_locked(const EdgeRef& e, bool locked);
   void set_barricade(const EdgeRef& e, EntityId barricade);  // 0 removes it
 
+  // Bumped by every edge change and by load: caches of derived fields key on it.
+  std::uint64_t version() const { return version_; }
   bool air_passes(const EdgeRef& e) const;   // sound and air pass freely
   bool can_walk(const EdgeRef& e) const;     // a body can cross (closed unlocked doors open on the way)
 
@@ -120,6 +122,7 @@ class SiteMap : public System {
   std::vector<MapObject> objects_;
 
   mutable bool dirty_ = true;
+  std::uint64_t version_ = 0;
   mutable std::vector<int> room_ids_;
   mutable std::vector<Room> rooms_;
   mutable std::vector<Portal> portals_;

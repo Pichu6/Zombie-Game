@@ -20,6 +20,11 @@ enum class Purpose : std::uint32_t {
   BiteHit = 4,
   CensusFate = 5,
   GridFailure = 6,
+  CensusBody = 7,
+  Arrival = 8,
+  WalkerMind = 9,
+  Turning = 10,
+  Strike = 11,
 };
 
 class Rng {

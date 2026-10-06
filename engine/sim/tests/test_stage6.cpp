@@ -261,7 +261,7 @@ TEST_CASE("stage 6: the scenario through actions: refuels once, runs dry, the fo
   u.world->load(mid);
   while (at_mid.drive(u)) u.world->step();
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 198114955181617027ULL;
+  const std::uint64_t golden = 6485881063432605275ULL;
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 6 golden world hash: " << t.world->world_hash());
 }

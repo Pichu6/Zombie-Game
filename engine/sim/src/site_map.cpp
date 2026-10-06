@@ -171,6 +171,7 @@ void SiteMap::load_file(World& w, Assemblies& items, const std::string& path) {
       objects_.push_back(std::move(mo));
     }
   dirty_ = true;
+  ++version_;
 }
 
 void SiteMap::set_open(const EdgeRef& e, bool open) {
@@ -178,11 +179,13 @@ void SiteMap::set_open(const EdgeRef& e, bool open) {
   if (!is_openable(ed.kind) || ed.open == open) return;
   ed.open = open;
   dirty_ = true;
+  ++version_;
 }
 
 void SiteMap::set_breached(const EdgeRef& e, bool breached) {
   edge(e).breached = breached;
   dirty_ = true;
+  ++version_;
 }
 
 void SiteMap::set_locked(const EdgeRef& e, bool locked) { edge(e).locked = locked; }
@@ -190,6 +193,7 @@ void SiteMap::set_locked(const EdgeRef& e, bool locked) { edge(e).locked = locke
 void SiteMap::set_barricade(const EdgeRef& e, EntityId barricade) {
   edge(e).barricade = barricade;
   dirty_ = true;
+  ++version_;
 }
 
 bool SiteMap::air_passes(const EdgeRef& e) const {
@@ -346,6 +350,7 @@ void SiteMap::load(ArchiveReader& r) {
     }
   }
   dirty_ = true;
+  ++version_;
 }
 
 namespace {

@@ -264,3 +264,15 @@ time_s = 120
 uses = [{ prop = "cloth_area_m2", min = 1.5 }]
 effects = [{ op = "cover" }]
 source = "a blanket over a window with a few nails or hooks (estimate)"
+
+# ---------- Stage 7: fighting back (spec 20) ----------
+
+[[process]]
+id = "strike_walker"
+name = "Strike the head"
+primitive = "strike"
+target = "body:walker"
+time_s = 1.5
+tools = [{ prop = "blunt", min = 0.3, ref = 1.0 }, { prop = "lever", min = 0.3, ref = 1.0 }]
+effects = [{ op = "hit" }]
+source = "one swing ~1-2 s (estimate); energy and aim in spec 20"

@@ -28,6 +28,8 @@ Cell cell_at(const SiteMap& m, std::size_t i) {
 }
 
 // Least total edge loss from `from` to every cell; ties broken by steps, then cell index.
+}  // namespace
+
 std::vector<double> path_loss(const SiteMap& map, const Assemblies& items, const Cell& from) {
   const std::size_t n = map.levels().size() * static_cast<std::size_t>(map.width() * map.height());
   std::vector<double> best(n, 1e300);
@@ -64,7 +66,7 @@ double distance_m(const Cell& a, const Cell& b) {
   return detmath::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-}  // namespace
+std::size_t cell_index(const SiteMap& m, const Cell& c) { return index_of(m, c); }
 
 double background_db(bool grid_alive, double hour) {
   const bool night = hour < 7 || hour >= 22;  // WHO night period (approx.)
