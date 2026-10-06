@@ -23,3 +23,7 @@ Files `loop/22a` (Plague Inc and a virus editor), `22b` (world generation, settl
 - Enterable procedural buildings: interior first, facade second. Shadows of Doubt uses hand-made shells with procedural rooms, so it is evidence for generated interiors, not whole generated cities.
 - Copy: Hearts of Iron map-targeted decisions, Stellaris build tooltips and jobs from buildings, Manor Lords self-staffing, Cities: Skylines info views, RimWorld/Kenshi job queues as the objective source, The Sims' now/today/life wants. Avoid: OGame queue wipes, Frostpunk manual-only staffing, per-pop priority grids.
 - Licences: CHELSA (CC0), Beck Köppen (CC BY), SoilGrids (CC BY) usable; WorldClim, HWSD and IUCN range maps are non-commercial; RESOLVE ecoregions are CC BY but have no species lists; Google Open Buildings covers only parts of the world.
+
+## Endgame, generation, activities and scale (2026-10-06)
+
+`loop/24` (slow endgame, Haven & Hearth and Space Engineers, real infrastructure decay, generation on the go), `loop/25` (activities and mini-games, parity rule, eight interaction types), `loop/26` (scale across layers: real-size objects, smaller worlds by having less of them, time as the real constraint; XCOM 2 geoscape lessons).
