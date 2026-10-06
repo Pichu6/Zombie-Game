@@ -24,7 +24,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 **Designed, not built** (all Proposals unless a decision says otherwise): [sandbox parameters](design/sandbox-parameters.md), [world numbers](design/world-numbers.md), [world systems](design/world-systems.md) (sectors and zones, the generation pipeline, factions, subjects), built from research notes in `docs/research/` whose numbers are second-hand search summaries.
 
-**Decisions** run up to [0038](decisions/0038-grid-sector-zone-sizes-accepted.md): equal-area global grid (~5,000 km² cells), dozens of sectors, zones of 100-500 m, uneven development at the start, map editing before the run, real Earth later.
+**Decisions** run up to [0038](decisions/0038-grid-sector-zone-sizes-accepted.md) (0023, 0025, 0026 are engine architecture, the sandbox engine as first game, and country creation; mine start at 0027; 0024 is unused): equal-area global grid (~5,000 km² cells), dozens of sectors, zones of 100-500 m, uneven development at the start, map editing before the run, real Earth later.
 
 ## Next step
 
@@ -36,5 +36,4 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 - **Real data:** a data tool that fetches licensed datasets and writes sourced presets, and a first real country (or global tables). Today every profile is a placeholder.
 - **Tier 0 census and pops:** make the block's 60 neighbours the same pops as the registry's founders? It changes Tier 0's pinned golden hashes.
-- **Merging the working branch** into `main` (35+ commits ahead): not done; needs your go-ahead.
 - Forced-labour populations stay out of the plan unless you decide otherwise ([0037](decisions/0037-sectors-zones-and-world-creation-answers.md)).

@@ -90,7 +90,7 @@ Intent Decided ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)); mode
 
 ## 5. Nation parameters
 
-A nation is an Actor that owns regions, a budget, offices (each held by a real census record), laws and relations ([macro layer](macro-layer.md) §7). Each field has realistic, sandbox and rejected bands.
+A nation is an Actor that owns regions, a budget, offices (each held by a real census record), laws and relations ([macro layer](macro-layer.md) §7). Each field has realistic, sandbox and rejected bands. The **country creation screen** (people, values, government, economy, services, security, origin, in Stellaris order) and the government types it offers (including theocracy and corporate state) are in [macro layer](macro-layer.md) §6.3 and §6.5 ([0026](../decisions/0026-country-creation-inheritance.md)); this catalogue lists the parameters and their bands, and the profile data a nation carries ([§5.2](#52-demographic-profile-decided-as-intent-0034-model-proposal)).
 
 | Group | Parameters (setup values; most become policy or derived later) | Drives |
 | --- | --- | --- |
@@ -194,7 +194,7 @@ Each pop exists once per simulation: no respawn, only birth and death. A saved p
 
 Births, ageing and death run in every game, outbreak or not. This is what gives the Stellaris kind of play: you appoint leaders and researchers, they have careers, they age, and they die.
 
-- **Births:** a birth is a conserved event that creates a new record from two parents' census slots (or one), counted in the ledger as population in; it is not a respawn. The newborn gets a body from the human generator (body, genes, family resemblance, culture), a household, and then grows through real ages. Rates follow fertility by age and culture, health, wealth, housing, policy and war.
+- **Births:** a birth is a conserved event that creates a new record from two parents' census slots (or one), counted in the ledger as population in; it is not a respawn. **Inheritance** follows [0026](../decisions/0026-country-creation-inheritance.md): the body mixes both parents' genes (looks, height potential, some health risks); culture, language, religion and political leaning start as the family's and change later; ancestry gives no bonuses. The pop-level model built so far ([spec 28](../tier0/specs/28-pop-levels.md)) records the mother only; fathers, households and inherited culture are not modelled yet. The newborn gets a body from the human generator (body, genes, family resemblance, culture), a household, and then grows through real ages. Rates follow fertility by age and culture, health, wealth, housing, policy and war.
 - **Ageing and death:** every body ages with real rates by age and sex (the body model already has weekly drift). Death by age, illness, accident, violence or outbreak is one event with a cause, and it removes the person from every office and group they held.
 - **Offices are held by real people.** A president, minister, general, CEO, board member, party leader, lab director or chief researcher is a census record in a role slot ([macro layer](macro-layer.md) §3.2). A leader is an ordinary pop with a long record; they do not turn into a special object.
 - **Succession:** each office has a rule (appointed, elected, hereditary, seniority, strongest, council) set per nation or group (§8). When the holder dies, resigns or is removed, the rule picks a successor from real candidates; no candidate means the office is empty and its work stalls. Succession crises are events the world detects, not scripts.

@@ -153,6 +153,11 @@ Code: `engine/sim/include/zs/demographics.h`, `src/demographics.cpp`, `data/setu
 - **Save format version 4** stores the pyramid in the params; the v1 to v3 readers leave it empty (the old rule), and a frozen `popreg_v3.bin` fixture sits with the v1 and v2 ones.
 - **Not yet:** the town generator drawing education, occupation and households from the profile; a real (sourced) country; age-by-sex pyramids; the realism report.
 
+## Alongside the engine and country decisions on main (2026-10-06)
+
+- **Threads ([0023](../../decisions/0023-engine-architecture-threads.md), Proposal).** Everything keyed here (`keyed_u64`, lives, births, ranks, region splits) is a pure function of its arguments, so results never depend on evaluation order or worker count, which is what the phase rules need. The registry itself is single-threaded (ordered maps, no locks): parallel phases would read it and write requests, with commands applied in a serial Resolve step. A golden-hash test across worker counts comes with the job system.
+- **Country creation ([0026](../../decisions/0026-country-creation-inheritance.md), [macro layer](../../design/macro-layer.md) §6.5).** Its "country shares split as whole numbers into cells per region, so the lazy census stays exact" is what `region_apply` and the hypergeometric split provide; its inheritance rule (a child's body from both parents, culture and beliefs from the family) is the next step for births, which today have a mother only.
+
 ## Built to be changed (2026-10-06)
 
 We expect to come back and change much of this, so the foundations are arranged to make change safe:

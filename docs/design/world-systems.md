@@ -135,7 +135,7 @@ Presets, auto-fill or custom for every field, as already decided ([sandbox param
 | Politics | government types and their shares, how many factions start as subjects, aggression, stability, how many are in conflict |
 | Economy | trade openness, industrial share, resource scarcity, energy mix, infrastructure level |
 | Culture | number of cultures and how mixed |
-| Per faction | override anything above for one faction (as in Stellaris empire creation), or paint territory on the generated map |
+| Per faction | override anything above for one faction (as in Stellaris empire creation; the screen and the inheritance of culture and beliefs are in [macro layer](macro-layer.md) §6.5, [0026](../decisions/0026-country-creation-inheritance.md)), or paint territory on the generated map |
 | Outbreak and hazards | per [sandbox parameters](sandbox-parameters.md) §12 |
 | Time | per [0032](../decisions/0032-real-time-reference-and-generational-runs.md) |
 
