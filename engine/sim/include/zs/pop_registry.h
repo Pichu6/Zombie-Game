@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 
+#include "zs/demography.h"
 #include "zs/pop.h"
 
 namespace zs {
@@ -69,7 +70,9 @@ class PopRegistry {
   std::uint64_t reason_of(std::uint64_t cohort, std::uint64_t member, EffectKind kind, double year) const;
   bool member_in(std::uint64_t cohort, std::uint64_t member, EffectKind kind, double year) const;
 
-  // The pop as it is at `year`, at whatever level it is (a pure read). False if the id is not in a cohort.
+  // The pop as it is at `year`, at whatever level it is (a pure read). A founder is found by its cohort, a
+  // born pop by walking its mothers (so it exists only while its mother's births do). Effects reach
+  // founders only for now: a born pop has no cohort, so its state_bits are 0. False if there is no such pop.
   bool snapshot(PopId id, double year, PopSnapshot& out) const;
 
   // Levels. Promotion pins a pop; demotion is refused for an officeholder or a followed pop.
@@ -80,6 +83,10 @@ class PopRegistry {
   bool set_followed(PopId id, bool followed);       // promotes
   bool set_death_year(PopId id, double year);       // an exception; works at either level
   PopCounts counts() const;
+
+  // The jump: births, deaths and who is alive over (from, to] for every founder in every cohort and
+  // their descendants, applying death-year exceptions. Pure; cost grows with everyone ever in the trees.
+  DemographyCounts project_demography(double from, double to, const Fertility& f = {}) const;
 
   std::vector<std::uint8_t> save() const;
   void load(const std::vector<std::uint8_t>& bytes);  // into a registry made with the same seed
@@ -93,6 +100,10 @@ class PopRegistry {
   };
   struct Range { std::uint64_t begin, end, reason; };
   const Cohort* cohort_of(PopId id, std::uint64_t& member) const;
+  bool exists(PopId id) const;
+  bool resolve_base(PopId id, PopBase& out) const;  // founder or born, before the pop's own exceptions
+  double founder_age(PopId id) const;
+  DeathOverrides death_overrides() const;
   CohortPermutation permutation(const Cohort& c, EffectKind kind) const;
   std::vector<Range> ranges(std::uint64_t cohort, EffectKind kind, double year) const;
   void set_exception(std::vector<PopException>& list, const PopException& e);

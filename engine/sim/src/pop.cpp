@@ -7,6 +7,8 @@ namespace zs {
 
 namespace {
 constexpr std::uint64_t kTopBit = 1ull << 63;
+constexpr int kGenShift = 60, kPathBits = 28, kPathShift = 32;
+constexpr unsigned kMaxGeneration = 7, kMaxChildren = 15;
 constexpr int kFeistelRounds = 6;
 // Which life draw (the `b` key of Purpose::PopLife).
 constexpr std::uint64_t kDrawSex = 0, kDrawConstantHazard = 1, kDrawGompertz = 2;
@@ -29,8 +31,31 @@ double keyed_uniform01(std::uint64_t world_seed, Purpose purpose, std::uint64_t 
 
 PopId census_pop_id(std::uint32_t slot) { return slot; }
 
-PopId birth_pop_id(std::uint64_t world_seed, std::uint64_t household, std::uint32_t birth_index) {
-  return keyed_u64(world_seed, Purpose::PopIdMix, household, birth_index) | kTopBit;
+PopId birth_pop_id(PopId mother, unsigned child_index) {
+  const unsigned gen = generation_of(mother);
+  if (gen >= kMaxGeneration || child_index >= kMaxChildren) return kNoPop;
+  const std::uint64_t path = is_born(mother) ? (mother >> kPathShift) & ((1ull << kPathBits) - 1) : 0;
+  const std::uint64_t new_path = path | (static_cast<std::uint64_t>(child_index + 1) << (4 * gen));  // child numbers stored +1
+  return kTopBit | (static_cast<std::uint64_t>(gen + 1) << kGenShift) | (new_path << kPathShift) | founder_slot_of(mother);
+}
+
+bool is_born(PopId id) { return (id & kTopBit) != 0; }
+unsigned generation_of(PopId id) { return is_born(id) ? static_cast<unsigned>((id >> kGenShift) & 7) : 0; }
+std::uint32_t founder_slot_of(PopId id) { return static_cast<std::uint32_t>(id); }
+
+unsigned child_index_of(PopId id) {
+  const unsigned gen = generation_of(id);
+  if (gen == 0) return 0;
+  return static_cast<unsigned>((id >> (kPathShift + 4 * (gen - 1))) & 15) - 1;
+}
+
+PopId mother_of(PopId id) {
+  const unsigned gen = generation_of(id);
+  if (gen == 0) return kNoPop;
+  if (gen == 1) return census_pop_id(founder_slot_of(id));
+  const std::uint64_t path = (id >> kPathShift) & ((1ull << kPathBits) - 1);
+  const std::uint64_t mother_path = path & ((1ull << (4 * (gen - 1))) - 1);
+  return kTopBit | (static_cast<std::uint64_t>(gen - 1) << kGenShift) | (mother_path << kPathShift) | founder_slot_of(id);
 }
 
 Mortality mortality_for(Sex sex) {

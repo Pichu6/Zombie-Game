@@ -15,11 +15,19 @@ using PopId = std::uint64_t;
 std::uint64_t keyed_u64(std::uint64_t world_seed, Purpose purpose, std::uint64_t a, std::uint64_t b = 0);
 double keyed_uniform01(std::uint64_t world_seed, Purpose purpose, std::uint64_t a, std::uint64_t b = 0);  // [0, 1)
 
-// Ids are 64 bits and never reused. Census people take their slot; the top bit is kept clear.
+// Ids are 64 bits and never reused. A census person (a "founder") takes their slot as id. A born pop's
+// id is invertible, so a lazy birth can always be found again: the top bit is set, then 3 bits of
+// generation (1..7), 7 child numbers of 4 bits (the path from the founder), then the founder's slot.
+// Child numbers are 0..14. Limits: 7 generations below a founder, 15 children per mother (a format
+// version bit can widen this later).
+constexpr PopId kNoPop = ~0ull;
 PopId census_pop_id(std::uint32_t slot);
-// A birth: a hash of the household and the household's birth counter, so a lazy birth can be
-// promoted later and always be the same child. The top bit is set, so it never meets a census id.
-PopId birth_pop_id(std::uint64_t world_seed, std::uint64_t household, std::uint32_t birth_index);
+PopId birth_pop_id(PopId mother, unsigned child_index);  // kNoPop if the limits would be passed
+bool is_born(PopId id);
+unsigned generation_of(PopId id);            // 0 for a founder
+PopId mother_of(PopId id);                   // kNoPop for a founder
+unsigned child_index_of(PopId id);           // which child of the mother (born pops only)
+std::uint32_t founder_slot_of(PopId id);
 
 enum class Sex : std::uint8_t { Female = 0, Male = 1 };
 

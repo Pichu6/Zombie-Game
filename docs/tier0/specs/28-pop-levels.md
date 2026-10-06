@@ -17,7 +17,7 @@ Two tools make "lazy but exact" possible, both already in our stack (counter-bas
 
 | Field | Notes |
 | --- | --- |
-| PopId | 64 bits, never reused. Census people: the slot id. Births: hash of (household id, birth index). Templates and imports: a new id at world creation ([sandbox parameters](../../design/sandbox-parameters.md) §7.3) |
+| PopId | 64 bits, never reused. Census people ("founders"): the slot id. Born pops: an **invertible** id, so a lazy birth can always be found again: top bit, 3 bits of generation (1..7), the path of child numbers from the founder (4 bits each), then the founder's slot. Limits: 7 generations below a founder and 15 children per mother. (A hash of household and birth index was the first idea; it cannot be walked back to the mother, so a lazy born pop could not be found.) Templates and imports: a new id at world creation ([sandbox parameters](../../design/sandbox-parameters.md) §7.3) |
 | Cohort | A fixed set defined by a generator rule and a snapshot time (the workers of one business on a date; the pops of a district born in one year). Members are indexes `0..n-1` of the generation order, so rank and membership need no list |
 | Level | lazy, record or embodied; per pop, never per camera |
 | Lazy state | Nothing stored. `derive(pop_id, t)` = base person from the seed (the human generator) + aggregate events applied (cohort ranks) + own life-event draws up to `t` |
@@ -100,6 +100,16 @@ What it shows:
 - **The first version replayed the whole effect log on every query** (27 µs a snapshot and 377 µs a region count at 10,000 effects). An index per (cohort, kind) and per region fixed it (2.1 µs and 6.8 µs). This is the kind of cost the benchmark exists to find.
 - **Not measured yet:** long steps, life-event updates, realistic record size, several threads, other machines, MSVC. The numbers are one container's; treat them as orders of magnitude.
 
+## P5 result: the jump (2026-10-06)
+
+A woman's births are a pure function of her id, like her death: a childless draw, a first birth at 18 plus an exponential delay, then gaps of 3 years plus an exponential, none from 45, at most 15. A pop's whole descendant tree is therefore known at any time without stepping anyone. `jump(founders, from, to)` walks the trees and counts births, deaths and who is alive.
+
+- **Agreement with stepping (A2):** against an independent week-by-week simulation of the same rates, 30 runs each, 400 founders over 40 years: births 143.4 vs 143.2, deaths 215.4 vs 215.5, alive at the end 328.0 vs 327.6; all far inside 4 standard errors. Splitting a jump in two windows adds up exactly; people are conserved (alive at end = alive at start + births - deaths).
+- **Speed (release build, one thread, GCC):** 1,000,000 founders over 60 game years in 0.48 s (about 0.3 µs per person ever in the trees, 1.5 million people visited); 100,000 founders over 150 years in 0.06 s. A long step costs the people visited, not the length of time.
+- **Not realistic yet, and this is the report's job:** the benchmark's founders are aged 18–64 with no children or elderly, so the first decades show a shrinking population (x0.60 over 60 years; 8 births and 15 deaths per 1,000 per year) that is an artefact of that age structure plus placeholder fertility and mortality, not a finding about people. The census generator will supply real age pyramids; the placeholders get fitted to real tables (Calibration).
+- **Limits found:** the 7-generation id format is reached after about 150 years (generation 7 had 104 living pops at 150 years, and they cannot have children), so runs longer than that need a wider id before they are meaningful. Marriage and fathers do not exist yet: a child has only a mother. Effects (laid off, moved, ill) reach founders only; a born pop has no cohort until births create cohort versions (rule 11, still the biggest open risk).
+- **Cost to watch:** `project_demography` re-walks every tree from the start of the run for each call; caching a tree's state at a year, per founder, is the next step before using it every frame.
+
 ## Calibration
 
 | Value | Source |
@@ -120,4 +130,4 @@ Offices and their work, the economy, the UI of following and possessing, war ([s
 
 ## Implementation order
 
-P1 PopId, `derive`, the permutation, with the purity and rank tests (**Implemented 2026-10-06**: `engine/sim/include/zs/pop.h`, `src/pop.cpp`, `tests/test_pop.cpp`; mortality is a placeholder, not yet calibrated; not yet Validated) → P2 cohort events and count agreement (**Implemented 2026-10-06**) → P3 record store, promotion and demotion, round-trip and save tests (**Implemented 2026-10-06**: `engine/sim/include/zs/pop_registry.h`, `src/pop_registry.cpp`, `tests/test_pop_registry.cpp`; a standalone registry, not yet part of the World, the ledger or the state hash; records hold only office, followed and exceptions so far; embodied level, cohort versions and non-census ids not yet; not yet Validated) → P4 `--pop-bench` and its first measurement → P5 jump forms for life events → P6 realism report.
+P1 PopId, `derive`, the permutation, with the purity and rank tests (**Implemented 2026-10-06**: `engine/sim/include/zs/pop.h`, `src/pop.cpp`, `tests/test_pop.cpp`; mortality is a placeholder, not yet calibrated; not yet Validated) → P2 cohort events and count agreement (**Implemented 2026-10-06**) → P3 record store, promotion and demotion, round-trip and save tests (**Implemented 2026-10-06**: `engine/sim/include/zs/pop_registry.h`, `src/pop_registry.cpp`, `tests/test_pop_registry.cpp`; a standalone registry, not yet part of the World, the ledger or the state hash; records hold only office, followed and exceptions so far; embodied level, cohort versions and non-census ids not yet; not yet Validated) → P4 `--pop-bench` and its first measurement → P5 jump forms for life events (**Implemented 2026-10-06** for births and deaths: `engine/sim/include/zs/demography.h`, `src/demography.cpp`, `tests/test_demography.cpp`; marriage and job moves wait for households and businesses) → P6 realism report.

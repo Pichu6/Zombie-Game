@@ -117,19 +117,59 @@ const Cohort* PopRegistry::cohort_of(PopId id, std::uint64_t& member) const {
   return member < c.size ? &c : nullptr;
 }
 
+double PopRegistry::founder_age(PopId id) const {
+  return 18.0 + static_cast<double>(static_cast<std::uint64_t>(keyed_uniform01(seed_, Purpose::PopLife, id, kDrawStartAge) * 47.0));
+}
+
+DeathOverrides PopRegistry::death_overrides() const {
+  DeathOverrides o;
+  const auto scan = [&](PopId id, const std::vector<PopException>& list) {
+    for (const PopException& e : list)
+      if (e.field == ExceptionField::DeathYear) o[id] = e.value;
+  };
+  for (const auto& [id, r] : records_) scan(id, r.exceptions);
+  for (const auto& [id, list] : kept_) scan(id, list);
+  return o;
+}
+
+bool PopRegistry::resolve_base(PopId id, PopBase& out) const {
+  if (!is_born(id)) {
+    std::uint64_t member = 0;
+    if (!cohort_of(id, member)) return false;
+    const double age = founder_age(id);
+    out = derive_base(seed_, id, -age, age);
+  } else {
+    PopBase mother;
+    if (!resolve_base(mother_of(id), mother)) return false;
+    // The mother's own exceptions (an earlier death) change her births.
+    const DeathOverrides o = death_overrides();
+    if (const auto it = o.find(mother_of(id)); it != o.end()) mother.death_year = it->second;
+    bool found = false;
+    for (const Birth& b : births_of(seed_, mother_of(id), mother, is_born(mother_of(id)) ? -1e9 : 0.0))
+      if (b.index == child_index_of(id)) { out = derive_base(seed_, id, b.year, 0.0); found = true; break; }
+    if (!found) return false;
+  }
+  return true;
+}
+
+bool PopRegistry::exists(PopId id) const {
+  PopBase b;
+  return resolve_base(id, b);
+}
+
 bool PopRegistry::snapshot(PopId id, double year, PopSnapshot& out) const {
-  std::uint64_t member = 0;
-  const Cohort* c = cohort_of(id, member);
-  if (!c) return false;
-  const double age = 18.0 + static_cast<double>(static_cast<std::uint64_t>(
-                                keyed_uniform01(seed_, Purpose::PopLife, id, kDrawStartAge) * 47.0));
+  PopBase base;
+  if (!resolve_base(id, base)) return false;
   out = PopSnapshot{};
-  out.base = derive_base(seed_, id, -age, age);
-  for (int k = 0; k < static_cast<int>(EffectKind::kCount); ++k) {
-    const auto kind = static_cast<EffectKind>(k);
-    const std::uint64_t rank = permutation(*c, kind).forward(member);
-    for (const Range& r : ranges(c->id, kind, year))
-      if (rank >= r.begin && rank < r.end) { out.state_bits |= 1u << k; break; }
+  out.base = base;
+  std::uint64_t member = 0;
+  if (const Cohort* c = is_born(id) ? nullptr : cohort_of(id, member)) {
+    for (int k = 0; k < static_cast<int>(EffectKind::kCount); ++k) {
+      const auto kind = static_cast<EffectKind>(k);
+      const std::uint64_t rank = permutation(*c, kind).forward(member);
+      for (const Range& r : ranges(c->id, kind, year))
+        if (rank >= r.begin && rank < r.end) { out.state_bits |= 1u << k; break; }
+    }
   }
   const std::vector<PopException>* ex = nullptr;
   if (const auto it = records_.find(id); it != records_.end()) {
@@ -146,9 +186,20 @@ bool PopRegistry::snapshot(PopId id, double year, PopSnapshot& out) const {
   return true;
 }
 
+DemographyCounts PopRegistry::project_demography(double from, double to, const Fertility& f) const {
+  std::vector<Founder> founders;
+  for (const auto& [cid, c] : cohorts_)
+    for (std::uint64_t m = 0; m < c.size; ++m) {
+      const PopId id = census_pop_id(static_cast<std::uint32_t>(c.first_slot + m));
+      const double age = founder_age(id);
+      founders.push_back({id, -age, age});
+    }
+  const DeathOverrides o = death_overrides();
+  return jump(seed_, founders, from, to, &o, f);
+}
+
 bool PopRegistry::promote(PopId id) {
-  std::uint64_t member = 0;
-  if (!cohort_of(id, member) || records_.count(id)) return false;
+  if (records_.count(id) || !exists(id)) return false;
   Record r;
   if (const auto it = kept_.find(id); it != kept_.end()) {
     r.exceptions = std::move(it->second);
@@ -189,8 +240,7 @@ void PopRegistry::set_exception(std::vector<PopException>& list, const PopExcept
 }
 
 bool PopRegistry::set_death_year(PopId id, double year) {
-  std::uint64_t member = 0;
-  if (!cohort_of(id, member)) return false;
+  if (!exists(id)) return false;
   if (const auto it = records_.find(id); it != records_.end()) set_exception(it->second.exceptions, {ExceptionField::DeathYear, year});
   else set_exception(kept_[id], {ExceptionField::DeathYear, year});
   return true;

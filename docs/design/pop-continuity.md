@@ -30,7 +30,7 @@ Macro counts are never a separate stored number. A region's counts (by age, job,
 
 ## 4. Births, deaths and ids
 
-- **Id:** deterministic from the parents (household seed and birth index), so a lazy birth can be promoted later and always be the same child.
+- **Id:** invertible and deterministic: the founder's slot plus the path of child numbers (7 generations, 15 children each), so a lazy birth can be found again from its id alone, promoted later, and always be the same child ([spec 28](../tier0/specs/28-pop-levels.md)). Limit: about 150 years of generations until the format is widened.
 - **Birth** is a conserved event ([sandbox parameters](sandbox-parameters.md) §7.4); **death** removes the pop from offices, households and jobs and writes one record (cause, date) kept for the chronicle. The dead are never regenerated.
 - **Templates and imports** ([sandbox parameters](sandbox-parameters.md) §7.3) create a pop once, with a new id, at world creation.
 

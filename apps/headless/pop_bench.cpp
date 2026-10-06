@@ -90,6 +90,24 @@ void b3_promotion(std::uint64_t total) {
               static_cast<unsigned long long>(total), up, down, static_cast<unsigned long long>(made));
 }
 
+// B4 and B6: a long step over decades, no outbreak: births and deaths for everyone and their descendants.
+void b4_long_step(std::uint64_t founders, double years) {
+  zs::PopRegistry reg = make_registry(founders, 0);
+  const auto t0 = Clock::now();
+  const zs::DemographyCounts c = reg.project_demography(0.0, years);
+  const double s = seconds_since(t0);
+  const double per_k_year = 1000.0 / (static_cast<double>(c.alive_at_start) * years);
+  std::printf("B4 %9llu founders over %2.0f years: %7.3f s (%6.1f game years per real second, %.2f us per person visited, %llu visited)\n",
+              static_cast<unsigned long long>(founders), years, s, years / s, s * 1e6 / static_cast<double>(c.people_visited),
+              static_cast<unsigned long long>(c.people_visited));
+  std::printf("B6   population %llu -> %llu (x%.2f); births %.1f and deaths %.1f per 1000 per year; alive by generation:",
+              static_cast<unsigned long long>(c.alive_at_start), static_cast<unsigned long long>(c.alive_at_end),
+              static_cast<double>(c.alive_at_end) / static_cast<double>(c.alive_at_start),
+              static_cast<double>(c.births) * per_k_year, static_cast<double>(c.deaths) * per_k_year);
+  for (int g = 0; g < 8; ++g) std::printf(" %llu", static_cast<unsigned long long>(c.by_generation_alive[g]));
+  std::puts("");
+}
+
 }  // namespace
 
 int pop_bench() {
@@ -98,8 +116,9 @@ int pop_bench() {
   for (std::uint64_t effects : {0ull, 100ull, 1000ull, 10000ull}) b2_lazy(1000000, effects);
   b2_lazy(10000000, 100);
   b3_promotion(1000000);
-  std::puts("B4 long steps: not yet (needs the life-event jumps, spec 28 P5)");
+  for (double years : {10.0, 60.0, 150.0}) b4_long_step(100000, years);
+  b4_long_step(1000000, 60.0);
   std::puts("B5 embodied: see `zs_headless --bench` (4 pops + 60 walkers for a game day)");
-  std::puts("B6 generations: not yet (needs P5 and the realism report)");
+  std::puts("B6 is partial: the realism report against real data is not written yet");
   return 0;
 }
