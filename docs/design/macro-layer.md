@@ -127,7 +127,7 @@ Each country is a record of numbers; the validator gives each a realistic, sandb
 | Field | Drives |
 | --- | --- |
 | Name, flag, colour | Display only. |
-| Government type (democracy, single party, military, monarchy, collapsed) | Which edicts need which approval, election cycle, how fast orders pass, use-of-force limits. |
+| Government type (democracy, single party, dictatorship, military junta, monarchy, theocracy, corporate state, collapsed; user-requested, [0024](../decisions/0024-country-creation-inheritance.md)) | Which edicts need which approval and from whom (parliament, clergy, board, ruler), election cycle, how fast orders pass, use-of-force limits, where legitimacy comes from (votes, faith, profit, fear), and the AI's priorities when it runs that country: a theocracy weighs faith and clergy, a corporate state weighs profit and assets, a dictatorship weighs regime survival, a democracy weighs public opinion and the next election. |
 | Wealth and economy mix | Budget, stocks, what is produced at home vs imported. |
 | Health capacity (beds and doctors per 1,000) | Hospital capacity and cure research. |
 | State capacity (how well orders are carried out) and public trust | Response lag and compliance. |
