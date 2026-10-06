@@ -1,0 +1,26 @@
+# Placeholder demography for pop lives (docs/tier0/specs/28-pop-levels.md, Calibration).
+# Every value is a starting value to be fitted to real tables, not a source-backed number.
+# The compiled-in defaults in engine/sim/include/zs/pop_params.h must match this file (a test checks it).
+# A world copies these values into its save when it is made; editing this file never changes an old save.
+
+male_share_at_birth = 0.512   # about 105 boys per 100 girls (source to be cited)
+founder_min_age = 18.0        # census people start between this age ...
+founder_age_span = 47.0       # ... and this many years above it (stands in for the census age pyramid)
+
+[mortality_female]            # two independent hazards: constant (accidents) and Gompertz (ageing); per year
+constant_hazard = 3.0e-4
+gompertz_b = 1.5e-5
+gompertz_c = 0.10
+
+[mortality_male]
+constant_hazard = 3.0e-4
+gompertz_b = 3.0e-5
+gompertz_c = 0.10
+
+[fertility]                   # about 1.8 births per woman who lives to the end age
+childless_share = 0.20
+first_min_age = 18.0
+first_mean_delay = 10.0       # first birth at the minimum age plus an exponential delay
+gap_min = 3.0
+gap_mean_extra = 9.0          # then a minimum gap plus an exponential one
+end_age = 45.0

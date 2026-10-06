@@ -1,0 +1,55 @@
+# A PLACEHOLDER nation profile: a plausible shape for a mid-income country with an ageing population.
+# These numbers are NOT data. They exist so the loader, the validator, the generators and the tests have a
+# complete profile to work on. A real country is a file with status = "sourced" and a source and year on every
+# table (the loader refuses "sourced" without them). Candidate sources for real tables, to be checked for
+# licence before use: UN World Population Prospects (age and sex, life tables), UNESCO Institute for Statistics
+# and the Barro-Lee dataset (education), ILO modelled estimates (labour force, sectors, occupations),
+# World Bank (urbanisation), national census tables (households).
+
+id = "placeholder"
+name = "Placeholder nation"
+status = "placeholder"
+pop_params = "demography/default.toml"
+
+[age_pyramid]        # 20 five-year bands: 0-4, 5-9, ... 90-94, 95+
+shares = [0.050, 0.052, 0.054, 0.058, 0.064, 0.069, 0.071, 0.070, 0.068, 0.067,
+          0.069, 0.070, 0.064, 0.055, 0.043, 0.032, 0.021, 0.012, 0.006, 0.003]
+source = "shape only, not data"
+year = 0
+
+[education]          # attainment of adults: none, primary, secondary, tertiary
+age_25_34 = [0.02, 0.06, 0.52, 0.40]
+age_35_64 = [0.04, 0.12, 0.52, 0.32]
+age_65_plus = [0.10, 0.30, 0.38, 0.22]
+source = "shape only, not data"
+year = 0
+
+[labour]             # share of each group in the labour force: [men, women]
+participation_15_24 = [0.45, 0.40]
+participation_25_54 = [0.92, 0.78]
+participation_55_64 = [0.70, 0.55]
+participation_65_plus = [0.15, 0.08]
+unemployment_rate = 0.06
+retirement_age = 65
+source = "shape only, not data"
+year = 0
+
+[occupations]        # of the employed: armed forces, managers, professionals, technicians, clerks, services and sales, skilled agriculture, craft trades, plant and machine operators, elementary
+shares = [0.005, 0.06, 0.18, 0.14, 0.09, 0.19, 0.03, 0.11, 0.08, 0.115]
+source = "shape only, not data"
+year = 0
+
+[sectors]            # of the employed: agriculture, industry, services
+shares = [0.04, 0.22, 0.74]
+source = "shape only, not data"
+year = 0
+
+[households]         # shares of households of 1, 2, 3, 4, 5 or more people
+sizes = [0.28, 0.33, 0.16, 0.14, 0.09]
+source = "shape only, not data"
+year = 0
+
+[settlement]
+urban_share = 0.78
+source = "shape only, not data"
+year = 0

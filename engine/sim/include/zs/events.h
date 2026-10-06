@@ -54,6 +54,9 @@ enum class EventType : std::uint16_t {
   ControlPassed = 38,     // subject = the newly controlled pop, a = the dead one
   RunEnded = 39,          // a = RunOutcome
   Searched = 40,          // subject = pop, a = the home object it searched
+  // Spec 28: pop levels.
+  PopEffect = 41,         // subject = cohort or roster id, a = EffectKind, b = delta (the reason is the cause event)
+  PopCommandRefused = 42, // subject = what it was aimed at, a = the command type
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

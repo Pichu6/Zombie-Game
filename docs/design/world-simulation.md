@@ -112,6 +112,8 @@ A scenario can only set numbers or starting state, schedule real events, and add
 
 ## 12. Setup: world options, generated worlds and the virus editor
 
+The quantitative laws behind generated worlds (carrying capacity, settlement, nation formation, demography, the pops-and-nation loop) and their realistic and sandbox bands are in [world numbers](world-numbers.md) ([0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md)).
+
 Intent Decided ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)); models Proposal.
 
 - **One set of world fields.** Real Earth data and the generator write the same fields (elevation, monthly temperature and rain, rivers, climate class, biome, soil, resources, flora, fauna, population). Everything downstream reads only these fields, so every system works on both worlds.

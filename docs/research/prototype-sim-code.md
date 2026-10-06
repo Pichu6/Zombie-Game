@@ -24,7 +24,7 @@ Labels used below: **sourced** (the code or a standard reference gives a source)
 
 **Avoid**
 - **Per-frame integration of slow processes.** Fat, muscle, glycogen, hunger and conditioning all changed every 0.1 s. Spec 05's 60 s body step is right; keep it.
-- **Stored readouts.** `hunger_pct` grew on its own clock (0.0033 %/s, authored) next to the real stomach store; `dehydration_level`, `shock_state`, BP, `max_stamina`, `calories_burned_today` and `is_heat_exhausted` were all saved. Each one can drift from its source. Spec 11 rule 7 and spec 13 are right to derive them.
+- **Stored readouts.** `hunger_pct` grew on its own clock (0.0037 %/s, authored) next to the real stomach store; `dehydration_level`, `shock_state`, BP, `max_stamina`, `calories_burned_today` and `is_heat_exhausted` were all saved. Each one can drift from its source. Spec 11 rule 7 and spec 13 are right to derive them.
 - **Wrong numbers:** muscle loss at 4000 kcal/kg (Hall 2008 gives lean tissue ~1.8 kcal/g and fat ~9.4 kcal/g); gastric emptying at 15 kcal/min (closer to 2–4 kcal/min in the literature, to check); a fixed 85/15 fat/muscle split (spec 11 uses Forbes).
 - **The water model.** It used a 2.5 L "functional pool" with death at 150 mL left, about 3 % of body mass, which is several times too early. Baseline loss was 0.02 mL/s (1.7 L/day, while the comment says 1.5). Spec 11 is right to use the deficit as % of body mass; it still needs a lethal band.
 - **The heart-rate stack:** a target BPM summed from seven authored terms (mass load 0.42 BPM/kg, pain +28, shock +55, drift ≤ 22…) and smoothed with `exp`. Spec 11 has no heart rate, and it should stay derived if it ever appears (design/body.md lists HR as a state number; Tier 0 does not need it).

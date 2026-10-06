@@ -13,6 +13,8 @@
 #include "zs/noise.h"
 #include "zs/site_map.h"
 #include "zs/tier0.h"
+#include "pop_bench.h"
+#include "town_demo.h"
 
 namespace {
 
@@ -21,6 +23,8 @@ void usage() {
             "       zs_headless --map [FILE]   print the room graph of a map (default: the Tier 0 block)\n"
             "       zs_headless --body-lab     run the body calibration scenarios\n"
             "       zs_headless --bench        body cost: 4 pops and 60 walkers for one game day\n"
+            "       zs_headless --town [--seed N] [--people N] [--years Y]  a generated town as pops: a layoff, then years\n"
+            "       zs_headless --pop-bench    spec 28: what records, lazy pops and promotion cost\n"
             "       zs_headless --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades\n"
             "       zs_headless --stage6 [--seed N] [--trace FILE]  the grid fails; generator, fuel, fridge, noise and light\n"
             "                  (--trace writes a JSON replay for the web viewer, tools/viewer)");
@@ -689,6 +693,23 @@ int main(int argc, char** argv) {
     return scripted_pop(argc >= 3 && !std::strcmp(argv[2], "--ai"));
   if (argc >= 2 && !std::strcmp(argv[1], "--body-lab")) return body_lab();
   if (argc >= 2 && !std::strcmp(argv[1], "--bench")) return bench();
+  if (argc >= 2 && !std::strcmp(argv[1], "--pop-bench")) return pop_bench();
+  if (argc >= 2 && !std::strcmp(argv[1], "--town")) {
+    std::uint64_t seed = 1;
+    int people = 3000;
+    double years = 60;
+    for (int i = 2; i + 1 < argc; i += 2) {
+      if (!std::strcmp(argv[i], "--seed")) seed = std::strtoull(argv[i + 1], nullptr, 10);
+      else if (!std::strcmp(argv[i], "--people")) people = std::atoi(argv[i + 1]);
+      else if (!std::strcmp(argv[i], "--years")) years = std::atof(argv[i + 1]);
+    }
+    try {
+      return town_demo(seed, people, years);
+    } catch (const std::exception& e) {
+      std::fprintf(stderr, "error: %s\n", e.what());
+      return 1;
+    }
+  }
   if (argc >= 2 && !std::strcmp(argv[1], "--map")) {
     try {
       return print_map(argc >= 3 ? argv[2] : std::string(ZS_DATA_DIR) + "/tier0/map/block.toml");
