@@ -107,7 +107,7 @@ std::vector<PopId> Roster::in_state_members(EffectKind kind, double year) const 
 }
 
 void Roster::save(ArchiveWriter& w) const {
-  w.u64(id_); w.u32(region_); w.f64(last_year_); w.u64(serial_);
+  w.u64(id_); w.u32(region_); w.u8(static_cast<std::uint8_t>(kind_)); w.f64(last_year_); w.u64(serial_);
   w.u64(stints_.size());
   for (const auto& [pop, list] : stints_) {
     w.u64(pop); w.u32(static_cast<std::uint32_t>(list.size()));
@@ -119,8 +119,10 @@ void Roster::save(ArchiveWriter& w) const {
   }
 }
 
-void Roster::load(ArchiveReader& r) {
-  id_ = r.u64(); region_ = r.u32(); last_year_ = r.f64(); serial_ = r.u64();
+void Roster::load(ArchiveReader& r, std::uint32_t registry_version) {
+  id_ = r.u64(); region_ = r.u32();
+  kind_ = registry_version >= 3 ? static_cast<RosterKind>(r.u8()) : RosterKind::Other;  // older saves had no kinds
+  last_year_ = r.f64(); serial_ = r.u64();
   stints_.clear();
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
     const PopId pop = r.u64();

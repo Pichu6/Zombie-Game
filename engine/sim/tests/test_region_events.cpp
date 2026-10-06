@@ -216,3 +216,50 @@ TEST_CASE("a region event is a world command: its reason is the order, and repla
   }
   CHECK(r->state_hash() == w->state_hash());
 }
+
+TEST_CASE("an event aimed at one roster kind skips the others, and old saves load their rosters as kind other (A1)") {
+  PopRegistry reg(13);
+  reg.add_cohort({1, 0, 0, 1000});
+  reg.add_roster(1, 0, RosterKind::Workplace);
+  reg.add_roster(2, 0, RosterKind::Household);
+  for (PopId p = 0; p < 100; ++p) { reg.roster_join(1, p, 0.0); reg.roster_join(2, p, 0.0); }
+  CHECK(reg.roster(1)->kind() == RosterKind::Workplace);
+  CHECK_FALSE(reg.region_apply(0, EffectKind::LaidOff, 101, 1.0, 1, RosterKind::Workplace));  // only 100 jobs
+  REQUIRE(reg.region_apply(0, EffectKind::LaidOff, 60, 1.0, 1, RosterKind::Workplace));
+  CHECK(reg.roster(1)->count(EffectKind::LaidOff, 1.5) == 60);
+  CHECK(reg.roster(2)->count(EffectKind::LaidOff, 1.5) == 0);
+  // Targeted and untargeted events split differently (the target is part of the key).
+  PopRegistry a(14), b(14);
+  for (PopRegistry* r : {&a, &b}) {
+    r->add_cohort({1, 0, 0, 3000});
+    for (std::uint32_t id = 1; id <= 12; ++id) { r->add_roster(id, 0, RosterKind::Workplace); for (PopId p = 0; p < 50; ++p) r->roster_join(id, id * 100 + p, 0.0); }
+  }
+  REQUIRE(a.region_apply(0, EffectKind::Ill, 200, 1.0, 1, RosterKind::Workplace));
+  REQUIRE(b.region_apply(0, EffectKind::Ill, 200, 1.0, 1));
+  bool differs = false;
+  for (std::uint32_t id = 1; id <= 12; ++id) differs = differs || a.roster(id)->count(EffectKind::Ill, 2.0) != b.roster(id)->count(EffectKind::Ill, 2.0);
+  CHECK(differs);
+  // The saved kind survives a load.
+  PopRegistry loaded(13);
+  loaded.load(reg.save());
+  CHECK(loaded.roster(1)->kind() == RosterKind::Workplace);
+  CHECK(loaded.roster(2)->kind() == RosterKind::Household);
+}
+
+TEST_CASE("the world command can aim a region event at one roster kind (A1)") {
+  auto w = std::make_unique<World>(15);
+  auto pops = std::make_unique<PopSystem>(*w);
+  PopRegistry& reg = pops->setup(*w);
+  reg.add_cohort({1, 0, 0, 500});
+  reg.add_roster(1, 2, RosterKind::Workplace);
+  reg.add_roster(2, 2, RosterKind::Household);
+  for (PopId p = 0; p < 80; ++p) { reg.roster_join(1, p, 0.0); reg.roster_join(2, p, 0.0); }
+  w->add_system(std::move(pops));
+  w->close_setup();
+  const std::int64_t aimed = static_cast<std::int64_t>(EffectKind::LaidOff) | ((static_cast<std::int64_t>(RosterKind::Workplace) + 1) << 8);
+  w->submit({0, RegionApply, 2, aimed, 30});
+  w->step();
+  const auto& r = w->system<PopSystem>()->registry();
+  CHECK(r.roster(1)->count(EffectKind::LaidOff, year_of_tick(1)) == 30);
+  CHECK(r.roster(2)->count(EffectKind::LaidOff, year_of_tick(1)) == 0);
+}

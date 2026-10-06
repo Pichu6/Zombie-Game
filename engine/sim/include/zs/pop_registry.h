@@ -100,7 +100,7 @@ class PopRegistry {
 
   // Rosters: explicit groups whose members change (a workplace, a household, an office). A pop in a
   // roster is a listed id, not a record; it is promoted only when touched on its own.
-  bool add_roster(std::uint64_t id, std::uint32_t region);
+  bool add_roster(std::uint64_t id, std::uint32_t region, RosterKind kind = RosterKind::Other);
   const Roster* roster(std::uint64_t id) const;
   bool roster_join(std::uint64_t roster, PopId pop, double year);
   bool roster_leave(std::uint64_t roster, PopId pop, double year);
@@ -111,7 +111,9 @@ class PopRegistry {
   // draw, so the total is exactly |delta|, no roster gets more than it has, and the work is O(rosters).
   // Refused (nothing changes) if the region has too few eligible members, no rosters, or a roster that has
   // already seen a later year. Aimed at rosters only: generated cohorts take their own events.
-  bool region_apply(std::uint32_t region, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason);
+  // `targets` limits the event to one kind of roster (a layoff aims at workplaces, never at households); empty = all.
+  bool region_apply(std::uint32_t region, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason,
+                    std::optional<RosterKind> targets = std::nullopt);
   std::uint64_t roster_count_region(std::uint32_t region, EffectKind kind, double year) const;
 
   // The jump: births, deaths and who is alive over (from, to] for every founder in every cohort and
@@ -142,7 +144,7 @@ class PopRegistry {
   std::vector<Range> ranges(std::uint64_t cohort, EffectKind kind, double year) const;
   void set_exception(std::vector<PopException>& list, const PopException& e);
   void index_effect(const CohortEffect& e);
-  void load_body(ArchiveReader& r);  // everything every version has
+  void load_body(ArchiveReader& r, std::uint32_t version);  // everything every version has
   void load_v1(ArchiveReader& r);
   void load_v2(ArchiveReader& r);
   void load_v3(ArchiveReader& r);

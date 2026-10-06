@@ -220,9 +220,9 @@ bool PopRegistry::snapshot(PopId id, double year, PopSnapshot& out) const {
   return true;
 }
 
-bool PopRegistry::add_roster(std::uint64_t id, std::uint32_t region) {
+bool PopRegistry::add_roster(std::uint64_t id, std::uint32_t region, RosterKind kind) {
   if (rosters_.count(id)) return false;
-  rosters_[id] = Roster(id, region);
+  rosters_[id] = Roster(id, region, kind);
   return true;
 }
 
@@ -261,13 +261,14 @@ std::uint64_t PopRegistry::roster_count_region(std::uint32_t region, EffectKind 
   return n;
 }
 
-bool PopRegistry::region_apply(std::uint32_t region, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason) {
+bool PopRegistry::region_apply(std::uint32_t region, EffectKind kind, std::int64_t delta, double year, std::uint64_t reason,
+                               std::optional<RosterKind> targets) {
   if (delta == 0 || static_cast<std::uint8_t>(kind) >= static_cast<std::uint8_t>(EffectKind::kCount)) return false;
   struct Part { std::uint64_t id, capacity; };
   std::vector<Part> parts;
   std::uint64_t total = 0;
   for (const auto& [id, r] : rosters_) {
-    if (r.region() != region) continue;
+    if (r.region() != region || (targets && r.kind() != *targets)) continue;
     if (year < r.last_year()) return false;  // a roster has already seen a later year
     const std::uint64_t in_state = r.count(kind, year);
     const std::uint64_t cap = delta > 0 ? r.size(year) - in_state : in_state;
@@ -276,7 +277,7 @@ bool PopRegistry::region_apply(std::uint32_t region, EffectKind kind, std::int64
   }
   const std::uint64_t want = delta > 0 ? static_cast<std::uint64_t>(delta) : static_cast<std::uint64_t>(-delta);
   if (parts.empty() || want > total) return false;
-  const std::uint64_t stream = ((static_cast<std::uint64_t>(region) << 8) | static_cast<std::uint64_t>(kind)) ^
+  const std::uint64_t stream = ((static_cast<std::uint64_t>(region) << 16) | (targets ? static_cast<std::uint64_t>(*targets) + 1 : 0) << 8 | static_cast<std::uint64_t>(kind)) ^
                                (region_events_ * 0x9E3779B97F4A7C15ull);
   std::uint64_t pool = total, left = want;
   for (const Part& p : parts) {
@@ -413,21 +414,21 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
 }
 
 void PopRegistry::load_v1(ArchiveReader& r) {
-  load_body(r);
+  load_body(r, 1);
   region_events_ = 0;  // version 1 had none: no region event had ever been applied
   founder_specs_.clear();
   if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
 }
 
 void PopRegistry::load_v2(ArchiveReader& r) {
-  load_body(r);
+  load_body(r, 2);
   load_events(r);
   founder_specs_.clear();  // version 2 had none: founders were drawn from their ids
   if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
 }
 
 void PopRegistry::load_v3(ArchiveReader& r) {
-  load_body(r);
+  load_body(r, 3);
   load_events(r);
   load_specs(r);
   if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
@@ -445,7 +446,7 @@ void PopRegistry::load_specs(ArchiveReader& r) {
   }
 }
 
-void PopRegistry::load_body(ArchiveReader& r) {
+void PopRegistry::load_body(ArchiveReader& r, std::uint32_t version) {
   if (r.u64() != seed_) throw std::runtime_error("pop registry save is from another world seed");
   params_ = read_pop_params(r);
   cohorts_.clear(); by_slot_.clear(); log_.clear(); records_.clear(); kept_.clear();
@@ -480,7 +481,7 @@ void PopRegistry::load_body(ArchiveReader& r) {
   }
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
     Roster ro;
-    ro.load(r);
+    ro.load(r, version);
     const std::uint64_t rid = ro.id();
     for (PopId pop : ro.ever_members()) rosters_of_[pop].push_back(rid);
     rosters_[rid] = std::move(ro);

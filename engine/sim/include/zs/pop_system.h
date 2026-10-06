@@ -17,7 +17,7 @@ enum PopCommand : std::uint16_t {
   RosterLeave = 0x1005,     // subject = pop, a = roster
   RosterApply = 0x1006,     // subject = roster, a = EffectKind, b = delta
   CohortApply = 0x1007,     // subject = cohort, a = EffectKind, b = delta
-  RegionApply = 0x1008,     // subject = region, a = EffectKind, b = delta (split down to its rosters)
+  RegionApply = 0x1008,     // subject = region, a = EffectKind | (RosterKind + 1) << 8 (0 in the high byte = all rosters), b = delta
 };
 
 // Game years are calendar days / 365 (no leap days: the sim has none).
