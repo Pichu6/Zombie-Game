@@ -108,9 +108,35 @@ The 7 live warning days are driven by drift (the world changes every hour from i
 
 A scenario can only set numbers or starting state, schedule real events, and add objectives (the validator enforces it). Presets: 7-day warning (default), Responder, Day one, Apocalypse, One week later, Six months later, Nurse at the hospital, Military base, Evacuee, Infected, Last stand, Opening hours, Nomad, Winter, Really bad day, Pacifist / Builder / Hardcore. Late starts are simulated from day 0. Shareable as a code with a fixed seed.
 
-## 12. Order of work (Proposal, dependencies only)
+## 12. Setup: world options, generated worlds and the virus editor
 
-Tier 0 stays as decided ([0010](../decisions/0010-concept-v2.md)): contract, body, assemblies (doors and windows included), sound core, room-graph power, ~60-person stub census, walkers and pop AI, 2D individual view, kill/keep runs. Then: census and records, region graph with authorities and behaviour, economy and infrastructure, social order, the living week, real-Earth data and world setup, macro and city views, scenarios, switching, scale.
+Intent Decided ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)); models Proposal.
+
+- **One set of world fields.** Real Earth data and the generator write the same fields (elevation, monthly temperature and rain, rivers, climate class, biome, soil, resources, flora, fauna, population). Everything downstream reads only these fields, so every system works on both worlds.
+- **Generator pipeline:** plates → elevation → monthly temperature (energy balance, so a global temperature slider works) → winds and rain shadow → rivers → climate class and biome → soil → resources from geology → flora and fauna.
+- **World sliders are physical causes:** temperature, seasonality, moisture, relief, fertility, resources, vegetation, wildlife, population. Biome is painted, not a slider, so it cannot contradict the climate (no rainforest at −10 °C). On real Earth only the sliders that don't contradict the data apply (population, resources, wildlife); the rest need a generated world. All sliders lock at the start, so nothing is created or destroyed mid-run.
+- **Settlements:** generate a plausible present directly, not years of history. One **suitability function** (water, soil, climate, relief, resources, access) places towns; a short four-era pass (farming, trade, industrial, modern) gives each district a build era and style; city sizes and road links are checked against real statistics (rank-size, gravity). The same function, with crisis weights, drives where survivors gather after the collapse: camps, safe zones, trails and barter markets are where "roads and trade born naturally" happen during play. Optional: a timelapse of growth at world creation (Open).
+- **Real Earth needs the generator too:** our licences allow OpenStreetMap only for the home region, so towns and roads elsewhere are generated on top of real population data.
+- **Saved at creation:** generated settlements and layouts are stored with the world, so a generator update never changes a save.
+- **Culture kits:** interior first, facade second; every room must be reachable. A culture style is a data package at five levels (street pattern, plots, massing, art modules, interiors and loot) on one shared size grid, so doors, walls and barricades behave the same in every style. Style follows region and build era. Grammars and wave function collapse only for facades, roofs and decoration. The **city brush** is a world-creation and Sandbox tool; during play, building is a Project (0014: instant build is Sandbox only).
+- **Virus editor:** sliders on the parameters the outbreak rules already have (routes and chance per exposure, latent period, time to turn, infectious before turning, signs and whether they can be hidden, zombie body, survival in the environment, medicine, drift). **Trait cards** ("Saliva", "Long incubation", "Cold-hardy") are named bundles of slider changes shown as a before → after diff. No points: the cost of a trait is what it does in the sim (visible signs bring news sooner). One validator with realistic / sandbox / rejected bands; virus types are presets of these groups.
+- **Preview:** reproduction number split into its factors (before and after people know), fizzle odds, and an "estimate from N runs" made by the headless core at macro level: share of fizzle / regional / global outcomes. Shown in setup and the god view, hidden while playing an individual (0014). The same preview engine forecasts Macro orders (section 13).
+- **Cure:** cure research is a Project at a real lab (staff, power, equipment, samples): identify → test → treatment → vaccine → manufacture → distribute. A blackout or fleeing staff stalls it; a fallen government stops funding it. Every layer can help (fund it, staff it, carry a sample).
+- **No virus:** zero first cases gives a pure life and city sim on the same world, with no rule change.
+- New rules (animal hosts, separate strains per region) are not slider changes; they wait for their own decision.
+
+## 13. Orders, inspectors and possession (Proposal)
+
+- **Sector:** a named zone inside a region (a district or a town), the unit Macro orders aim at.
+- **Macro order card:** shows only the orders the character's role allows, with a forecast (cost, upkeep, jobs, effect) from what the issuer believes. After it is committed, the real result is shown next to the forecast. Hearts of Iron style: an icon on the map and the same item in a list.
+- **Power plant in sector 3** becomes a Project; City sees it as "ordered, not received" until communications deliver it, then as a site. City places the exact plot. **Blockade in sector 4** is an edict (movement condition plus use-of-force threshold) whose effect exists only through the guards posted there: no guards, no blockade.
+- **City verbs:** priorities, slot caps, plot placement, supply and grid routing, stores and stockpiles, and requests a pop can refuse. Pops fill job slots themselves (Stellaris, Manor Lords); assigning people directly needs authority, such as martial law.
+- **Building inspector:** Status (what limits output), Staff (filled and empty slots, and why they are empty), Supply, Site, History. Click a worker to open the pop inspector, then possess.
+- **Possession objectives:** a view of the pop's own plan, never a separate quest system: current task, accepted jobs and shifts, routine, urgent needs, obligations and ties, and role verbs. Three pinned cards (now, today, life) and a full list; the player can pin one. Ignoring them only has simulated consequences (no wage, someone else takes the job, food runs out). On release, the AI replans from the current state and keeps any commitments the player made.
+
+## 14. Order of work (Proposal, dependencies only)
+
+Tier 0 stays as decided ([0010](../decisions/0010-concept-v2.md)): contract, body, assemblies (doors and windows included), sound core, room-graph power, ~60-person stub census, walkers and pop AI, 2D individual view, kill/keep runs. Then: census and records, region graph with authorities and behaviour, economy and infrastructure, social order, the living week, real-Earth data and world setup (the shared world fields first, then a minimal settlement generator; the full planet generator, culture kits and the cure-lab chain after), macro and city views, scenarios, switching, scale.
 
 ## Answered
 

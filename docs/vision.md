@@ -43,10 +43,11 @@ One decision repeats every few minutes: **comfort and progress versus being noti
 - **Command layer:** squad orders (go, hold, follow, attack, retreat) and a job board with priorities. Proposal.
 - **Possession:** click a survivor to play them directly. Tier 0: direct WASD control; Tier 1: iso zoom-in; Tier 2: over-the-shoulder 3rd person. Camera and control code is mode-agnostic from day one. Possession gives control, not power: the body still sets speed, strength and stamina. Proposal.
 - **Why possess:** the AI is cautious and average on purpose, and panics or refuses in specific situations (a dark basement, an open yard with dead in sight, a live wire). Proposal.
-- **Setup:** create the world from parameters (real Earth by default, generated worlds in sandbox), then the outbreak (origin and virus numbers), the scenario and the character. Decided.
+- **Setup:** create the world from parameters (real Earth by default; generated worlds in sandbox, where pops settle where conditions are best and towns, roads and trade follow), then the outbreak in a Plague Inc style virus editor (or no virus), the scenario and the character. Decided ([0016](decisions/0016-sandbox-setup-and-layer-flow.md)).
 - **Character:** pick a pop or create one, Project Zomboid style (civilian, police, military, nurse, custom). Starting weapons follow real custody rules by default. Every pop has a TTRPG-style lifepath behind them. Decided.
 - **Warning week:** about 7 days from first news to arrival (realistic for the virus settings), all live play by default: work, buy, prepare, hear the news. Decided.
 - **Fog:** playing an individual, the layers above show what that character believes, and a pop's dossier can be wrong. Decided.
+- **Layer flow:** a Macro order aimed at a sector (power plant in sector 3, blockade in sector 4) becomes a site in City, where pops gather, build and staff it on their own; click the plant, pick a worker and play as them. A possessed pop's tasks and routine become optional objectives. Decided ([0016](decisions/0016-sandbox-setup-and-layer-flow.md)).
 - **Orders follow role:** an individual takes jobs at a power plant; only someone with authority orders one. A build order creates real jobs and material demand that pops answer, like zoning in Cities: Skylines. Decided.
 - **Map:** the world is a sandbox too, with a zoom from the **globe** down to the **local zone** (Infection Free Zone style). Every building enterable; breachable walls. Timing decided (2026-10-05): hand-made map for Tier 0–1, a template-based generator in Tier 2, real-world globe pick in Tier 3; the global outbreak layer, being only numbers, can come early. The map data is designed from the start so a generator can fill it.
 - **Sandbox settings** (Zomboid style): zombie speed, time scale, population, utility shutoff, loot, and **the virus itself** (Plague Inc style): transmission routes and their chances, incubation time, symptoms, lethality, time from death to reactivation, and whether a cure exists. Presets: a realistic default ("necrobiotic syndrome", see [threats](design/threats.md)) plus faster or harsher variants. Decided (2026-10-05). **Settings change numbers, never rules**, so player and survivor parity always holds. Decided.
@@ -82,6 +83,12 @@ Proposal: players of systemic survival games (Project Zomboid, RimWorld, Dwarf F
 
 ## Open questions
 
-All earlier questions were answered on 2026-10-05 ([0014](decisions/0014-open-questions-answered.md); tone in [0015](decisions/0015-tone-realistic-damage.md): realistic, not gore). Still open:
+Earlier questions were answered on 2026-10-05 ([0014](decisions/0014-open-questions-answered.md); tone in [0015](decisions/0015-tone-realistic-damage.md)). From the sandbox and layer ideas ([0016](decisions/0016-sandbox-setup-and-layer-flow.md)), recommendations are Proposals:
 
-- Ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).
+1. Playing micro → macro, do your orders depend on your character's role (a civilian can't order a power plant)? Recommended: yes; in the other play styles you can take any role.
+2. Watch towns grow before the outbreak? Recommended: a short timelapse at world creation only; real growth of camps and trade happens after the collapse.
+3. Virus editor with points (Plague Inc DNA) or free sliders? Recommended: sliders and trait cards, with an optional point budget as a Sandbox challenge.
+4. Cure by default? Recommended: treatment works before turning, a vaccine is a long lab project, nothing cures a turned zombie.
+5. "No virus" (pure life and city sim) in the base game? Recommended: yes.
+
+Also still open: ceiling values per production method, and how many production steps to model ([production ladder](design/items-crafting.md#production-ladder)).

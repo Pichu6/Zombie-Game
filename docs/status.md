@@ -35,4 +35,4 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Waiting on the user
 
-- Nothing blocking. All open questions are answered ([0014](decisions/0014-open-questions-answered.md), [0015](decisions/0015-tone-realistic-damage.md)); only tuning numbers remain.
+- Five questions from the sandbox and layer ideas ([vision](vision.md#open-questions)), each with a recommendation.
