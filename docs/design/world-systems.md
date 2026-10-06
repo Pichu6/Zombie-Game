@@ -9,7 +9,7 @@ Intent **Decided** ([0032](../decisions/0032-worlds-start-with-nations-and-every
 1. **A thing exists only because of its inputs.** A city exists where land, water and surplus allow it; a steel mill where ore, fuel or power, workers and a route allow it; a grid link where there is load to serve. A generator step reads only what earlier steps made.
 2. **Every placement records why** (a cause chain: which fields and which earlier placements). The inspector can answer "why is this here?", the same field the ledger uses for transfers ([macro layer](macro-layer.md) §5).
 3. **Conservation:** people, goods, money, fuel and resource stocks move between owners; nothing is created. A deposit's stock is `endowment − extracted`; an item's mass comes from its inputs ([0013](../decisions/0013-production-ladder.md)).
-4. **Macro numbers are sums over micro entities** ([pop continuity](pop-continuity.md) §3): a province's output is the sum of its establishments' output; its workers are rosters; its stocks are stocks. Nothing at state level is stored apart from what lies beneath it.
+4. **Macro numbers are sums over micro entities** ([pop continuity](pop-continuity.md) §3): a sector's output is the sum of its establishments' output; its workers are rosters; its stocks are stocks. Nothing at state level is stored apart from what lies beneath it.
 5. **Settings change numbers, never rules** (Decided). The user's starting parameters feed the same laws.
 6. **A nation never has a stat that is not a head count, a stock or a flow of something real.**
 
@@ -27,8 +27,8 @@ Intent **Decided** ([0032](../decisions/0032-worlds-start-with-nations-and-every
 | Processing chains | Extraction → refining → manufacturing → distribution | Production ladder and quality at item scale ([items and crafting](items-crafting.md)) | Chain model at region scale, plant siting |
 | Building and construction | Housing, workplaces, plants, public works; building projects | Assemblies and Projects ([world simulation](world-simulation.md) §7) | Building stock per settlement, construction cost and time, upkeep |
 | Networks | Power, water, roads, rail, ports, telecom, pipelines | Power and water inside a building and block ([infrastructure](infrastructure.md)) | Regional and national topology, sizing, losses, failure cascades |
-| Energy and materials | Flows by sector and per person | Anchors in [world numbers](world-numbers.md) §2.2 | Balance per province, fuel trade |
-| Factions and territory | Who controls what, borders, claims | Country actor, standing, assembly ([macro layer](macro-layer.md)) | Provinces, control and occupation, expansion, subjection, conquest |
+| Energy and materials | Flows by sector and per person | Anchors in [world numbers](world-numbers.md) §2.2 | Balance per sector, fuel trade |
+| Factions and territory | Who controls what, borders, claims | Country actor, standing, assembly ([macro layer](macro-layer.md)) | Sectors, control and occupation, expansion, subjection, conquest |
 | Culture, religion, language | How groups differ | [Sandbox parameters](sandbox-parameters.md) §6 | Generation and spread |
 | Technology and capability | What a nation can do | Readout of what exists ([0025](../decisions/0025-leader-records-foxhole-tech-readout.md), [0026](../decisions/0026-pop-continuity-and-capability-loss.md)) | Capability list and its links to yield, cost and output |
 | Military and war | Forces, supply, resolution | [Sandbox parameters](sandbox-parameters.md) §5.1; [war research](../research/war-in-other-games.md) | Secondary for now |
@@ -65,8 +65,8 @@ Each step reads only earlier outputs, draws with keyed randomness (so a seed rep
 | 4 | Capacity K per cell | steps 1–3, start era | food, water, fuel and timber ceilings ([world numbers](world-numbers.md) §2.2) |
 | 5 | Population and settlements | K, suitability, coast, rivers | densities, town sites, sizes by rank-size, urban share; each with its cause |
 | 6 | Routes | settlements, terrain, transport cost by mode | rivers, sea lanes, roads, ports by cost-distance (spanning tree, then loops by flow) |
-| 7 | Provinces | settlements, routes | control units: cell clusters around a settlement and its hinterland |
-| 8 | Factions and borders | provinces, circumscription, surplus, reach | states seeded in circumscribed high-surplus regions and grown by cost-distance from capitals until reach, competition or geography stops them; count and sizes follow the laws ([world numbers](world-numbers.md) §4.1); cultures assigned with drift |
+| 7 | Sectors | settlements, routes | control units: cell clusters around a settlement and its hinterland |
+| 8 | Factions and borders | sectors, circumscription, surplus, reach | states seeded in circumscribed high-surplus regions and grown by cost-distance from capitals until reach, competition or geography stops them; count and sizes follow the laws ([world numbers](world-numbers.md) §4.1); cultures assigned with drift |
 | 9 | Economy and chains | pops, deposits, flora, fauna, energy, routes | extraction sites at deposits, processing and factories where inputs, workers, power and an outlet meet, farms and fisheries by capacity; sized to demand and supply |
 | 10 | Networks | settlements, plants, load per capita | power plants by fuel, hydro, sun and coast; grid links following the route graph and load; water works by source; telecom by density |
 | 11 | Building stock | pops, jobs, step 9 | housing per household, workplaces per job, public buildings by service level; interiors are generated on approach ([world simulation](world-simulation.md) §12) |
@@ -74,14 +74,32 @@ Each step reads only earlier outputs, draws with keyed randomness (so a seed rep
 | 13 | Relations | factions, borders | standing, treaties, claims, and starting subject relations the user allows |
 | 14 | Audit | everything | checks (below) and the realism report |
 
-**Audit invariants (a world that fails is not shipped):** people add up; every employed pop fills a workplace slot and no slot exceeds capacity; every settlement is connected; every plant has its inputs or a declared shortage; every grid node has a source or a declared blackout; every supply chain closes or states its import; deposit stocks plus extracted equal the endowment; every faction's provinces are contiguous or connected by a declared route; every placement has a cause record.
+**Audit invariants (a world that fails is not shipped):** people add up; every employed pop fills a workplace slot and no slot exceeds capacity; every settlement is connected; every plant has its inputs or a declared shortage; every grid node has a source or a declared blackout; every supply chain closes or states its import; deposit stocks plus extracted equal the endowment; every faction's sectors are contiguous or connected by a declared route; every placement has a cause record.
+
+### 4.1 Sectors and zones: the spatial hierarchy (Decided, [0033](../decisions/0033-sectors-zones-and-world-creation-answers.md); model Proposal)
+
+The world is divided on purpose, so that borders, placement and play all use the same units, as when starting a city in Cities: Skylines.
+
+| Level | What it is | What it is used for | Detail |
+| --- | --- | --- | --- |
+| World cell | A patch of the planet's surface (an equal-area cell of the global grid) carrying the fields of steps 1–4 | Terrain, climate, soil, flora, fauna, deposits, capacity K | The whole planet, coarse |
+| **Sector** | A connected group of world cells around a settlement and its hinterland; **dozens at the start of a world, designed to scale to hundreds** | The control unit: owner, controller, claims, borders (a nation's territory is a set of sectors); the target of macro orders | Whole planet; a sector holds pops, deposits, buildings and route nodes |
+| **Zone** | A land-use area inside a sector: residential, commercial, industrial, farmland, forest, reserve, park, extraction, and so on | Where cities and buildings are **placed**: zoning decides what may be built where, and demand (Cities: Skylines style) fills it | Exists only where people build: settlement footprints and worked land; wilderness stays at world-cell level |
+| Plot | A building lot inside a zone, on the 0.5 m build grid | One building, its interior generated on approach ([world simulation](world-simulation.md) §8, §12) | Local scale |
+
+- **Borders follow sectors:** two nations meet where their sectors meet, and a border never cuts a sector. Moving a border is moving a sector's owner.
+- **Zoning is how a city grows:** a zone sets what may go up; pops and companies build it as jobs and material demand are answered ([world simulation](world-simulation.md) §7); the building stock is the sum of what is built.
+- **The generator fills zones** where the user has not: the settlement step (5) draws a footprint, step 11 zones and fills it.
+- **Sectors are what the earlier docs call a sector:** the named area macro orders aim at ([world simulation](world-simulation.md) §13).
+- **Layer mapping:** Macro sees sectors and borders; City sees zones and plots; Individual sees plots and interiors ([macro layer](macro-layer.md) §3.3).
+- **Size and grid** (an equal-area global grid, sector sizes, zone resolution) are decisions for the first generator spec.
 
 ## 5. Factions and control
 
-A **faction** is a state actor ([macro layer](macro-layer.md) §7) that holds provinces. The control model, in Hearts of Iron and Stellaris terms:
+A **faction** is a state actor ([macro layer](macro-layer.md) §7) that holds sectors. The control model, in Hearts of Iron and Stellaris terms:
 
-- **Province:** the control unit, a settlement and its hinterland (cells, pops, deposits, buildings, route nodes). It has an **owner**, a **controller** (differs under occupation), a list of **claims**, and a development and unrest state. Provinces are the unit macro orders aim at ([world simulation](world-simulation.md) §13); zooming in opens the layers below.
-- **Territory** is the set of owned provinces; a **border** is where owners meet; **reach** (message speed × tolerated delay) limits what a centre can hold without a delegated tier ([world numbers](world-numbers.md) §4.1).
+- **Sector:** the control unit (a Hearts of Iron province), a settlement and its hinterland (cells, pops, deposits, buildings, route nodes). It has an **owner**, a **controller** (differs under occupation), a list of **claims**, and a development and unrest state. Sectors are the unit macro orders aim at ([world simulation](world-simulation.md) §13); zooming in opens the layers below.
+- **Territory** is the set of owned sectors; a **border** is where owners meet; **reach** (message speed × tolerated delay) limits what a centre can hold without a delegated tier ([world numbers](world-numbers.md) §4.1).
 - **Relations:** standing with reasons, treaties, alliances, rivalry, as in [macro layer](macro-layer.md).
 - **Subjection:** a faction can be a **subject** of another (vassal, protectorate, tributary, puppet), with its own government, an autonomy level, a tribute share of revenue and an obligation (levies, access, trade terms). Subjects can rebel, be absorbed, or be released. Lowest-autonomy subjection is the reading of "become slaves" for factions ([0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md)).
 - **Expansion:** by settling empty or thin land when pop pressure ([world numbers](world-numbers.md) §2.2) exceeds capacity and routes allow; by diplomacy (subjection, union); by conquest.
@@ -97,14 +115,14 @@ The coupling contract ([spec 28](../tier0/specs/28-pop-levels.md), [pop continui
 
 | Domain | Macro state (a sum) | Down: what an order does | Up: what the micro result adds up to |
 | --- | --- | --- | --- |
-| Economy | Province output, jobs, shortages | An edict (tax, rationing, price rule, conscription) changes establishments' staffing, inputs and hours | Output is the sum of establishments' production; revenue follows |
+| Economy | Sector output, jobs, shortages | An edict (tax, rationing, price rule, conscription) changes establishments' staffing, inputs and hours | Output is the sum of establishments' production; revenue follows |
 | Processing | Chain throughput, stocks | A build order or priority starts a plant project; allocation changes input shares | Throughput is each plant's output given its inputs, workers and power |
 | Construction | Building stock, projects | A programme posts jobs and material demand that pops and companies answer | Stock is the sum of finished buildings; capability readout rises |
 | Networks | Capacity, load, outages | A build or maintenance order, a load-shedding rule | Capacity is the sum of sound components; an outage is a failed component |
 | Resources, flora, fauna | Stock, harvest rate, depletion | A licence, quota or ban changes who may extract | Stock falls by what is actually taken; regrowth follows the laws |
 | Pops | Counts by age, work, wealth, loyalty | Region events on rosters ([spec 28](../tier0/specs/28-pop-levels.md)) | Counts are sums over pops, never stored apart |
 | Faction | Revenue, army, officials, stability, reach | Policy and orders | Capability is drawn from pops and stocks ([world numbers](world-numbers.md) §4.2) |
-| Territory | Owned provinces, borders, subjects | Treaty, war, secession | Ownership changes by event; pops and buildings keep their identities |
+| Territory | Owned sectors, borders, subjects | Treaty, war, secession | Ownership changes by event; pops and buildings keep their identities |
 
 ## 7. What the user sets at creation
 
@@ -121,7 +139,7 @@ Presets, auto-fill or custom for every field, as already decided ([sandbox param
 | Outbreak and hazards | per [sandbox parameters](sandbox-parameters.md) §12 |
 | Time | per [0028](../decisions/0028-real-time-reference-and-generational-runs.md) |
 
-The user may also **edit the generated map** (move a border, rename, place a faction) before starting; edited worlds are tagged and re-audited.
+The user can **edit the generated map before starting** (Decided, [0033](../decisions/0033-sectors-zones-and-world-creation-answers.md)), as when starting a new city in Cities: Skylines: paint **nation borders** over sectors, paint **zones** inside a sector and place cities and buildings with a brush ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)), move or rename a faction, or leave any part to the generator. An edited world is tagged and **re-audited** (section 4): an edit that breaks an invariant (a city with no water, a plant with no inputs) is refused or flagged with the reason.
 
 ## 8. Specs to write, and the order
 
@@ -129,32 +147,40 @@ Dependencies only; nothing here blocks the pop work already built. After [world 
 
 1. **World fields and terrain generator** (steps 1–2), then **geology and deposits** (3).
 2. **Capacity and settlements** (4–5), then **routes** (6).
-3. **Provinces and the faction territory model** (7–8), with the control, claim and subject records.
+3. **Sectors and the faction territory model** (7–8), with the control, claim and subject records.
 4. **Economy core** (sectors, establishments as rosters of workers, stocks, jobs) and **processing chains** (9).
 5. **Networks** (10) and **building stock and construction** (11).
 6. **Pops from the world** (12) and **relations** (13), then the **audit and realism report** (14).
 7. **Faction dynamics:** expansion, subjection, conquest, shrink; **war in aggregate**, last.
 
-A first playable slice for the loop: a **single continent of about a dozen provinces and three to five factions**, one resource chain (ore → steel → tools), one grid, one trade route graph, run through the yearly step with the loop closed. It tests the contract before the full world.
+A first playable slice for the loop: a **single continent of a dozen or so of the dozens of sectors, and three to five factions**, one resource chain (ore → steel → tools), one grid, one trade route graph, run through the yearly step with the loop closed. It tests the contract before the full world.
 
-## 9. Open questions
+## 9. Questions
 
-1. **"Slaves."** Read as subjugation of a faction (subject statuses, section 5). Does the game also model **enslaved or forced-labour populations** inside a state? It is a sensitive design area, a fact of history that some games model; it is not assumed here and needs your explicit decision.
-2. **Province size and count.** A world of 100–300 provinces (Hearts of Iron scale) or a few dozen (Stellaris sectors)? Recommendation: pick by the start slice (a dozen), design for hundreds, as the pop levels already scale.
-3. **Map shape.** One generated continent, several, or the real Earth (the default is Earth, [0028](../decisions/0028-real-time-reference-and-generational-runs.md))? Earth is a separate data pipeline; generated worlds use the laws above.
-4. **Unequal development at start.** Real nations differ widely. Recommendation: yes, development (hence yield, tax ceiling, transport cost) varies by faction as the capabilities its provinces actually hold.
-5. **Hand-editing the map** before the run (section 7). Recommendation: yes, with a re-audit and a tag on the save.
-6. **Research honesty.** The existing notes are second-hand search summaries; the new ones will be too. A real data pipeline ([world numbers](world-numbers.md) §10) is the way to firm numbers up.
+### Answered (2026-10-06, [0033](../decisions/0033-sectors-zones-and-world-creation-answers.md))
+
+1. **Forced labour:** a possibility for later, not in the plan; it needs its own decision before any design.
+2. **Granularity:** dozens of sectors, designed to scale.
+3. **Map shape and realism:** worlds are realistic to physics and math, not necessarily 1:1 with Earth.
+4. **Uneven development at the start:** yes, read from the capabilities each faction holds.
+5. **Map editing before the run:** yes, with the world divided into sectors (borders) and zones (placement), re-audited after edits.
+
+### Open
+
+1. **The global grid.** A planet is a sphere: an equal-area grid (an icosahedral hexagon-and-pentagon grid) keeps areas and distances honest, at the price of a harder grid than a flat map. Recommendation: equal-area cells of about 5,000 km² at Earth size (about 100,000 cells), a flat metric grid only for local maps.
+2. **How many world cells make a sector,** and the zone resolution inside settlements. Recommendation: sectors of a few hundred to a few thousand cells so that a world has dozens, and zone cells of 100–500 m inside settlement footprints only.
+3. **The real Earth** remains a separate data pipeline ([0028](../decisions/0028-real-time-reference-and-generational-runs.md)); generated worlds use the laws here. Is Earth a first-slice goal or later? Recommendation: later.
+4. **Research honesty.** The notes are second-hand search summaries; a real data pipeline ([world numbers](world-numbers.md) §10) is the way to firm numbers up.
 
 ## 10. Laws and anchors for the new systems
 
 Each is a **Proposal** with a realistic band and a wider sandbox band; the research notes hold the full equations, sources and confidence. "Design" means we chose it.
 
-### 10.1 Economy (province level)
+### 10.1 Economy (sector level)
 
 | Law | Form | Anchors |
 | --- | --- | --- |
-| Production | `Y = A K^a L^(1−a) × min(1, energy available ÷ needed)`; `A` read from the capabilities the province has | Capital share 0.30–0.45 (textbook band, design here) |
+| Production | `Y = A K^a L^(1−a) × min(1, energy available ÷ needed)`; `A` read from the capabilities the sector has | Capital share 0.30–0.45 (textbook band, design here) |
 | Structure | Sector shares move with log income (agriculture falls, industry humps, services rise) | Low income about 59% of jobs and 27% of GDP in agriculture; rich about 75% of jobs in services |
 | Input and output | Leontief closure over six sectors (agriculture, mining and energy, manufacturing, construction, services, government) | Manufacturing about 66% intermediate inputs, whole economy about 45%; other coefficients not found, to come from WIOD or OECD tables |
 | Capital | `K' = (1−d)K + sY`; steady state `K/Y = s/(g+d)` | Investment 25.9% of world GDP; K/Y 3–4; depreciation buildings 1.5–2.3%, machinery 11% |
@@ -198,14 +224,14 @@ Every placement keeps a reason string ("aluminium smelter beside the cheapest fi
 
 | Law | Form | Anchors |
 | --- | --- | --- |
-| Control unit | A province holds pops, buildings and resources with owner, controller, claimants and integration in 0–1; faction totals are sums weighted by integration and control | Victoria 3 states and Crusader Kings 3 counties; CK3 loses 1% tax and 0.5% levy per missing point of control |
+| Control unit | A sector holds pops, buildings and resources with owner, controller, claimants and integration in 0–1; faction totals are sums weighted by integration and control | Victoria 3 states and Crusader Kings 3 counties; CK3 loses 1% tax and 0.5% levy per missing point of control |
 | Reach | Projected power decays with distance from the supplied base, `exp(−d/L)`; roads, rail and ships raise `L` | Decay length not found: set so a pre-industrial state projects half power at 1–2 weeks of march |
 | Battle | Strength `N × quality`; effective ratio with terrain, fortification, supply, morale; losses between linear and square law (exponent about 1.5, design); a side breaks on morale or cut supply before annihilation | History fits neither law well; terrain examples from Hearts of Iron |
 | Siege | The shorter of starvation and assault; a relieving army becomes a battle | Most strongholds that fell did so within about two weeks |
-| War score | Value of enemy provinces occupied plus battle wins; exhaustion rises until a side accepts peace | Constants not found |
+| War score | Value of enemy sectors occupied plus battle wins; exhaustion rises until a side accepts peace | Constants not found |
 | Occupation | Resistance falls and compliance grows with time; yield `base × compliance`; garrison drains the occupier's own manpower; integration 5–30 years for taxes and levies, 100–150 years culturally | Gaul about 100–150 years (low confidence); a failure case if locals are excluded (Dacia) |
 | Subject contract | One structure: tribute share, levy share, autonomy, protection; presets tributary, vassal, puppet, protectorate | CK3 levy shares 16.6 / 25 / 33.3 / 50%; Stellaris tributaries at least 30%; Ming tribute a net transfer to the subject. Real revenue shares mostly not found: game numbers only |
-| Loyalty | Liberty desire from ethnic distance, burdens, protection and overlord strength sets the yearly chance of rebellion; absorb when indirect rule costs more than direct | Assyria annexed vassals into provinces (743–732 BC) |
+| Loyalty | Liberty desire from ethnic distance, burdens, protection and overlord strength sets the yearly chance of rebellion; absorb when indirect rule costs more than direct | Assyria annexed vassals into sectors (743–732 BC) |
 | Expansion | Settle when local pops exceed capacity and a neighbour has room; conquer when value over cost beats a threshold; bounded land raises the cost of leaving | Carneiro |
 | Secession and collapse | Yearly chance rises with unrest, falls with control and garrison; collapse when pay cannot be met or legitimacy is low | Empire lifetime about 215 years (a newspaper summary of Turchin); Europe about 500 states (1500) to 25–30 (1900); half of the 1816 states gone; civil wars start about 2.3 a year since 1945 |
 | Diplomacy | Balance the strongest neighbouring threat; opinion as dated modifiers with decay; no abstract diplomacy currency | Walt's balance of threat |
