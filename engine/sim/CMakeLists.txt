@@ -25,6 +25,7 @@ add_library(zs_sim
   src/pop_registry.cpp
   src/demography.cpp
   src/roster.cpp
+  src/pop_params.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

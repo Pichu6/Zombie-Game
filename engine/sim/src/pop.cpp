@@ -12,7 +12,6 @@ constexpr unsigned kMaxGeneration = 7, kMaxChildren = 15;
 constexpr int kFeistelRounds = 6;
 // Which life draw (the `b` key of Purpose::PopLife).
 constexpr std::uint64_t kDrawSex = 0, kDrawConstantHazard = 1, kDrawGompertz = 2;
-constexpr double kMaleShareAtBirth = 0.512;  // about 105 boys per 100 girls; the source is to be cited in the calibration pass
 }  // namespace
 
 std::uint64_t keyed_u64(std::uint64_t world_seed, Purpose purpose, std::uint64_t a, std::uint64_t b) {
@@ -58,17 +57,12 @@ PopId mother_of(PopId id) {
   return kTopBit | (static_cast<std::uint64_t>(gen - 1) << kGenShift) | (mother_path << kPathShift) | founder_slot_of(id);
 }
 
-Mortality mortality_for(Sex sex) {
-  // About 81 years for women and 75 for men, to be replaced by a fit to real life tables.
-  return sex == Sex::Female ? Mortality{3.0e-4, 1.5e-5, 0.10} : Mortality{3.0e-4, 3.0e-5, 0.10};
-}
-
-PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age) {
+PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age, const PopParams& params) {
   PopBase p;
   p.id = id;
   p.birth_year = birth_year;
-  p.sex = keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawSex) < kMaleShareAtBirth ? Sex::Male : Sex::Female;
-  const Mortality m = mortality_for(p.sex);
+  p.sex = keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawSex) < params.male_share_at_birth ? Sex::Male : Sex::Female;
+  const Mortality& m = params.mortality(p.sex == Sex::Male);
   const double e1 = -detmath::log1p(-keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawConstantHazard));
   const double e2 = -detmath::log1p(-keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawGompertz));
   // First death of two independent hazards, each drawn conditional on having reached known_alive_age.

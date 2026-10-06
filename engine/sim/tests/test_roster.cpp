@@ -183,5 +183,5 @@ TEST_CASE("the same history picks the same people; save and load keep rosters (A
     REQUIRE(other.snapshot(p, 3.0, y));
     CHECK(x.roster_bits == y.roster_bits);
   }
-  CHECK(a.hash() == 15047392892608535617ull);
+  CHECK(a.hash() == 7377591193803251036ull);
 }

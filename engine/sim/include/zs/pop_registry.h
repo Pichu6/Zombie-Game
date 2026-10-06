@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 
+#include "zs/archive.h"
 #include "zs/demography.h"
 #include "zs/pop.h"
 #include "zs/roster.h"
@@ -54,7 +55,10 @@ struct PopCounts {
 
 class PopRegistry {
  public:
-  explicit PopRegistry(std::uint64_t world_seed) : seed_(world_seed) {}
+  // The parameters are copied in and saved with the registry: later changes to any preset never touch this world.
+  explicit PopRegistry(std::uint64_t world_seed, const PopParams& params = default_pop_params())
+      : seed_(world_seed), params_(params) {}
+  const PopParams& params() const { return params_; }
 
   // Cohorts. Returns false if the id is taken or the slots overlap another cohort.
   bool add_cohort(const Cohort& c);
@@ -95,7 +99,7 @@ class PopRegistry {
 
   // The jump: births, deaths and who is alive over (from, to] for every founder in every cohort and
   // their descendants, applying death-year exceptions. Pure; cost grows with everyone ever in the trees.
-  DemographyCounts project_demography(double from, double to, const Fertility& f = {}) const;
+  DemographyCounts project_demography(double from, double to) const;
 
   std::vector<std::uint8_t> save() const;
   void load(const std::vector<std::uint8_t>& bytes);  // into a registry made with the same seed
@@ -117,8 +121,10 @@ class PopRegistry {
   std::vector<Range> ranges(std::uint64_t cohort, EffectKind kind, double year) const;
   void set_exception(std::vector<PopException>& list, const PopException& e);
   void index_effect(const CohortEffect& e);
+  void load_v1(ArchiveReader& r);
 
   std::uint64_t seed_;
+  PopParams params_;
   std::map<std::uint64_t, Cohort> cohorts_;            // by id
   std::map<std::uint32_t, std::uint64_t> by_slot_;     // first_slot -> cohort id
   std::vector<CohortEffect> log_;                      // append-only, the single truth for effects

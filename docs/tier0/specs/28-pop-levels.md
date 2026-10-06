@@ -118,11 +118,21 @@ Code: `engine/sim/include/zs/roster.h`, `src/roster.cpp`, hooks in `pop_registry
 - **Cost (release build, one thread):** joining 0.4 µs; a 10% layoff on a roster of 100 is 7 µs, of 1,000 is 70 µs, of 10,000 is 1 ms (about 70 ns per member); a pop snapshot 3–4 µs; a region count 60–90 µs at 200,000 pops. Event cost grows with roster size, so rosters stay workplace-sized.
 - **Known costs to fix later:** a snapshot and a count scan a roster's hit list (an index from pop to hit would make it O(1)); `members()` walks the whole stint map; one stint list per pop makes a roster larger than about 100,000 slow. None matters at workplace sizes.
 
+## Built to be changed (2026-10-06)
+
+We expect to come back and change much of this, so the foundations are arranged to make change safe:
+
+1. **Numbers are data, and live in the save.** Mortality, fertility, the male share and the founders' age range are a `PopParams` set, loaded from `data/setup/demography/default.toml` (strict: unknown keys, wrong types and nonsense values are refused; missing keys keep the default). A registry copies its parameters in at creation and **writes them into its save**; loading a save restores the saved numbers, never today's defaults. So retuning a preset never changes the lives of pops in an old world. A test checks the file and the compiled-in defaults agree.
+2. **The save is versioned, with a frozen fixture.** The header is a magic and a version; each version has its own reader, old readers are never deleted, a newer or alien save is refused with a clear message, and `tests/fixtures/popreg_v1.bin` (made when version 1 shipped, **never regenerated**) must keep loading to the same pops. To change the format: bump the version, add the new reader beside the old one, fill new fields so old saves behave as they did, add a fixture for the new version.
+3. **Pure functions, not stored state, for lazy pops.** Because a lazy pop is `derive(seed, params, id, …)`, changing how a pop is *derived* is a change of world, never a migration of stored records; only records, rosters and effect logs are stored, and they are versioned as above.
+4. **Known limits are written down, not hidden:** 7 generations and 15 children per mother (the id format), mothers only (no fathers or marriage yet), rosters workplace-sized, effects reach founders only through cohorts. Each is a place we expect to revisit.
+
 ## Calibration
 
 | Value | Source |
 | --- | --- |
 | Lifetimes, fertility, marriage, labour | Real demography and labour tables for the world's nation ([sandbox parameters](../../design/sandbox-parameters.md) §7, §13.1) |
+| Where the placeholder numbers live | `data/setup/demography/default.toml` (copied into each world's save) |
 | Record size, update rate, budgets | None: measured by the benchmark |
 
 ## Not in this spec

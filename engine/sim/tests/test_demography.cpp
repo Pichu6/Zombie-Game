@@ -26,7 +26,8 @@ struct Person { bool female; double birth_year; bool childless; bool first_done;
 struct Stepped { std::uint64_t births = 0, deaths = 0, alive = 0; };
 
 Stepped stepped_run(std::uint64_t run, const std::vector<Founder>& fs, double to) {
-  const Fertility f;
+  const PopParams params;
+  const Fertility& f = params.fertility;
   const double dt = 1.0 / 52.0;
   std::uint64_t counter = 0;
   const auto u = [&] { return keyed_uniform01(4242, Purpose::Test, run, counter++); };
@@ -65,7 +66,7 @@ Stepped stepped_run(std::uint64_t run, const std::vector<Founder>& fs, double to
       if (!alive[i]) continue;
       Person& p = people[i];
       const double age = t - p.birth_year;
-      const Mortality m = mortality_for(p.female ? Sex::Female : Sex::Male);
+      const Mortality& m = params.mortality(!p.female);
       const double h = m.constant_hazard + m.gompertz_b * detmath::exp(m.gompertz_c * age);
       if (u() < 1.0 - detmath::exp(-h * dt)) { alive[i] = 0; ++out.deaths; continue; }
       if (fertility_step(p, age)) {
@@ -84,12 +85,13 @@ double variance(const std::vector<double>& v) { const double m = mean(v); double
 }  // namespace
 
 TEST_CASE("births are a pure function of the mother: same inputs, same births, in order (A1)") {
-  const Fertility f;
+  const PopParams params;
+  const Fertility& f = params.fertility;
   for (std::uint32_t slot = 0; slot < 200; ++slot) {
     const PopId id = census_pop_id(slot);
     const PopBase base = derive_base(8, id, 0.0, 0.0);
-    const auto a = births_of(8, id, base, -1e9, f);
-    const auto b = births_of(8, id, base, -1e9, f);
+    const auto a = births_of(8, id, base, -1e9, params);
+    const auto b = births_of(8, id, base, -1e9, params);
     CHECK(a.size() == b.size());
     for (std::size_t i = 0; i < a.size(); ++i) {
       CHECK(a[i].year == b[i].year);
@@ -101,7 +103,7 @@ TEST_CASE("births are a pure function of the mother: same inputs, same births, i
     }
     if (base.sex == Sex::Male) CHECK(a.empty());
     // Asking only for the later births gives the tail of the same list.
-    const auto tail = births_of(8, id, base, 30.0, f);
+    const auto tail = births_of(8, id, base, 30.0, params);
     std::size_t j = 0;
     for (const Birth& x : a) if (x.year > 30.0) { REQUIRE(j < tail.size()); CHECK(tail[j].index == x.index); CHECK(tail[j].year == x.year); ++j; }
     CHECK(j == tail.size());
@@ -109,14 +111,14 @@ TEST_CASE("births are a pure function of the mother: same inputs, same births, i
 }
 
 TEST_CASE("births per woman who lives to 45 are near 1.8 (A3, placeholder fertility)") {
-  const Fertility f;
+  const PopParams params;
   double births = 0;
   int women = 0;
   for (std::uint32_t slot = 0; slot < 40000; ++slot) {
     PopBase base = derive_base(2, census_pop_id(slot), 0.0, 0.0);
     if (base.sex != Sex::Female) continue;
     base.death_year = 100.0;  // everyone lives
-    births += static_cast<double>(births_of(2, census_pop_id(slot), base, -1e9, f).size());
+    births += static_cast<double>(births_of(2, census_pop_id(slot), base, -1e9, params).size());
     ++women;
   }
   CHECK(births / women > 1.6);

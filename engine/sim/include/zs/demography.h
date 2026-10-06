@@ -11,15 +11,6 @@
 
 namespace zs {
 
-// Placeholder fertility, to be fitted to real age-specific fertility tables (spec 28, Calibration).
-// About 1.8 births per woman who lives to 45: 20% childless; first birth at 18 plus an exponential
-// delay; then a minimum gap plus an exponential one; none from 45; at most 15 (the id format's limit).
-struct Fertility {
-  double childless_share = 0.20;
-  double first_min_age = 18.0, first_mean_delay = 10.0;
-  double gap_min = 3.0, gap_mean_extra = 9.0;
-  double end_age = 45.0;
-};
 inline constexpr unsigned kMaxBirths = 15;
 
 struct Birth {
@@ -30,7 +21,7 @@ struct Birth {
 // The births of one mother after `after_year` (births before it already exist as other pops), while she
 // lives. Female pops only; a male pop has none.
 std::vector<Birth> births_of(std::uint64_t world_seed, PopId mother, const PopBase& mother_base, double after_year,
-                             const Fertility& f = {});
+                             const PopParams& params = default_pop_params());
 
 // A founder: someone alive at the start of the run (a census person).
 struct Founder {
@@ -54,6 +45,6 @@ struct DemographyCounts {
 // The jump: everyone in the founders' trees from the start of the run to `to`, counted over (from, to].
 // `from` must not be before the founders' epoch (year 0). Pure: the same inputs give the same counts.
 DemographyCounts jump(std::uint64_t world_seed, const std::vector<Founder>& founders, double from, double to,
-                      const DeathOverrides* overrides = nullptr, const Fertility& f = {});
+                      const DeathOverrides* overrides = nullptr, const PopParams& params = default_pop_params());
 
 }  // namespace zs

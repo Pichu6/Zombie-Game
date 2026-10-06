@@ -13,7 +13,8 @@ double exp_draw(std::uint64_t seed, PopId id, std::uint64_t key, double mean) {
 }
 }  // namespace
 
-std::vector<Birth> births_of(std::uint64_t seed, PopId mother, const PopBase& base, double after_year, const Fertility& f) {
+std::vector<Birth> births_of(std::uint64_t seed, PopId mother, const PopBase& base, double after_year, const PopParams& params) {
+  const Fertility& f = params.fertility;
   std::vector<Birth> out;
   if (base.sex != Sex::Female) return out;
   if (keyed_uniform01(seed, Purpose::PopLife, mother, kDrawChildless) < f.childless_share) return out;
@@ -28,7 +29,7 @@ std::vector<Birth> births_of(std::uint64_t seed, PopId mother, const PopBase& ba
 }
 
 DemographyCounts jump(std::uint64_t seed, const std::vector<Founder>& founders, double from, double to,
-                      const DeathOverrides* overrides, const Fertility& f) {
+                      const DeathOverrides* overrides, const PopParams& params) {
   DemographyCounts c;
   struct Node { PopId id; double birth_year, known_alive_age; };
   std::vector<Node> stack;
@@ -37,7 +38,7 @@ DemographyCounts jump(std::uint64_t seed, const std::vector<Founder>& founders, 
   while (!stack.empty()) {
     const Node n = stack.back();
     stack.pop_back();
-    PopBase base = derive_base(seed, n.id, n.birth_year, n.known_alive_age);
+    PopBase base = derive_base(seed, n.id, n.birth_year, n.known_alive_age, params);
     if (overrides) {
       const auto it = overrides->find(n.id);
       if (it != overrides->end()) base.death_year = it->second;
@@ -53,7 +54,7 @@ DemographyCounts jump(std::uint64_t seed, const std::vector<Founder>& founders, 
     }
     // Founders' births before the epoch (year 0) already exist as other founders.
     const double after = is_born(n.id) ? -1e9 : 0.0;
-    for (const Birth& b : births_of(seed, n.id, base, after, f)) {
+    for (const Birth& b : births_of(seed, n.id, base, after, params)) {
       if (b.year > to) break;
       const PopId child = birth_pop_id(n.id, b.index);
       if (child == kNoPop) continue;  // the id format's limit: seven generations

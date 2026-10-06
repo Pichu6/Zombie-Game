@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include "zs/draw.h"
+#include "zs/pop_params.h"
 
 namespace zs {
 
@@ -40,20 +41,11 @@ struct PopBase {
   double death_year = 0.0;  // when they die if nothing else kills them first (illness, violence, outbreak)
 };
 
-// Placeholder mortality: two independent hazards (a constant one for accidents and a Gompertz one
-// for ageing), so the death age is closed-form and conditional on being alive at `known_alive_age`.
-// Starting values, to be calibrated against a real life table (spec 28, Calibration). Not a model of
-// infancy or of any illness.
-struct Mortality {
-  double constant_hazard;  // per year
-  double gompertz_b;       // per year at age 0
-  double gompertz_c;       // per year of age
-};
-Mortality mortality_for(Sex sex);
-
 // `known_alive_age` is the age the pop is known to have reached: 0 for a birth, the age at the start
 // for someone already alive. The death age is drawn conditional on it.
-PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age = 0.0);
+// The rates come from the world's own parameters (stored in its save), never from compiled-in numbers.
+PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age = 0.0,
+                    const PopParams& params = default_pop_params());
 
 // A fixed pseudo-random permutation of 0..n-1 (a Feistel network with cycle walking), the "rank" of
 // spec 28. forward(i) is member i's rank; inverse(r) is the member with rank r. No storage per member.

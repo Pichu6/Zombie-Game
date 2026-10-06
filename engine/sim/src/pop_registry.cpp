@@ -1,6 +1,7 @@
 #include "zs/pop_registry.h"
 
 #include <algorithm>
+#include <cmath>
 
 #include "zs/archive.h"
 #include "zs/detmath.h"
@@ -8,7 +9,11 @@
 namespace zs {
 
 namespace {
-constexpr std::uint64_t kSaveMagic = 0x504f5052454732ull;  // "POPREG2"
+// The save format is versioned. To change it: bump kSaveVersion, write the new reader beside the old one
+// (never delete an old reader), keep a frozen fixture of every shipped version in tests/fixtures, and make the
+// new reader of an old version fill any new field with the value that reproduces the old behaviour.
+constexpr std::uint64_t kSaveMagic = 0x474552504f50ull;  // "POPREG"
+constexpr std::uint32_t kSaveVersion = 1;
 constexpr std::uint64_t kDrawStartAge = 10;                // the `b` key of Purpose::PopLife
 }  // namespace
 
@@ -118,7 +123,8 @@ const Cohort* PopRegistry::cohort_of(PopId id, std::uint64_t& member) const {
 }
 
 double PopRegistry::founder_age(PopId id) const {
-  return 18.0 + static_cast<double>(static_cast<std::uint64_t>(keyed_uniform01(seed_, Purpose::PopLife, id, kDrawStartAge) * 47.0));
+  return params_.founder_min_age +
+         std::floor(keyed_uniform01(seed_, Purpose::PopLife, id, kDrawStartAge) * params_.founder_age_span);
 }
 
 DeathOverrides PopRegistry::death_overrides() const {
@@ -137,7 +143,7 @@ bool PopRegistry::resolve_base(PopId id, PopBase& out) const {
     std::uint64_t member = 0;
     if (!cohort_of(id, member)) return false;
     const double age = founder_age(id);
-    out = derive_base(seed_, id, -age, age);
+    out = derive_base(seed_, id, -age, age, params_);
   } else {
     PopBase mother;
     if (!resolve_base(mother_of(id), mother)) return false;
@@ -145,8 +151,8 @@ bool PopRegistry::resolve_base(PopId id, PopBase& out) const {
     const DeathOverrides o = death_overrides();
     if (const auto it = o.find(mother_of(id)); it != o.end()) mother.death_year = it->second;
     bool found = false;
-    for (const Birth& b : births_of(seed_, mother_of(id), mother, is_born(mother_of(id)) ? -1e9 : 0.0))
-      if (b.index == child_index_of(id)) { out = derive_base(seed_, id, b.year, 0.0); found = true; break; }
+    for (const Birth& b : births_of(seed_, mother_of(id), mother, is_born(mother_of(id)) ? -1e9 : 0.0, params_))
+      if (b.index == child_index_of(id)) { out = derive_base(seed_, id, b.year, 0.0, params_); found = true; break; }
     if (!found) return false;
   }
   return true;
@@ -231,7 +237,7 @@ std::uint64_t PopRegistry::roster_count_region(std::uint32_t region, EffectKind 
   return n;
 }
 
-DemographyCounts PopRegistry::project_demography(double from, double to, const Fertility& f) const {
+DemographyCounts PopRegistry::project_demography(double from, double to) const {
   std::vector<Founder> founders;
   for (const auto& [cid, c] : cohorts_)
     for (std::uint64_t m = 0; m < c.size; ++m) {
@@ -240,7 +246,7 @@ DemographyCounts PopRegistry::project_demography(double from, double to, const F
       founders.push_back({id, -age, age});
     }
   const DeathOverrides o = death_overrides();
-  return jump(seed_, founders, from, to, &o, f);
+  return jump(seed_, founders, from, to, &o, params_);
 }
 
 bool PopRegistry::promote(PopId id) {
@@ -302,7 +308,9 @@ PopCounts PopRegistry::counts() const {
 std::vector<std::uint8_t> PopRegistry::save() const {
   ArchiveWriter w;
   w.u64(kSaveMagic);
+  w.u32(kSaveVersion);
   w.u64(seed_);
+  write_pop_params(w, params_);
   w.u64(cohorts_.size());
   for (const auto& [id, c] : cohorts_) { w.u64(c.id); w.u32(c.region); w.u32(c.first_slot); w.u64(c.size); }
   w.u64(log_.size());
@@ -323,7 +331,18 @@ std::vector<std::uint8_t> PopRegistry::save() const {
 void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
   ArchiveReader r(bytes);
   if (r.u64() != kSaveMagic) throw std::runtime_error("not a pop registry save");
+  const std::uint32_t version = r.u32();
+  switch (version) {
+    case 1: load_v1(r); return;
+    default:
+      throw std::runtime_error("pop registry save is version " + std::to_string(version) + "; this build reads up to " +
+                               std::to_string(kSaveVersion));
+  }
+}
+
+void PopRegistry::load_v1(ArchiveReader& r) {
   if (r.u64() != seed_) throw std::runtime_error("pop registry save is from another world seed");
+  params_ = read_pop_params(r);
   cohorts_.clear(); by_slot_.clear(); log_.clear(); records_.clear(); kept_.clear();
   by_cohort_kind_.clear(); by_region_.clear(); rosters_.clear(); rosters_of_.clear();
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {

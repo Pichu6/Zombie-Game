@@ -18,6 +18,7 @@ add_executable(zs_sim_tests
   test_pop_registry.cpp
   test_demography.cpp
   test_roster.cpp
+  test_pop_params.cpp
 )
 target_include_directories(zs_sim_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest)
 target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck)
