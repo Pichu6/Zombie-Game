@@ -36,6 +36,12 @@ struct CohortEffect {
   std::uint64_t reason = 0;
 };
 
+// Attributes the town generator gives a founder; without them a founder is drawn from the id and the params.
+struct FounderSpec {
+  std::uint16_t age = 30;  // whole years at the start of the run (the fraction is drawn from the id)
+  Sex sex = Sex::Female;
+};
+
 enum class ExceptionField : std::uint8_t { DeathYear = 0 };
 struct PopException {
   ExceptionField field = ExceptionField::DeathYear;
@@ -65,6 +71,9 @@ class PopRegistry {
   // Cohorts. Returns false if the id is taken or the slots overlap another cohort.
   bool add_cohort(const Cohort& c);
   const Cohort* cohort(std::uint64_t id) const;
+  // Generated attributes for every member of a cohort, in member order (slot first_slot + i). Once only, before
+  // anything asks about those pops: false if the sizes differ or specs were already set.
+  bool set_founder_specs(std::uint64_t cohort, std::vector<FounderSpec> specs);
 
   // Effects. Returns false (and changes nothing) if it would hit more members than the cohort has,
   // or give back more than are in the state.
@@ -127,6 +136,7 @@ class PopRegistry {
   bool exists(PopId id) const;
   bool resolve_base(PopId id, PopBase& out) const;  // founder or born, before the pop's own exceptions
   double founder_age(PopId id) const;
+  std::optional<Sex> founder_sex(PopId id) const;
   DeathOverrides death_overrides() const;
   CohortPermutation permutation(const Cohort& c, EffectKind kind) const;
   std::vector<Range> ranges(std::uint64_t cohort, EffectKind kind, double year) const;
@@ -135,6 +145,9 @@ class PopRegistry {
   void load_body(ArchiveReader& r);  // everything every version has
   void load_v1(ArchiveReader& r);
   void load_v2(ArchiveReader& r);
+  void load_v3(ArchiveReader& r);
+  void load_events(ArchiveReader& r);  // the region-event counter (v2 and later)
+  void load_specs(ArchiveReader& r);   // the founder specs (v3)
 
   std::uint64_t seed_;
   PopParams params_;
@@ -147,6 +160,7 @@ class PopRegistry {
   std::map<PopId, Record> records_;                    // pinned pops
   std::map<PopId, std::vector<PopException>> kept_;    // exceptions of lazy pops
   std::map<std::uint64_t, Roster> rosters_;
+  std::map<std::uint64_t, std::vector<FounderSpec>> founder_specs_;  // by cohort id (v3)
   std::uint64_t region_events_ = 0;                         // region-wide events applied; part of each split's key (v2)
   std::map<PopId, std::vector<std::uint64_t>> rosters_of_;  // derived from the rosters; rebuilt on load
 };

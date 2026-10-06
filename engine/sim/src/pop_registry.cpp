@@ -15,7 +15,7 @@ namespace {
 // (never delete an old reader), keep a frozen fixture of every shipped version in tests/fixtures, and make the
 // new reader of an old version fill any new field with the value that reproduces the old behaviour.
 constexpr std::uint64_t kSaveMagic = 0x474552504f50ull;  // "POPREG"
-constexpr std::uint32_t kSaveVersion = 2;  // 2 adds the region-event counter
+constexpr std::uint32_t kSaveVersion = 3;  // 2 adds the region-event counter; 3 adds founder specs
 constexpr std::uint64_t kDrawStartAge = 10;                // the `b` key of Purpose::PopLife
 }  // namespace
 
@@ -124,9 +124,31 @@ const Cohort* PopRegistry::cohort_of(PopId id, std::uint64_t& member) const {
   return member < c.size ? &c : nullptr;
 }
 
+bool PopRegistry::set_founder_specs(std::uint64_t cohort_id, std::vector<FounderSpec> specs) {
+  const Cohort* c = cohort(cohort_id);
+  if (!c || specs.size() != c->size || founder_specs_.count(cohort_id)) return false;
+  founder_specs_[cohort_id] = std::move(specs);
+  return true;
+}
+
 double PopRegistry::founder_age(PopId id) const {
-  return params_.founder_min_age +
-         std::floor(keyed_uniform01(seed_, Purpose::PopLife, id, kDrawStartAge) * params_.founder_age_span);
+  std::uint64_t member = 0;
+  const Cohort* c = cohort_of(id, member);
+  const double fraction = keyed_uniform01(seed_, Purpose::PopLife, id, kDrawStartAge);  // born somewhere in the year
+  if (c) {
+    if (const auto it = founder_specs_.find(c->id); it != founder_specs_.end())
+      return static_cast<double>(it->second[member].age) + fraction;
+  }
+  return params_.founder_min_age + std::floor(fraction * params_.founder_age_span);
+}
+
+std::optional<Sex> PopRegistry::founder_sex(PopId id) const {
+  std::uint64_t member = 0;
+  const Cohort* c = cohort_of(id, member);
+  if (!c) return std::nullopt;
+  const auto it = founder_specs_.find(c->id);
+  if (it == founder_specs_.end()) return std::nullopt;
+  return it->second[member].sex;
 }
 
 DeathOverrides PopRegistry::death_overrides() const {
@@ -145,7 +167,7 @@ bool PopRegistry::resolve_base(PopId id, PopBase& out) const {
     std::uint64_t member = 0;
     if (!cohort_of(id, member)) return false;
     const double age = founder_age(id);
-    out = derive_base(seed_, id, -age, age, params_);
+    out = derive_base(seed_, id, -age, age, params_, founder_sex(id));
   } else {
     PopBase mother;
     if (!resolve_base(mother_of(id), mother)) return false;
@@ -275,7 +297,7 @@ DemographyCounts PopRegistry::project_demography(double from, double to) const {
     for (std::uint64_t m = 0; m < c.size; ++m) {
       const PopId id = census_pop_id(static_cast<std::uint32_t>(c.first_slot + m));
       const double age = founder_age(id);
-      founders.push_back({id, -age, age});
+      founders.push_back({id, -age, age, founder_sex(id)});
     }
   const DeathOverrides o = death_overrides();
   return jump(seed_, founders, from, to, &o, params_);
@@ -368,6 +390,11 @@ std::vector<std::uint8_t> PopRegistry::save() const {
   w.u64(rosters_.size());
   for (const auto& [id, r] : rosters_) r.save(w);
   w.u64(region_events_);  // v2
+  w.u64(founder_specs_.size());  // v3
+  for (const auto& [cid, specs] : founder_specs_) {
+    w.u64(cid); w.u64(specs.size());
+    for (const FounderSpec& f : specs) { w.u16(f.age); w.u8(static_cast<std::uint8_t>(f.sex)); }
+  }
   return w.bytes();
 }
 
@@ -378,6 +405,7 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
   switch (version) {
     case 1: load_v1(r); return;
     case 2: load_v2(r); return;
+    case 3: load_v3(r); return;
     default:
       throw std::runtime_error("pop registry save is version " + std::to_string(version) + "; this build reads up to " +
                                std::to_string(kSaveVersion));
@@ -387,13 +415,34 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
 void PopRegistry::load_v1(ArchiveReader& r) {
   load_body(r);
   region_events_ = 0;  // version 1 had none: no region event had ever been applied
+  founder_specs_.clear();
   if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
 }
 
 void PopRegistry::load_v2(ArchiveReader& r) {
   load_body(r);
-  region_events_ = r.u64();
+  load_events(r);
+  founder_specs_.clear();  // version 2 had none: founders were drawn from their ids
   if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
+}
+
+void PopRegistry::load_v3(ArchiveReader& r) {
+  load_body(r);
+  load_events(r);
+  load_specs(r);
+  if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
+}
+
+void PopRegistry::load_events(ArchiveReader& r) { region_events_ = r.u64(); }
+
+void PopRegistry::load_specs(ArchiveReader& r) {
+  founder_specs_.clear();
+  for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
+    const std::uint64_t cid = r.u64();
+    std::vector<FounderSpec> specs(r.u64());
+    for (FounderSpec& f : specs) { f.age = r.u16(); f.sex = static_cast<Sex>(r.u8()); }
+    founder_specs_[cid] = std::move(specs);
+  }
 }
 
 void PopRegistry::load_body(ArchiveReader& r) {

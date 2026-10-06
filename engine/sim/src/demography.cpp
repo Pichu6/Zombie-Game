@@ -31,14 +31,14 @@ std::vector<Birth> births_of(std::uint64_t seed, PopId mother, const PopBase& ba
 DemographyCounts jump(std::uint64_t seed, const std::vector<Founder>& founders, double from, double to,
                       const DeathOverrides* overrides, const PopParams& params) {
   DemographyCounts c;
-  struct Node { PopId id; double birth_year, known_alive_age; };
+  struct Node { PopId id; double birth_year, known_alive_age; std::optional<Sex> sex; };
   std::vector<Node> stack;
   stack.reserve(founders.size());
-  for (const Founder& fo : founders) stack.push_back({fo.id, fo.birth_year, fo.known_alive_age});
+  for (const Founder& fo : founders) stack.push_back({fo.id, fo.birth_year, fo.known_alive_age, fo.sex});
   while (!stack.empty()) {
     const Node n = stack.back();
     stack.pop_back();
-    PopBase base = derive_base(seed, n.id, n.birth_year, n.known_alive_age, params);
+    PopBase base = derive_base(seed, n.id, n.birth_year, n.known_alive_age, params, n.sex);
     if (overrides) {
       const auto it = overrides->find(n.id);
       if (it != overrides->end()) base.death_year = it->second;
@@ -58,7 +58,7 @@ DemographyCounts jump(std::uint64_t seed, const std::vector<Founder>& founders, 
       if (b.year > to) break;
       const PopId child = birth_pop_id(n.id, b.index);
       if (child == kNoPop) continue;  // the id format's limit: seven generations
-      stack.push_back({child, b.year, 0.0});
+      stack.push_back({child, b.year, 0.0, std::nullopt});
     }
   }
   return c;

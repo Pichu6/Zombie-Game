@@ -57,11 +57,12 @@ PopId mother_of(PopId id) {
   return kTopBit | (static_cast<std::uint64_t>(gen - 1) << kGenShift) | (mother_path << kPathShift) | founder_slot_of(id);
 }
 
-PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age, const PopParams& params) {
+PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age, const PopParams& params,
+                    std::optional<Sex> sex) {
   PopBase p;
   p.id = id;
   p.birth_year = birth_year;
-  p.sex = keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawSex) < params.male_share_at_birth ? Sex::Male : Sex::Female;
+  p.sex = sex ? *sex : (keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawSex) < params.male_share_at_birth ? Sex::Male : Sex::Female);
   const Mortality& m = params.mortality(p.sex == Sex::Male);
   const double e1 = -detmath::log1p(-keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawConstantHazard));
   const double e2 = -detmath::log1p(-keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawGompertz));

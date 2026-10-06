@@ -140,6 +140,10 @@ Code: `engine/sim/include/zs/hypergeometric.h`, `src/hypergeometric.cpp`, `PopRe
 - **Rosters only.** Generated cohorts take their own events; a region event never touches them, so one population is not hit by two mechanisms.
 - **Save format version 2** adds the region-event counter (part of each split's key). The v1 reader fills it with 0; the frozen v1 fixture still loads. This is the first real use of the versioning rules below.
 
+## Generated founders (2026-10-06)
+
+The registry's founders can carry attributes from the human generator instead of the placeholder rule: `PopRegistry::set_founder_specs(cohort, specs)` gives every member of a cohort a whole-year age and a sex (once, before anything asks about those pops); the fraction of the year is drawn from the id, and `derive_base`, births and `project_demography` honour them. **Save format version 3** stores the specs; the v1 and v2 readers leave them empty (founders drawn from their ids, as before), and a frozen `popreg_v2.bin` fixture sits beside `popreg_v1.bin`.
+
 ## Built to be changed (2026-10-06)
 
 We expect to come back and change much of this, so the foundations are arranged to make change safe:

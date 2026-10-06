@@ -5,6 +5,7 @@
 #pragma once
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <vector>
 
 #include "zs/pop.h"
@@ -28,6 +29,7 @@ struct Founder {
   PopId id;
   double birth_year;
   double known_alive_age;
+  std::optional<Sex> sex = std::nullopt;  // generated, or drawn from the id when empty
 };
 
 // Overrides of derived death years (what happened to someone that the seed could not say).

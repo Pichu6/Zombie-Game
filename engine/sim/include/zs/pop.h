@@ -3,6 +3,7 @@
 // evaluated at any time, in any order, without stepping the others.
 #pragma once
 #include <cstdint>
+#include <optional>
 
 #include "zs/draw.h"
 #include "zs/pop_params.h"
@@ -44,8 +45,9 @@ struct PopBase {
 // `known_alive_age` is the age the pop is known to have reached: 0 for a birth, the age at the start
 // for someone already alive. The death age is drawn conditional on it.
 // The rates come from the world's own parameters (stored in its save), never from compiled-in numbers.
+// `sex`, when given, is a generated attribute (a founder from the town generator) and replaces the draw.
 PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age = 0.0,
-                    const PopParams& params = default_pop_params());
+                    const PopParams& params = default_pop_params(), std::optional<Sex> sex = std::nullopt);
 
 // A fixed pseudo-random permutation of 0..n-1 (a Feistel network with cycle walking), the "rank" of
 // spec 28. forward(i) is member i's rank; inverse(r) is the member with rank r. No storage per member.

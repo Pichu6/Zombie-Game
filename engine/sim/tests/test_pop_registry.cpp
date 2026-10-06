@@ -222,5 +222,5 @@ TEST_CASE("pinned known answer for a registry hash, the same on GCC and Clang (A
   reg.apply({3, EffectKind::Ill, 700, 1.5, 6});
   reg.promote(7);
   reg.set_death_year(7, 44.25);
-  CHECK(reg.hash() == 10031871636624098524ull);
+  CHECK(reg.hash() == 11815995336283614541ull);
 }
