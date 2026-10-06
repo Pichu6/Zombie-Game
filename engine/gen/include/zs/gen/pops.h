@@ -25,6 +25,14 @@ struct Mix {
 };
 Mix load_mix(const std::string& path);
 
+// One stretch of a pop's past (or present): ages [from, to).
+struct Term {
+  int from = 0, to = 0;
+  std::string what;    // "student", "cook", "out of work", "served in the Army"
+  std::string where;   // "at <a business in the town directory>" or "in <real city>, <country>"; may be empty
+  std::vector<std::pair<int, std::string>> events;  // (age, text)
+};
+
 struct Pop {
   std::uint64_t id = 0;
   int household = 0;
@@ -41,11 +49,12 @@ struct Pop {
   std::string education, occupation, job_id, workplace;
   int years_in_job = 0;
   std::string past_job;     // label, or empty
+  std::string last_job_id;  // the job a retired or out-of-work pop had
   std::vector<std::string> skills;
   int skin_tone = 1;        // Monk Skin Tone 1-10
   std::string hair, eyes;
   std::uint64_t body_seed = 0;
-  std::string background;   // short prose lifepath
+  std::vector<Term> lifepath;  // oldest first; the last term is the present
 };
 
 struct Household {
@@ -54,6 +63,7 @@ struct Household {
   std::string address;
   std::string culture;
   int years = 0;            // years at this address
+  std::string before_city;  // the city in the town's country it lived in before moving here
   std::vector<std::size_t> members;
 };
 
@@ -72,8 +82,12 @@ struct Town {
 
 Town generate_town(const Catalog& cat, const Mix& mix, std::uint64_t seed);
 
-// Multi-line dossier for one pop.
-std::string dossier(const Town& t, const Pop& p);
+// Adds every pop's lifepath. Runs last: it names only places that already exist (the town
+// directory, or real cities in the culture packs) and people who already exist (household members).
+void add_lifepaths(const Catalog& cat, Town& t);
+
+// Multi-line dossier for one pop; with a year (the run's start year) it adds the lifepath.
+std::string dossier(const Town& t, const Pop& p, int year = 0);
 // The town as a data/tier0/census.toml-compatible table (spec 22); marks three survivor slots.
 std::string census_toml(const Town& t);
 
