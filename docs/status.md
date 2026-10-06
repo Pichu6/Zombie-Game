@@ -35,4 +35,4 @@ It must answer the fun questions in [concept v2](research/concept-v2.md) (sectio
 
 ## Waiting on the user
 
-- Five questions from the sandbox and layer ideas ([vision](vision.md#open-questions)), each with a recommendation.
+- Six questions from the sandbox, endgame and layer ideas ([vision](vision.md#open-questions)), each with a recommendation.

@@ -153,6 +153,17 @@ The final spread is set by **process stability** for that batch, a product of fa
 - No settlement has every input, so groups specialise and trade, by the same economy rules as the world simulation. In multiplayer, groups are clans.
 - Restarting a real factory from the world (a cement works, a machine shop) is a big goal: it needs its staff, inputs, power and repairs, exactly as in the world simulation.
 
+### Endgame and upkeep
+
+Intent Decided ([0017](../decisions/0017-slow-endgame-and-generation-on-the-go.md)); model Proposal. Research: `research/global-sim/loop/24`.
+
+- **The late-game opponent is decay.** Every asset needs inspection, consumables, fuel and staff; the main late-game balance is upkeep against available labour and parts. No pop at the power station, no power.
+- **Hard through scarcity and dependencies, not friction:** no real-time waiting (in-game clocks only), no clicking one unit at a time, no hidden formulas.
+- **From Space Engineers:** each machine has critical parts and a working line (below it, the machine stops); grinding a machine returns its real parts, so stripping one machine to fix another is a real decision.
+- **From Haven & Hearth:** quality builds up along the chain with diminishing returns (H&H uses √(Q/10) as a multiplier), and a character sheet. Our method ceilings keep quality from climbing forever.
+- **Info screens:** character sheet; item card with its origin (who made it, from what); produced vs consumed over in-game windows (Factorio style); quality history; supply and demand with days of cover; infrastructure health; upkeep totals; a "why can't I make this" tree. By default they show what your group has recorded, not the hidden truth (fog, [0012](../decisions/0012-world-simulation-layers.md)); truth in Sandbox and spectator.
+- **Real decay clocks** (calibration): a grid collapses within minutes once frequency can't be held; nuclear backup diesel is sized for about 7 days; water utilities plan for about 5 days of backup fuel; coal plants stock months of coal, so staff run out before fuel; old transformers fail far more often than new ones.
+
 ### Open
 
 - Ceiling values per method and per family.
