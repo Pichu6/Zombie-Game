@@ -41,6 +41,7 @@ std::optional<Primitive> primitive_from(const std::string& name);
 enum class TargetKind : std::uint8_t { Self, Wound, Object, Item, Edge, Body };  // Body: another body ("body:walker")
 enum class Trade : std::uint8_t { Everyday, FirstAid, Carpentry, Mechanics, Electronics, Count };
 inline constexpr std::size_t kTradeCount = static_cast<std::size_t>(Trade::Count);
+const char* to_string(Trade t);
 
 // A carried tool that qualifies when prop >= min; speed scales with prop / ref.
 struct ToolNeed {
@@ -75,6 +76,7 @@ enum class EffectOp : std::uint8_t {
   Cover,      // hang the first carried `uses` item over the target window (a curtain; spec 19)
   Hit,        // strike the target body with the tool in hand (spec 20)
   Wake,       // wake every sleeper within 15 m on the same level (a shout; spec 24 guard)
+  Story,      // a scenario effect named by `how` (invite, repair_radio, listen_radio; spec 26)
 };
 
 struct Effect {
@@ -108,7 +110,7 @@ Cell unpack_cell(std::int64_t v);
 enum class Reason : std::uint8_t {
   Ok, UnknownProcess, WrongTarget, Dead, Unconscious, CannotMove, CannotUseHands, NoTool, MissingItem,
   MissingStock, NoRoute, TargetGone, InUse, Full, Interrupted, Asleep, TooHeavy,
-  AlreadyDone, NoFuel, Held
+  AlreadyDone, NoFuel, Held, Broken, NoPower
 };
 const char* to_string(Reason r);
 
@@ -197,6 +199,9 @@ class Actors : public System {
   // power_check returns Ok or why the power effect can't be done; power_apply does it.
   std::function<Reason(const World&, EntityId body, EntityId target, const std::string& how)> power_check;
   std::function<void(World&, EntityId body, EntityId target, const std::string& how, EventId cause)> power_apply;
+  // story_check / story_apply: scenario effects (spec 26), same contract as power_check / power_apply.
+  std::function<Reason(const World&, EntityId body, EntityId target, const std::string& how)> story_check;
+  std::function<void(World&, EntityId body, EntityId target, const std::string& how, EventId cause)> story_apply;
   std::function<double(const World&, const Cell&)> light_lux;  // illuminance where a pop works (spec 19)
   // Stage 7: where a walker body is, whether a body is held by a walker, and a strike landing.
   std::function<std::optional<Cell>(EntityId body)> body_cell;

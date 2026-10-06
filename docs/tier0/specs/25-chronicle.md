@@ -34,6 +34,12 @@ After a death the player must know which ignored thing killed them (fun question
 
 None. Readability is checked in playtests (fun question 5 and 7).
 
+## Stage 9 additions (Proposal 2026-10-06)
+
+- **Danger tags** are derived from the death's cause chain and the log, never stored: walker attack (a bite or grab up the chain), hidden bite (the bitten pop lived at least 5 minutes and never reported it), bleeding (died of blood loss), infected wound, dehydration, starvation, noise (the walker that bit arrived while the generator was running).
+- **Missed counters** add one clause: "the bite was never told to the group", "the wound was never cleaned", "the generator was running when it arrived".
+- **Day summary:** per game day, the events with a score (death 10, someone joined 6, broadcast heard 8, breach 4, grid failed 5, out of fuel 5, bite 3, a walker put down 1); the top five in time order.
+
 ## Not in Tier 0
 
 The after-death truth replay and the macro chronicle of the full game.
@@ -44,4 +50,6 @@ Code: `tier0::death_sentence` in `engine/sim/src/tier0.cpp`.
 
 - One sentence per `Death` event: name, age, when, cause, then the first bite or strike up the cause chain ("You, 30, died day 2 10:48: the infection from a bite. Bitten on the neck by David Silva, day 1 05:03."). Bleeding deaths link to the wound that bled most. Walkers read "was put down".
 
-**Known gaps:** no missed counters (never cleaned, no power for 18 h), no death screen, no danger tags.
+**Stage 9:** `danger_tags`, `missed_counters` and `day_summary` as above; the headless run prints the death screen and the day lines.
+
+**Known gaps:** tags exhaustion and overload, light leak and bad water are not derived yet (no deaths come from them in Tier 0 runs); no timeline view (stage 5).

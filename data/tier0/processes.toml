@@ -297,3 +297,34 @@ target = "self"
 time_s = 2
 effects = [{ op = "wake" }]
 source = "a few words at the top of the voice; wakes sleepers within ~15 m (estimate)"
+
+# ---------- Stage 9: the run (spec 26) ----------
+
+[[process]]
+id = "invite"
+name = "Ask them to join"
+primitive = "shout"
+target = "body:pop"
+time_s = 20
+effects = [{ op = "story", how = "invite" }]
+source = "a few words through a door (estimate); the voice is loud enough to carry"
+
+[[process]]
+id = "repair_radio"
+name = "Repair the radio"
+primitive = "fine"
+target = "object:radio"
+trade = "electronics"
+time_s = 1800
+tools = [{ prop = "grip", min = 0.9, ref = 1.0 }]
+effects = [{ op = "story", how = "repair_radio" }]
+source = "re-solder a joint and swap a fuse, ~30 min for someone who knows how (estimate)"
+
+[[process]]
+id = "listen_radio"
+name = "Listen to the radio"
+primitive = "fine"
+target = "object:radio"
+time_s = 600
+effects = [{ op = "story", how = "listen_radio" }]
+source = "sweep the bands for ten minutes (estimate)"

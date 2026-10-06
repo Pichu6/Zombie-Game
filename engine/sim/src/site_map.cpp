@@ -161,6 +161,7 @@ void SiteMap::load_file(World& w, Assemblies& items, const std::string& path) {
   if (const auto* objs = t["object"].as_array())
     for (const auto& o : *objs) {
       const auto& ot = *o.as_table();
+      if (const auto sc = ot["scenario"].value<std::string>(); sc && *sc != scenario_) continue;
       MapObject mo{ot["kind"].value<std::string>().value(), cell_from(ot["at"].as_array()), ot["id"].value_or(std::string{}), {}};
       // Any other number is an amount (a store's stock, a container's contents), kept in key order.
       for (const auto& [key, value] : ot)

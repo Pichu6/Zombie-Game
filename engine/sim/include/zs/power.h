@@ -84,6 +84,7 @@ class Power : public System {
   double load_w() const { return load_w_; }
   double generator_load_w() const { return running_ && transfer_ == Transfer::Generator ? load_w_ : 0; }
   std::int64_t fuel_ul(const World& w) const;
+  ResourceId gasoline() const { return gasoline_; }
   std::int64_t tank_ul() const { return static_cast<std::int64_t>(gen_.tank_l * 1e6); }
   double fuel_lph() const;  // at the current load
   bool tripped(std::size_t circuit) const { return tripped_[circuit]; }

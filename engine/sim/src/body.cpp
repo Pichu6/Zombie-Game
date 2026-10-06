@@ -518,7 +518,7 @@ std::int64_t Bodies::flow(double& carry, double amount) {
 void Bodies::update(World& w) {
   const bool slow = w.clock.is_body_step();
   for (auto& [id, b] : bodies_) {
-    if (!b.alive) continue;
+    if (!b.alive || b.away) continue;
     fine_tick(w, b);
     if (slow && b.alive) body_step(w, b);
   }
@@ -780,6 +780,7 @@ void Bodies::save(ArchiveWriter& a) const {
     a.f64(b.activity.grade_pct);
     a.f64(b.activity.carried_kg);
     a.boolean(b.activity.asleep);
+    a.boolean(b.away);
     for (double v : {b.sleep_pressure, b.exertion, b.vo2max, b.fear, b.morale, b.threat,
                      b.active_minutes_today, b.heavy_minutes_today})
       a.f64(v);
@@ -803,6 +804,7 @@ void Bodies::load(ArchiveReader& a) {
     b.activity.grade_pct = a.f64();
     b.activity.carried_kg = a.f64();
     b.activity.asleep = a.boolean();
+    b.away = a.boolean();
     for (double* v : {&b.sleep_pressure, &b.exertion, &b.vo2max, &b.fear, &b.morale, &b.threat,
                       &b.active_minutes_today, &b.heavy_minutes_today})
       *v = a.f64();

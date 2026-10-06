@@ -45,6 +45,15 @@ enum class EventType : std::uint16_t {
   PopRefused = 30,        // subject = pop, a = Refusal, b = Doing it refused (spec 24 rule 4)
   BiteReported = 31,      // subject = pop that told the group it was bitten (spec 24 rule 7)
   Panicked = 32,          // subject = pop that dropped what it did and ran
+  // Stage 9: the run (spec 26).
+  Joined = 33,            // subject = found survivor who joined, a = the pop that invited
+  StrangerArrived = 34,   // subject = the stranger, at the yard gate
+  RadioRepaired = 35,     // subject = who repaired it
+  RadioHeard = 36,        // subject = who heard the evacuation broadcast (the better ending)
+  RadioStatic = 37,       // subject = who listened before the broadcast
+  ControlPassed = 38,     // subject = the newly controlled pop, a = the dead one
+  RunEnded = 39,          // a = RunOutcome
+  Searched = 40,          // subject = pop, a = the home object it searched
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

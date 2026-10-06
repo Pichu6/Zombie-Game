@@ -1,0 +1,23 @@
+# The run "The generator problem" (spec 26). Found survivors are census survivor slots, placed at
+# the map's `found` objects (scenario = "run"). Trades: 0-100 skill; a trade not listed keeps the default.
+
+[run]
+days = 14                 # ends day 14 08:00
+stranger_day = [3, 5]     # drawn day and hour (08:00-18:00) the stranger reaches the yard gate
+stranger_bite_p = 0.5     # carries an established, hidden bite
+broadcast_day = [9, 12]   # from 12:00 that day the radio names the pickup
+
+[[found]]
+role = "neighbour"
+person = "Miguel Rojas"
+water_short = 0.3         # share of normal body water missing at the start
+first_aid = 70
+
+[[found]]
+role = "technician"
+person = "Ana Moreno"
+electronics = 70
+
+[[found]]
+role = "stranger"
+person = "Diego Ortega"

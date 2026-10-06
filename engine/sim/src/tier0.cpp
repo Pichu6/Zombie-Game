@@ -2,12 +2,79 @@
 #include "zs/tier0.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <stdexcept>
 
+#include "toml.hpp"
+
 namespace zs::tier0 {
 
-Tier0 make_world(std::uint64_t seed, bool with_dead, int group) {
+namespace {
+Tier0 build(std::uint64_t seed, bool with_dead, int group, bool run);
+}
+
+Tier0 make_world(std::uint64_t seed, bool with_dead, int group) { return build(seed, with_dead, group, false); }
+
+Tier0 make_run(std::uint64_t seed) { return build(seed, true, 1, true); }
+
+namespace {
+void setup_run(Tier0& t, const std::string& path) {
+  World& w = *t.world;
+  const toml::table tt = toml::parse_file(path);
+  const auto& r = *tt["run"].as_table();
+  auto range = [&](const char* key) {
+    const auto* a = r[key].as_array();
+    return std::pair<int, int>{(*a)[0].value<int>().value(), (*a)[1].value<int>().value()};
+  };
+  const EntityId radio = *t.actors->find_object("radio");
+  std::int64_t stranger_tick = 0;
+  bool bitten = false;
+  t.ai->set_run(t.run);
+  if (const auto* found = tt["found"].as_array())
+    for (const auto& node : *found) {
+      const auto& f = *node.as_table();
+      const std::string role_name = f["role"].value<std::string>().value();
+      const std::string who = f["person"].value<std::string>().value();
+      std::optional<std::size_t> person;
+      for (std::size_t p : t.census->survivors())
+        if (t.census->people()[p].name == who) person = p;
+      if (!person) throw std::runtime_error("run: no survivor slot named " + who);
+      const auto at = t.map->find_object("found", role_name);
+      if (!at) throw std::runtime_error("run: the map has no found object " + role_name);
+      const EntityId body = t.census->embody(w, *person);
+      t.actors->add_actor(w, body, *at);
+      Actor& a = t.actors->actor(body);
+      for (std::size_t k = 0; k < kTradeCount; ++k)
+        if (auto v = f[to_string(static_cast<Trade>(k))].value<int>()) a.skill[k] = *v;
+      Body& b = t.bodies->get(body);
+      if (const double short_share = f["water_short"].value_or(0.0); short_share > 0) {
+        const auto& L = t.bodies->ids();
+        w.ledger.transfer(0, b.owner, L.excreted, L.water_ul,
+                          static_cast<std::int64_t>(short_share * static_cast<double>(b.water_normal_ul)), 0);
+      }
+      Role role = Role::Neighbour;
+      if (role_name == "technician") role = Role::Technician;
+      if (role_name == "stranger") {
+        role = Role::Stranger;
+        b.away = true;  // still out on the streets (spec 27: cold)
+        const auto [d0, d1] = range("stranger_day");
+        const double day = d0 + std::floor(w.rng.uniform01(body, Purpose::Run) * (d1 - d0 + 1));
+        const double hour = 8 + 10 * w.rng.uniform01(body, Purpose::Run);
+        stranger_tick = static_cast<std::int64_t>(day * kTicksPerGameDay + (hour - 8) * kTicksPerGameHour);
+        bitten = w.rng.uniform01(body, Purpose::Run) < r["stranger_bite_p"].value_or(0.5);
+      }
+      t.run->add_found(role, body);
+      t.group.push_back(body);
+    }
+  const auto [b0, b1] = range("broadcast_day");
+  const double bday = b0 + std::floor(w.rng.uniform01(radio, Purpose::Run) * (b1 - b0 + 1));
+  const std::int64_t broadcast = static_cast<std::int64_t>(bday * kTicksPerGameDay + 4 * kTicksPerGameHour);  // 12:00
+  const std::int64_t end = r["days"].value_or(14) * kTicksPerGameDay;
+  t.run->start(w, t.player, radio, stranger_tick, bitten, broadcast, end);
+}
+
+Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run) {
   if (group > 0 && !with_dead) throw std::invalid_argument("make_world: a group needs the census");
   Tier0 t;
   t.world = std::make_unique<World>(seed);
@@ -25,6 +92,8 @@ Tier0 make_world(std::uint64_t seed, bool with_dead, int group) {
     walkers = std::make_unique<Walkers>(w, *map, *items, *bodies, *actors, *power, *census);
   }
   if (group > 0) ai = std::make_unique<PopAI>(w, *map, *items, *bodies, *actors, *power, *walkers);
+  std::unique_ptr<Run> run;
+  if (is_run) run = std::make_unique<Run>(w, *bodies, *actors, *power, *census, *walkers, *ai);
   t.items = items.get();
   t.map = map.get();
   t.bodies = bodies.get();
@@ -33,6 +102,7 @@ Tier0 make_world(std::uint64_t seed, bool with_dead, int group) {
   t.census = census.get();
   t.walkers = walkers.get();
   t.ai = ai.get();
+  t.run = run.get();
   // Order: things and places, the executor and movement, power, the dead, then the body.
   w.add_system(std::move(items));
   w.add_system(std::move(map));
@@ -43,9 +113,11 @@ Tier0 make_world(std::uint64_t seed, bool with_dead, int group) {
     w.add_system(std::move(walkers));
   }
   w.add_system(std::move(bodies));
-  if (ai) w.add_system(std::move(ai));  // last: decides on this tick's state, acts next tick
+  if (ai) w.add_system(std::move(ai));  // decides on this tick's state, acts next tick
+  if (run) w.add_system(std::move(run));  // last: arrivals, control and the end, after everything moved
   const std::string data = ZS_DATA_DIR;
   load_item_defs(*t.items, data + "/tier0/items.toml");
+  if (is_run) t.map->set_scenario("run");
   t.map->load_file(w, *t.items, data + "/tier0/map/block.toml");
   t.actors->load_processes(data + "/tier0/processes.toml");
   t.actors->populate(w);
@@ -80,9 +152,11 @@ Tier0 make_world(std::uint64_t seed, bool with_dead, int group) {
     }
     for (EntityId b : t.group) t.ai->add_pop(w, b);
   }
+  if (is_run) setup_run(t, data + "/tier0/run.toml");
   w.close_setup();
   return t;
 }
+}  // namespace
 
 }  // namespace zs::tier0
 
@@ -306,6 +380,125 @@ std::string death_sentence(const Tier0& t, const Event& death) {
     id = e->cause;
   }
   return s;
+}
+
+
+namespace {
+
+const Event* first_bite(const Tier0& t, const Event& death) {
+  for (EventId id = death.cause; id != 0;) {
+    const Event* e = t.world->log.get(id);
+    if (!e) break;
+    if (e->type == EventType::Bite) return e;
+    id = e->cause;
+  }
+  return nullptr;
+}
+
+// Was the generator running at `tick`? Read from the log (start actions; stops, stalls, dry tank).
+bool generator_ran_at(const Tier0& t, std::int64_t tick) {
+  const auto start = t.actors->find_process("start_generator"), stop = t.actors->find_process("stop_generator");
+  bool on = false;
+  for (const Event& e : t.world->log.all()) {
+    if (e.tick > tick) break;
+    if (e.type == EventType::ActionDone && start && e.a == static_cast<std::int64_t>(*start)) on = true;
+    if ((e.type == EventType::ActionDone && stop && e.a == static_cast<std::int64_t>(*stop)) ||
+        e.type == EventType::GeneratorStalled || e.type == EventType::GeneratorOutOfFuel)
+      on = false;
+  }
+  return on;
+}
+
+// Bitten, lived long enough to say so (a few decision steps), and never did.
+bool hid_bite(const Tier0& t, const Event& death) {
+  constexpr std::int64_t kTimeToTell = kTicksPerGameHour / 12;  // 5 minutes
+  std::int64_t first = -1;
+  for (const Event& e : t.world->log.all()) {
+    if (e.type == EventType::BiteReported && e.subject == death.subject) return false;
+    if (first < 0 && e.type == EventType::Bite && static_cast<EntityId>(e.a) == death.subject) first = e.tick;
+  }
+  return first >= 0 && death.tick - first >= kTimeToTell;
+}
+
+const Event* arrival_of(const Tier0& t, EntityId walker, std::int64_t before) {
+  const Event* found = nullptr;
+  for (const Event& e : t.world->log.all()) {
+    if (e.tick > before) break;
+    if (e.type == EventType::WalkerArrived && e.subject == walker) found = &e;
+  }
+  return found;
+}
+
+}  // namespace
+
+std::vector<std::string> danger_tags(const Tier0& t, const Event& death) {
+  std::vector<std::string> tags;
+  const auto cause = static_cast<DeathCause>(death.a);
+  const Event* bite = first_bite(t, death);
+  if (bite) tags.push_back("walker attack");
+  if (bite && hid_bite(t, death)) tags.push_back("hidden bite");
+  if (cause == DeathCause::Exsanguination) tags.push_back("bleeding");
+  if (cause == DeathCause::Sepsis) tags.push_back("infected wound");
+  if (cause == DeathCause::Dehydration) tags.push_back("dehydration");
+  if (cause == DeathCause::Starvation) tags.push_back("starvation");
+  if (bite)
+    if (const Event* came = arrival_of(t, bite->subject, bite->tick); came && generator_ran_at(t, came->tick))
+      tags.push_back("noise");
+  return tags;
+}
+
+std::vector<std::string> missed_counters(const Tier0& t, const Event& death) {
+  std::vector<std::string> out;
+  const Event* bite = first_bite(t, death);
+  if (bite && hid_bite(t, death)) out.push_back("the bite was never told to the group");
+  const Body& b = t.bodies->get(death.subject);
+  const auto cause = static_cast<DeathCause>(death.a);
+  if (cause == DeathCause::Sepsis || cause == DeathCause::Exsanguination)
+    for (const Wound& wd : b.wounds)
+      if (wd.cause == death.cause || (bite && wd.cause == bite->id)) {
+        if (cause == DeathCause::Sepsis && wd.cleaned == Cleaned::No) out.push_back("the wound was never cleaned");
+        if (cause == DeathCause::Exsanguination && !wd.dressed && !wd.tourniquet) out.push_back("the bleeding was never dressed");
+        break;
+      }
+  if (bite)
+    if (const Event* came = arrival_of(t, bite->subject, bite->tick); came && generator_ran_at(t, came->tick))
+      out.push_back("the generator was running when " + (t.census ? t.census->name_of(bite->subject) : std::string("it")) + " arrived");
+  return out;
+}
+
+std::vector<std::string> day_summary(const Tier0& t, int day) {
+  auto name = [&](EntityId b) { return t.census ? t.census->name_of(b) : std::string("someone"); };
+  struct Line { int score; std::int64_t tick; std::string text; };
+  std::vector<Line> lines;
+  // Calendar days: tick 0 is 08:00 on day 0.
+  const std::int64_t from = std::max<std::int64_t>(0, day * kTicksPerGameDay - kStartTimeOfDayTicks),
+                     to = (day + 1) * kTicksPerGameDay - kStartTimeOfDayTicks;
+  for (const Event& e : t.world->log.all()) {
+    if (e.tick < from) continue;
+    if (e.tick >= to) break;
+    switch (e.type) {
+      case EventType::Death:
+        lines.push_back({e.b ? 1 : 10, e.tick, e.b ? name(e.subject) + " was put down" : death_sentence(t, e)});
+        break;
+      case EventType::Joined: lines.push_back({6, e.tick, name(e.subject) + " joined the group"}); break;
+      case EventType::RadioHeard: lines.push_back({8, e.tick, name(e.subject) + " heard where the pickup is"}); break;
+      case EventType::RadioRepaired: lines.push_back({5, e.tick, name(e.subject) + " repaired the radio"}); break;
+      case EventType::StrangerArrived: lines.push_back({5, e.tick, name(e.subject) + " came to the yard gate"}); break;
+      case EventType::EdgeBreached: lines.push_back({4, e.tick, "a door or window was broken in"}); break;
+      case EventType::GridFailed: lines.push_back({5, e.tick, "the grid failed"}); break;
+      case EventType::GeneratorOutOfFuel: lines.push_back({5, e.tick, "the generator ran out of fuel"}); break;
+      case EventType::Bite:
+        lines.push_back({3, e.tick, name(e.subject) + " bit " + name(static_cast<EntityId>(e.a))});
+        break;
+      default: break;
+    }
+  }
+  std::stable_sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) { return a.score > b.score; });
+  if (lines.size() > 5) lines.resize(5);
+  std::stable_sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) { return a.tick < b.tick; });
+  std::vector<std::string> out;
+  for (const Line& l : lines) out.push_back(time_text(l.tick).substr(time_text(l.tick).find(' ', 4) + 1) + "  " + l.text);
+  return out;
 }
 
 }  // namespace zs::tier0

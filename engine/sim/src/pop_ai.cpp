@@ -19,6 +19,7 @@ constexpr double kTiredDay = 0.75, kTiredNight = 0.35;
 constexpr double kRefuelBelow = 0.3;                           // of the tank
 constexpr double kEngageM = 4;                                 // an armed pop steps up to a walker this close indoors
 constexpr double kAvoidM = 8;                                  // an unarmed pop backs off from one this close
+constexpr double kInviteM = 25;                                // a found survivor this near is worth the walk
 constexpr double kHelpM = 15;                                  // a struggle this close is heard and answered
 
 int rank(Doing d) {
@@ -31,11 +32,14 @@ int rank(Doing d) {
     case Doing::Eat: return 3;
     case Doing::Sleep: return 4;
     case Doing::Order: return 5;
-    case Doing::Arm: return 6;
+    case Doing::Arm:
+    case Doing::Invite: return 6;
     case Doing::Refuel:
     case Doing::Barricade:
     case Doing::Guard:
-    case Doing::Haul: return 7;
+    case Doing::Haul:
+    case Doing::Search:
+    case Doing::Radio: return 7;
     case Doing::Idle: return 9;
   }
   return 9;
@@ -48,7 +52,7 @@ double weapon_score(const Assemblies& items, EntityId id) {
 }  // namespace
 
 const char* to_string(Job j) {
-  constexpr const char* names[] = {"haul", "refuel", "repair", "cook", "guard", "barricade"};
+  constexpr const char* names[] = {"haul", "refuel", "repair", "cook", "guard", "barricade", "search"};
   return names[static_cast<std::size_t>(j)];
 }
 
@@ -65,7 +69,8 @@ const char* to_string(Refusal r) {
 const char* to_string(Doing d) {
   constexpr const char* names[] = {"idle",  "fighting", "running", "treating a wound", "drinking", "eating",
                                    "sleeping", "following orders", "getting a weapon", "keeping the generator going",
-                                   "boarding windows", "on watch", "hauling", "putting down the dead"};
+                                   "boarding windows", "on watch", "hauling", "putting down the dead",
+                                   "searching a house", "asking someone to join", "at the radio"};
   return names[static_cast<std::size_t>(d)];
 }
 
@@ -76,7 +81,7 @@ void PopAI::add_pop(World& w, EntityId body) {
   PopMind m;
   m.body = body;
   // Default job board (rule 2): keep the power going and board up first, then watch, then haul.
-  m.priority = {3, 1, 0, 0, 2, 1};
+  m.priority = {3, 1, 2, 0, 2, 1, 2};
   m.brave = w.rng.uniform01(body, Purpose::PopTrait) < 0.3;
   m.honest = w.rng.uniform01(body, Purpose::PopTrait) < 0.7;
   m.next_decide = w.clock.tick + static_cast<std::int64_t>(body % kDecideTicks);
@@ -89,9 +94,15 @@ int PopAI::process(const char* id) const {
   return static_cast<int>(*p);
 }
 
+bool PopAI::empty_can(const World& w, EntityId item) const {
+  if (items_.def(items_.get(item).def).id != "fuel_can") return false;
+  const auto store = actors_.store_of(item);
+  return !store || w.ledger.balance(*store, power_.gasoline()) <= 0;
+}
+
 bool PopAI::carries(const World& w, EntityId body, const std::string& def_id) const {
   for (EntityId id : actors_.carried(w, body))
-    if (items_.exists(id) && items_.def(items_.get(id).def).id == def_id) return true;
+    if (items_.exists(id) && items_.def(items_.get(id).def).id == def_id && !empty_can(w, id)) return true;
   return false;
 }
 
@@ -105,7 +116,7 @@ std::optional<EntityId> PopAI::loose(const World& w, const std::string& def_id, 
   std::optional<EntityId> best;
   double best_d = 1e300;
   for (const auto& [id, inst] : items_.all()) {
-    if (items_.def(inst.def).id != def_id) continue;
+    if (items_.def(inst.def).id != def_id || empty_can(w, id)) continue;
     if (with_parts && std::none_of(inst.slots.begin(), inst.slots.end(), [](EntityId s) { return s != 0; })) continue;
     const EntityId parent = w.locations.parent_of(id);
     const auto at = actors_.floor_cell(parent);
@@ -238,7 +249,7 @@ int PopAI::others_doing(EntityId me, Doing d, EntityId target) const {
 
 bool PopAI::generator_hours(const World& w) const {
   const double h = w.clock.hour();
-  return h >= 8 && h < 18;
+  return careless_ || (h >= 10 && h < 16);  // spec 24 / 26 rule 8: the quietest useful hours
 }
 
 bool PopAI::night(const World& w) const {
@@ -359,9 +370,10 @@ bool PopAI::plan_want(World& w, PopMind& m, Doing want) {
     }
     case Doing::Eat: {
       const auto fridge = actors_.find_object("fridge");
+      const auto pantry = actors_.find_object("pantry");
       if (fridge && actors_.preview(w, me, static_cast<std::size_t>(process("eat_fresh")), *fridge).enabled)
         use("eat_fresh", *fridge);
-      else if (const auto pantry = actors_.find_object("pantry")) use("eat", *pantry);
+      else if (pantry && actors_.preview(w, me, static_cast<std::size_t>(process("eat")), *pantry).enabled) use("eat", *pantry);
       else return false;
       break;
     }
@@ -444,6 +456,46 @@ bool PopAI::plan_want(World& w, PopMind& m, Doing want) {
       break;
     }
     case Doing::Haul: return false;  // gap: no haul process in Tier 0 yet
+    case Doing::Invite: {
+      if (!m.target) return false;
+      use("invite", m.target);
+      break;
+    }
+    case Doing::Search: {
+      const auto home = home_to_search(me);
+      if (!home) return false;
+      const Cell at = home->second;
+      if (at.z == pos.z && distance_m(at, pos) <= 2) {
+        // Here: the house is searched; bring back the fuel lying in it (spec 26 rule 4).
+        searched_.insert(home->first);
+        w.emit(EventType::Searched, me, 0, static_cast<std::int64_t>(home->first));
+        for (const Found& f : run_ ? run_->found() : std::vector<Found>{}) {
+          const Cell fc = actors_.actor(f.body).pos;
+          if (fc.z == at.z && distance_m(fc, at) <= 12) known_.insert(f.body);  // calls out, or is heard
+        }
+        const auto can = loose(w, "fuel_can", pos);
+        if (!can || map_.room_of(*actors_.floor_cell(w.locations.parent_of(*can))) == -1) return false;
+        const Cell cc = *actors_.floor_cell(w.locations.parent_of(*can));
+        if (distance_m(cc, at) > 10) return false;
+        use("take", *can);
+        break;
+      }
+      move(at);
+      break;
+    }
+    case Doing::Radio: {
+      if (!run_) return false;
+      const EntityId radio = run_->radio();
+      if (!run_->radio_repaired()) {
+        if (!take("screwdriver")) return false;
+        use("repair_radio", radio);
+        break;
+      }
+      if (!radio_on()) use("switch_on", radio);
+      use("listen_radio", radio);
+      use("switch_off", radio);
+      break;
+    }
   }
   m.doing = want;
   return !plan.empty();
@@ -489,6 +541,53 @@ void PopAI::send_next(World& w, PopMind& m) {
     c.b = static_cast<std::int64_t>(target);
   }
   w.queue_intent(c);
+}
+
+std::optional<EntityId> PopAI::to_invite(EntityId me) {
+  if (!run_) return std::nullopt;
+  const Cell pos = actors_.actor(me).pos;
+  std::optional<EntityId> best;
+  std::size_t best_len = 0;
+  for (const Found& f : run_->found()) {
+    if (!run_->waiting(f.body)) continue;
+    const Cell at = actors_.actor(f.body).pos;
+    // Only someone the group knows about: found in a search, met in the same room, or calling at the gate.
+    if (map_.room_of(at) == map_.room_of(pos)) known_.insert(f.body);  // met: not forgotten after leaving the room
+    if (f.role != Role::Stranger && !known_.contains(f.body)) continue;
+    if (distance_m(pos, at) + 10.0 * std::abs(pos.z - at.z) > kInviteM) continue;
+    const auto path = map_.find_path(pos, at);
+    if (path.empty() && !(at == pos)) continue;
+    if (!best || path.size() < best_len) {
+      best = f.body;
+      best_len = path.size();
+    }
+  }
+  return best;
+}
+
+std::optional<std::pair<EntityId, Cell>> PopAI::home_to_search(EntityId me) const {
+  const auto& objs = map_.objects();
+  for (std::size_t i = 0; i < objs.size(); ++i) {
+    if (objs[i].kind != "home") continue;
+    const EntityId e = actors_.object_entity(i);
+    if (searched_.contains(e)) continue;
+    if (others_doing(me, Doing::Search, static_cast<EntityId>(pack_cell(objs[i].at))) > 0) continue;
+    return std::make_pair(e, objs[i].at);
+  }
+  return std::nullopt;
+}
+
+bool PopAI::food_left(const World& w, EntityId me) const {
+  for (const auto& [kind, proc] : {std::pair{"fridge", "eat_fresh"}, std::pair{"pantry", "eat"}})
+    if (const auto o = actors_.find_object(kind); o && actors_.preview(w, me, static_cast<std::size_t>(process(proc)), *o).enabled)
+      return true;
+  return false;
+}
+
+bool PopAI::radio_on() const {
+  for (const Receiver& r : power_.receivers())
+    if (run_ && r.object == run_->radio()) return r.on;
+  return false;
 }
 
 std::optional<EntityId> PopAI::ally_in_trouble(const World& w, EntityId me) const {
@@ -552,15 +651,17 @@ void PopAI::decide(World& w, PopMind& m) {
     const Cell t = *walkers_.cell_of(threats.front());
     const double d = distance_m(pos, t);
     const bool reach = walkers_.in_reach(pos, t);
+    // A walker beyond a wall or window can't get at it until something gives: no stepping up, no backing off.
+    const bool same_space = is_indoor(map_.floor(pos)) ? map_.room_of(pos) == map_.room_of(t) : !is_indoor(map_.floor(t));
     if (b.fear >= (m.brave ? kPanicFearBrave : kPanicFear) && !(reach && has_weapon)) {
       if (!m.panicked) w.emit(EventType::Panicked, me, 0);
       m.panicked = true;
       want = Doing::Flee;
     } else if (reach) {
       want = has_weapon ? Doing::Fight : Doing::Flee;
-    } else if (has_weapon && d <= kEngageM && is_indoor(map_.floor(pos)) && (m.brave || b.fear < 0.5)) {
+    } else if (has_weapon && d <= kEngageM && is_indoor(map_.floor(pos)) && same_space && (m.brave || b.fear < 0.5)) {
       want = Doing::Fight;
-    } else if (!has_weapon && d <= kAvoidM) {
+    } else if (!has_weapon && d <= kAvoidM && same_space) {
       want = Doing::Flee;
     }
   }
@@ -590,11 +691,14 @@ void PopAI::decide(World& w, PopMind& m) {
       m.target = *corpse;
     } else if (treatable_wound(b) && ready(Doing::Treat)) want = Doing::Treat;
     else if (n.thirst > kThirst && ready(Doing::Drink)) want = Doing::Drink;
-    else if (n.hunger > kHunger && ready(Doing::Eat)) want = Doing::Eat;
+    else if (n.hunger > kHunger && ready(Doing::Eat) && food_left(w, me)) want = Doing::Eat;
     else if (n.tiredness > tired && (guard != me || n.tiredness > 0.95) && ready(Doing::Sleep)) want = Doing::Sleep;
     else if (m.order.type != OrderType::None && m.order.type != OrderType::Hold && ready(Doing::Order)) want = Doing::Order;
     else if (m.order.type == OrderType::Hold) want = Doing::Idle;
-    else if (weapon_near) want = Doing::Arm;
+    else if (const auto who = threats.empty() && ready(Doing::Invite) ? to_invite(me) : std::nullopt) {
+      want = Doing::Invite;
+      m.target = *who;
+    } else if (weapon_near) want = Doing::Arm;
     else {
       for (int p = 1; p <= 3 && want == Doing::Idle; ++p)
         for (std::size_t j = 0; j < kJobCount && want == Doing::Idle; ++j) {
@@ -613,15 +717,31 @@ void PopAI::decide(World& w, PopMind& m) {
               break;
             }
             case Job::Barricade:
-              if (ready(Doing::Barricade) && window_to_board(w, pos, me)) want = Doing::Barricade;
+              if (!careless_ && ready(Doing::Barricade) && window_to_board(w, pos, me)) want = Doing::Barricade;
               break;
             case Job::Guard: {
               bool sleeper = false;
               for (const auto& [id, o] : minds_) sleeper |= id != me && bodies_.get(id).alive && bodies_.get(id).activity.asleep;
-              if (guard == me && !threats.empty() && sleeper && ready(Doing::Guard)) want = Doing::Guard;
+              if (!careless_ && guard == me && !threats.empty() && sleeper && ready(Doing::Guard)) want = Doing::Guard;
               break;
             }
-            default: break;  // haul, repair, cook: no Tier 0 processes yet
+            case Job::Search:
+              if (run_ && threats.empty() && !night(w) && w.clock.hour() >= 8 && w.clock.hour() < 17 && ready(Doing::Search) &&
+                  home_to_search(me))
+                want = Doing::Search;
+              break;
+            case Job::Repair: {
+              if (!run_ || !ready(Doing::Radio)) break;
+              const bool tech = actors_.actor(me).skill[static_cast<std::size_t>(Trade::Electronics)] >= 0;
+              const double h = w.clock.hour();
+              const bool power = power_.mains_alive() ? power_.transfer() == Transfer::Mains
+                                                      : power_.generator_running() && power_.transfer() == Transfer::Generator;
+              const bool listen = run_->radio_repaired() && !run_->heard() && h >= 12 && h < 14 && power &&
+                                  run_->last_listen_tick() / kTicksPerGameDay != w.clock.tick / kTicksPerGameDay;
+              if (((tech && !run_->radio_repaired()) || listen) && others_doing(me, Doing::Radio) == 0) want = Doing::Radio;
+              break;
+            }
+            default: break;  // haul, cook: no Tier 0 processes yet
           }
         }
     }
@@ -659,6 +779,11 @@ void PopAI::update(World& w) {
 
 void PopAI::save(ArchiveWriter& a) const {
   a.u64(possessed_);
+  a.boolean(careless_);
+  a.u64(searched_.size());
+  for (EntityId e : searched_) a.u64(e);
+  a.u64(known_.size());
+  for (EntityId e : known_) a.u64(e);
   a.u64(minds_.size());
   for (const auto& [id, m] : minds_) {
     a.u64(id);
@@ -689,9 +814,17 @@ void PopAI::save(ArchiveWriter& a) const {
 
 void PopAI::load(ArchiveReader& r) {
   possessed_ = r.u64();
-  if (r.u64() != minds_.size()) throw std::runtime_error("pop ai: save does not match the group");
-  for (auto& [id, m] : minds_) {
-    if (r.u64() != id) throw std::runtime_error("pop ai: save has other pops");
+  careless_ = r.boolean();
+  searched_.clear();
+  for (std::uint64_t n = r.u64(); n > 0; --n) searched_.insert(r.u64());
+  known_.clear();
+  for (std::uint64_t n = r.u64(); n > 0; --n) known_.insert(r.u64());
+  // Pops join during a run (spec 26), so the minds are rebuilt from the save.
+  minds_.clear();
+  for (std::uint64_t n = r.u64(); n > 0; --n) {
+    const EntityId id = r.u64();
+    PopMind& m = minds_[id];
+    m.body = id;
     for (int& p : m.priority) p = r.u8();
     m.order.type = static_cast<OrderType>(r.u8());
     m.order.at = unpack_cell(r.i64());

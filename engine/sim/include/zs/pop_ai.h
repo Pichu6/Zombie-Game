@@ -11,15 +11,17 @@
 #include <deque>
 #include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
 #include "zs/dead.h"
+#include "zs/run.h"
 
 namespace zs {
 
-enum class Job : std::uint8_t { Haul, Refuel, Repair, Cook, Guard, Barricade };
-inline constexpr std::size_t kJobCount = 6;
+enum class Job : std::uint8_t { Haul, Refuel, Repair, Cook, Guard, Barricade, Search };
+inline constexpr std::size_t kJobCount = 7;
 const char* to_string(Job j);
 
 enum class OrderType : std::uint8_t { None, Go, Hold, Follow, Attack };
@@ -36,7 +38,8 @@ const char* to_string(Refusal r);
 
 // What the pop is doing, for the view and for the rank of the current plan.
 enum class Doing : std::uint8_t {
-  Idle, Fight, Flee, Treat, Drink, Eat, Sleep, Order, Arm, Refuel, Barricade, Guard, Haul, PutDown
+  Idle, Fight, Flee, Treat, Drink, Eat, Sleep, Order, Arm, Refuel, Barricade, Guard, Haul, PutDown, Search, Invite,
+  Radio
 };
 const char* to_string(Doing d);
 
@@ -70,6 +73,13 @@ class PopAI : public System {
   // Command view (spec 24 rules 2-3). An order is checked for refusals first; a refused order is
   // not kept and the refusal is logged (PopRefused).
   Refusal give_order(World& w, EntityId body, const Order& order);
+  void set_honest(EntityId body, bool honest) { minds_.at(body).honest = honest; }
+  // The run (spec 26), when there is one: found survivors to invite, the radio.
+  void set_run(const Run* run) { run_ = run; }
+  // A careless group (spec 26 test): runs the generator day and night, never boards up or keeps watch.
+  void set_careless(bool c) { careless_ = c; }
+  bool careless() const { return careless_; }
+  const std::set<EntityId>& searched() const { return searched_; }
   void set_priority(EntityId body, Job job, int priority) { minds_.at(body).priority[static_cast<std::size_t>(job)] = priority; }
 
   // Possession (rule 8): the possessed pop gets no AI; on release the AI picks up the same body.
@@ -88,6 +98,8 @@ class PopAI : public System {
   void send_next(World& w, PopMind& m);
   void cancel(World& w, PopMind& m);
   bool armed(const World& w, EntityId body) const;
+  // An empty fuel can is not a fuel can to the AI: carries() and loose() skip it.
+  bool empty_can(const World& w, EntityId item) const;
   bool carries(const World& w, EntityId body, const std::string& def_id) const;
   // The nearest item of this kind lying on a floor; with_parts: only assemblies with something still mounted.
   std::optional<EntityId> loose(const World& w, const std::string& def_id, const Cell& near, bool with_parts = false) const;
@@ -105,6 +117,10 @@ class PopAI : public System {
   int others_doing(EntityId me, Doing d, EntityId target = 0) const;
   EntityId guard_on_duty(const World& w) const;
   int process(const char* id) const;
+  std::optional<EntityId> to_invite(EntityId me);  // also remembers whoever it met in the same room
+  std::optional<std::pair<EntityId, Cell>> home_to_search(EntityId me) const;
+  bool radio_on() const;
+  bool food_left(const World& w, EntityId me) const;  // a meal it could start now
 
   SiteMap& map_;
   Assemblies& items_;
@@ -112,9 +128,13 @@ class PopAI : public System {
   Actors& actors_;
   Power& power_;
   Walkers& walkers_;
+  const Run* run_ = nullptr;  // set at setup
   // State (saved).
+  bool careless_ = false;
   std::map<EntityId, PopMind> minds_;
   EntityId possessed_ = 0;
+  std::set<EntityId> searched_;  // homes searched (by object)
+  std::set<EntityId> known_;     // found survivors the group knows about (seen, or found in a search)
 };
 
 }  // namespace zs

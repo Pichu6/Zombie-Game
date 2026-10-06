@@ -193,7 +193,7 @@ std::vector<EntityId> Walkers::visible_to(const World& w, EntityId viewer) const
 void Walkers::sense_threats(World& w) {
   for (const auto& [id, a] : actors_.actors()) {
     Body& b = bodies_.get(id);
-    if (!b.alive || b.spec.walker) continue;
+    if (!b.alive || b.spec.walker || b.away) continue;
     double threat = held_.contains(id) ? 1.0 : 0.0;
     for (EntityId zid : visible_to(w, id)) {
       const Cell zp = walkers_.at(zid).pos;
@@ -265,7 +265,7 @@ void Walkers::think(World& w, WalkerState& z) {
   double seen_d = 1e300;
   for (const auto& [id, a] : actors_.actors()) {
     const Body& pb = bodies_.get(id);
-    if (!pb.alive || pb.spec.walker || a.pos.z != z.pos.z) continue;
+    if (!pb.alive || pb.spec.walker || pb.away || a.pos.z != z.pos.z) continue;
     const double d = distance_m(z.pos, a.pos);
     if (d > sight_range_m(power_.lux_at(w, a.pos)) * bodies_.capabilities(b, now).sight) continue;
     if (d < seen_d && line_of_sight(w, z.pos, a.pos)) {
@@ -575,7 +575,7 @@ void Walkers::step_turnings(World& w) {
   }
   // The census follows the group's dead: dead for good, or dead until they rise.
   for (const Person& p : census_.people())
-    if (p.fate == Fate::Pop && !bodies_.get(p.body).alive) census_.set_fate(w, *census_.person_of(p.body), Fate::Dead);
+    if ((p.fate == Fate::Pop || (p.fate == Fate::Survivor && p.body)) && !bodies_.get(p.body).alive) census_.set_fate(w, *census_.person_of(p.body), Fate::Dead);
 }
 
 // ---- Update ------------------------------------------------------------------------------------------------

@@ -208,21 +208,6 @@ at = [0, 8, 7]
 id = "player"
 
 [[object]]
-kind = "survivor"
-at = [0, 22, 10]
-id = "neighbour"
-
-[[object]]
-kind = "survivor"
-at = [0, 27, 21]
-id = "technician"
-
-[[object]]
-kind = "arrival"
-at = [0, 17, 20]
-id = "stranger"
-
-[[object]]
 kind = "generator"
 at = [0, 10, 18]
 gasoline_l = 4
@@ -362,3 +347,37 @@ id = "house_a"
 kind = "home"
 at = [0, 24, 20]
 id = "house_b"
+
+# Stage 9: the run (spec 26). Loaded only for the run scenario.
+
+[[object]]
+kind = "item"
+at = [0, 22, 5]
+id = "fuel_can"
+contents = { gasoline_l = 5 }
+scenario = "run"
+
+[[object]]
+kind = "item"
+at = [0, 22, 16]
+id = "fuel_can"
+contents = { gasoline_l = 5 }
+scenario = "run"
+
+[[object]]
+kind = "found"
+at = [0, 27, 10]
+id = "neighbour"
+scenario = "run"
+
+[[object]]
+kind = "found"
+at = [0, 27, 21]
+id = "technician"
+scenario = "run"
+
+[[object]]
+kind = "found"
+at = [0, 16, 22]
+id = "stranger"
+scenario = "run"

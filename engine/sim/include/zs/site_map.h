@@ -70,6 +70,8 @@ class SiteMap : public System {
   void load(ArchiveReader& r) override;
 
   // Loads the TOML map and creates an assembly instance for every wall, door, window and fence.
+  // Objects tagged `scenario = "..."` load only when that scenario is set here first ("" = none).
+  void set_scenario(const std::string& s) { scenario_ = s; }
   void load_file(World& w, Assemblies& items, const std::string& path);
 
   int width() const { return width_; }
@@ -116,6 +118,7 @@ class SiteMap : public System {
   std::size_t edge_index(const EdgeRef& e) const;
   void rebuild_rooms() const;
 
+  std::string scenario_;
   int width_ = 0, height_ = 0;
   std::vector<int> levels_;
   std::vector<Floor> floors_;

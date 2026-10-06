@@ -20,6 +20,7 @@ add_library(zs_sim
   src/census.cpp
   src/walkers.cpp
   src/pop_ai.cpp
+  src/run.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

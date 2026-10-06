@@ -50,6 +50,11 @@ std::int64_t salvage_loss(Joint j) {
   return 0;
 }
 
+}  // namespace
+
+const char* to_string(Trade t) { return kTradeNames[static_cast<std::size_t>(t)]; }
+
+namespace {
 Trade trade_from(const std::string& s) {
   for (std::size_t i = 0; i < kTradeCount; ++i)
     if (s == kTradeNames[i]) return static_cast<Trade>(i);
@@ -62,7 +67,7 @@ EffectOp op_from(const std::string& s) {
       {"use_stock", EffectOp::UseStock}, {"treat", EffectOp::Treat}, {"board", EffectOp::Board},
       {"salvage", EffectOp::Salvage}, {"take", EffectOp::Take},   {"sleep", EffectOp::Sleep},
       {"power", EffectOp::Power},     {"cover", EffectOp::Cover},   {"hit", EffectOp::Hit},
-      {"wake", EffectOp::Wake}};
+      {"wake", EffectOp::Wake},       {"story", EffectOp::Story}};
   for (const auto& [name, op] : ops)
     if (s == name) return op;
   throw std::runtime_error("processes: unknown effect op " + s);
@@ -122,6 +127,8 @@ const char* to_string(Reason r) {
     case Reason::AlreadyDone: return "already that way";
     case Reason::NoFuel: return "no fuel";
     case Reason::Held: return "held by a walker";
+    case Reason::Broken: return "broken";
+    case Reason::NoPower: return "no power";
   }
   return "?";
 }
@@ -388,6 +395,7 @@ bool Actors::target_matches(const World& w, const ProcessDef& p, const Actor& a,
       auto it = all.find(target);
       if (it == all.end() || target == a.body) return false;
       if (p.target_match == "dead") return !it->second.alive && !it->second.spec.walker;  // a corpse not yet risen
+      if (p.target_match == "pop") return it->second.alive && !it->second.spec.walker && !it->second.away;
       if (!it->second.alive) return false;
       return p.target_match.empty() || (p.target_match == "walker") == it->second.spec.walker;
     }
@@ -479,6 +487,10 @@ Actors::Found Actors::check(const World& w, const Actor& a, const ProcessDef& p,
   for (const Effect& e : p.effects) {
     if (e.op == EffectOp::Power) {
       const Reason r = power_check ? power_check(w, a.body, target, e.how) : Reason::WrongTarget;
+      if (r != Reason::Ok) return {r};
+    }
+    if (e.op == EffectOp::Story) {
+      const Reason r = story_check ? story_check(w, a.body, target, e.how) : Reason::WrongTarget;
       if (r != Reason::Ok) return {r};
     }
     if (e.op == EffectOp::Cover && covered(w, target)) return {Reason::Full};
@@ -773,6 +785,9 @@ void Actors::apply_effect(World& w, Actor& a, const ProcessDef& p, const Effect&
       break;
     case EffectOp::Hit:
       if (hit) hit(w, a.body, target, a.action.tool, a.cause);
+      break;
+    case EffectOp::Story:
+      if (story_apply) story_apply(w, a.body, target, e.how, a.cause);
       break;
     case EffectOp::Wake:
       for (auto& [id, other] : actors_) {

@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "zs/actions.h"
 #include "zs/dead.h"
@@ -23,6 +24,7 @@ struct Tier0 {
   Census* census = nullptr;    // stage 7, with_dead only
   Walkers* walkers = nullptr;
   PopAI* ai = nullptr;         // stage 8, group runs only
+  Run* run = nullptr;          // stage 9, make_run only
   EntityId player = 0;  // the body of the pop at the map's player start
   std::vector<EntityId> group;  // the player first, then survivors who start with it
 };
@@ -32,6 +34,11 @@ struct Tier0 {
 // group > 0 (needs with_dead) adds the pop AI for a group of that size: the player plus census
 // survivor slots starting next to it, every one driven by the AI unless possessed (stage 8).
 Tier0 make_world(std::uint64_t seed, bool with_dead = false, int group = 0);
+
+// The run "The generator problem" (spec 26): the player alone in the main building with the dead,
+// the found survivors waiting where data/tier0/run.toml puts them, the stranger still away, every pop
+// driven by the AI unless possessed. `group` lists the player and the found survivors (joined or not).
+Tier0 make_run(std::uint64_t seed);
 
 // The stage 4 scripted pop (plan: "done when"): drinks, eats, picks up first-aid supplies,
 // disinfects and dresses its wound, takes tools, breaks a chair into planks and nails them across
@@ -77,6 +84,12 @@ std::string time_text(std::int64_t tick);
 // Spec 25 chronicle line for a Death event: name, age, when, cause, and what led to it from the
 // cause chain (the bite and who bit, or the strike and who struck).
 std::string death_sentence(const Tier0& t, const Event& death);
+// Stage 9 (spec 25): the danger tags of a death, read from its cause chain and the log; and the
+// missed counters as one clause each ("the wound was never cleaned").
+std::vector<std::string> danger_tags(const Tier0& t, const Event& death);
+std::vector<std::string> missed_counters(const Tier0& t, const Event& death);
+// The day's notable events (top five by score, in time order) as plain lines.
+std::vector<std::string> day_summary(const Tier0& t, int day);
 
 // Gives the player the wound the script treats (a dirty forearm cut).
 EntityId wound_player(Tier0& t);

@@ -353,7 +353,7 @@ function draw() {
   if (GROUP) {
     const ps = f[17] || [], nps = nf[17] || [];
     ps.forEach(([z, x, y, doing, name, alive], i) => {
-      if (z !== level || T.labels[doing] === "risen as a walker") return;
+      if (z !== level || T.labels[doing] === "risen as a walker" || T.labels[doing] === "not here yet") return;
       let qx = x, qy = y;
       const n = nps[i];
       if (n && n[0] === z && Math.abs(n[1] - x) + Math.abs(n[2] - y) <= 2) {

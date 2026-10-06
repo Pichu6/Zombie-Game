@@ -229,7 +229,7 @@ TEST_CASE("stage 8: a group run: save/load keeps the hash; golden") {
   u.world->load(mid);
   run_hours(u, 6);
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 5502810987884745546ULL;
+  const std::uint64_t golden = 9545267489536325917ULL;
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 8 golden world hash: " << t.world->world_hash());
 }

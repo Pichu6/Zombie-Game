@@ -100,6 +100,7 @@ struct Body {
   double vo2max = 42;
   double fear = 0, morale = 0.7;
   double threat = 0;  // 0-1, what the senses report right now (walkers seen, in reach, holding it)
+  bool away = false;  // off the map, cold (spec 27): its body does not run and nothing senses it
   double active_minutes_today = 0;  // minutes at >= 2.5 MET
   double heavy_minutes_today = 0;   // training stimulus (one value, whole body, in Tier 0)
   std::array<double, 8> carry{};    // saved remainders of the continuous flows (spec 01 rule 2)
