@@ -1,0 +1,49 @@
+# Culture pack (docs/design/content-tools.md section 3). Names are listed most common first;
+# the generator weights rank r by 1 / (r + 2). ASCII only in Tier 0.
+# Name lists: common US names across birth decades (SSA name data, US Census 2010 surnames), hand-picked.
+# Appearance shares are rough estimates for drawing variety, not a claim about any person.
+
+id = "american"
+label = "American (European heritage)"
+country = "United States"
+nationality = "American"
+name_order = "given_family"
+surnames = "single"
+
+given_m = ["James", "Michael", "John", "Robert", "David", "William", "Richard", "Joseph", "Thomas", "Christopher",
+           "Daniel", "Matthew", "Charles", "Mark", "Steven", "Paul", "Andrew", "Joshua", "Kevin", "Brian",
+           "Ryan", "Jacob", "Tyler", "Ethan", "Noah", "Liam", "Mason", "Logan", "Gary", "Dennis",
+           "Kyle", "Eric", "Scott", "Jeffrey", "Wyatt", "Caleb", "Owen", "Hunter", "Cody", "Dale"]
+given_f = ["Mary", "Jennifer", "Patricia", "Linda", "Elizabeth", "Susan", "Jessica", "Sarah", "Karen", "Lisa",
+           "Nancy", "Ashley", "Emily", "Michelle", "Amanda", "Melissa", "Stephanie", "Rebecca", "Laura", "Hannah",
+           "Olivia", "Emma", "Ava", "Madison", "Abigail", "Rachel", "Megan", "Donna", "Brittany", "Kayla",
+           "Heather", "Amber", "Debra", "Carol", "Shirley", "Chloe", "Harper", "Lily", "Paige", "Brenda"]
+family = ["Smith", "Johnson", "Miller", "Brown", "Davis", "Wilson", "Anderson", "Taylor", "Moore", "Martin",
+          "Thompson", "White", "Clark", "Lewis", "Walker", "Young", "Allen", "King", "Wright", "Scott",
+          "Hill", "Green", "Adams", "Baker", "Nelson", "Carter", "Mitchell", "Campbell", "Murphy", "Sullivan",
+          "Walsh", "Brennan", "Schmidt", "Mueller", "Meyer", "Olson", "Peterson", "Hansen", "Russo", "Bianchi",
+          "Collins", "Stewart", "Morris", "Cook", "Rogers", "Reed", "Kelly", "Price", "Wood", "Ward"]
+
+# Real towns: birthplaces, and the training set for generated place names.
+places = ["Springfield", "Greenville", "Fairview", "Franklin", "Clinton", "Madison", "Georgetown", "Salem",
+          "Bristol", "Chester", "Ashland", "Burlington", "Manchester", "Milton", "Newport", "Riverside",
+          "Lexington", "Arlington", "Kingston", "Dover", "Hudson", "Marion", "Auburn", "Clayton", "Dayton",
+          "Lancaster", "Bedford", "Florence", "Canton", "Hamilton", "Monroe", "Warren", "Shelby", "Brookfield",
+          "Winchester", "Plymouth", "Toledo", "Akron", "Peoria", "Rockford", "Bloomington", "Columbus",
+          "Harrisburg", "Scranton", "Allentown", "Erie", "Saginaw", "Kalamazoo", "Lansing"]
+town_forms = ["{root}", "{root}", "{root}ville", "{root} Springs", "{root}ton", "Port {root}", "{root} Falls", "New {root}"]
+province_forms = ["{root} County"]
+country_forms = ["{root}ia", "{root}land", "Republic of {root}", "United {root} States"]
+
+street_format = "{name} {kind}"
+street_names = ["Main", "Oak", "Maple", "Elm", "Pine", "Cedar", "Washington", "Lincoln", "Park", "Church",
+                "Walnut", "Jefferson", "Lake", "Hill", "Mill", "Spring", "River", "Center", "Market", "Water",
+                "Union", "Highland", "Ridge", "Sunset", "Willow", "Chestnut", "Cherry", "Franklin", "2nd", "3rd",
+                "4th", "5th", "Jackson", "Madison", "Locust", "Birch", "Dogwood", "Railroad", "School", "Prospect"]
+street_kinds = ["Street", "Avenue", "Road", "Drive", "Lane", "Court", "Place", "Boulevard"]
+
+skin = [10, 30, 30, 18, 8, 3, 1, 0, 0, 0]  # Monk Skin Tone scale 1-10
+hair = ["brown", "blond", "black", "red"]
+hair_w = [55, 30, 8, 7]
+eyes = ["brown", "blue", "hazel", "green", "gray"]
+eyes_w = [40, 30, 17, 10, 3]

@@ -1,0 +1,49 @@
+# Population mix for the Tier 0 block (docs/design/content-tools.md section 4).
+# The town is fictional, modelled on a mid-size US town (0011 recommendation); shares are an estimate
+# loosely following US Census 2020 shares, with a few smaller immigrant groups for variety.
+# born_abroad: share of founding adults born in the culture's country (first generation).
+# host_given: chance a person born here gets a given name from the town's culture.
+
+town_culture = "american"
+people = 60
+on_map_homes = ["house_a", "house_b"]
+streets = 4
+household_sizes = [28, 35, 15, 13, 9]  # 1, 2, 3, 4, 5+ people (US ACS 2022)
+intermarriage = 0.12
+same_sex_couples = 0.03
+
+[[group]]
+culture = "american"
+share = 58
+born_abroad = 0.0
+host_given = 1.0
+
+[[group]]
+culture = "mexican"
+share = 17
+born_abroad = 0.45
+host_given = 0.35
+
+[[group]]
+culture = "african_american"
+share = 13
+born_abroad = 0.0
+host_given = 1.0
+
+[[group]]
+culture = "polish"
+share = 5
+born_abroad = 0.4
+host_given = 0.5
+
+[[group]]
+culture = "korean"
+share = 4
+born_abroad = 0.6
+host_given = 0.6
+
+[[group]]
+culture = "nigerian"
+share = 3
+born_abroad = 0.7
+host_given = 0.3

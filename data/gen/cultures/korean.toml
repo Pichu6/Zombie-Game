@@ -1,0 +1,38 @@
+# Culture pack (docs/design/content-tools.md section 3). Most common first; Revised Romanization, ASCII.
+# Names: common Korean surnames (Statistics Korea 2015) and given names across birth decades, hand-picked.
+# Family name first at home; diaspora names use the host country's order.
+
+id = "korean"
+label = "Korean"
+country = "South Korea"
+nationality = "South Korean"
+name_order = "family_given"
+surnames = "single"
+
+given_m = ["Min-jun", "Seo-jun", "Ji-ho", "Do-yun", "Ha-jun", "Jun-seo", "Hyun-woo", "Ji-hoon", "Sung-min", "Dong-hyun",
+           "Jae-won", "Sang-hoon", "Young-ho", "Jin-woo", "Seung-hyun", "Tae-hoon", "Kwang-soo", "Young-soo", "Jung-ho", "Chul-soo",
+           "Woo-jin", "Joon-young", "Min-ho", "Sung-ho", "Dae-jung"]
+given_f = ["Seo-yeon", "Ji-woo", "Ha-eun", "Min-seo", "Su-ah", "Ji-yoo", "Eun-ji", "Hye-jin", "Soo-jin", "Ji-young",
+           "Yu-na", "Mi-kyung", "Eun-young", "Hyun-joo", "Da-eun", "Young-hee", "Mi-sook", "Kyung-ja", "Jung-sook", "Sun-hee",
+           "Ye-jin", "Seo-hyun", "Na-young", "Bo-ram", "Ji-min"]
+family = ["Kim", "Lee", "Park", "Choi", "Jung", "Kang", "Cho", "Yoon", "Jang", "Lim",
+          "Han", "Oh", "Seo", "Shin", "Kwon", "Hwang", "Ahn", "Song", "Yoo", "Hong",
+          "Jeon", "Ko", "Moon", "Yang", "Son"]
+
+places = ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju", "Ulsan", "Suwon", "Changwon", "Goyang",
+          "Yongin", "Seongnam", "Cheongju", "Jeonju", "Cheonan", "Gimhae", "Pohang", "Jinju", "Gangneung",
+          "Wonju", "Chuncheon", "Mokpo", "Yeosu", "Suncheon", "Gyeongju", "Andong", "Gumi", "Iksan", "Gunsan", "Sokcho"]
+town_forms = ["{root}", "{root}-si", "{root}-gun", "{root}-dong"]
+province_forms = ["{root}-do", "{root} Province"]
+country_forms = ["{root}", "Republic of {root}"]
+
+street_format = "{name}-{kind}"
+street_names = ["Sejong", "Teheran", "Jong", "Eulji", "Toegye", "Dosan", "Hakdong", "Bongeunsa", "Nonhyeon",
+                "Yeongdong", "Samseong", "Dongho", "Chungmu", "Itaewon", "Hangang", "Mapo", "Yanghwa", "Sinchon"]
+street_kinds = ["ro", "gil", "daero"]
+
+skin = [5, 25, 35, 25, 8, 2, 0, 0, 0, 0]
+hair = ["black", "brown"]
+hair_w = [97, 3]
+eyes = ["brown"]
+eyes_w = [100]

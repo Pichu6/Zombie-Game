@@ -55,9 +55,10 @@ build/release/apps/headless/zs_headless --stage6 [--seed N]  # stage 6: grid fai
 build/release/apps/headless/zs_headless --stage7 [--seed N]  # stage 7: stage 6 with the dead (census, walkers, bites, turning); runs until the pop rises
 build/release/apps/headless/zs_headless --group [--seed N] [--days D] [--seeds N]  # stage 8: 4 AI pops with the dead; --seeds runs a batch and counts causes
 build/release/apps/headless/zs_headless --run [--seed N] [--seeds N] [--careless]  # stage 9: the 14-day run (found survivors, stranger, radio), death screen and day-by-day chronicle
+build/release/apps/gen/zs_gen town --seed 1   # content tools: a generated town with every pop's dossier (also: census, names, cultures)
 # replay viewer: --stage6, --stage7, --group or --run with --trace trace.json, then python3 tools/viewer/embed.py trace.json replay.html [--max-mb 12] (open in a browser; --max-mb thins long runs)
 ```
 
 On Windows, run these from a "x64 Native Tools Command Prompt for VS 2022". Golden hashes in the tests are pinned on Linux; Windows must reproduce them (cross-compiler determinism, [spec 01](docs/tier0/specs/01-quantity.md)).
 
-Layout: `engine/sim` is the simulation library (no window), `apps/headless` the command-line runner, `docs/tier0` the plan and specs.
+Layout: `engine/sim` is the simulation library (no window), `engine/gen` the content generators (names, pops, towns; data in `data/gen/`), `apps/headless` the command-line runner, `docs/tier0` the plan and specs.

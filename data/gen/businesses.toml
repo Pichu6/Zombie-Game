@@ -1,0 +1,127 @@
+# Business and institution types for the town directory (docs/design/content-tools.md section 2).
+# Patterns: {family} {given} owner's names, {town} town, {street} a street name, {word} from words.
+# A job or pop asking for "school" works at any type whose id ends in "_school".
+# count: how many of this type a small town has. A culture can add its own patterns per type
+# under [culture.<id>] below; the owner's culture is drawn from the town's population mix.
+
+words = ["Golden", "Sunrise", "Liberty", "Union", "Valley", "Hometown", "Corner", "Central", "Family", "Eagle",
+         "Pioneer", "Lakeside", "Heritage", "Northside", "Riverside", "Main Street", "Star", "Victory"]
+
+[[type]]
+id = "grocery"
+count = 2
+forms = ["{family}'s Market", "{town} Foods", "{word} Grocery", "{family} & Sons Grocery"]
+
+[[type]]
+id = "hardware"
+count = 1
+forms = ["{family} Hardware", "{town} Hardware & Supply", "{word} Hardware"]
+
+[[type]]
+id = "diner"
+count = 2
+forms = ["{given}'s Diner", "The {word} Diner", "{street} Street Grill", "{family}'s Kitchen"]
+
+[[type]]
+id = "pharmacy"
+count = 1
+forms = ["{family} Pharmacy", "{town} Drug", "{word} Pharmacy"]
+
+[[type]]
+id = "auto_repair"
+count = 1
+forms = ["{family} Auto Repair", "{word} Auto & Tire", "{given}'s Garage"]
+
+[[type]]
+id = "warehouse"
+count = 1
+forms = ["{town} Distribution Center", "{word} Logistics", "{family} Freight"]
+
+[[type]]
+id = "factory"
+count = 1
+forms = ["{town} Metal Works", "{word} Plastics", "{family} Manufacturing"]
+
+[[type]]
+id = "office"
+count = 2
+forms = ["{family} & {family2} LLP", "{word} Insurance", "{town} County Offices", "{family} Realty"]
+
+[[type]]
+id = "hospital"
+count = 1
+forms = ["{town} General Hospital", "{word} Medical Center", "Mercy Hospital of {town}"]
+
+[[type]]
+id = "care_home"
+count = 1
+forms = ["{word} Senior Living", "{street} Care Home"]
+
+[[type]]
+id = "elementary_school"
+count = 1
+forms = ["{street} Elementary School", "{family} Elementary School"]
+
+[[type]]
+id = "high_school"
+count = 1
+forms = ["{town} High School", "{word} High School"]
+
+[[type]]
+id = "college"
+count = 1
+forms = ["{town} Community College"]
+
+[[type]]
+id = "police"
+count = 1
+forms = ["{town} Police Department"]
+
+[[type]]
+id = "fire_station"
+count = 1
+forms = ["{town} Fire Station No. 1"]
+
+[[type]]
+id = "salon"
+count = 1
+forms = ["{given}'s Hair Studio", "{word} Cuts"]
+
+[[type]]
+id = "bank"
+count = 1
+forms = ["First {word} Bank", "{town} Savings & Loan"]
+
+[[type]]
+id = "church"
+count = 2
+forms = ["St. Mary's Church", "St. Joseph's Church", "First Baptist Church of {town}", "{word} Community Church"]
+
+[[type]]
+id = "gas_station"
+count = 1
+forms = ["{word} Gas", "{family}'s Service Station"]
+
+[culture.mexican]
+grocery = ["{family} Mercado", "La {word} Carniceria"]
+diner = ["Taqueria {given}", "{family}'s Mexican Kitchen"]
+church = ["Our Lady of Guadalupe Church"]
+
+[culture.korean]
+grocery = ["{family} Asian Market", "Seoul Mart"]
+diner = ["{family}'s Korean BBQ", "Seoul Garden"]
+church = ["{town} Korean Presbyterian Church"]
+
+[culture.polish]
+grocery = ["{family} Polish Deli"]
+diner = ["{given}'s Pierogi House"]
+church = ["St. Stanislaus Church"]
+
+[culture.nigerian]
+diner = ["Mama {given}'s Kitchen"]
+salon = ["{given}'s Braids"]
+church = ["Redeemed Christian Church of {town}"]
+
+[culture.african_american]
+diner = ["{given}'s Soul Food"]
+church = ["{town} AME Church", "Mount Zion Baptist Church"]
