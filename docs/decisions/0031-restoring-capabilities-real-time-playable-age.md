@@ -1,8 +1,8 @@
-# 0027 · Restoring lost capabilities, real durations, playable age, time controls
+# 0031 · Restoring lost capabilities, real durations, playable age, time controls
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (intent below). Models are Proposals in [sandbox parameters](../design/sandbox-parameters.md) and [pop continuity](../design/pop-continuity.md).
-- **Answers:** the open point of [0026](0026-pop-continuity-and-capability-loss.md).
+- **Answers:** the open point of [0030](0030-pop-continuity-and-capability-loss.md).
 
 ## Decisions
 

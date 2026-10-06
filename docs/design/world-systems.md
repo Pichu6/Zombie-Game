@@ -2,7 +2,7 @@
 
 Everything a generated world is made of, how the parts depend on each other, in what order a starting world is built so that **everything placed follows logic**, how factions hold and change territory, and how a decision at state level reaches pops and buildings and comes back as the state's capability. This is the map; each system gets its own spec before its code ([CLAUDE.md](../../CLAUDE.md)).
 
-Intent **Decided** ([0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md), [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md), [0018](../decisions/0018-sandbox-answers.md)): nations exist when a world starts, placed in logical places, with their cities, sizes, supply chains and grids; the user sets the starting parameters; factions hold areas of control and can expand, shrink, be subjugated or conquer; the loop runs macro → micro → macro, state → pop → state; the simulation must cover economy, flora, fauna, resources, processing, building and the rest. The model below is a **Proposal**. Quantitative laws: [world numbers](world-numbers.md). Research for the new systems is in `docs/research/world-systems-*.md` ([economy](../research/world-systems-economy.md), [ecology](../research/world-systems-ecology.md), [resources and networks](../research/world-systems-resources-networks.md), [factions](../research/world-systems-factions.md)); section 10 summarises it, section 11 lists the licences. **Evidence caveat as in [world numbers](world-numbers.md):** every number is a second-hand search summary (the data sites could not be opened), several are low confidence, and parameters marked *design* are ours and unsourced.
+Intent **Decided** ([0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md), [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md), [0018](../decisions/0018-sandbox-answers.md)): nations exist when a world starts, placed in logical places, with their cities, sizes, supply chains and grids; the user sets the starting parameters; factions hold areas of control and can expand, shrink, be subjugated or conquer; the loop runs macro → micro → macro, state → pop → state; the simulation must cover economy, flora, fauna, resources, processing, building and the rest. The model below is a **Proposal**. Quantitative laws: [world numbers](world-numbers.md). Research for the new systems is in `docs/research/world-systems-*.md` ([economy](../research/world-systems-economy.md), [ecology](../research/world-systems-ecology.md), [resources and networks](../research/world-systems-resources-networks.md), [factions](../research/world-systems-factions.md)); section 10 summarises it, section 11 lists the licences. **Evidence caveat as in [world numbers](world-numbers.md):** every number is a second-hand search summary (the data sites could not be opened), several are low confidence, and parameters marked *design* are ours and unsourced.
 
 ## 1. The contract that makes it logical
 
@@ -21,7 +21,7 @@ Intent **Decided** ([0032](../decisions/0032-worlds-start-with-nations-and-every
 | Geology and soil | Deposits (ores, fuels, stone, salt), aquifers, soil fertility | Soil as a field | Deposit generation, stocks, grades |
 | Flora | Forests, grassland, crops, fuelwood, timber | Agriculture and food chain at one survivor's scale ([world survival](world-survival.md)) | Region-scale stocks, growth, harvest, depletion |
 | Fauna | Wildlife, livestock, fisheries, pests, reservoirs | Wildlife and hunting locally; zombies ([threats](threats.md)) | Region-scale populations, fisheries, livestock, zoonoses |
-| Pops | People: bodies, ages, education, jobs, wealth | [Spec 28](../tier0/specs/28-pop-levels.md), [0030](../decisions/0030-nation-demographics.md), [world numbers](world-numbers.md) §3 | Household formation, wealth transmission |
+| Pops | People: bodies, ages, education, jobs, wealth | [Spec 28](../tier0/specs/28-pop-levels.md), [0034](../decisions/0034-nation-demographics.md), [world numbers](world-numbers.md) §3 | Household formation, wealth transmission |
 | Settlements | Cities and towns, sizes, spacing | Laws in [world numbers](world-numbers.md) §2.3; town and pop generators | The world-scale settlement generator |
 | Economy | Production, jobs, trade, money, prices, shortages | Stock and flow per region, scarcest-input rule ([world simulation](world-simulation.md) §5) | Sectors, input-output structure, markets, trade flows, money |
 | Processing chains | Extraction → refining → manufacturing → distribution | Production ladder and quality at item scale ([items and crafting](items-crafting.md)) | Chain model at region scale, plant siting |
@@ -30,7 +30,7 @@ Intent **Decided** ([0032](../decisions/0032-worlds-start-with-nations-and-every
 | Energy and materials | Flows by sector and per person | Anchors in [world numbers](world-numbers.md) §2.2 | Balance per sector, fuel trade |
 | Factions and territory | Who controls what, borders, claims | Country actor, standing, assembly ([macro layer](macro-layer.md)) | Sectors, control and occupation, expansion, subjection, conquest |
 | Culture, religion, language | How groups differ | [Sandbox parameters](sandbox-parameters.md) §6 | Generation and spread |
-| Technology and capability | What a nation can do | Readout of what exists ([0025](../decisions/0025-leader-records-foxhole-tech-readout.md), [0026](../decisions/0026-pop-continuity-and-capability-loss.md)) | Capability list and its links to yield, cost and output |
+| Technology and capability | What a nation can do | Readout of what exists ([0029](../decisions/0029-leader-records-foxhole-tech-readout.md), [0030](../decisions/0030-pop-continuity-and-capability-loss.md)) | Capability list and its links to yield, cost and output |
 | Military and war | Forces, supply, resolution | [Sandbox parameters](sandbox-parameters.md) §5.1; [war research](../research/war-in-other-games.md) | Secondary for now |
 | Hazards | Outbreak, disasters | [Threats](threats.md); disasters in [sandbox parameters](sandbox-parameters.md) §4 | Hooks into the coverage above |
 | Information | News, rumours, fog | [World simulation](world-simulation.md) §9 | Later |
@@ -70,13 +70,13 @@ Each step reads only earlier outputs, draws with keyed randomness (so a seed rep
 | 9 | Economy and chains | pops, deposits, flora, fauna, energy, routes | extraction sites at deposits, processing and factories where inputs, workers, power and an outlet meet, farms and fisheries by capacity; sized to demand and supply |
 | 10 | Networks | settlements, plants, load per capita | power plants by fuel, hydro, sun and coast; grid links following the route graph and load; water works by source; telecom by density |
 | 11 | Building stock | pops, jobs, step 9 | housing per household, workplaces per job, public buildings by service level; interiors are generated on approach ([world simulation](world-simulation.md) §12) |
-| 12 | Pops | profiles ([0030](../decisions/0030-nation-demographics.md)), steps 5–11 | people with ages, education, jobs filled from workplace rosters, households in housing |
+| 12 | Pops | profiles ([0034](../decisions/0034-nation-demographics.md)), steps 5–11 | people with ages, education, jobs filled from workplace rosters, households in housing |
 | 13 | Relations | factions, borders | standing, treaties, claims, and starting subject relations the user allows |
 | 14 | Audit | everything | checks (below) and the realism report |
 
 **Audit invariants (a world that fails is not shipped):** people add up; every employed pop fills a workplace slot and no slot exceeds capacity; every settlement is connected; every plant has its inputs or a declared shortage; every grid node has a source or a declared blackout; every supply chain closes or states its import; deposit stocks plus extracted equal the endowment; every faction's sectors are contiguous or connected by a declared route; every placement has a cause record.
 
-### 4.1 Sectors and zones: the spatial hierarchy (Decided, [0033](../decisions/0033-sectors-zones-and-world-creation-answers.md); model Proposal)
+### 4.1 Sectors and zones: the spatial hierarchy (Decided, [0037](../decisions/0037-sectors-zones-and-world-creation-answers.md); model Proposal)
 
 The world is divided on purpose, so that borders, placement and play all use the same units, as when starting a city in Cities: Skylines.
 
@@ -101,7 +101,7 @@ A **faction** is a state actor ([macro layer](macro-layer.md) §7) that holds se
 - **Sector:** the control unit (a Hearts of Iron province), a settlement and its hinterland (cells, pops, deposits, buildings, route nodes). It has an **owner**, a **controller** (differs under occupation), a list of **claims**, and a development and unrest state. Sectors are the unit macro orders aim at ([world simulation](world-simulation.md) §13); zooming in opens the layers below.
 - **Territory** is the set of owned sectors; a **border** is where owners meet; **reach** (message speed × tolerated delay) limits what a centre can hold without a delegated tier ([world numbers](world-numbers.md) §4.1).
 - **Relations:** standing with reasons, treaties, alliances, rivalry, as in [macro layer](macro-layer.md).
-- **Subjection:** a faction can be a **subject** of another (vassal, protectorate, tributary, puppet), with its own government, an autonomy level, a tribute share of revenue and an obligation (levies, access, trade terms). Subjects can rebel, be absorbed, or be released. Lowest-autonomy subjection is the reading of "become slaves" for factions ([0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md)).
+- **Subjection:** a faction can be a **subject** of another (vassal, protectorate, tributary, puppet), with its own government, an autonomy level, a tribute share of revenue and an obligation (levies, access, trade terms). Subjects can rebel, be absorbed, or be released. Lowest-autonomy subjection is the reading of "become slaves" for factions ([0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md)).
 - **Expansion:** by settling empty or thin land when pop pressure ([world numbers](world-numbers.md) §2.2) exceeds capacity and routes allow; by diplomacy (subjection, union); by conquest.
 - **Conquest:** war resolved in aggregate from forces, supply and terrain, with its cost priced in pops, wages and revenue ([sandbox parameters](sandbox-parameters.md) §5.1). Occupation brings unrest and a time to integrate; the occupied pops keep their identity ([pop continuity](pop-continuity.md)) and change owner by a roster event, never by being recreated.
 - **Shrinking:** loss in war, secession when legitimacy falls or reach is exceeded, collapse to a lower tier ([world numbers](world-numbers.md) §4.1), always with the same pops and buildings.
@@ -137,9 +137,9 @@ Presets, auto-fill or custom for every field, as already decided ([sandbox param
 | Culture | number of cultures and how mixed |
 | Per faction | override anything above for one faction (as in Stellaris empire creation), or paint territory on the generated map |
 | Outbreak and hazards | per [sandbox parameters](sandbox-parameters.md) §12 |
-| Time | per [0028](../decisions/0028-real-time-reference-and-generational-runs.md) |
+| Time | per [0032](../decisions/0032-real-time-reference-and-generational-runs.md) |
 
-The user can **edit the generated map before starting** (Decided, [0033](../decisions/0033-sectors-zones-and-world-creation-answers.md)), as when starting a new city in Cities: Skylines: paint **nation borders** over sectors, paint **zones** inside a sector and place cities and buildings with a brush ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)), move or rename a faction, or leave any part to the generator. An edited world is tagged and **re-audited** (section 4): an edit that breaks an invariant (a city with no water, a plant with no inputs) is refused or flagged with the reason.
+The user can **edit the generated map before starting** (Decided, [0037](../decisions/0037-sectors-zones-and-world-creation-answers.md)), as when starting a new city in Cities: Skylines: paint **nation borders** over sectors, paint **zones** inside a sector and place cities and buildings with a brush ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)), move or rename a faction, or leave any part to the generator. An edited world is tagged and **re-audited** (section 4): an edit that breaks an invariant (a city with no water, a plant with no inputs) is refused or flagged with the reason.
 
 ## 8. Specs to write, and the order
 
@@ -157,7 +157,7 @@ A first playable slice for the loop: a **single continent of a dozen or so of th
 
 ## 9. Questions
 
-### Answered (2026-10-06, [0033](../decisions/0033-sectors-zones-and-world-creation-answers.md))
+### Answered (2026-10-06, [0037](../decisions/0037-sectors-zones-and-world-creation-answers.md))
 
 1. **Forced labour:** a possibility for later, not in the plan; it needs its own decision before any design.
 2. **Granularity:** dozens of sectors, designed to scale.
@@ -165,7 +165,7 @@ A first playable slice for the loop: a **single continent of a dozen or so of th
 4. **Uneven development at the start:** yes, read from the capabilities each faction holds.
 5. **Map editing before the run:** yes, with the world divided into sectors (borders) and zones (placement), re-audited after edits.
 
-### Answered (2026-10-06, [0034](../decisions/0034-grid-sector-zone-sizes-accepted.md))
+### Answered (2026-10-06, [0038](../decisions/0038-grid-sector-zone-sizes-accepted.md))
 
 - **Global grid:** equal-area cells of about 5,000 km² at Earth size (about 100,000 cells); a flat metric grid only for local maps.
 - **Sectors and zones:** a sector is a few hundred to a few thousand cells (dozens per world); zone cells are 100 to 500 m, inside settlement footprints only.
@@ -240,7 +240,7 @@ Every placement keeps a reason string ("aluminium smelter beside the cheapest fi
 | Secession and collapse | Yearly chance rises with unrest, falls with control and garrison; collapse when pay cannot be met or legitimacy is low | Empire lifetime about 215 years (a newspaper summary of Turchin); Europe about 500 states (1500) to 25–30 (1900); half of the 1816 states gone; civil wars start about 2.3 a year since 1945 |
 | Diplomacy | Balance the strongest neighbouring threat; opinion as dated modifiers with decay; no abstract diplomacy currency | Walt's balance of threat |
 
-War resolution stays secondary ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)), but the laws above price it in pops, wages and revenue.
+War resolution stays secondary ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md)), but the laws above price it in pops, wages and revenue.
 
 ## 11. Data licences for these systems
 

@@ -1,10 +1,10 @@
 # World numbers: demography, structure, education, labour, inequality, production
 
-**Date:** 2026-10-06. **Status: research note, not a decision.** Feeds [0030](../decisions/0030-nation-demographics.md) and [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md); nothing here is *Decided*, *Implemented* or *Validated*.
+**Date:** 2026-10-06. **Status: research note, not a decision.** Feeds [0034](../decisions/0034-nation-demographics.md) and [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md); nothing here is *Decided*, *Implemented* or *Validated*.
 
 ## Method and limits (read first)
 
-- WebFetch was **blocked** by the network egress proxy (ourworldindata.org, wikipedia.org, rug.nl all returned EGRESS_BLOCKED). **Every number below comes from WebSearch result summaries**, not from reading the source page. Treat confidence as at most medium; re-check against the dataset itself before any `sourced` profile ([0030](../decisions/0030-nation-demographics.md) refuses `sourced` without source and year).
+- WebFetch was **blocked** by the network egress proxy (ourworldindata.org, wikipedia.org, rug.nl all returned EGRESS_BLOCKED). **Every number below comes from WebSearch result summaries**, not from reading the source page. Treat confidence as at most medium; re-check against the dataset itself before any `sourced` profile ([0034](../decisions/0034-nation-demographics.md) refuses `sourced` without source and year).
 - A number with no URL is not in the Numbers table. Quantities I know from general economics but could not confirm by search are listed under "Unverified / not found", not presented as fact.
 - Where a search summary looked internally inconsistent it is flagged, not used.
 
@@ -96,7 +96,7 @@ All are **Proposals**. "Realistic band" is where real data are expected to sit; 
 
 ## Data licences
 
-Licences below come from search summaries unless marked. We only use public-domain or CC BY data. Check each dataset's own licence page before shipping any table ([0030](../decisions/0030-nation-demographics.md) notes).
+Licences below come from search summaries unless marked. We only use public-domain or CC BY data. Check each dataset's own licence page before shipping any table ([0034](../decisions/0034-nation-demographics.md) notes).
 
 | Dataset | Licence found | Use here | Source |
 | --- | --- | --- | --- |

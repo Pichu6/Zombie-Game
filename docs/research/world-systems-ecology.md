@@ -1,7 +1,7 @@
 # World systems: flora, fauna, soils and fisheries in numbers
 
 **Date:** 2026-10-06
-**Status:** research note, not a decision. Nothing here is Decided, Implemented or Validated. It feeds [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md) and [0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md) (decision 5: the simulation must cover flora, fauna and resources) and sits beside [world numbers](../design/world-numbers.md) and [world survival](../design/world-survival.md) (agriculture, wildlife).
+**Status:** research note, not a decision. Nothing here is Decided, Implemented or Validated. It feeds [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md) and [0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md) (decision 5: the simulation must cover flora, fauna and resources) and sits beside [world numbers](../design/world-numbers.md) and [world survival](../design/world-survival.md) (agriculture, wildlife).
 
 **Method and limits.** WebFetch was blocked by the network proxy (daac.ornl.gov returned EGRESS_BLOCKED; other hosts were not tried after that). Every number tagged "search" comes from WebSearch result summaries, not from reading the source page. "derived" means our own arithmetic on cited inputs. "memory" means background knowledge not confirmed in this session; the URL is only a place to check, and the confidence is L. Confidence: H = summary quotes the number and it matches well-known values; M = second-hand or range-valued; L = memory or derived from weak inputs.
 

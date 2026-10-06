@@ -1,6 +1,6 @@
 # Sandbox parameters
 
-The catalogue of everything the player can set before (and, where allowed, during) a run: the session, the world, nations, cultures, pops, households and groups, businesses, corporations, government and politics, the economy, infrastructure, and the outbreak. It also says how the game stays a full game **without an outbreak**: a politics, grand-strategy and Sims-like life simulation on the same world ([0023](../decisions/0023-no-outbreak-game-and-parameter-catalogue.md)).
+The catalogue of everything the player can set before (and, where allowed, during) a run: the session, the world, nations, cultures, pops, households and groups, businesses, corporations, government and politics, the economy, infrastructure, and the outbreak. It also says how the game stays a full game **without an outbreak**: a politics, grand-strategy and Sims-like life simulation on the same world ([0027](../decisions/0027-no-outbreak-game-and-parameter-catalogue.md)).
 
 This doc is the source of truth for **what is configurable and under which rules**. How each system works stays in its own doc: [world simulation](world-simulation.md), [macro layer](macro-layer.md), [inhabitants](inhabitants.md), [infrastructure](infrastructure.md), [threats](threats.md), [content tools](content-tools.md).
 
@@ -45,7 +45,7 @@ With **no outbreak** (zero first cases, Decided in [0018](../decisions/0018-sand
 
 | Needed for a no-outbreak game | Why | Today |
 | --- | --- | --- |
-| **Ordinary life and death:** ageing, ordinary illness, accidents, crime, births, marriage, migration | A world with no outbreak must not be static, nor empty out | Body, illness and wounds exist; births and ageing are not modelled yet (Decided as part of the simulation, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model in §7.4) |
+| **Ordinary life and death:** ageing, ordinary illness, accidents, crime, births, marriage, migration | A world with no outbreak must not be static, nor empty out | Body, illness and wounds exist; births and ageing are not modelled yet (Decided as part of the simulation, [0028](../decisions/0028-births-military-mystery-tech-leaders.md); model in §7.4) |
 | **Long time scale:** months and years per real minute at Macro, with Individual dormant | A politics game cannot run at 1 real hour per game day | 1× and 3×/10× only ([vision](../vision.md)); the detail levels exist as a design |
 | **Standing goals:** the world gives pops and actors things to want without a threat | Sims aspirations, company growth, political ambition | Needs and jobs exist; ambitions and org goals do not |
 | **Pressure that is not zombies:** recession, scandal, disaster, shortage, unrest, rivalry | The brake that keeps a sandbox from going flat | Only the outbreak provides pressure today |
@@ -60,8 +60,8 @@ Everything in §4–§11 is written so it works with the outbreak off. The outbr
 | Seed | integer or text | random, shown | Same seed and settings give the same world (determinism, [spec 02](../tier0/specs/02-draw.md)) |
 | Play style | micro → macro, macro → micro, one layer only, spectator | micro → macro | Decided ([0016](../decisions/0016-sandbox-setup-and-layer-flow.md)) |
 | Starting role | civilian, a chair in an office (mayor, minister, CEO, board member), a household head, spectator | civilian | In micro → macro the role limits orders; other styles may take any chair (Decided, [0018](../decisions/0018-sandbox-answers.md)) |
-| Time scale | **Pause**, **slow down** (½×, ¼×), **1:1 real time (the reference)**, 1 hour = 1 day (the usual speed, 24×), 3×, 10×, rest-until-event, and **long steps** (day, week, month, year per second) | start at 1 hour = 1 day (Open, see §15) | Real time is the reference and real Earth data the default for every value; the usual play speed is 1 hour = 1 day ([0028](../decisions/0028-real-time-reference-and-generational-runs.md)). Pause, acceleration and slow-down are Decided ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)); the exact steps and long steps are Proposals. Long steps only at Macro/City, with Individual dormant. Combat forces the usual speed or slower, never faster, and allows pause. Events never wait for the player ([0022](../decisions/0022-macro-layer-intent.md)), so in a future multiplayer game pause needs its own rule |
-| Real-time durations | Every action and process takes its real-life duration in game time (cooking, healing, building, travel, research, pregnancy, growing up) | on, always | Decided as the standard ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)). Only the clock speed changes, never the duration. A "faster processes" multiplier is a sandbox change, tagged |
+| Time scale | **Pause**, **slow down** (½×, ¼×), **1:1 real time (the reference)**, 1 hour = 1 day (the usual speed, 24×), 3×, 10×, rest-until-event, and **long steps** (day, week, month, year per second) | start at 1 hour = 1 day (Open, see §15) | Real time is the reference and real Earth data the default for every value; the usual play speed is 1 hour = 1 day ([0032](../decisions/0032-real-time-reference-and-generational-runs.md)). Pause, acceleration and slow-down are Decided ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md)); the exact steps and long steps are Proposals. Long steps only at Macro/City, with Individual dormant. Combat forces the usual speed or slower, never faster, and allows pause. Events never wait for the player ([0022](../decisions/0022-macro-layer-intent.md)), so in a future multiplayer game pause needs its own rule |
+| Real-time durations | Every action and process takes its real-life duration in game time (cooking, healing, building, travel, research, pregnancy, growing up) | on, always | Decided as the standard ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md)). Only the clock speed changes, never the duration. A "faster processes" multiplier is a sandbox change, tagged |
 | Playable age | Youngest age a pop can be possessed or chosen as a character | 16 (Proposal; sandbox 12–25) | Decided that a minimum exists. Younger pops age as records and can be followed, never played |
 | Auto-pause classes | per event type: ignore, log, toast, pop-up, pop-up and pause | toast/pop-up, no auto-pause | [macro layer](macro-layer.md) §4.2 |
 | Fog | on (what the character believes) or off (truth) | on in micro → macro | Decided |
@@ -108,7 +108,7 @@ A nation is an Actor that owns regions, a budget, offices (each held by a real c
 | **AI priorities** | Weights: protect lives, protect the economy, protect the regime, help neighbours, expand, status quo | What the government picks when you are not watching; same menu as the player |
 | **Politics play** | Elections, coups, revolutions, secession, reform: on or off, and how likely | Sandbox rules; never forced on a date |
 
-### 5.2 Demographic profile (Decided as intent, [0030](../decisions/0030-nation-demographics.md); model Proposal)
+### 5.2 Demographic profile (Decided as intent, [0034](../decisions/0034-nation-demographics.md); model Proposal)
 
 Every nation has its own demographics, as real countries do. The profile is data, `data/setup/nations/<id>.toml`, and it is what the generators and the realism report read, so a country is not one US-shaped town copied.
 
@@ -122,9 +122,9 @@ Every nation has its own demographics, as real countries do. The profile is data
 | Settlement | Urban share |
 | Mortality and fertility | The demography preset it names (`data/setup/demography/`) |
 
-Each table carries its source and year. A profile is **placeholder** (a plausible shape, not data) or **sourced**; the loader refuses "sourced" without a citation on every table. The profile is copied into a world's save when the world is made, like the other presets, so updating it never changes an old save. Next: the town generator draws education, occupation and households from the nation's profile (today it uses one US-like job table), and the realism report ([§13.1](#131-realism-checks-for-long-runs-decided-as-a-use-0028-model-proposal)) compares a run with the same profile's real data.
+Each table carries its source and year. A profile is **placeholder** (a plausible shape, not data) or **sourced**; the loader refuses "sourced" without a citation on every table. The profile is copied into a world's save when the world is made, like the other presets, so updating it never changes an old save. Next: the town generator draws education, occupation and households from the nation's profile (today it uses one US-like job table), and the realism report ([§13.1](#131-realism-checks-for-long-runs-decided-as-a-use-0032-model-proposal)) compares a run with the same profile's real data.
 
-### 5.1 Military power (Decided as intent, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model Proposal)
+### 5.1 Military power (Decided as intent, [0028](../decisions/0028-births-military-mystery-tech-leaders.md); model Proposal)
 
 Military power counts in the simulation whether or not anyone plays combat. Combat gameplay is wanted in some form and at some later time; it will read and write the same records.
 
@@ -190,7 +190,7 @@ Each pop exists once per simulation: no respawn, only birth and death. A saved p
 - **Same for leaders:** a saved president or general can be placed as a candidate for an office; the office's succession rule still decides.
 - A world can never hold two copies of one template; the validator rejects it.
 
-### 7.4 Births, ageing, leaders and researchers (Decided as intent, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model Proposal)
+### 7.4 Births, ageing, leaders and researchers (Decided as intent, [0028](../decisions/0028-births-military-mystery-tech-leaders.md); model Proposal)
 
 Births, ageing and death run in every game, outbreak or not. This is what gives the Stellaris kind of play: you appoint leaders and researchers, they have careers, they age, and they die.
 
@@ -282,7 +282,7 @@ Rules in [world simulation](world-simulation.md) §5 (stock and flow per region,
 | **Networks** | Power, water, roads, rail, radio, phone: starting capacity, backup clocks, maintenance staffing, failure rates |
 | **Environment** | Pollution and its effects, resource stress, climate drift (rate, off by default) |
 
-### 11.1 Technology (Decided as intent, shape tbd, [0024](../decisions/0024-births-military-mystery-tech-leaders.md))
+### 11.1 Technology (Decided as intent, shape tbd, [0028](../decisions/0028-births-military-mystery-tech-leaders.md))
 
 A Stellaris-style tech tree is wanted, and (Decided, 2026-10-06) **a nation's tree reflects the items, establishments, cities and buildings it has in the lower layers (2 and 1)**. It must fit the rest: knowledge is held by people, and quality comes from parts, skill and machinery ([0013](../decisions/0013-production-ladder.md)). Proposal for how:
 
@@ -291,7 +291,7 @@ A Stellaris-style tech tree is wanted, and (Decided, 2026-10-06) **a nation's tr
 
 - **A technology unlocks, it doesn't hand out power:** it adds recipes, building parts, procedures and know-how to what researchers and workers can learn, and lifts ceilings (for example the quality a method can reach). It adds no verb the player has and pops don't.
 - **Research is a Project** at labs and schools, done by researchers (§7.4), paid for in money, staff, power and samples, with a research rate and cost curve as parameters. A fallen government or a blackout stalls it.
-- **Spreads by people and trade:** knowledge moves with books, teachers, trade and espionage; losing the people, the notes or the establishments loses it locally (Decided: lost, not forgotten by drift, [0026](../decisions/0026-pop-continuity-and-capability-loss.md)).
+- **Spreads by people and trade:** knowledge moves with books, teachers, trade and espionage; losing the people, the notes or the establishments loses it locally (Decided: lost, not forgotten by drift, [0030](../decisions/0030-pop-continuity-and-capability-loss.md)).
 - **Parameters:** research speed, cost growth, number of fields, branch breadth, randomness of what is offered (Stellaris offers a few cards), whether the tree is fixed or generated per world, whether other nations' progress is visible. Tree contents, tiers and cadence are *tbd* (§15 open question 3).
 
 ## 12. Outbreak parameters (when enabled)
@@ -305,11 +305,11 @@ The virus editor, cure and origins live in [world simulation](world-simulation.m
 | Virus group | sliders, trait cards, validator bands | realistic default ("necrobiotic syndrome") |
 | Cure | per [0018](../decisions/0018-sandbox-answers.md) and [0021](../decisions/0021-recommended-defaults.md) | per default |
 | Zombie speed, persistence | always slow, body-driven, fast; tiring off | body-driven, no tiring (Decided) |
-| **Late trigger** | Outbreak off at the start, but allowed to begin later at a chosen day or from a chance of a lab accident, a spillover or a smuggled sample | off by default. Decided as an option ([0024](../decisions/0024-births-military-mystery-tech-leaders.md)) |
+| **Late trigger** | Outbreak off at the start, but allowed to begin later at a chosen day or from a chance of a lab accident, a spillover or a smuggled sample | off by default. Decided as an option ([0028](../decisions/0028-births-military-mystery-tech-leaders.md)) |
 | **Mystery** | The outbreak is real, but nobody knows what it is: a normal epidemic or the dead rising | off. Decided as an option |
 | **Outbreak odds** | How likely a late outbreak is over a chosen span: never (the off option), rare, likely, certain on a date | never |
 
-### 12.1 "Epidemic or apocalypse?" (Decided as intent, [0024](../decisions/0024-births-military-mystery-tech-leaders.md); model Proposal)
+### 12.1 "Epidemic or apocalypse?" (Decided as intent, [0028](../decisions/0028-births-military-mystery-tech-leaders.md); model Proposal)
 
 With a late trigger and the mystery option, the world may or may not get an outbreak, and when it does, nobody knows which kind it is. It uses only existing rules:
 
@@ -333,7 +333,7 @@ A scenario only sets numbers or starting state, schedules real events and adds o
 | **Survival** | Survive N days (the existing Tier 0 goal), keep a cordon, reach a cure |
 | **Failure to avoid** | Collapse of state, famine, bankruptcy of the player's company |
 
-### 13.1 Realism checks for long runs (Decided as a use, [0028](../decisions/0028-real-time-reference-and-generational-runs.md); model Proposal)
+### 13.1 Realism checks for long runs (Decided as a use, [0032](../decisions/0032-real-time-reference-and-generational-runs.md); model Proposal)
 
 A no-outbreak run left to run for decades (a few generations) is a test of the whole sim: do the pops behave like real people? The headless runner produces a **realism report** compared with real data for the world's settings, never with a feel:
 
@@ -358,7 +358,7 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 | --- | --- | --- |
 | **Seven days (default)** | on | The warning week, then the outbreak ([vision](../vision.md)) |
 | **Quiet world** | off | Real Earth, watch it run, no goals |
-| **Generations** | off | Long steps over decades; a realism report at the end ([§13.1](#131-realism-checks-for-long-runs-decided-as-a-use-0028-model-proposal)) |
+| **Generations** | off | Long steps over decades; a realism report at the end ([§13.1](#131-realism-checks-for-long-runs-decided-as-a-use-0032-model-proposal)) |
 | **Small town sim** | off | One town, Sims life, local politics and shops |
 | **Nation builder** | off | One generated nation, a government chair, Cities: Skylines meets Stellaris |
 | **Corporate ladder** | off | A company, a market, regulators |
@@ -369,7 +369,7 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 
 ## 15. Questions
 
-### Answered (2026-10-06, [0024](../decisions/0024-births-military-mystery-tech-leaders.md))
+### Answered (2026-10-06, [0028](../decisions/0028-births-military-mystery-tech-leaders.md))
 
 1. **Births:** part of the simulation (§7.4), with leaders and researchers who age and die.
 2. **Military power:** counts in the simulation regardless of combat gameplay; combat gameplay to exist in some form later (§5.1).
@@ -378,7 +378,7 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 5. **Everything makes sense in the simulation:** the whole catalogue obeys the one contract; the hard part is levels of detail and pop levels (below).
 6. **Player in a corporation or any office:** yes; officeholders are selectable in higher layers and playable in Layer 1 (§7.4).
 
-### Answered (2026-10-06, second round, [0025](../decisions/0025-leader-records-foxhole-tech-readout.md))
+### Answered (2026-10-06, second round, [0029](../decisions/0029-leader-records-foxhole-tech-readout.md))
 
 - **Officeholders always stay records:** yes.
 - **War:** study Foxhole for its concept and gameplay ([research](../research/foxhole.md)).
@@ -387,7 +387,7 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 - **Pop presets:** a template made once per world, plus an optional import (§7.3). Awaiting confirmation.
 - **First slice:** as recommended; macro → micro play style unchanged.
 
-### Answered (2026-10-06, third round, [0026](../decisions/0026-pop-continuity-and-capability-loss.md))
+### Answered (2026-10-06, third round, [0030](../decisions/0030-pop-continuity-and-capability-loss.md))
 
 - **Pop templates** (§7.3) and **hidden mystery with reveal** (§12.1): Decided.
 - **A pop is the same at every layer:** Decided; model in [pop continuity](pop-continuity.md).
@@ -397,10 +397,10 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 ### Open
 
 1. **Pop continuity spec and benchmark** ([pop continuity](pop-continuity.md) §7): record budget, long time steps, layoff selection rules.
-2. **Restoring a lost capability:** Decided ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): nearly impossible, never done by the AI on its own, a human goal or late-game play needing trade and cooperation. Open: the exact cost model (what "nearly" means in parts, people, time and partners).
+2. **Restoring a lost capability:** Decided ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md)): nearly impossible, never done by the AI on its own, a human goal or late-game play needing trade and cooperation. Open: the exact cost model (what "nearly" means in parts, people, time and partners).
 3. **War scale and look:** after the Foxhole research.
 4. **Tech tree contents:** which capabilities and how many tiers.
-5. **Starting speed of a new game:** Decided: 1 hour = 1 day, 1:1 one key away ([0029](../decisions/0029-restoring-cost-and-two-way-projects.md)).
+5. **Starting speed of a new game:** Decided: 1 hour = 1 day, 1:1 one key away ([0033](../decisions/0033-restoring-cost-and-two-way-projects.md)).
 
 ## 16. Order of work (dependencies only)
 

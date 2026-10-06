@@ -1,7 +1,7 @@
-# 0026 · One pop at every layer, pop templates, hidden mystery, capability loss both ways
+# 0030 · One pop at every layer, pop templates, hidden mystery, capability loss both ways
 
 - **Date:** 2026-10-06
-- **Status:** Decided by the user (answers to [0025](0025-leader-records-foxhole-tech-readout.md)). Models are Proposals in [sandbox parameters](../design/sandbox-parameters.md) and [pop continuity](../design/pop-continuity.md).
+- **Status:** Decided by the user (answers to [0029](0029-leader-records-foxhole-tech-readout.md)). Models are Proposals in [sandbox parameters](../design/sandbox-parameters.md) and [pop continuity](../design/pop-continuity.md).
 
 ## Decisions
 

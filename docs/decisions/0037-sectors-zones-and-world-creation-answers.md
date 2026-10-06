@@ -1,8 +1,8 @@
-# 0033 · Sectors and zones; answers on forced labour, province count, map realism, uneven development, map editing
+# 0037 · Sectors and zones; answers on forced labour, province count, map realism, uneven development, map editing
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (answers to the open questions of [world systems](../design/world-systems.md), now section 9). Models are Proposals.
-- **Extends:** [0032](0032-worlds-start-with-nations-and-everything-follows-logic.md), [0016](0016-sandbox-setup-and-layer-flow.md).
+- **Extends:** [0036](0036-worlds-start-with-nations-and-everything-follows-logic.md), [0016](0016-sandbox-setup-and-layer-flow.md).
 
 ## Decisions
 

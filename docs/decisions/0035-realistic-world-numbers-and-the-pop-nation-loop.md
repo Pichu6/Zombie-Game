@@ -1,8 +1,8 @@
-# 0031 · Realistic numbers for worlds, and the loop between pops and nations
+# 0035 · Realistic numbers for worlds, and the loop between pops and nations
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (intent below, from their message in chat). The laws and numbers are Proposals until researched and confirmed: see [world numbers](../design/world-numbers.md) once written.
-- **Extends:** [0016](0016-sandbox-setup-and-layer-flow.md) (generated worlds), [0028](0028-real-time-reference-and-generational-runs.md), [0030](0030-nation-demographics.md).
+- **Extends:** [0016](0016-sandbox-setup-and-layer-flow.md) (generated worlds), [0032](0032-real-time-reference-and-generational-runs.md), [0034](0034-nation-demographics.md).
 
 ## Decisions
 

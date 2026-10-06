@@ -1,8 +1,8 @@
-# 0030 · A country has its own demographics
+# 0034 · A country has its own demographics
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (intent below, from their message in chat). The profile format and its use are Proposals in [sandbox parameters](../design/sandbox-parameters.md) section 5.2 and [spec 28](../tier0/specs/28-pop-levels.md).
-- **Extends:** [0023](0023-no-outbreak-game-and-parameter-catalogue.md), [0028](0028-real-time-reference-and-generational-runs.md) (real Earth data is the default for everything).
+- **Extends:** [0027](0027-no-outbreak-game-and-parameter-catalogue.md), [0032](0032-real-time-reference-and-generational-runs.md) (real Earth data is the default for everything).
 
 ## Decisions
 

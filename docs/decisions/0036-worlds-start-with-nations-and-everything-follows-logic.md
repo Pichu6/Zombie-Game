@@ -1,8 +1,8 @@
-# 0032 · Worlds start with nations in place; everything placed follows logic; factions hold territory
+# 0036 · Worlds start with nations in place; everything placed follows logic; factions hold territory
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (intent below, from their message in chat). The generation pipeline and models are Proposals in [world systems](../design/world-systems.md).
-- **Extends:** [0018](0018-sandbox-answers.md) (the world is complete at the start), [0031](0031-realistic-world-numbers-and-the-pop-nation-loop.md), [0022](0022-macro-layer-intent.md).
+- **Extends:** [0018](0018-sandbox-answers.md) (the world is complete at the start), [0035](0035-realistic-world-numbers-and-the-pop-nation-loop.md), [0022](0022-macro-layer-intent.md).
 
 ## Decisions
 

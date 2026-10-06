@@ -1,7 +1,7 @@
-# 0025 · Leaders stay records, Foxhole as war reference, tech as a readout of the world
+# 0029 · Leaders stay records, Foxhole as war reference, tech as a readout of the world
 
 - **Date:** 2026-10-06
-- **Status:** Decided by the user (answers to the open questions of [0024](0024-births-military-mystery-tech-leaders.md)). Models are Proposals in [sandbox parameters](../design/sandbox-parameters.md).
+- **Status:** Decided by the user (answers to the open questions of [0028](0028-births-military-mystery-tech-leaders.md)). Models are Proposals in [sandbox parameters](../design/sandbox-parameters.md).
 
 ## Decisions
 

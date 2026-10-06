@@ -3,7 +3,7 @@
 **research note, not a decision**
 
 - **Date:** 2026-10-06
-- **Serves:** [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md) (realistic numbers, pop/nation loop) and [world-simulation section 12](../design/world-simulation.md) (generator writes world fields: elevation, rivers, climate, soil, population).
+- **Serves:** [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md) (realistic numbers, pop/nation loop) and [world-simulation section 12](../design/world-simulation.md) (generator writes world fields: elevation, rivers, climate, soil, population).
 - **Status of everything below:** Proposal / research. Nothing is Decided, Implemented or Validated.
 - **Method and limits:** WebFetch was blocked by the network egress proxy (tested on acris.aalto.fi and en.wikipedia.org). **Every number below comes from WebSearch result summaries, not from reading the papers.** Where a figure is quoted from memory of the literature and the search did not return it, it is marked "memory, not confirmed" and its confidence is Low. Sandbox bands and "design" values in the equations are our own proposals, not sourced.
 
@@ -79,7 +79,7 @@ Confidence: High = several consistent summaries or a primary statistical agency;
 | Quantity | Value or range | Unit | Source URL | Confidence |
 | --- | --- | --- | --- | --- |
 | Roman sea transport | 0.00067 | denarii per kg wheat per km | https://www.ancientportsantiques.com/wp-content/uploads/Documents/ETUDESarchivees/MedNavigationRoutes/ORBISprices-Scheidel2013.pdf | Medium |
-| Roman river, downstream / upstream | 0.0034 / 0.0068 | denarii per kg per km | same | Medium |
+| Roman river, downstream / upstream | 0.0038 / 0.0068 | denarii per kg per km | same | Medium |
 | Roman wagon on road | 0.035 | denarii per kg per km | same | Medium |
 | Derived ratios (Roman) | wagon about 52x sea, about 10x river down, about 5x river up; Roma to Tarraco route example: 46x dearer by road than sea | ratio | same, and https://legacy.geog.ucsb.edu/interactive-map-shows-how-roman-empire-was-shaped-by-economic-constraints/ | Medium (derived) |
 | Walking speed on flat terrain (Tobler) | 5 km/h; max 6 km/h at about -2.86 degrees; off-path multiply by 3/5; horseback by 5/4 | km/h | https://en.wikipedia.org/wiki/Tobler%27s_hiking_function | High |
@@ -109,7 +109,7 @@ with `f_water = exp(-d_water / 2 km)`, `f_coast = exp(-d_coast / 100 km)`, `f_ri
 
 **E2. Carrying capacity and density**
 
-`K(c) = A_cell * k_biome * soil * tech(era)`; `density(c) = K(c) * g(t)` where g(t) is the pop-growth state of 0030. Population is the integral of density over the cell. Calibrate so that the global share on the top 1% of land is about 50% (target, from the table) and the share within 100 km of coast about 40%. Realistic band: calibrate to those two targets. Sandbox: coast share 5 to 90%. Per-biome k_biome values: not found (see Unverified).
+`K(c) = A_cell * k_biome * soil * tech(era)`; `density(c) = K(c) * g(t)` where g(t) is the pop-growth state of 0034. Population is the integral of density over the cell. Calibrate so that the global share on the top 1% of land is about 50% (target, from the table) and the share within 100 km of coast about 40%. Realistic band: calibrate to those two targets. Sandbox: coast share 5 to 90%. Per-biome k_biome values: not found (see Unverified).
 
 **E3. Settlement sizes (rank-size with a regional exponent)**
 

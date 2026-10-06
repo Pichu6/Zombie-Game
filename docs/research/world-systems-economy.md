@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-06 · **Status:** research note, not a decision.
 
-Serves [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md), [0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md) and [world numbers](../design/world-numbers.md). Question: how does a real economy work in numbers, at a level we can simulate per province and nation?
+Serves [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md), [0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md) and [world numbers](../design/world-numbers.md). Question: how does a real economy work in numbers, at a level we can simulate per province and nation?
 
 **Evidence caveat.** WebFetch was blocked by the network egress proxy (ourworldindata.org, rug.nl, bls.gov all returned EGRESS_BLOCKED). Every number below comes from WebSearch result summaries, not from reading the source page. Confidence is therefore medium at best. "Low" marks numbers from trade or vendor sites, or numbers a summary gave without its table. Where a source URL is a data portal, the number is the one the summary quoted.
 

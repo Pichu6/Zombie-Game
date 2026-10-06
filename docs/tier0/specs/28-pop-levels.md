@@ -1,6 +1,6 @@
 # 28 · Pop identity and levels
 
-**Status:** Proposal. **Stage:** not Tier 0. The benchmark (below) can run headless on the Tier 0 core, so it is the first step of the post-Tier 0 work. **Needs:** [02](02-draw.md), [03](03-stock-transfer.md), [06](06-save-replay.md), [22](22-census.md), [27](27-detail-levels.md). Design: [pop continuity](../../design/pop-continuity.md). Research: [sim scale in other games](../../research/sim-scale-in-other-games.md). Decided intent: [0025](../../decisions/0025-leader-records-foxhole-tech-readout.md), [0026](../../decisions/0026-pop-continuity-and-capability-loss.md).
+**Status:** Proposal. **Stage:** not Tier 0. The benchmark (below) can run headless on the Tier 0 core, so it is the first step of the post-Tier 0 work. **Needs:** [02](02-draw.md), [03](03-stock-transfer.md), [06](06-save-replay.md), [22](22-census.md), [27](27-detail-levels.md). Design: [pop continuity](../../design/pop-continuity.md). Research: [sim scale in other games](../../research/sim-scale-in-other-games.md). Decided intent: [0029](../../decisions/0029-leader-records-foxhole-tech-readout.md), [0030](../../decisions/0030-pop-continuity-and-capability-loss.md).
 
 ## Purpose
 
@@ -37,7 +37,7 @@ Record size is an **estimate**: a few hundred bytes to 1 KB. Not found in any ot
    | Record | holds an office or is a candidate for one; is followed, met or possessed by the player; is hired, bitten, treated, taught or otherwise touched by an interaction with a record or embodied pop; is a researcher or a leader of a group the player can see; a scenario or story ties them |
    | Embodied | within sense range of a player-controlled body, plus one ring ([27](27-detail-levels.md)) |
 
-3. **Demotion.** Embodied → record when the chunk cools. Record → lazy only if the pop holds no office, is not followed, and their state equals `derive` **or** the difference is saved as a short exceptions list (what they did that the seed could not say). Nothing the pop did is lost. An officeholder or followed pop is never lazy (Decided, [0025](../../decisions/0025-leader-records-foxhole-tech-readout.md)).
+3. **Demotion.** Embodied → record when the chunk cools. Record → lazy only if the pop holds no office, is not followed, and their state equals `derive` **or** the difference is saved as a short exceptions list (what they did that the seed could not say). Nothing the pop did is lost. An officeholder or followed pop is never lazy (Decided, [0029](../../decisions/0029-leader-records-foxhole-tech-readout.md)).
 4. **Counts are sums, never stored apart.** A region's counts by age, job, wealth, health and loyalty are the sum over its cohorts: lazy pops via cohort counts, records via their own state, minus those promoted. Macro never keeps a second number.
 5. **Aggregate events pick members by rank** (technique 2). The count is drawn once and recorded with the event; any pop asked later answers from its rank. Events are logged with a reason id ([macro layer](../../design/macro-layer.md) §5).
 6. **Jumps.** Life events (age, births, marriage, illness, job moves, death) have a jump form ([27](27-detail-levels.md) rule 2): `advance(pop, from, to)` applies the same rates in one step. A rule that cannot jump (a fight, a push on a door) only runs embodied.
@@ -146,7 +146,7 @@ The registry's founders can carry attributes from the human generator instead of
 
 ## Nation demographics (2026-10-06)
 
-Code: `engine/sim/include/zs/demographics.h`, `src/demographics.cpp`, `data/setup/nations/placeholder.toml`, `tests/test_demographics.cpp`; decision [0030](../../decisions/0030-nation-demographics.md); design in [sandbox parameters](../../design/sandbox-parameters.md) section 5.2. Implemented, not Validated.
+Code: `engine/sim/include/zs/demographics.h`, `src/demographics.cpp`, `data/setup/nations/placeholder.toml`, `tests/test_demographics.cpp`; decision [0034](../../decisions/0034-nation-demographics.md); design in [sandbox parameters](../../design/sandbox-parameters.md) section 5.2. Implemented, not Validated.
 
 - **The profile** (age pyramid, education by age group, labour, occupations, sectors, households, urban share, each with a source and year) loads with strict checks: unknown keys, a missing table, the wrong count, a negative share, shares that do not add up (within 1%, then normalised), a rate outside 0..1, or **"sourced" without a citation on every table** are refused with a plain message. The only profile is `placeholder.toml`, which says on every table that it is "shape only, not data".
 - **Founders follow the nation's age pyramid.** `PopParams` gained an `age_pyramid` (20 five-year bands); when set, founders drawn by rule take their age from it (a band by its share, then a point inside it) instead of the placeholder uniform 18–64 that gave the benchmark its artificial population shape. Test (A2): 40,000 founders match the pyramid band by band, and a young nation and an old one differ by more than 15 years of mean age. A founder a town generator gave an age keeps it.

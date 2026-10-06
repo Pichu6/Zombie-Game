@@ -1,4 +1,4 @@
-# 0023 · The game must run without an outbreak; one parameter catalogue
+# 0027 · The game must run without an outbreak; one parameter catalogue
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (intent below, from their message in chat). The catalogue in [sandbox parameters](../design/sandbox-parameters.md) is a Proposal.

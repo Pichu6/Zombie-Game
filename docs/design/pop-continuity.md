@@ -1,6 +1,6 @@
 # One pop at every layer
 
-A pop is the same person whether you see a count in Macro, a marker in City or a body in Individual. This doc says how, and how loss and gain travel between layers. It extends [world simulation](world-simulation.md) §3 and §8, [27 · detail levels](../tier0/specs/27-detail-levels.md) (places) and [inhabitants](inhabitants.md). Decided intent: [0025](../decisions/0025-leader-records-foxhole-tech-readout.md), [0026](../decisions/0026-pop-continuity-and-capability-loss.md). The model is a **Proposal**; none of it is built. Needed before any nation or office code ([sandbox parameters](sandbox-parameters.md) §5, §7).
+A pop is the same person whether you see a count in Macro, a marker in City or a body in Individual. This doc says how, and how loss and gain travel between layers. It extends [world simulation](world-simulation.md) §3 and §8, [27 · detail levels](../tier0/specs/27-detail-levels.md) (places) and [inhabitants](inhabitants.md). Decided intent: [0029](../decisions/0029-leader-records-foxhole-tech-readout.md), [0030](../decisions/0030-pop-continuity-and-capability-loss.md). The model is a **Proposal**; none of it is built. Needed before any nation or office code ([sandbox parameters](sandbox-parameters.md) §5, §7).
 
 Spec: [28 · Pop identity and levels](../tier0/specs/28-pop-levels.md) (the technique, rules, tests and the benchmark plan).
 
@@ -44,7 +44,7 @@ Macro counts are never a separate stored number. A region's counts (by age, job,
 
 Every change carries its reason, as already planned for the ledger ([macro layer](macro-layer.md) §5), so the inspector can answer "why".
 
-**Lost capabilities.** A capability is lost when the establishments, parts or people that make it are gone, never by a timer. Knowledge held by living people can be lost with them (and with their notes), not "forgotten" by drift (Decided, [0026](../decisions/0026-pop-continuity-and-capability-loss.md)). A lost capability **can** be restored but only with great effort (Decided, [0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): the AI never chooses it on its own; it is a human goal or late-game play that needs trade, cooperation and real time. The cost is made of resources, pops and time, for real reasons ([0029](../decisions/0029-restoring-cost-and-two-way-projects.md)); the model is in §5.1.
+**Lost capabilities.** A capability is lost when the establishments, parts or people that make it are gone, never by a timer. Knowledge held by living people can be lost with them (and with their notes), not "forgotten" by drift (Decided, [0030](../decisions/0030-pop-continuity-and-capability-loss.md)). A lost capability **can** be restored but only with great effort (Decided, [0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md)): the AI never chooses it on its own; it is a human goal or late-game play that needs trade, cooperation and real time. The cost is made of resources, pops and time, for real reasons ([0033](../decisions/0033-restoring-cost-and-two-way-projects.md)); the model is in §5.1.
 
 ### 5.1 Restoring a capability: a project, from either end (Decided as intent, model Proposal)
 
@@ -54,7 +54,7 @@ A restoration is a **Project** ([world simulation](world-simulation.md) §7), th
 | --- | --- |
 | **Resources** | Parts, materials, tools, machinery, energy and money that exist in the ledger and move to the site; if a part is no longer made anywhere, making it is itself a project (the production ladder, [0013](../decisions/0013-production-ladder.md)) or it must be imported through trade |
 | **Pops** | Specific people with the know-how (found, hired, trained, or brought by partners), for the hours the work needs; people who hold the knowledge may be few, old or dead (Decided: knowledge is lost with people and notes) |
-| **Time** | Real durations ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)): months to years for a plant, a school year for a cohort of trainees; it cannot be skipped by money alone |
+| **Time** | Real durations ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md)): months to years for a plant, a school year for a cohort of trainees; it cannot be skipped by money alone |
 | **Partners** | Other nations, companies or groups for parts, trade, training and security; the more that is missing, the more partners it takes |
 | **Upkeep** | The restored thing needs staff, power and inputs to stay restored, or the capability is lost again |
 
@@ -83,4 +83,4 @@ Generated cohorts never change (their aggregate events use the permutation rank)
 1. **Budget:** how many records the sim can hold and update on a normal PC, and how a Macro run at "years per second" drives lazy jumps. Needs a benchmark. Other games' evidence and a first estimated budget (50–300 embodied, 10,000–100,000 records, lazy unbounded) are in [research/sim-scale-in-other-games.md](../research/sim-scale-in-other-games.md); the figures are estimates and must be measured with `zs_headless --bench`.
 2. **Selection rules for layoffs and similar aggregate events** per system (seniority, skill, random draw): each system's spec states its ranking.
 3. **Numbers for the restoring cost** (§5.1): per capability, which parts, which skills, how many person-hours, which partners. Each comes from its own spec.
-4. **Age gate:** a pop younger than the playable age is a record the player can follow but not possess ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md)).
+4. **Age gate:** a pop younger than the playable age is a record the player can follow but not possess ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md)).

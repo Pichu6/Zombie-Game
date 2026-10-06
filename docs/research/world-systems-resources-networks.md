@@ -1,6 +1,6 @@
 # World systems: where resources are, and how grids and networks are laid out
 
-**Research note, not a decision.** Date: 2026-10-06. Feeds [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md), [0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md), [world numbers](../design/world-numbers.md) and [infrastructure](../design/infrastructure.md). Nothing here is Decided, Implemented or Validated.
+**Research note, not a decision.** Date: 2026-10-06. Feeds [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md), [0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md), [world numbers](../design/world-numbers.md) and [infrastructure](../design/infrastructure.md). Nothing here is Decided, Implemented or Validated.
 
 **Evidence caveat.** WebFetch was blocked by the network egress proxy (tested on pubs.usgs.gov: `EGRESS_BLOCKED`). **Every number below comes from WebSearch result summaries, not from reading the source page.** Confidence is therefore medium at best; the "confidence" column says how much a summary can be trusted (high = a well-known figure that several summaries agree on; medium = one summary of a credible source; low = a secondary or blog source, or a range from a vendor). Rows with a source marked "design" are not sourced and exist to be calibrated.
 
@@ -142,7 +142,7 @@ where `tonnes_ore = tonnes_metal * 100 / grade%`. Use the table values as recipe
 - Water and sanitation coverage feed pop health and mortality ([demography note](world-numbers-demography.md)).
 - Roads, rail and ports cut transport cost, which raises the share of land that can feed and supply cities (carrying capacity, [capacity note](world-numbers-capacity.md)).
 - Raising the price or lowering the cutoff grade turns resources into reserves (Lasky), so wealth and technology widen a nation's resource base over time.
-- Border placement can cut a grid, a river or a pipeline; a deposit or smelter on a border is a reason for conflict (factions, [0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md)).
+- Border placement can cut a grid, a river or a pipeline; a deposit or smelter on a border is a reason for conflict (factions, [0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md)).
 - Every placed thing keeps its `reason` string, so a player can ask "why is the smelter here" and get the rule that fired.
 
 ## 4. Unverified / not found

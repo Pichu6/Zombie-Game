@@ -2,9 +2,9 @@
 
 How big a world is, how many people it can hold, where they live, how nations arise, how pops are divided inside them, and how pops and nations shape each other. This is the quantitative core of generated worlds and of the Macro and City layers: the loop you feel in upkeeping a city in Cities: Skylines or running an empire in Stellaris, written down as laws with realistic numbers.
 
-Intent **Decided** ([0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md)): realistic numbers matter more than Earth 1:1; the pops-and-nation loop is the point; numbers come from real sources, never invented and presented as real. Everything below is a **Proposal** until tuned and confirmed. Source of every number and equation: the four research notes, [capacity](../research/world-numbers-capacity.md), [settlement](../research/world-numbers-settlement.md), [nations](../research/world-numbers-nations.md), [demography](../research/world-numbers-demography.md). **Evidence caveat:** the research could not open the source sites, so every cited number comes from search summaries (confidence medium at best) and several are marked low; parameters marked *design* have no source and exist to be calibrated. Nothing here is Implemented or Validated.
+Intent **Decided** ([0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md)): realistic numbers matter more than Earth 1:1; the pops-and-nation loop is the point; numbers come from real sources, never invented and presented as real. Everything below is a **Proposal** until tuned and confirmed. Source of every number and equation: the four research notes, [capacity](../research/world-numbers-capacity.md), [settlement](../research/world-numbers-settlement.md), [nations](../research/world-numbers-nations.md), [demography](../research/world-numbers-demography.md). **Evidence caveat:** the research could not open the source sites, so every cited number comes from search summaries (confidence medium at best) and several are marked low; parameters marked *design* have no source and exist to be calibrated. Nothing here is Implemented or Validated.
 
-The map of every system, the order a starting world is built in, and how factions hold territory: [world systems](world-systems.md) ([0032](../decisions/0032-worlds-start-with-nations-and-everything-follows-logic.md)).
+The map of every system, the order a starting world is built in, and how factions hold territory: [world systems](world-systems.md) ([0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md)).
 
 Related design: [world simulation](world-simulation.md) §3–5 and §12 (generated worlds, settlements), [macro layer](macro-layer.md), [sandbox parameters](sandbox-parameters.md) §4–5, [pop continuity](pop-continuity.md), [spec 28](../tier0/specs/28-pop-levels.md).
 
@@ -25,7 +25,7 @@ Rules that keep it honest (the simulation contract, [world simulation](world-sim
 
 1. **A nation never has a stat that is not a head count of someone.** Revenue, soldiers and officials are drawn from pops (workers, taxpayers, literate recruits) and leave the labour pool when taken, so power costs output.
 2. **Everything is a rate with a realistic band and a flagged sandbox band** (validator, [sandbox parameters](sandbox-parameters.md) §1.4). A generated world draws its exponents once, shows them, and saves them with the world.
-3. **Era is not a clock; it is a readout of what exists.** Where the research uses an "era" (yield, tax ceiling, transport cost), the simulation reads it from the capabilities the nation actually has in Layers 2 and 1 (fertiliser plants, roads, schools, a tax office), per [0025](../decisions/0025-leader-records-foxhole-tech-readout.md) and [0026](../decisions/0026-pop-continuity-and-capability-loss.md). A lost plant lowers yield; a restored one raises it.
+3. **Era is not a clock; it is a readout of what exists.** Where the research uses an "era" (yield, tax ceiling, transport cost), the simulation reads it from the capabilities the nation actually has in Layers 2 and 1 (fertiliser plants, roads, schools, a tax office), per [0029](../decisions/0029-leader-records-foxhole-tech-readout.md) and [0030](../decisions/0030-pop-continuity-and-capability-loss.md). A lost plant lowers yield; a restored one raises it.
 4. **The world is complete at the start** ([0018](../decisions/0018-sandbox-answers.md)): the laws below *generate* a plausible present (nations, cities, populations) and then keep running live (towns grow or fall, nations split or collapse). No history is simulated before play.
 
 ## 2. From land to population
@@ -33,7 +33,7 @@ Rules that keep it honest (the simulation contract, [world simulation](world-sim
 ### 2.1 The world
 
 - **Area scales as R²; nothing else follows from radius** (no general law was found for land fraction, ice, desert or arable share). So land fraction, biome shares and relief are generator outputs or sliders; Earth is the reference: land 148.9 million km² (29.1% of the surface), 71% of land habitable (104 million km²), 44% of that farmed. Realistic band for a habitable world: radius 0.7–1.5 R⊕, land fraction 0.15–0.45, habitable share of land 0.5–0.85; sandbox wider.
-- Biome shares and the 0030 world fields (elevation, rain, rivers) come from the generator ([world simulation](world-simulation.md) §12); this doc reads them.
+- Biome shares and the 0034 world fields (elevation, rain, rivers) come from the generator ([world simulation](world-simulation.md) §12); this doc reads them.
 
 ### 2.2 Carrying capacity K (capacity note, E1–E10)
 
@@ -67,7 +67,7 @@ The result is the "pops gather where conditions are best, towns and roads follow
 
 ## 3. How the people of a nation are divided
 
-From the demography note. Pops follow the nation's income `y` and level of development; this is what [0030](../decisions/0030-nation-demographics.md) profiles hold, now with laws for how a profile moves over time.
+From the demography note. Pops follow the nation's income `y` and level of development; this is what [0034](../decisions/0034-nation-demographics.md) profiles hold, now with laws for how a profile moves over time.
 
 | Division | Law | Anchors |
 | --- | --- | --- |
@@ -144,7 +144,7 @@ Slow, aggregate and deterministic ([world simulation](world-simulation.md) §2):
 | Exists | New |
 | --- | --- |
 | Pop identity, lazy / record / embodied levels, births and the demography jump, rosters, region-wide events ([spec 28](../tier0/specs/28-pop-levels.md)) | World fields and K per region |
-| `NationDemographics` profile and loader ([0030](../decisions/0030-nation-demographics.md)) | The settlement generator (suitability, ζ, roads) |
+| `NationDemographics` profile and loader ([0034](../decisions/0034-nation-demographics.md)) | The settlement generator (suitability, ζ, roads) |
 | Name and town generators, bridged to the registry ([content tools](content-tools.md) §8) | The nation actor: revenue, army, officials, stability, reach |
 | Placeholder mortality and fertility as data in the save | Laws that move a profile over time (transition, structure, education) |
 | Region events, commands with reasons | Generation of nations and their borders; split and collapse rules |
@@ -167,7 +167,7 @@ The model earns trust by hitting real targets, not by feel. A **realism report**
 2. **How deep the generated past goes.** [0018](../decisions/0018-sandbox-answers.md) says no history before play; [world simulation](world-simulation.md) §12 proposes a short four-era pass for district styles. Recommendation: generate nations and cities from the laws directly, with the short era pass only for build styles, and show the drawn exponents.
 3. **Real tables.** The sourced numbers above are few and second-hand. Do you want the data tool (§10) and a first real country (or the global tables) once the network allows, run on your machine or in CI?
 4. **Fathers, marriage and households** are not yet in the pop model; household formation interacts with fertility and wealth transmission. Recommendation: after the nation actor.
-5. **War between nations** and Foxhole-style logistics stay secondary for now ([0027](../decisions/0027-restoring-capabilities-real-time-playable-age.md) and the war research note), but the army law above already prices it in pops, wages and revenue.
+5. **War between nations** and Foxhole-style logistics stay secondary for now ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md) and the war research note), but the army law above already prices it in pops, wages and revenue.
 
 ## 12. Order of work (dependencies only)
 

@@ -1,7 +1,7 @@
 # World numbers for nations: how they arise, how big they are, what they can do
 
 **Date:** 2026-10-06
-**Status:** research note, not a decision. Feeds the "world numbers" design doc that [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md) asks for. Nothing here is Decided, Implemented or Validated.
+**Status:** research note, not a decision. Feeds the "world numbers" design doc that [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md) asks for. Nothing here is Decided, Implemented or Validated.
 
 **Method and limits.** WebFetch was blocked by the network proxy for every domain tried (en.wikipedia.org, pnas.org, ourworldindata.org, arxiv.org), so no source page was read in full. **Every number below comes from WebSearch result summaries**, each tied to the URL the search returned. Where a summary quoted a secondary source (a blog, a forum, an aggregator), confidence is marked low and the primary source is named so it can be checked. Equations in section 2 are **our own proposals** built on these anchors; none is copied from a paper unless said so.
 

@@ -1,7 +1,7 @@
 # World numbers: how many people can a world hold?
 
 **Date:** 2026-10-06
-**Status:** research note, not a decision. Nothing here is Decided, Implemented or Validated. It feeds [0031](../decisions/0031-realistic-world-numbers-and-the-pop-nation-loop.md) and [world-simulation section 12](../design/world-simulation.md).
+**Status:** research note, not a decision. Nothing here is Decided, Implemented or Validated. It feeds [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md) and [world-simulation section 12](../design/world-simulation.md).
 
 **Method and limits.** WebFetch was blocked by the network proxy (ourworldindata.org, wikipedia.org, usgs.gov all returned EGRESS_BLOCKED). Every number tagged "search" below comes from WebSearch result summaries, not from reading the source page. Numbers tagged "derived" are our own arithmetic on cited inputs. Numbers tagged "memory" are from the author's background knowledge, were not confirmed in this session, and carry a URL only as a place to check; treat them as low confidence until someone opens the source. Confidence: H = summary quotes the number and it matches well-known values; M = quoted in a summary but second-hand or range-valued; L = memory or derived from weak inputs.
 

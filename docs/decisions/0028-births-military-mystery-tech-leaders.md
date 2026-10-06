@@ -1,8 +1,8 @@
-# 0024 · Births, military power, mystery outbreak, tech tree, leaders you can play
+# 0028 · Births, military power, mystery outbreak, tech tree, leaders you can play
 
 - **Date:** 2026-10-06
 - **Status:** Decided by the user (intent below, answering the six questions of [sandbox parameters](../design/sandbox-parameters.md)). Models in that doc are Proposals.
-- **Extends:** [0023](0023-no-outbreak-game-and-parameter-catalogue.md). Refines "finite world, no respawn" ([0005](0005-finite-world-parity.md)): births are real events, not respawns.
+- **Extends:** [0027](0027-no-outbreak-game-and-parameter-catalogue.md). Refines "finite world, no respawn" ([0005](0005-finite-world-parity.md)): births are real events, not respawns.
 
 ## Decisions
 

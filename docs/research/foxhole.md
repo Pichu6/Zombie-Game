@@ -4,7 +4,7 @@
 
 ## Why it is relevant
 
-The user named Foxhole as a game to study for gameplay and concept of war ([0025](../decisions/0025-leader-records-foxhole-tech-readout.md)). Our wish is military power that counts in the simulation, with combat gameplay later ([sandbox parameters](../design/sandbox-parameters.md) §5.1).
+The user named Foxhole as a game to study for gameplay and concept of war ([0029](../decisions/0029-leader-records-foxhole-tech-readout.md)). Our wish is military power that counts in the simulation, with combat gameplay later ([sandbox parameters](../design/sandbox-parameters.md) §5.1).
 
 ## What it is (general knowledge)
 
