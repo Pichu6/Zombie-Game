@@ -49,6 +49,8 @@ A person, a car and a door are real size ([world simulation](world-simulation.md
 
 **Hiding the last jump, from the city into one home:** the dive itself is the cover. While the camera descends, the building's layout is generated (trick T3) and its pops are made records, so nothing waits on the player; the roof and upper floors fade out as the camera passes the roofline; the symbol dots turn into bodies by cross-fade. Taking a body far from the camera uses the GTA-style switch instead ([world simulation](world-simulation.md) §8).
 
+**Prior art for the cost side:** [low-resource city simulation](../research/low-resource-city-simulation.md). Short version: ASCII City draws a city with a cost bounded by the screen (a raycaster over a height-map grid), it does not simulate one; for real populations, the rules that matter are a drawing budget set by the screen, a pure "where is this pop at time t" function for the dots, and no per-tick rule that scans every entity.
+
 **The map itself is real size** (a 70 km world cell is 70 km). It is never shrunk to fit the screen; the player gets around by zooming and by fast travel with time passing, not by a smaller planet.
 
 ## 4. What this asks of the generator (the part we are building now)
