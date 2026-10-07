@@ -26,6 +26,8 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 **Layer jumps** ([0039](decisions/0039-fill-the-layer-jumps.md), Decided intent; [audit](design/layer-jumps.md), Proposal): 22 domains audited for how Macro, City and Individual connect; biggest gap: a registry pop has no embodied level yet (no link to the body simulation).
 
+**Pop lore and custom pops** ([0040](decisions/0040-pop-lore-custom-pops-and-player-slots.md), Decided intent; [design](design/pop-lore-and-custom-pops.md), Proposal): a pop's background shapes the world around it without contradicting committed state; authored pops enter at the start or as recruits; a pop can be a player slot.
+
 **Decisions** run up to [0038](decisions/0038-grid-sector-zone-sizes-accepted.md) (0023, 0025, 0026 are engine architecture, the sandbox engine as first game, and country creation; mine start at 0027; 0024 is unused): equal-area global grid (~5,000 km² cells), dozens of sectors, zones of 100-500 m, uneven development at the start, map editing before the run, real Earth later.
 
 ## Next step
