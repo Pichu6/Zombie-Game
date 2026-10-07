@@ -16,7 +16,7 @@ double exp_draw(std::uint64_t seed, PopId id, std::uint64_t key, double mean) {
 std::vector<Birth> births_of(std::uint64_t seed, PopId mother, const PopBase& base, double after_year, const PopParams& params) {
   const Fertility& f = params.fertility;
   std::vector<Birth> out;
-  if (base.sex != Sex::Female) return out;
+  if (base.sex != PopSex::Female) return out;
   if (keyed_uniform01(seed, Purpose::PopLife, mother, kDrawChildless) < f.childless_share) return out;
   double age = f.first_min_age + exp_draw(seed, mother, kDrawFirst, f.first_mean_delay);
   for (unsigned k = 0; k < kMaxBirths && age < f.end_age; ++k) {
@@ -31,7 +31,7 @@ std::vector<Birth> births_of(std::uint64_t seed, PopId mother, const PopBase& ba
 DemographyCounts jump(std::uint64_t seed, const std::vector<Founder>& founders, double from, double to,
                       const DeathOverrides* overrides, const PopParams& params) {
   DemographyCounts c;
-  struct Node { PopId id; double birth_year, known_alive_age; std::optional<Sex> sex; };
+  struct Node { PopId id; double birth_year, known_alive_age; std::optional<PopSex> sex; };
   std::vector<Node> stack;
   stack.reserve(founders.size());
   for (const Founder& fo : founders) stack.push_back({fo.id, fo.birth_year, fo.known_alive_age, fo.sex});

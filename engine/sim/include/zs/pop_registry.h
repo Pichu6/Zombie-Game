@@ -39,7 +39,7 @@ struct CohortEffect {
 // Attributes the town generator gives a founder; without them a founder is drawn from the id and the params.
 struct FounderSpec {
   std::uint16_t age = 30;  // whole years at the start of the run (the fraction is drawn from the id)
-  Sex sex = Sex::Female;
+  PopSex sex = PopSex::Female;
 };
 
 enum class ExceptionField : std::uint8_t { DeathYear = 0 };
@@ -138,7 +138,7 @@ class PopRegistry {
   bool exists(PopId id) const;
   bool resolve_base(PopId id, PopBase& out) const;  // founder or born, before the pop's own exceptions
   double founder_age(PopId id) const;
-  std::optional<Sex> founder_sex(PopId id) const;
+  std::optional<PopSex> founder_sex(PopId id) const;
   DeathOverrides death_overrides() const;
   CohortPermutation permutation(const Cohort& c, EffectKind kind) const;
   std::vector<Range> ranges(std::uint64_t cohort, EffectKind kind, double year) const;

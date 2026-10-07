@@ -46,3 +46,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 26 | [The run: "The generator problem"](26-run.md) | Scenario | 9 |
 | 27 | [Detail levels and chunks](27-detail-levels.md) | World (levels, chunks) | 8 rules; Tier 1 split |
 | 28 | [Pop identity and levels](28-pop-levels.md) | Agent (identity, levels), Belief store | after Tier 0; benchmark first |
+| 29 | [Embodied pops](29-embodied-pops.md) | Agent (embodied level), Body | after Tier 0; first layer jump |

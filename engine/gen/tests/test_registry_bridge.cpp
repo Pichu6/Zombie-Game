@@ -33,7 +33,7 @@ TEST_CASE("a generated town becomes founders with their generated age and sex (A
   for (std::size_t i = 0; i < town.pops.size(); ++i) {
     PopSnapshot s;
     REQUIRE(reg.snapshot(map.pop_ids[i], 0.0, s));
-    CHECK(s.base.sex == (town.pops[i].sex == 'f' ? zs::Sex::Female : zs::Sex::Male));
+    CHECK(s.base.sex == (town.pops[i].sex == 'f' ? zs::PopSex::Female : zs::PopSex::Male));
     CHECK(static_cast<int>(-s.base.birth_year) == town.pops[i].age);
     CHECK(s.base.death_year > 0.0);
   }

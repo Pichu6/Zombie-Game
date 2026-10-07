@@ -91,7 +91,7 @@ TEST_CASE("lifetimes sit near real life expectancy and sex shares near birth rat
   for (int i = 0; i < n; ++i) {
     const PopBase p = derive_base(3, birth_pop_id(census_pop_id(static_cast<std::uint32_t>(i)), 0), 0.0);
     CHECK(p.death_year > 0.0);
-    if (p.sex == Sex::Female) { sum_f += p.death_year; ++nf; } else { sum_m += p.death_year; ++nm; }
+    if (p.sex == PopSex::Female) { sum_f += p.death_year; ++nf; } else { sum_m += p.death_year; ++nm; }
   }
   CHECK(static_cast<double>(nm) / n == doctest::Approx(0.512).epsilon(0.02));
   CHECK(sum_f / nf > 78.0);
@@ -163,6 +163,6 @@ TEST_CASE("pinned known answers, the same on GCC and Clang (A1 across compilers)
   CHECK(p.forward(1) == 891);
   CHECK(p.forward(999) == 783);
   const PopBase b = derive_base(5, census_pop_id(17), -30.0, 30.0);
-  CHECK(b.sex == Sex::Female);
+  CHECK(b.sex == PopSex::Female);
   CHECK(b.death_year == 65.073244276057125);
 }

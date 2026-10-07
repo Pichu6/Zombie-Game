@@ -158,10 +158,10 @@ TEST_CASE("a save made by version 3 still loads and gives the same pops (frozen 
   CHECK(loaded.count(1, EffectKind::Ill, 3.0) == 30);
   PopSnapshot s;
   REQUIRE(loaded.snapshot(5, 0.0, s));
-  CHECK(s.base.sex == Sex::Male);                        // the generated attributes survived
+  CHECK(s.base.sex == PopSex::Male);                        // the generated attributes survived
   CHECK(static_cast<int>(-s.base.birth_year) == 25);
   REQUIRE(loaded.snapshot(6, 0.0, s));
-  CHECK(s.base.sex == Sex::Female);
+  CHECK(s.base.sex == PopSex::Female);
   CHECK(static_cast<int>(-s.base.birth_year) == 26);
   CHECK(loaded.hash() != 0);
 }

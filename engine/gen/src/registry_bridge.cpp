@@ -16,7 +16,7 @@ TownRegistryMap populate_registry(const Town& town, zs::PopRegistry& reg, std::u
   std::vector<FounderSpec> specs;
   specs.reserve(town.pops.size());
   for (const Pop& p : town.pops)
-    specs.push_back({static_cast<std::uint16_t>(p.age < 0 ? 0 : p.age), p.sex == 'f' ? Sex::Female : Sex::Male});
+    specs.push_back({static_cast<std::uint16_t>(p.age < 0 ? 0 : p.age), p.sex == 'f' ? PopSex::Female : PopSex::Male});
   reg.set_founder_specs(cohort_id, std::move(specs));
 
   std::map<std::string, int> business_by_name;

@@ -58,12 +58,12 @@ PopId mother_of(PopId id) {
 }
 
 PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age, const PopParams& params,
-                    std::optional<Sex> sex) {
+                    std::optional<PopSex> sex) {
   PopBase p;
   p.id = id;
   p.birth_year = birth_year;
-  p.sex = sex ? *sex : (keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawSex) < params.male_share_at_birth ? Sex::Male : Sex::Female);
-  const Mortality& m = params.mortality(p.sex == Sex::Male);
+  p.sex = sex ? *sex : (keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawSex) < params.male_share_at_birth ? PopSex::Male : PopSex::Female);
+  const Mortality& m = params.mortality(p.sex == PopSex::Male);
   const double e1 = -detmath::log1p(-keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawConstantHazard));
   const double e2 = -detmath::log1p(-keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawGompertz));
   // First death of two independent hazards, each drawn conditional on having reached known_alive_age.

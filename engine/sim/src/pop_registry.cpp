@@ -149,7 +149,7 @@ double PopRegistry::founder_age(PopId id) const {
   return params_.founder_min_age + std::floor(fraction * params_.founder_age_span);
 }
 
-std::optional<Sex> PopRegistry::founder_sex(PopId id) const {
+std::optional<PopSex> PopRegistry::founder_sex(PopId id) const {
   std::uint64_t member = 0;
   const Cohort* c = cohort_of(id, member);
   if (!c) return std::nullopt;
@@ -456,7 +456,7 @@ void PopRegistry::load_specs(ArchiveReader& r) {
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
     const std::uint64_t cid = r.u64();
     std::vector<FounderSpec> specs(r.u64());
-    for (FounderSpec& f : specs) { f.age = r.u16(); f.sex = static_cast<Sex>(r.u8()); }
+    for (FounderSpec& f : specs) { f.age = r.u16(); f.sex = static_cast<PopSex>(r.u8()); }
     founder_specs_[cid] = std::move(specs);
   }
 }
