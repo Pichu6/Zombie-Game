@@ -20,7 +20,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 | Pop levels ([spec 28](tier0/specs/28-pop-levels.md)) | one pop at every layer: ids, random-access lives, births, cohorts and rosters, region-wide events, versioned saves, a world system with commands | `--pop-bench`, `--town` |
 | Nation demographics ([0034](decisions/0034-nation-demographics.md)) | a country's own age, education, work, households as data (placeholder profile only) | `data/setup/nations/` |
 
-**Stage 5, the sandbox window:** built, not yet run on a PC. **Windows/MSVC:** CI builds `main` and uploads a zip; the pop work lives on the working branch and has not been through MSVC yet.
+**Stage 5, the sandbox window:** built; the user's on-screen check is pending (`play/zs_sandbox.exe` on the PC). **Windows/MSVC:** CI builds `main` and uploads a zip; on 2026-10-07 the user's PC built this `main` (28c5a7e) with MSVC 2022 from a clean tree, release and debug, and `ctest --preset debug` passed with the Linux-pinned golden hashes (Validated: cross-compiler A1).
 
 **Designed, not built** (all Proposals unless a decision says otherwise): [sandbox parameters](design/sandbox-parameters.md), [world numbers](design/world-numbers.md), [world systems](design/world-systems.md) (sectors and zones, the generation pipeline, factions, subjects), built from research notes in `docs/research/` whose numbers are second-hand search summaries.
 
