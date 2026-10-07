@@ -35,7 +35,7 @@ The main and render threads also run jobs while they wait. Workers steal jobs fr
 
 ## 3. Time: fixed sim tick, free frame rate
 
-- The sim advances in fixed ticks of 0.5 game s (Tier 0 default). At the former default of 1 real hour = 1 game day, that is 48 ticks per real second (the default is now 1:1, [0041](../decisions/0041-realistic-time-default-commit-on-observation-and-pins.md), where a tick is 0.5 s of wall time; the budget that matters is fast-forward), so one tick has about **20 ms** of wall time at 1×. Fast-forward runs more ticks per second, so the budget shrinks.
+- The sim advances in fixed ticks of 0.5 game s (Tier 0 default). At the usual speed of 1 real hour = 1 game day, that is 48 ticks per real second (the speed is the player's choice, [0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md); at 1:1 a tick is 0.5 s of wall time; the budget that matters is fast-forward), so one tick has about **20 ms** of wall time at 1×. Fast-forward runs more ticks per second, so the budget shrinks.
 - The renderer draws at the display's rate from the last two snapshots, interpolated. A slow frame never slows the sim; a slow tick drops interpolation smoothness, not correctness.
 - A snapshot is an immutable copy of what views need (positions, poses, lights, UI facts), written at the end of a tick. Views only read ([contract rule 8](world-simulation.md#2-the-simulation-contract-proposal)).
 - View-side smoothing of snapshot values (camera, procedural animation, UI) runs on the frame time and never feeds the sim: [research/second-order-dynamics](../research/second-order-dynamics.md).

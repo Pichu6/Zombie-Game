@@ -1,6 +1,6 @@
 # Focus and compression: show and compute what the player attends to, keep everything coherent
 
-**Status:** Proposal (2026-10-07); the user's answers in section 7 are **Decided** in [0041](../decisions/0041-realistic-time-default-commit-on-observation-and-pins.md). From the user's description: only show what the player is seeing, whatever the layer or zoom; the conscious focus decides what is detailed. Layer 3 takes political decisions that take realistic time; layer 2 shows the result (a hospital being built, pops coming and going); layer 1 lets you work in it. Intent is the user's; the mechanisms below are mine and **not decided**. Builds on [spec 27](../tier0/specs/27-detail-levels.md), [spec 28](../tier0/specs/28-pop-levels.md), [spec 29](../tier0/specs/29-embodied-pops.md), [0033](../decisions/0033-restoring-cost-and-two-way-projects.md), [layer jumps](layer-jumps.md), the [zoom continuum](zoom-continuum.md) and the [multi-resolution research](../research/layer-jumps-multiresolution.md) (19 failure modes).
+**Status:** Proposal (2026-10-07); the user's answers in section 7 are **Decided** in [0041](../decisions/0041-realistic-time-default-commit-on-observation-and-pins.md) and [0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md). From the user's description: only show what the player is seeing, whatever the layer or zoom; the conscious focus decides what is detailed. Layer 3 takes political decisions that take realistic time; layer 2 shows the result (a hospital being built, pops coming and going); layer 1 lets you work in it. Intent is the user's; the mechanisms below are mine and **not decided**. Builds on [spec 27](../tier0/specs/27-detail-levels.md), [spec 28](../tier0/specs/28-pop-levels.md), [spec 29](../tier0/specs/29-embodied-pops.md), [0033](../decisions/0033-restoring-cost-and-two-way-projects.md), [layer jumps](layer-jumps.md), the [zoom continuum](zoom-continuum.md) and the [multi-resolution research](../research/layer-jumps-multiresolution.md) (19 failure modes).
 
 ## 1. The principle
 
@@ -79,7 +79,7 @@ Each technique is already in the repo or a small step from it; the new part is u
 | Teleporting workers hide bugs (mode 19) | A worker's position is the schedule function; any override is logged with a reason |
 | Seam exploits: leave, return, get more (mode 18) | Same ledger whether attended or not |
 | Rare events lost in a long jump (mode 17) | Events (accident, blackout) are drawn by keyed hazards over the interval, not skipped |
-| Realistic duration versus play speed | The default is 1:1 and durations are real ([0041](../decisions/0041-realistic-time-default-commit-on-observation-and-pins.md)); a hospital's build time (years) is a number of the plan, played by fast-forward, which runs cold with jump forms. The speed an area may run at is capped by what is attended there |
+| Realistic duration versus play speed | Durations are real ([0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md)); a hospital's build time (years) is a number of the plan, played through the speed ladder, which runs cold with jump forms. The speed an area may run at is capped by what is attended there (section 9) |
 
 ## 6. What it needs built, in order
 
@@ -92,7 +92,7 @@ Each technique is already in the repo or a small step from it; the new part is u
 
 1. **Commit on observation:** yes, where it is better for memory.
 2. **Pins:** yes, but each layer must give its own information about the same thing (section 8).
-3. **Durations:** realistic for everything is the default (1:1), with fast-forward and pause. A hospital takes its real years; the player fast-forwards through them.
+3. **Durations:** real for everything; long waits are played as progress bars with a speed ladder (pause, slow, 1:1, 1 hour = 1 day, faster), [0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md). Starting speed is open.
 4. **Still open:** the order of work. Recommendation: the **schedule and position at time t** unit first (small, and it serves the dots and the project's workers), then the **Project** spec.
 
 ## 8. Pins and lenses: one thing, a different view per layer
@@ -106,3 +106,13 @@ A pin is `(entity, watch level)`. What the player is shown is a **lens**: a pure
 | Individual | What a person standing there can see and has heard: crews at work, a "delayed" sign, rumours; a worker on site knows their own task and pay | The plan's prefix at `p`, what is in the person's senses and beliefs (not the ETA unless told) |
 
 Rules: a lens never stores anything (C9, inspect on demand); a lens can only show what the layer's character could know ([macro layer](macro-layer.md) §3.3 fog; [layer jumps](layer-jumps.md) row 16); every lens of the same thing agrees, because they all read the same records. A pin also keeps the thing *watched* (section 1), so a pinned person stays a record and a pinned project keeps its process alive.
+
+## 9. Long processes: progress bars, mini-games, and why they make fast-forward safe (Proposal, from [0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md))
+
+Every long thing is the same kind of record, a **Process**: a plan (inputs, labour, duration), a progress scalar `p`, a rate, an owner and a log. A hospital is a Process owned by a state; a crop, a cheese, a wound healing, a journey and a craft are Processes owned by a place, an item, a body. The Project of section 4 is the large case. Consequences:
+
+1. **One display, three layers.** At Individual a Process is a **loop animation with a progress bar**; at City it is the building or field at its stage; at Macro a number with its cause (section 8).
+2. **Mini-games are hooks on the rate or quality of a Process**, never a separate state: a mini-game result changes `rate` or the output's quality ([0013](../decisions/0013-production-ladder.md)); skip it and the Process runs at its plain rate. So play and fast-forward give the same kind of result (A3).
+3. **Fast-forward is safe for a body inside a Process.** The rule from [spec 27](../tier0/specs/27-detail-levels.md) and [layer jumps](layer-jumps.md) row 17 is that an attended body forces the speed its rules allow. A body in a progress-bar activity runs only needs, metabolism and the Process, which all have jump forms, so its speed cap lifts; **any event** (hunger threshold, noise, a stranger, an injury) drops it to the speed the new situation needs and can pause. Combat, walking through a door and other hot-only rules keep their caps.
+4. **Several Processes at once** (Haven and Hearth style): a body or a place can run many; the player queues and switches while bars fill.
+5. **Open:** whether time passes while the game is closed (0042 open point); a Process model makes either answer cheap, because catch-up is the same `advance`.
