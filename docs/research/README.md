@@ -15,6 +15,7 @@ Dated notes that feed decisions and designs. **They are not decisions** ([CLAUDE
 | [haven-and-hearth.md](haven-and-hearth.md) | Haven and Hearth: a reference game for long real-time play | 2026-10-07 |
 | [layer-jumps-multiresolution.md](layer-jumps-multiresolution.md) | Layer jumps: what multi-resolution simulation research and games say | 2026-10-06 |
 | [low-resource-city-simulation.md](low-resource-city-simulation.md) | Low-resource city simulation: "ASCII City" and the games that fake or tame big populations | 2026-10-07 |
+| [pop-storage-and-lenses.md](pop-storage-and-lenses.md) | Pop simulation, saving data, and "lenses" across zoom | 2026-10-07 |
 | [prototype-audit.md](prototype-audit.md) | Docs and agent tooling: what to keep for the new project | 2026-10-05 |
 | [prototype-sim-code.md](prototype-sim-code.md) | Prototype simulation code: what to keep, what to avoid | 2026-10-05 |
 | [second-order-dynamics.md](second-order-dynamics.md) | Second-order dynamics for procedural motion | 2026-10-06 |
@@ -43,5 +44,7 @@ Games we study and what the notes say about them. Add a row when a note covers a
 | Project Zomboid | Zombie counts per cell, virtual outside the loaded area | [sim-scale](sim-scale-in-other-games.md) |
 | Cataclysm: DDA | Abstract overmap, detail generated on discovery | [world-generation-prior-art](world-generation-prior-art.md) |
 | WorldEngine, mapgen4, Songs of the Eons | Terrain and climate generators | [world-generation-prior-art](world-generation-prior-art.md) |
+| Kingdom Come: Deliverance 2, Assassin's Creed Unity, Hitman | AI level of detail, pools that swap cheap and real agents, thousands of NPCs with routines | [pop-storage-and-lenses](pop-storage-and-lenses.md) |
+| Factorio, Minecraft, No Man's Sky | Save size, chunked storage, seeds instead of stored worlds | [pop-storage-and-lenses](pop-storage-and-lenses.md) |
 | Foxhole | Logistics, war, player-run supply | [foxhole](foxhole.md) |
 | Many others (RimWorld, CK3, Victoria 3, Stellaris, Bannerlord, Kenshi, The Sims, Football Manager) | How many full records a simulation holds, and what is aggregated | [sim-scale](sim-scale-in-other-games.md), [war-in-other-games](war-in-other-games.md) |

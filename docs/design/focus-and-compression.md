@@ -33,6 +33,8 @@ Each technique is already in the repo or a small step from it; the new part is u
 | C9 | **Inspect on demand** | Clicking a building computes its panel from records then; nothing is maintained for display | Cities: Skylines style |
 | C10 | **History into sums** | Old events are folded into totals and only notable ones kept in the chronicle | Spec 25 |
 
+Research behind this section, with talks, papers and the storage methods compared: [pop storage and lenses](../research/pop-storage-and-lenses.md).
+
 ## 3. What keeps it coherent
 
 1. **One owner per fact.** The finest level that exists holds it; coarser levels are sums or readouts, never a second copy (world systems §1 rule 4; failure mode 9).
