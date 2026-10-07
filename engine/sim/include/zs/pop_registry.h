@@ -15,7 +15,8 @@
 
 namespace zs {
 
-enum class Level : std::uint8_t { Lazy = 0, Record = 1 };  // Embodied comes with the body (stage 3 code)
+// Embodied (spec 29): the pop has a body in the body simulation; it is a record that also holds a slot.
+enum class Level : std::uint8_t { Lazy = 0, Record = 1, Embodied = 2 };
 
 // A generated group. Members are census slots first_slot .. first_slot + size - 1 (a placeholder for
 // the human generator's rule); a cohort is a fixed snapshot (spec 28 rule 11).
@@ -39,7 +40,7 @@ struct CohortEffect {
 // Attributes the town generator gives a founder; without them a founder is drawn from the id and the params.
 struct FounderSpec {
   std::uint16_t age = 30;  // whole years at the start of the run (the fraction is drawn from the id)
-  Sex sex = Sex::Female;
+  PopSex sex = PopSex::Female;
 };
 
 enum class ExceptionField : std::uint8_t { DeathYear = 0 };
@@ -59,6 +60,7 @@ struct PopSnapshot {
 
 struct PopCounts {
   std::uint64_t total = 0, records = 0, lazy = 0;
+  std::uint64_t embodied = 0;  // of the records
 };
 
 class PopRegistry {
@@ -90,12 +92,23 @@ class PopRegistry {
   bool snapshot(PopId id, double year, PopSnapshot& out) const;
 
   // Levels. Promotion pins a pop; demotion is refused for an officeholder or a followed pop.
-  Level level(PopId id) const { return records_.count(id) ? Level::Record : Level::Lazy; }
+  Level level(PopId id) const;
   bool promote(PopId id);
   bool demote(PopId id);
   bool set_office(PopId id, std::uint32_t office);  // promotes; 0 clears
   bool set_followed(PopId id, bool followed);       // promotes
   bool set_death_year(PopId id, double year);       // an exception; works at either level
+
+  // Embodiment (spec 29). The registry only records the link and keeps the body's saved state as opaque bytes
+  // (the body simulation writes and reads them); the pool lives in Bodies, PopSystem keeps the two in step.
+  // begin: refused if the pop does not exist, is already embodied, or has no life left to give (alive_at is the
+  // caller's check). Promotes the pop. end: records the saved state and clears the link; refused if not embodied.
+  bool begin_embodied(PopId id, std::uint64_t body, std::int64_t tick);
+  bool end_embodied(PopId id, std::vector<std::uint8_t> state);
+  std::uint64_t embodied_body(PopId id) const;      // 0 if none
+  std::int64_t embodied_since(PopId id) const;      // tick, 0 if none
+  const std::vector<std::uint8_t>* saved_body(PopId id) const;  // the state left at the last demotion, if any
+  std::vector<std::pair<PopId, std::uint64_t>> embodied_list() const;  // (pop, body slot), ordered by pop
   PopCounts counts() const;
 
   // Rosters: explicit groups whose members change (a workplace, a household, an office). A pop in a
@@ -132,13 +145,16 @@ class PopRegistry {
     std::uint32_t office = 0;
     bool followed = false;
     std::vector<PopException> exceptions;
+    std::uint64_t embodied = 0;         // the pool slot's body id, 0 if none (v5)
+    std::int64_t embodied_since = 0;    // tick the pop was embodied, for the dwell time (v5)
+    std::vector<std::uint8_t> body_state;  // saved BodyState bytes from the last demotion (v5)
   };
   struct Range { std::uint64_t begin, end, reason; };
   const Cohort* cohort_of(PopId id, std::uint64_t& member) const;
   bool exists(PopId id) const;
   bool resolve_base(PopId id, PopBase& out) const;  // founder or born, before the pop's own exceptions
   double founder_age(PopId id) const;
-  std::optional<Sex> founder_sex(PopId id) const;
+  std::optional<PopSex> founder_sex(PopId id) const;
   DeathOverrides death_overrides() const;
   CohortPermutation permutation(const Cohort& c, EffectKind kind) const;
   std::vector<Range> ranges(std::uint64_t cohort, EffectKind kind, double year) const;
@@ -149,6 +165,8 @@ class PopRegistry {
   void load_v2(ArchiveReader& r);
   void load_v3(ArchiveReader& r);
   void load_v4(ArchiveReader& r);
+  void load_v5(ArchiveReader& r);
+  void load_embodied(ArchiveReader& r);  // v5 trailer
   void load_events(ArchiveReader& r);  // the region-event counter (v2 and later)
   void load_specs(ArchiveReader& r);   // the founder specs (v3)
 

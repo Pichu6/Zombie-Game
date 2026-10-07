@@ -19,7 +19,7 @@ using ResourceId = std::uint16_t;
 using ConversionId = std::uint16_t;
 using CauseId = std::uint64_t;  // the event that caused a movement (0 = setup)
 
-enum class EntryKind : std::uint8_t { Mint, Transfer, Conversion };
+enum class EntryKind : std::uint8_t { Mint, Transfer, Conversion, Inflow, Outflow };
 
 struct LedgerEntry {
   std::int64_t tick;
@@ -51,6 +51,13 @@ class Ledger {
   // Creates amounts out of nothing. Only allowed during setup (before close_setup()).
   void mint(OwnerId owner, ResourceId resource, std::int64_t amount, CauseId cause = 0);
   void close_setup() { setup_open_ = false; }
+
+  // Declared flows (spec 29): amounts that enter or leave what the ledger tracks after setup, for example a
+  // person's tissue when a body is embodied or given back. Unlike a silent mint they are allowed at any time,
+  // carry their cause, change the expected total by exactly their amount, and leave the check intact.
+  // An outflow takes exactly `amount` (it throws if the owner holds less: the caller must know what it removes).
+  void declare_inflow(std::int64_t tick, OwnerId owner, ResourceId resource, std::int64_t amount, CauseId cause);
+  void declare_outflow(std::int64_t tick, OwnerId owner, ResourceId resource, std::int64_t amount, CauseId cause);
 
   // Moves up to `amount` (clamped to what `from` holds). Returns what moved.
   std::int64_t transfer(std::int64_t tick, OwnerId from, OwnerId to, ResourceId resource, std::int64_t amount,

@@ -147,7 +147,7 @@ TEST_CASE("generated founder attributes are honoured, saved, and drive the jump 
   PopRegistry reg(61);
   REQUIRE(reg.add_cohort({1, 0, 0, 400}));
   std::vector<FounderSpec> specs;
-  for (int i = 0; i < 400; ++i) specs.push_back({static_cast<std::uint16_t>(i < 200 ? 20 + i % 10 : 52 + i % 10), i % 2 ? Sex::Male : Sex::Female});
+  for (int i = 0; i < 400; ++i) specs.push_back({static_cast<std::uint16_t>(i < 200 ? 20 + i % 10 : 52 + i % 10), i % 2 ? PopSex::Male : PopSex::Female});
   CHECK_FALSE(reg.set_founder_specs(1, std::vector<FounderSpec>(399)));  // wrong size
   CHECK_FALSE(reg.set_founder_specs(9, specs));                          // no such cohort
   REQUIRE(reg.set_founder_specs(1, specs));
@@ -164,7 +164,7 @@ TEST_CASE("generated founder attributes are honoured, saved, and drive the jump 
   CHECK(counts.births > 50);
   PopRegistry old_only(61);
   REQUIRE(old_only.add_cohort({1, 0, 0, 200}));
-  std::vector<FounderSpec> old(200, FounderSpec{55, Sex::Female});
+  std::vector<FounderSpec> old(200, FounderSpec{55, PopSex::Female});
   REQUIRE(old_only.set_founder_specs(1, old));
   CHECK(old_only.project_demography(0.0, 30.0).births == 0);
   // Saved and loaded with the registry.

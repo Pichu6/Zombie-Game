@@ -228,13 +228,7 @@ Bodies::Bodies(World& w) : world_ledger_(&w.ledger) {
   L_.water_to_blood = l.add_conversion({L_.water_ul, L_.blood_ul, 1, 1});
 }
 
-EntityId Bodies::create(World& w, const BodySpec& spec, const std::string& label) {
-  Body b;
-  b.id = w.new_entity();
-  b.label = label;
-  b.spec = spec;
-  b.owner = w.ledger.add_owner("body:" + label);
-  b.vo2max = std::clamp(spec.vo2max, 15.0, 75.0);
+Bodies::Amounts Bodies::amounts_for(const BodySpec& spec) {
   const double h = spec.height_m, m = spec.mass_kg;
   const double blood_l = spec.sex == Sex::Male ? 0.3669 * h * h * h + 0.03219 * m + 0.6041   // Nadler (1962)
                                                : 0.3561 * h * h * h + 0.03308 * m + 0.1833;
@@ -244,22 +238,196 @@ EntityId Bodies::create(World& w, const BodySpec& spec, const std::string& label
   const double glycogen_kg = 0.1 + 0.012 * muscle_kg;  // liver ~100 g + ~12 g per kg muscle
   const double structure_kg = m - fat_kg - muscle_kg - water_kg - blood_l - glycogen_kg;
   if (structure_kg <= 0) throw std::invalid_argument("body spec leaves no structure mass");
+  return {blood_l, fat_kg, muscle_kg, structure_kg, water_kg, glycogen_kg};
+}
+
+EntityId Bodies::create(World& w, const BodySpec& spec, const std::string& label) {
+  Body b;
+  b.id = w.new_entity();
+  b.label = label;
+  b.spec = spec;
+  b.owner = w.ledger.add_owner("body:" + label);
+  b.vo2max = std::clamp(spec.vo2max, 15.0, 75.0);
+  const Amounts a = amounts_for(spec);
   auto mg = [](double kg) { return static_cast<std::int64_t>(kg * 1e6); };
-  b.blood_normal_ul = mg(blood_l);
-  b.water_normal_ul = mg(water_kg);
-  b.muscle_start_mg = mg(muscle_kg);
-  b.glycogen_max_mg = mg(glycogen_kg);
+  b.blood_normal_ul = mg(a.blood_l);
+  b.water_normal_ul = mg(a.water_kg);
+  b.muscle_start_mg = mg(a.muscle_kg);
+  b.glycogen_max_mg = mg(a.glycogen_kg);
   auto& l = w.ledger;
-  l.mint(b.owner, L_.fat_mg, mg(fat_kg));
-  l.mint(b.owner, L_.muscle_mg, mg(muscle_kg));
-  l.mint(b.owner, L_.structure_mg, mg(structure_kg));
-  l.mint(b.owner, L_.glycogen_mg, mg(glycogen_kg));
-  l.mint(b.owner, L_.water_ul, mg(water_kg));
-  l.mint(b.owner, L_.blood_ul, mg(blood_l));
+  l.mint(b.owner, L_.fat_mg, mg(a.fat_kg));
+  l.mint(b.owner, L_.muscle_mg, mg(a.muscle_kg));
+  l.mint(b.owner, L_.structure_mg, mg(a.structure_kg));
+  l.mint(b.owner, L_.glycogen_mg, mg(a.glycogen_kg));
+  l.mint(b.owner, L_.water_ul, mg(a.water_kg));
+  l.mint(b.owner, L_.blood_ul, mg(a.blood_l));
   if (spec.walker) b.sleep_pressure = 0;
   const EntityId id = b.id;
   bodies_[id] = std::move(b);
   return id;
+}
+
+// ---- The body pool (spec 29) -------------------------------------------------------------------------
+
+void Bodies::reserve_slots(World& w, std::size_t n) {
+  if (!w.ledger.setup_open()) throw std::logic_error("body slots may only be reserved during setup");
+  for (std::size_t i = 0; i < n; ++i) {
+    Body b;
+    b.id = w.new_entity();
+    b.label = "slot " + std::to_string(slots_.size());
+    b.owner = w.ledger.add_owner("slot:" + std::to_string(slots_.size()));
+    b.vacant = true;
+    b.alive = false;
+    slots_.push_back(b.id);
+    bodies_[b.id] = std::move(b);
+  }
+}
+
+std::size_t Bodies::free_slots() const {
+  std::size_t n = 0;
+  for (EntityId id : slots_) n += bodies_.at(id).vacant ? 1 : 0;
+  return n;
+}
+
+namespace {
+std::int64_t mg_of(double kg) { return static_cast<std::int64_t>(kg * 1e6); }
+}  // namespace
+
+EntityId Bodies::embody(World& w, const BodySpec& spec, const std::string& label, std::uint64_t pop, EventId cause) {
+  BodyState st;
+  st.spec = spec;
+  st.label = label;
+  const Amounts a = amounts_for(spec);
+  st.blood_normal_ul = mg_of(a.blood_l);
+  st.water_normal_ul = mg_of(a.water_kg);
+  st.muscle_start_mg = mg_of(a.muscle_kg);
+  st.glycogen_max_mg = mg_of(a.glycogen_kg);
+  st.vo2max = std::clamp(spec.vo2max, 15.0, 75.0);
+  st.sleep_pressure = spec.walker ? 0 : 0.2;
+  st.fat_mg = mg_of(a.fat_kg);
+  st.muscle_mg = mg_of(a.muscle_kg);
+  st.structure_mg = mg_of(a.structure_kg);
+  st.glycogen_mg = mg_of(a.glycogen_kg);
+  st.water_ul = mg_of(a.water_kg);
+  st.blood_ul = mg_of(a.blood_l);
+  return embody_state(w, st, pop, cause);
+}
+
+EntityId Bodies::embody_state(World& w, const BodyState& st, std::uint64_t pop, EventId cause) {
+  EntityId slot = 0;
+  for (EntityId id : slots_)
+    if (bodies_.at(id).vacant) { slot = id; break; }
+  if (slot == 0) return 0;
+  Body& b = bodies_.at(slot);
+  b.vacant = false;
+  b.alive = true;
+  b.death_cause = DeathCause::None;
+  b.pop = pop;
+  b.label = st.label;
+  b.spec = st.spec;
+  b.blood_normal_ul = st.blood_normal_ul;
+  b.water_normal_ul = st.water_normal_ul;
+  b.muscle_start_mg = st.muscle_start_mg;
+  b.glycogen_max_mg = st.glycogen_max_mg;
+  b.posture = st.posture;
+  b.activity = st.activity;
+  b.sleep_pressure = st.sleep_pressure;
+  b.exertion = st.exertion;
+  b.vo2max = st.vo2max;
+  b.fear = st.fear;
+  b.morale = st.morale;
+  b.threat = st.threat;
+  b.away = false;
+  b.active_minutes_today = st.active_minutes_today;
+  b.heavy_minutes_today = st.heavy_minutes_today;
+  b.carry = st.carry;
+  b.wounds = st.wounds;
+  for (const Wound& wd : b.wounds) w.locations.place(wd.id, b.id);
+  const std::int64_t tick = w.clock.tick;
+  w.ledger.declare_inflow(tick, b.owner, L_.fat_mg, st.fat_mg, cause);
+  w.ledger.declare_inflow(tick, b.owner, L_.muscle_mg, st.muscle_mg, cause);
+  w.ledger.declare_inflow(tick, b.owner, L_.structure_mg, st.structure_mg, cause);
+  w.ledger.declare_inflow(tick, b.owner, L_.glycogen_mg, st.glycogen_mg, cause);
+  w.ledger.declare_inflow(tick, b.owner, L_.water_ul, st.water_ul, cause);
+  w.ledger.declare_inflow(tick, b.owner, L_.blood_ul, st.blood_ul, cause);
+  w.ledger.declare_inflow(tick, b.owner, L_.food_j, st.food_j, cause);
+  return b.id;
+}
+
+std::string Bodies::cannot_disembody(const World& w, EntityId body) const {
+  const auto it = bodies_.find(body);
+  if (it == bodies_.end() || std::find(slots_.begin(), slots_.end(), body) == slots_.end()) return "not a pool body";
+  const Body& b = it->second;
+  if (b.vacant) return "slot is vacant";
+  if (!b.alive) return "the body is dead";
+  if (b.spec.walker) return "a walker";
+  if (b.away) return "the body is away";
+  for (EntityId child : w.locations.children(body)) {
+    const bool is_wound = std::any_of(b.wounds.begin(), b.wounds.end(), [&](const Wound& wd) { return wd.id == child; });
+    if (!is_wound) return "the body holds items";
+  }
+  for (const Wound& wd : b.wounds)
+    if (!w.locations.children(wd.id).empty()) return "a wound has a dressing item on it";
+  return "";
+}
+
+BodyState Bodies::disembody(World& w, EntityId body, EventId cause) {
+  if (const std::string why = cannot_disembody(w, body); !why.empty()) throw std::logic_error("disembody: " + why);
+  return vacate(w, body, cause);
+}
+
+BodyState Bodies::release_dead(World& w, EntityId body, EventId cause) {
+  const auto it = bodies_.find(body);
+  if (it == bodies_.end() || std::find(slots_.begin(), slots_.end(), body) == slots_.end() || it->second.vacant)
+    throw std::logic_error("release_dead: not an occupied pool body");
+  if (it->second.alive) throw std::logic_error("release_dead: the body is alive");
+  return vacate(w, body, cause);
+}
+
+BodyState Bodies::vacate(World& w, EntityId body, EventId cause) {
+  Body& b = bodies_.at(body);
+  BodyState st;
+  st.spec = b.spec;
+  st.label = b.label;
+  st.blood_normal_ul = b.blood_normal_ul;
+  st.water_normal_ul = b.water_normal_ul;
+  st.muscle_start_mg = b.muscle_start_mg;
+  st.glycogen_max_mg = b.glycogen_max_mg;
+  st.posture = b.posture;
+  st.activity = b.activity;
+  st.sleep_pressure = b.sleep_pressure;
+  st.exertion = b.exertion;
+  st.vo2max = b.vo2max;
+  st.fear = b.fear;
+  st.morale = b.morale;
+  st.threat = b.threat;
+  st.active_minutes_today = b.active_minutes_today;
+  st.heavy_minutes_today = b.heavy_minutes_today;
+  st.carry = b.carry;
+  st.wounds = b.wounds;
+  auto& l = w.ledger;
+  const std::int64_t tick = w.clock.tick;
+  const auto take = [&](ResourceId r, std::int64_t& into) {
+    into = l.balance(b.owner, r);
+    l.declare_outflow(tick, b.owner, r, into, cause);
+  };
+  take(L_.fat_mg, st.fat_mg);
+  take(L_.muscle_mg, st.muscle_mg);
+  take(L_.structure_mg, st.structure_mg);
+  take(L_.glycogen_mg, st.glycogen_mg);
+  take(L_.water_ul, st.water_ul);
+  take(L_.blood_ul, st.blood_ul);
+  take(L_.food_j, st.food_j);
+  for (const Wound& wd : b.wounds) w.locations.place(wd.id, Locations::kWorld);
+  const OwnerId owner = b.owner;
+  const auto index = static_cast<std::size_t>(std::find(slots_.begin(), slots_.end(), body) - slots_.begin());
+  b = Body{};  // back to a vacant slot: nothing alive, nothing held
+  b.id = body;
+  b.owner = owner;
+  b.label = "slot " + std::to_string(index);
+  b.vacant = true;
+  b.alive = false;
+  return st;
 }
 
 // ---- Actions on a body -------------------------------------------------------------------------------
@@ -788,6 +956,17 @@ void Bodies::save(ArchiveWriter& a) const {
     a.u64(b.wounds.size());
     for (const Wound& wd : b.wounds) save_wound(a, wd);
   }
+  // The pool (spec 29): what makes a slot's occupant, written only when a world reserved a pool, so a world
+  // without one saves the same bytes as before.
+  for (EntityId id : slots_) {
+    const Body& b = bodies_.at(id);
+    a.boolean(b.vacant);
+    a.u64(b.pop);
+    a.str(b.label);
+    a.u8(static_cast<std::uint8_t>(b.spec.sex));
+    for (double v : {b.spec.age, b.spec.height_m, b.spec.mass_kg, b.spec.fat_fraction, b.spec.vo2max}) a.f64(v);
+    for (std::int64_t v : {b.blood_normal_ul, b.water_normal_ul, b.muscle_start_mg, b.glycogen_max_mg}) a.i64(v);
+  }
 }
 
 void Bodies::load(ArchiveReader& a) {
@@ -812,6 +991,56 @@ void Bodies::load(ArchiveReader& a) {
     b.wounds.clear();
     for (std::uint64_t n = a.u64(); n > 0; --n) b.wounds.push_back(load_wound(a));
   }
+  for (EntityId id : slots_) {
+    Body& b = bodies_.at(id);
+    b.vacant = a.boolean();
+    b.pop = a.u64();
+    b.label = a.str();
+    b.spec.sex = static_cast<Sex>(a.u8());
+    for (double* v : {&b.spec.age, &b.spec.height_m, &b.spec.mass_kg, &b.spec.fat_fraction, &b.spec.vo2max}) *v = a.f64();
+    for (std::int64_t* v : {&b.blood_normal_ul, &b.water_normal_ul, &b.muscle_start_mg, &b.glycogen_max_mg}) *v = a.i64();
+  }
+}
+
+void write_body_state(ArchiveWriter& a, const BodyState& s) {
+  a.u8(static_cast<std::uint8_t>(s.spec.sex));
+  for (double v : {s.spec.age, s.spec.height_m, s.spec.mass_kg, s.spec.fat_fraction, s.spec.vo2max}) a.f64(v);
+  a.boolean(s.spec.walker);
+  a.str(s.label);
+  for (std::int64_t v : {s.blood_normal_ul, s.water_normal_ul, s.muscle_start_mg, s.glycogen_max_mg}) a.i64(v);
+  a.u8(static_cast<std::uint8_t>(s.posture));
+  a.f64(s.activity.met);
+  a.f64(s.activity.speed_mps);
+  a.f64(s.activity.grade_pct);
+  a.f64(s.activity.carried_kg);
+  a.boolean(s.activity.asleep);
+  for (double v : {s.sleep_pressure, s.exertion, s.vo2max, s.fear, s.morale, s.threat, s.active_minutes_today, s.heavy_minutes_today})
+    a.f64(v);
+  for (double c : s.carry) a.f64(c);
+  a.u64(s.wounds.size());
+  for (const Wound& wd : s.wounds) save_wound(a, wd);
+  for (std::int64_t v : {s.fat_mg, s.muscle_mg, s.structure_mg, s.glycogen_mg, s.water_ul, s.blood_ul, s.food_j}) a.i64(v);
+}
+
+BodyState read_body_state(ArchiveReader& a) {
+  BodyState s;
+  s.spec.sex = static_cast<Sex>(a.u8());
+  for (double* v : {&s.spec.age, &s.spec.height_m, &s.spec.mass_kg, &s.spec.fat_fraction, &s.spec.vo2max}) *v = a.f64();
+  s.spec.walker = a.boolean();
+  s.label = a.str();
+  for (std::int64_t* v : {&s.blood_normal_ul, &s.water_normal_ul, &s.muscle_start_mg, &s.glycogen_max_mg}) *v = a.i64();
+  s.posture = static_cast<Posture>(a.u8());
+  s.activity.met = a.f64();
+  s.activity.speed_mps = a.f64();
+  s.activity.grade_pct = a.f64();
+  s.activity.carried_kg = a.f64();
+  s.activity.asleep = a.boolean();
+  for (double* v : {&s.sleep_pressure, &s.exertion, &s.vo2max, &s.fear, &s.morale, &s.threat, &s.active_minutes_today, &s.heavy_minutes_today})
+    *v = a.f64();
+  for (double& c : s.carry) c = a.f64();
+  for (std::uint64_t n = a.u64(); n > 0; --n) s.wounds.push_back(load_wound(a));
+  for (std::int64_t* v : {&s.fat_mg, &s.muscle_mg, &s.structure_mg, &s.glycogen_mg, &s.water_ul, &s.blood_ul, &s.food_j}) *v = a.i64();
+  return s;
 }
 
 }  // namespace zs

@@ -101,6 +101,8 @@ struct Body {
   double fear = 0, morale = 0.7;
   double threat = 0;  // 0-1, what the senses report right now (walkers seen, in reach, holding it)
   bool away = false;  // off the map, cold (spec 27): its body does not run and nothing senses it
+  bool vacant = false;           // a pool slot with no occupant (spec 29): not alive, holds nothing, skipped by every rule
+  std::uint64_t pop = 0;         // the registry pop whose body this is (a pool slot's occupant), 0 if none
   double active_minutes_today = 0;  // minutes at >= 2.5 MET
   double heavy_minutes_today = 0;   // training stimulus (one value, whole body, in Tier 0)
   std::array<double, 8> carry{};    // saved remainders of the continuous flows (spec 01 rule 2)
@@ -123,6 +125,23 @@ struct Needs {
   double hunger = 0, thirst = 0, tiredness = 0, exhaustion = 0;  // 0-1
 };
 
+// Everything the body model holds about one body, so a body can leave the simulation and come back exactly
+// (spec 29). The tissue amounts are the body owner's ledger balances in mg, uL and J.
+struct BodyState {
+  BodySpec spec;
+  std::string label;
+  std::int64_t blood_normal_ul = 0, water_normal_ul = 0, muscle_start_mg = 0, glycogen_max_mg = 0;
+  Posture posture = Posture::Stand;
+  Activity activity;
+  double sleep_pressure = 0.2, exertion = 1, vo2max = 42, fear = 0, morale = 0.7, threat = 0;
+  double active_minutes_today = 0, heavy_minutes_today = 0;
+  std::array<double, 8> carry{};
+  std::vector<Wound> wounds;
+  std::int64_t fat_mg = 0, muscle_mg = 0, structure_mg = 0, glycogen_mg = 0, water_ul = 0, blood_ul = 0, food_j = 0;
+};
+void write_body_state(ArchiveWriter& w, const BodyState& s);
+BodyState read_body_state(ArchiveReader& r);
+
 class Bodies : public System {
  public:
   explicit Bodies(World& w);  // registers resources, sinks and conversions (setup)
@@ -135,10 +154,28 @@ class Bodies : public System {
 
   // Creates a body and mints its tissues (setup only).
   EntityId create(World& w, const BodySpec& spec, const std::string& label);
+
+  // Spec 29: a pool of body slots reserved at setup, for pops that enter and leave the body simulation. A vacant
+  // slot is a body that is not alive, holds nothing and is skipped by every rule; `all()` includes vacant slots,
+  // so a reader in a world with a pool must skip `vacant` bodies.
+  void reserve_slots(World& w, std::size_t n);  // setup only
+  const std::vector<EntityId>& slots() const { return slots_; }
+  std::size_t free_slots() const;
+  // Puts a body in the first free slot: its tissue enters the ledger as a declared inflow caused by `cause`.
+  // Returns 0 if no slot is free (the request is refused, never queued).
+  EntityId embody(World& w, const BodySpec& spec, const std::string& label, std::uint64_t pop, EventId cause);
+  EntityId embody_state(World& w, const BodyState& state, std::uint64_t pop, EventId cause);
+  // Why a body cannot leave right now ("" if it can): not a pool body, not alive, a walker, away, or holding items.
+  std::string cannot_disembody(const World& w, EntityId body) const;
+  // Takes a body out of its slot, returning everything it held; its tissue leaves the ledger as a declared outflow.
+  BodyState disembody(World& w, EntityId body, EventId cause);
+  // A pool body that died while embodied leaves its slot the same way (the corpse as a thing in the world is a later
+  // unit: for now its mass leaves the ledger as a declared outflow). Throws if the body is alive or not an occupied slot.
+  BodyState release_dead(World& w, EntityId body, EventId cause);
   bool exists(EntityId id) const { return bodies_.contains(id); }
   const Body& get(EntityId id) const { return bodies_.at(id); }
   Body& get(EntityId id) { return bodies_.at(id); }
-  const std::map<EntityId, Body>& all() const { return bodies_; }
+  const std::map<EntityId, Body>& all() const { return bodies_; }  // includes vacant pool slots
 
   // Masses (g, kg) read from the ledger.
   double grams(const Body& b, ResourceId r) const;
@@ -178,6 +215,7 @@ class Bodies : public System {
   std::vector<std::string> trait_labels(const Body& b) const;
 
  private:
+  BodyState vacate(World& w, EntityId body, EventId cause);  // the shared tail of disembody and release_dead
   void fine_tick(World& w, Body& b);
   void body_step(World& w, Body& b);
   void metabolism(World& w, Body& b, double dt_s);
@@ -190,7 +228,12 @@ class Bodies : public System {
   // Moves amount (plus the saved remainder of flow `slot`) as whole units; returns what moved.
   std::int64_t flow(double& carry, double amount);
 
+  struct Amounts {
+    double blood_l, fat_kg, muscle_kg, structure_kg, water_kg, glycogen_kg;
+  };
+  static Amounts amounts_for(const BodySpec& spec);  // the tissue split of a spec, shared by create and embody
   BodyLedger L_{};
+  std::vector<EntityId> slots_;  // the pool, in the order a free slot is chosen
   const Ledger* world_ledger_ = nullptr;  // the owning world's ledger, for the readouts
   std::map<EntityId, Body> bodies_;
 };

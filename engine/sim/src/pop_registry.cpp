@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <set>
 #include <stdexcept>
 
 #include "zs/archive.h"
@@ -15,7 +16,7 @@ namespace {
 // (never delete an old reader), keep a frozen fixture of every shipped version in tests/fixtures, and make the
 // new reader of an old version fill any new field with the value that reproduces the old behaviour.
 constexpr std::uint64_t kSaveMagic = 0x474552504f50ull;  // "POPREG"
-constexpr std::uint32_t kSaveVersion = 4;  // 2 adds the region-event counter; 3 adds founder specs and roster kinds; 4 adds the age pyramid to the params
+constexpr std::uint32_t kSaveVersion = 5;  // 2 adds the region-event counter; 3 adds founder specs and roster kinds; 4 adds the age pyramid to the params; 5 adds embodiment (written only when some pop has embodied data, else 4)
 constexpr std::uint64_t kDrawStartAge = 10, kDrawAgeInBand = 11;                // the `b` key of Purpose::PopLife
 }  // namespace
 
@@ -149,7 +150,7 @@ double PopRegistry::founder_age(PopId id) const {
   return params_.founder_min_age + std::floor(fraction * params_.founder_age_span);
 }
 
-std::optional<Sex> PopRegistry::founder_sex(PopId id) const {
+std::optional<PopSex> PopRegistry::founder_sex(PopId id) const {
   std::uint64_t member = 0;
   const Cohort* c = cohort_of(id, member);
   if (!c) return std::nullopt;
@@ -322,9 +323,58 @@ bool PopRegistry::promote(PopId id) {
   return true;
 }
 
+Level PopRegistry::level(PopId id) const {
+  const auto it = records_.find(id);
+  if (it == records_.end()) return Level::Lazy;
+  return it->second.embodied != 0 ? Level::Embodied : Level::Record;
+}
+
+bool PopRegistry::begin_embodied(PopId id, std::uint64_t body, std::int64_t tick) {
+  if (body == 0 || !exists(id)) return false;
+  promote(id);
+  Record& r = records_.at(id);
+  if (r.embodied != 0) return false;
+  r.embodied = body;
+  r.embodied_since = tick;
+  r.body_state.clear();  // the slot is the one source of truth while embodied
+  return true;
+}
+
+bool PopRegistry::end_embodied(PopId id, std::vector<std::uint8_t> state) {
+  const auto it = records_.find(id);
+  if (it == records_.end() || it->second.embodied == 0) return false;
+  it->second.embodied = 0;
+  it->second.embodied_since = 0;
+  it->second.body_state = std::move(state);
+  return true;
+}
+
+std::uint64_t PopRegistry::embodied_body(PopId id) const {
+  const auto it = records_.find(id);
+  return it == records_.end() ? 0 : it->second.embodied;
+}
+
+std::int64_t PopRegistry::embodied_since(PopId id) const {
+  const auto it = records_.find(id);
+  return it == records_.end() ? 0 : it->second.embodied_since;
+}
+
+const std::vector<std::uint8_t>* PopRegistry::saved_body(PopId id) const {
+  const auto it = records_.find(id);
+  return it == records_.end() || it->second.body_state.empty() ? nullptr : &it->second.body_state;
+}
+
+std::vector<std::pair<PopId, std::uint64_t>> PopRegistry::embodied_list() const {
+  std::vector<std::pair<PopId, std::uint64_t>> out;
+  for (const auto& [id, r] : records_)
+    if (r.embodied != 0) out.emplace_back(id, r.embodied);
+  return out;
+}
+
 bool PopRegistry::demote(PopId id) {
   const auto it = records_.find(id);
   if (it == records_.end() || it->second.office != 0 || it->second.followed) return false;
+  if (it->second.embodied != 0 || !it->second.body_state.empty()) return false;  // the body's state would be lost
   if (!it->second.exceptions.empty()) kept_[id] = std::move(it->second.exceptions);  // nothing the pop did is lost
   records_.erase(it);
   return true;
@@ -364,6 +414,7 @@ PopCounts PopRegistry::counts() const {
   for (const auto& [id, c] : cohorts_) n.total += c.size;
   n.records = records_.size();
   n.lazy = n.total - n.records;
+  for (const auto& [id, r] : records_) n.embodied += r.embodied != 0 ? 1 : 0;
   return n;
 }
 
@@ -374,13 +425,19 @@ std::optional<std::string> PopRegistry::audit() const {
     if (!exists(id)) return "a record is not a pop";
   for (const auto& [id, list] : kept_)
     if (records_.count(id)) return "a pop is both a record and a kept lazy pop";
+  std::set<std::uint64_t> slots;
+  for (const auto& [id, r] : records_)
+    if (r.embodied != 0 && !slots.insert(r.embodied).second) return "two pops hold the same body slot";
   return std::nullopt;
 }
 
 std::vector<std::uint8_t> PopRegistry::save() const {
+  // Registries that never embodied anyone are written as version 4, byte for byte as before.
+  bool any_embodied = false;
+  for (const auto& [id, r] : records_) any_embodied = any_embodied || r.embodied != 0 || !r.body_state.empty();
   ArchiveWriter w;
   w.u64(kSaveMagic);
-  w.u32(kSaveVersion);
+  w.u32(any_embodied ? kSaveVersion : 4);
   w.u64(seed_);
   write_pop_params(w, params_);
   w.u64(cohorts_.size());
@@ -403,6 +460,17 @@ std::vector<std::uint8_t> PopRegistry::save() const {
     w.u64(cid); w.u64(specs.size());
     for (const FounderSpec& f : specs) { w.u16(f.age); w.u8(static_cast<std::uint8_t>(f.sex)); }
   }
+  if (any_embodied) {  // v5
+    std::uint64_t n = 0;
+    for (const auto& [id, r] : records_) n += (r.embodied != 0 || !r.body_state.empty()) ? 1 : 0;
+    w.u64(n);
+    for (const auto& [id, r] : records_) {
+      if (r.embodied == 0 && r.body_state.empty()) continue;
+      w.u64(id); w.u64(r.embodied); w.i64(r.embodied_since);
+      w.u64(r.body_state.size());
+      for (std::uint8_t b : r.body_state) w.u8(b);
+    }
+  }
   return w.bytes();
 }
 
@@ -415,6 +483,7 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
     case 2: load_v2(r); return;
     case 3: load_v3(r); return;
     case 4: load_v4(r); return;
+    case 5: load_v5(r); return;
     default:
       throw std::runtime_error("pop registry save is version " + std::to_string(version) + "; this build reads up to " +
                                std::to_string(kSaveVersion));
@@ -449,6 +518,26 @@ void PopRegistry::load_v4(ArchiveReader& r) {
   if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
 }
 
+void PopRegistry::load_v5(ArchiveReader& r) {
+  load_body(r, 5);  // the same layout as version 4, then the embodiment trailer
+  load_events(r);
+  load_specs(r);
+  load_embodied(r);
+  if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
+}
+
+void PopRegistry::load_embodied(ArchiveReader& r) {
+  for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
+    const PopId id = r.u64();
+    const auto it = records_.find(id);
+    if (it == records_.end()) throw std::runtime_error("pop registry save: embodied data for a pop that is not a record");
+    it->second.embodied = r.u64();
+    it->second.embodied_since = r.i64();
+    it->second.body_state.resize(r.u64());
+    for (auto& b : it->second.body_state) b = r.u8();
+  }
+}
+
 void PopRegistry::load_events(ArchiveReader& r) { region_events_ = r.u64(); }
 
 void PopRegistry::load_specs(ArchiveReader& r) {
@@ -456,7 +545,7 @@ void PopRegistry::load_specs(ArchiveReader& r) {
   for (std::uint64_t i = 0, n = r.u64(); i < n; ++i) {
     const std::uint64_t cid = r.u64();
     std::vector<FounderSpec> specs(r.u64());
-    for (FounderSpec& f : specs) { f.age = r.u16(); f.sex = static_cast<Sex>(r.u8()); }
+    for (FounderSpec& f : specs) { f.age = r.u16(); f.sex = static_cast<PopSex>(r.u8()); }
     founder_specs_[cid] = std::move(specs);
   }
 }

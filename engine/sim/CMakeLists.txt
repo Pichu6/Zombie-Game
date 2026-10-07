@@ -22,6 +22,7 @@ add_library(zs_sim
   src/pop_ai.cpp
   src/run.cpp
   src/pop.cpp
+  src/pop_body.cpp
   src/pop_registry.cpp
   src/demography.cpp
   src/roster.cpp

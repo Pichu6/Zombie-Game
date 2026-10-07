@@ -101,7 +101,7 @@ TEST_CASE("births are a pure function of the mother: same inputs, same births, i
       CHECK(a[i].year < f.end_age);
       CHECK(a[i].year < base.death_year);
     }
-    if (base.sex == Sex::Male) CHECK(a.empty());
+    if (base.sex == PopSex::Male) CHECK(a.empty());
     // Asking only for the later births gives the tail of the same list.
     const auto tail = births_of(8, id, base, 30.0, params);
     std::size_t j = 0;
@@ -116,7 +116,7 @@ TEST_CASE("births per woman who lives to 45 are near 1.8 (A3, placeholder fertil
   int women = 0;
   for (std::uint32_t slot = 0; slot < 40000; ++slot) {
     PopBase base = derive_base(2, census_pop_id(slot), 0.0, 0.0);
-    if (base.sex != Sex::Female) continue;
+    if (base.sex != PopSex::Female) continue;
     base.death_year = 100.0;  // everyone lives
     births += static_cast<double>(births_of(2, census_pop_id(slot), base, -1e9, params).size());
     ++women;
@@ -241,7 +241,7 @@ TEST_CASE("pinned known answers for births and the jump, the same on GCC and Cla
   const auto births = births_of(8, census_pop_id(3), base, -1e9);
   const auto c = jump(5, founders(100), 0.0, 40.0);
   MESSAGE("sex " << static_cast<int>(base.sex) << " births " << births.size() << " | jump births " << c.births << " deaths " << c.deaths << " alive " << c.alive_at_end << " visited " << c.people_visited);
-  CHECK(base.sex == Sex::Female);
+  CHECK(base.sex == PopSex::Female);
   CHECK(births.size() == 3);
   CHECK(c.births == 18);
   CHECK(c.deaths == 51);

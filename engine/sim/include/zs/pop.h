@@ -31,13 +31,13 @@ PopId mother_of(PopId id);                   // kNoPop for a founder
 unsigned child_index_of(PopId id);           // which child of the mother (born pops only)
 std::uint32_t founder_slot_of(PopId id);
 
-enum class Sex : std::uint8_t { Female = 0, Male = 1 };
+enum class PopSex : std::uint8_t { Female = 0, Male = 1 };
 
 // What derive() knows about a pop from its id alone. Times are in years on the world calendar
 // (year 0 is the start of the run; a pop alive at the start has a negative birth_year).
 struct PopBase {
   PopId id = 0;
-  Sex sex = Sex::Female;
+  PopSex sex = PopSex::Female;
   double birth_year = 0.0;
   double death_year = 0.0;  // when they die if nothing else kills them first (illness, violence, outbreak)
 };
@@ -47,7 +47,7 @@ struct PopBase {
 // The rates come from the world's own parameters (stored in its save), never from compiled-in numbers.
 // `sex`, when given, is a generated attribute (a founder from the town generator) and replaces the draw.
 PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, double known_alive_age = 0.0,
-                    const PopParams& params = default_pop_params(), std::optional<Sex> sex = std::nullopt);
+                    const PopParams& params = default_pop_params(), std::optional<PopSex> sex = std::nullopt);
 
 // A fixed pseudo-random permutation of 0..n-1 (a Feistel network with cycle walking), the "rank" of
 // spec 28. forward(i) is member i's rank; inverse(r) is the member with rank r. No storage per member.

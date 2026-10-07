@@ -38,6 +38,24 @@ void Ledger::mint(OwnerId owner, ResourceId resource, std::int64_t amount, Cause
   record({0, EntryKind::Mint, owner, owner, resource, resource, amount, amount, cause});
 }
 
+void Ledger::declare_inflow(std::int64_t tick, OwnerId owner, ResourceId resource, std::int64_t amount, CauseId cause) {
+  if (amount < 0) throw std::invalid_argument("negative inflow");
+  if (amount == 0) return;
+  balances_[{owner, resource}] += amount;
+  expected_[resource] += amount;
+  record({tick, EntryKind::Inflow, owner, owner, resource, resource, amount, amount, cause});
+}
+
+void Ledger::declare_outflow(std::int64_t tick, OwnerId owner, ResourceId resource, std::int64_t amount, CauseId cause) {
+  if (amount < 0) throw std::invalid_argument("negative outflow");
+  if (amount == 0) return;
+  std::int64_t& held = balances_[{owner, resource}];
+  if (held < amount) throw std::logic_error("outflow of more than the owner holds");
+  held -= amount;
+  expected_[resource] -= amount;
+  record({tick, EntryKind::Outflow, owner, owner, resource, resource, amount, amount, cause});
+}
+
 std::int64_t Ledger::transfer(std::int64_t tick, OwnerId from, OwnerId to, ResourceId resource, std::int64_t amount,
                               CauseId cause) {
   if (amount <= 0 || from == to) return 0;
