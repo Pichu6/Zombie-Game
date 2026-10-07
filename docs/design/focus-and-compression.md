@@ -1,6 +1,6 @@
 # Focus and compression: show and compute what the player attends to, keep everything coherent
 
-**Status:** Proposal (2026-10-07), from the user's description: only show what the player is seeing, whatever the layer or zoom; the conscious focus decides what is detailed. Layer 3 takes political decisions that take realistic time; layer 2 shows the result (a hospital being built, pops coming and going); layer 1 lets you work in it. Intent is the user's; the mechanisms below are mine and **not decided**. Builds on [spec 27](../tier0/specs/27-detail-levels.md), [spec 28](../tier0/specs/28-pop-levels.md), [spec 29](../tier0/specs/29-embodied-pops.md), [0033](../decisions/0033-restoring-cost-and-two-way-projects.md), [layer jumps](layer-jumps.md), the [zoom continuum](zoom-continuum.md) and the [multi-resolution research](../research/layer-jumps-multiresolution.md) (19 failure modes).
+**Status:** Proposal (2026-10-07); the user's answers in section 7 are **Decided** in [0041](../decisions/0041-realistic-time-default-commit-on-observation-and-pins.md). From the user's description: only show what the player is seeing, whatever the layer or zoom; the conscious focus decides what is detailed. Layer 3 takes political decisions that take realistic time; layer 2 shows the result (a hospital being built, pops coming and going); layer 1 lets you work in it. Intent is the user's; the mechanisms below are mine and **not decided**. Builds on [spec 27](../tier0/specs/27-detail-levels.md), [spec 28](../tier0/specs/28-pop-levels.md), [spec 29](../tier0/specs/29-embodied-pops.md), [0033](../decisions/0033-restoring-cost-and-two-way-projects.md), [layer jumps](layer-jumps.md), the [zoom continuum](zoom-continuum.md) and the [multi-resolution research](../research/layer-jumps-multiresolution.md) (19 failure modes).
 
 ## 1. The principle
 
@@ -79,7 +79,7 @@ Each technique is already in the repo or a small step from it; the new part is u
 | Teleporting workers hide bugs (mode 19) | A worker's position is the schedule function; any override is logged with a reason |
 | Seam exploits: leave, return, get more (mode 18) | Same ledger whether attended or not |
 | Rare events lost in a long jump (mode 17) | Events (accident, blackout) are drawn by keyed hazards over the interval, not skipped |
-| Realistic duration versus play speed | Per-layer time scale ([0032](../decisions/0032-real-time-reference-and-generational-runs.md)): layer 3 fast, layer 1 real time; a hospital's real build time (years) is a number of the plan |
+| Realistic duration versus play speed | The default is 1:1 and durations are real ([0041](../decisions/0041-realistic-time-default-commit-on-observation-and-pins.md)); a hospital's build time (years) is a number of the plan, played by fast-forward, which runs cold with jump forms. The speed an area may run at is capped by what is attended there |
 
 ## 6. What it needs built, in order
 
@@ -88,9 +88,21 @@ Each technique is already in the repo or a small step from it; the new part is u
 3. **The generic jump test harness** (round trip, aggregate against enumeration, jump against stepping, order independence), applied first to the pop jumps already built.
 4. A **vertical slice** to prove it: one Project (a small clinic), one sector, ten pops, one supply route, run cold, watch at layers 2 and 1, compare the hot and cold runs.
 
-## 7. Questions for the user
+## 7. Answers (2026-10-07, Decided in [0041](../decisions/0041-realistic-time-default-commit-on-observation-and-pins.md)) and what is still open
 
-1. **Commit on observation:** is it right that unobserved detail is not canonical until seen (already the rule for buildings, 0017), and extended to a project's interior?
-2. **Pins:** should the player be able to pin things (a project, a clinic, a person) so they stay *watched*, besides the ones orders create automatically?
-3. **Real durations:** should a hospital really take about 2 to 3 game years (the realistic range), with the 1 real hour = 1 game day default making that about a month of play at layer 3?
-4. **Order of work:** the Project spec first (your example, but it leans on stocks and money, which are gaps), or the schedule-and-position unit first (smaller, and it also serves the dots in a city)?
+1. **Commit on observation:** yes, where it is better for memory.
+2. **Pins:** yes, but each layer must give its own information about the same thing (section 8).
+3. **Durations:** realistic for everything is the default (1:1), with fast-forward and pause. A hospital takes its real years; the player fast-forwards through them.
+4. **Still open:** the order of work. Recommendation: the **schedule and position at time t** unit first (small, and it serves the dots and the project's workers), then the **Project** spec.
+
+## 8. Pins and lenses: one thing, a different view per layer
+
+A pin is `(entity, watch level)`. What the player is shown is a **lens**: a pure function of (the entity's records, the layer, what the observer knows). The same hospital project:
+
+| Layer | The lens shows | Source of truth it reads |
+| --- | --- | --- |
+| Macro | Progress, ETA, budget used, the bottleneck and its cause, effect on the sector's capacity | `p`, the ledgers, the log (sums and readouts) |
+| City | The building at its stage, who is staffed, trucks and routes, what is missing at the site, supply chain links | The roster, the deliveries in transit, the site's stock |
+| Individual | What a person standing there can see and has heard: crews at work, a "delayed" sign, rumours; a worker on site knows their own task and pay | The plan's prefix at `p`, what is in the person's senses and beliefs (not the ETA unless told) |
+
+Rules: a lens never stores anything (C9, inspect on demand); a lens can only show what the layer's character could know ([macro layer](macro-layer.md) §3.3 fog; [layer jumps](layer-jumps.md) row 16); every lens of the same thing agrees, because they all read the same records. A pin also keeps the thing *watched* (section 1), so a pinned person stays a record and a pinned project keeps its process alive.
