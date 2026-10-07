@@ -8,6 +8,7 @@ A realistic zombie survival simulation for PC, on our own C++ engine with a Vulk
 
 ## Before you work
 
+0. **One line of work** ([0047](docs/decisions/0047-one-line-of-work.md)): `git fetch origin` first and read `docs/status.md` from `origin/main`; check nothing you are about to build already exists or is on an open branch or pull request; take decision numbers from `origin/main`; push before you stop. A cloud session leaves a Windows build (CI zip) and says which commit it came from; a local session verifies on MSVC.
 1. Read `docs/status.md` (where we are) and `docs/vision.md` (what the game is).
 2. Read the design doc for the system you touch in `docs/design/`, and its decisions in `docs/decisions/`.
 3. The user's current instructions override any document.

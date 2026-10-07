@@ -19,6 +19,14 @@ Shared project vocabulary for design documents and new-engine code. It keeps the
 - **Project**: the record created by a build order; it posts jobs and material requests and holds the escrowed money.
 - **Lifepath**: a pop's past, sampled term by term backwards from who they are today, TTRPG style.
 - **Dossier**: the inspector seen through a character's knowledge; each fact shows its source and age and can be wrong.
+- **Projection**: the written, field-by-field rule that turns a body into a record on demotion, saying what is kept as integers and what is dropped as a readout.
+- **Memorisation blob**: what a record stores from the last demotion that the record itself cannot represent (position in a room, a mid-action state), so promotion can restore it.
+- **Kept reason**: a flag that keeps a record from merging back into a census row (player tie, story tie, witnessed, possessed, never cull).
+- **Quantum**: the visible unit of an aggregate shown to the player (a household, a pack of walkers), so a cold count stays readable.
+- **Chunk header**: per saved chunk, its schema and generator versions, generation status, caught-up tick, level and checksum.
+- **Jump form**: a rule's `advance(state, from, to)` that applies it over an interval in one step; an exact event loop when rules inside the interval are coupled.
+- **Archetype**: a household template (ages, sexes, relationships) that a census cell holds an integer count of; the human generator maps a slot to its archetype by cumulative count, so totals are exact.
+- **Outbox / commit**: in the two-phase tick, the keyed messages a chunk writes during the parallel pre-update, applied serially in id order afterwards.
 
 ## Objects
 

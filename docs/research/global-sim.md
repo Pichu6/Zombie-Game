@@ -24,6 +24,10 @@ Files `loop/22a` (Plague Inc and a virus editor), `22b` (world generation, settl
 - Copy: Hearts of Iron map-targeted decisions, Stellaris build tooltips and jobs from buildings, Manor Lords self-staffing, Cities: Skylines info views, RimWorld/Kenshi job queues as the objective source, The Sims' now/today/life wants. Avoid: OGame queue wipes, Frostpunk manual-only staffing, per-pop priority grids.
 - Licences: CHELSA (CC0), Beck Köppen (CC BY), SoilGrids (CC BY) usable; WorldClim, HWSD and IUCN range maps are non-commercial; RESOLVE ecoregions are CC BY but have no species lists; Google Open Buildings covers only parts of the world.
 
+## Pop simulation, lenses per zoom, persistence, catch-up maths, threading, census data (2026-10-07)
+
+Four notes from a local session, merged on 2026-10-07: [pop-simulation-and-persistence.md](pop-simulation-and-persistence.md) (Dwarf Fortress, Songs of Syx, Paradox pops, save formats, lenses per thing; rules into specs 06 and 27), [catch-up-jump-forms.md](catch-up-jump-forms.md) (exact event loops, binomial consumption, competing hazards, keyed draws, the agreement test; rules into specs 02, 04, 27; the same ground as [layer-jumps-multiresolution.md](layer-jumps-multiresolution.md) from the maths side, with primary sources read), [threading-and-partition.md](threading-and-partition.md) (two-phase tick over chunk islands; decided as [0041](../decisions/0041-threading-and-partition.md)) and [human-generator-data.md](human-generator-data.md) (licence table per dataset, the fit-and-integerise pipeline, lifepaths as a backward Markov chain).
+
 ## Endgame, generation, activities and scale (2026-10-06)
 
 `loop/24` (slow endgame, Haven & Hearth and Space Engineers, real infrastructure decay, generation on the go), `loop/25` (activities and mini-games, parity rule, eight interaction types), `loop/26` (scale across layers: real-size objects, smaller worlds by having less of them, time as the real constraint; XCOM 2 geoscape lessons).

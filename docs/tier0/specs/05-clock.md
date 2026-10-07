@@ -26,6 +26,7 @@ One global clock and one fixed update order for every system, so a run is reprod
 6. Combat forces 1× while any pop is in melee range of a hostile.
 
 7. No system iterates over a hash container (unordered map or set) when the order can affect results; entity lists are kept sorted by id. Path searches ([09](09-site-map.md), [18](18-noise-field.md)) use a fixed neighbour order and explicit tie-breaks.
+8. (Decided, [0041](../../decisions/0041-threading-and-partition.md), 2026-10-07; model in [threading-and-partition.md](../../research/threading-and-partition.md).) From the chunk split, the tick is two phases: a parallel pre-update of chunks on a frozen copy of the previous tick, writing only their own entities and an outbox of keyed messages, then a serial commit in chunk and entity id order. Fields are double-buffered across borders. Asynchronous work commits at a tick chosen from state. The replay hash must not depend on the worker count. Tier 0 runs the same phases with one chunk and one worker.
 
 ## Invariants
 

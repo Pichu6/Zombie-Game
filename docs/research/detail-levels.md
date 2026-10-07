@@ -55,6 +55,10 @@ The stage 7 census is the first working case. The 60 neighbours start as rows; o
 3. **Wake cost spikes:** waking a block with many walkers in one frame. Spread promotion over a few ticks.
 4. **Things that only make sense step by step** (a fight, a door being pushed) are never resolved cold while the player could still see them; they finish hot or are auto-resolved only outside the bubble.
 
+## Enriched (2026-10-07)
+
+[pop-simulation-and-persistence.md](pop-simulation-and-persistence.md) adds the engineering evidence behind this note: Dwarf Fortress's five tiers and its lossy offload, Paradox pop grouping and merging, Project Zomboid's zombies as per-cell numbers, the academic simulation level-of-detail literature (Chenney's state distributions, alibi generation, multi-level aggregation with memorisation), mesoscopic traffic and GLEaM for networks and the outbreak, and the save-format precedents (Factorio, Minecraft region files, SQLite containers). Its section 3 extends the detail table above to groups, places, things, networks, vehicles, fields, the outbreak, the economy, weather and beliefs. The rules it adds (projection written field by field, memorisation blob, kept reasons and a merge path, constraint-checked promotion, importance beyond distance, groups as nodes) are now in [spec 27](../tier0/specs/27-detail-levels.md) rules 8–12.
+
 ## Recommended next step (by dependency, no dates)
 
 1. Now: nothing to change in Tier 0 code. The block is one hot chunk, plus the cold census. That's the right size.

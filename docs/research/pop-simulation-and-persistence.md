@@ -1,0 +1,294 @@
+# Pop simulation, lenses per zoom, and saving the world
+
+**Status:** Research note, 2026-10-07. Not a decision. Asked by the user: research how games simulate populations, how they save that data, and how "different lenses" apply to every layer of a zoomed simulation (not only people), with Dwarf Fortress as the example and engineering-quality sources.
+
+**What already existed:** [detail-levels.md](detail-levels.md) (one simulation, hot/warm/cold, chunks), [world-simulation §3](../design/world-simulation.md#3-population-proposal) (lazy census → record → embodied), [inhabitants.md](../design/inhabitants.md) (scale and deferred simulation), [spec 06](../tier0/specs/06-save-replay.md) (save and replay) and [spec 27](../tier0/specs/27-detail-levels.md) (detail levels and chunks). This note does not replace them. It adds the evidence behind them, corrects nothing decided, and ends with concrete enrichments to the specs (section 7). Five research passes fed it (Dwarf Fortress, agent level of detail, save methods, pop models, Songs of Syx); the source list is in section 8.
+
+## 1. Answer in one page
+
+1. **Nobody simulates everyone at full detail; everyone who tries pays for it.** Dwarf Fortress spends over 60 % of its frame on units taking turns. Stellaris went from individual pops (1.x) to unbounded pops with jobs (2.2) to groups of 100 keyed by species, stratum, ethic and faction (4.0, 2025) because of late-game lag. Cities: Skylines 1 capped citizen bodies at 65,536 while keeping about a million citizen records; Cities: Skylines 2 removed the cap and shipped with trip suppression, despawns and death waves. Our three levels (census row, record, body) are the right shape. Section 3 shows what each level should hold.
+2. **The cold form of a thing is a key plus a count, with a merge path.** Victoria 3 pops are unique per (profession, culture, religion, workplace, state); every mechanic that splits a pop fragments the table, and all of Paradox's fixes were on the rate of record creation (move whole pops, merge on arrival, merge tiny pops, at most about log10(N) pops per profession per building). Dwarf Fortress historical figures never merge back, and its history grows without bound. **We need a demotion and merge path, not only a promotion path.**
+3. **The projection from body to record must be written down, field by field.** Dwarf Fortress rebuilds every unit from its historical figure when a map unloads, and the record has no bleeding, hunger or drunkenness, so leaving a site heals you. Players exploit every field the projection drops. Our record must keep wounds, infection clocks and stocks as integers, and drop only readouts.
+4. **Catch-up on wake has three honest designs.** Freeze (Caves of Qud, Minecraft: time passes, nothing acts), replay elapsed events (Elite's background simulation, Sims 3 story progression), or sample a consistent state from a distribution (Chenney 1997, "alibi generation"). Dwarf Fortress does none at the site: it advances the records and skips two weeks on the calendar to hide the seam. Our jump form `advance(state, from, to)` ([spec 27](../tier0/specs/27-detail-levels.md) rule 2) is design two, and its test is distributional agreement with the hot run, never point equality.
+5. **Save what diverged from generation, in a per-chunk container with a header.** Minecraft's region files, Caves of Qud's per-zone mini-saves, No Man's Sky's bounded edit cache and Noita's touched-chunk files all store deltas against a deterministic generator. Factorio's one invariant is that save, exit and load change no observable behaviour, checked by a per-tick CRC and a replay. Section 5 gives the layout.
+6. **People live in one global table; chunks hold references.** Project Zomboid keeps players and vehicles in SQLite and turns zombies into a per-cell number on unload, which is why a specific zombie cannot survive leaving a cell. Star Citizen's entity graph is the cold tier and a single server has authority over an entity at a time. A person must never exist in two chunks or two forms at once.
+7. **Haven & Hearth logic fits** (the user's observation, 2026-10-07): Songs of Syx's citizens physically fetch materials and finish real jobs, and its UI only estimates what the simulation does. That is H&H's "everything takes real time" at scale. The one tension: H&H slowness is felt as game hours compressed by delegation, so long jobs must have a jump form at warm and cold, or the player's 10× and rest-until-event will stall on bodies walking.
+
+## 2. How others do it
+
+### 2.1 Dwarf Fortress (the example)
+
+Dwarf Fortress has five tiers in practice, documented by the DFHack memory structures (the closest thing to a spec):
+
+| Tier | What it holds | Our equivalent |
+| --- | --- | --- |
+| World grid and regions | Static after world generation: elevation, biomes, rivers, civilisations, sites | World fields, settlements saved at creation |
+| Abstract populations | `world_population` and `world_site_inhabitant`: race, caste, owner, **a count**. No identity: non-historical people are regenerated from the count each time a site loads and vanish when it unloads | Lazy census (ours keeps identity through the seed; DF does not) |
+| Historical figure | Identity: name, race, caste, birth and death years, civilisation, family head, links to entities and sites, flags (`never_cull`), and **optional pointer sub-profiles** (skills, wounds as missing parts only, personality, whereabouts, kills, known secrets, inventory, reputation, relationships). A figure that never fought has no kills block | Record |
+| Nemesis record | The bridge: "this figure has a saved full unit in chunk file N at index M". Units are stored 100 per `unit-#.dat` file | Record with a saved body |
+| Unit | The embodied creature: body, soul, skills, job, path, flags such as `inactive` ("dead or off map") | Embodied body |
+
+Promotion is one way and triggered by salience, not by zoom: every fortress citizen, every named creature the adventurer meets, nobles, megabeasts, and children of historical mothers become historical figures. There is a world-generation parameter for the historical figure count and a "cull unimportant historical figures" option because "huge historical figure populations can cause the size of history data to explode". History itself is an append-only event log (`world_history.events`), never compacted; legends exports for 1,000 years reach a gigabyte.
+
+**Offload is lossy by design.** "Every time the local map is offloaded, all units, including your adventurer, are also offloaded and re-initialized from historical figure data. This is why, whenever sleeping, waiting or fast-travelling, all non-permanent wounds are healed, and stomach fullness and intoxication is reset." Retiring a fort scatters its dwarves and animals, deletes drinks and pending constructions, and refills drained pools. The record keeps missing body parts and events; it has no field for bleeding, so bleeding cannot survive the projection.
+
+**No catch-up at the site.** Returning to a retired fort skips two weeks on the calendar (the abstract world tick, tuned in 2014 from 23 s to about 10 s per two weeks) and advances the records: births, deaths, marriages, succession, conquest, population growth (a 200-dwarf fort retired for eight years reopens at 300). Nothing simulates what the dwarves would have built. Old age is even handled by two code paths: off-site figures die any day of the year, on-map ones only at year end.
+
+**World activation (0.40, 2014).** Off-map movement is by **armies**, a group record with a world-coordinate path, a goal state machine (hold territory, harass, invade, camp, patrol, rescue a figure, abduct, and so on) and a membership that mixes historical figure ids with a count drawn as "N % of the site's population". Caravans, diplomats and migrants teleport; armies, bandits and questers travel. Off-map battles were at first not simulated at all ("the invasions are all successful right now unless locally interfered with"); abstract battle events came later. An army reaching a loaded map is realised into units at the edge. Information travels with latency: a fight "gets saved as an event, and there's a timer on it, so it propagates more slowly".
+
+**Performance.** Over 60 % of frame time is units taking turns, less than 10 % of that pathfinding. Line of sight is O(n²) with a 26-tile cutoff. Temperature on items doubles frame cost (the toggle "has been reported to increase FPS by 100 % or better"). Tarn's fixes are dirty flags, "might contain items" bits, and connected components to cut almost all failed A* calls. His stated lesson on data: components that can be switched on and off, not class hierarchies per kind of item.
+
+**Failures worth copying the fix for.** Every documented seam bug is a dangling or duplicated cross-tier reference after a project or restore: retired adventurer clones, site populations that "shoot into the millions", nobles whose rooms forget their owner, units marked hostile after unretire. The cats dying of alcohol came from a generic contaminant system with no quantity between "trace on the paws" and "a mug".
+
+### 2.2 Songs of Syx
+
+One developer (Jakob de Laval), a custom Java engine on LWJGL, cities of 10,000 to 30,000 citizens each simulated as an entity that walks, fetches, collides and interrupts work for needs. The user supplied the video transcript; the engineering facts below come from the developer's own forum replies and patch notes.
+
+- **The UI estimates, and the simulation is bent to match.** Verified in the developer's words (V70 dev log): "The number you see is a complex estimation of what's going to happen." The estimate folds in shifts, commuting, fetching and proximity; reality diverges because workstations consume inputs in discrete cycles and stall on storage. His fix was not to make the UI count reality but to make reality converge: workers take "borrowed" resources "that they need to repay in their next fetch run. You will not notice unless I told you." And: "in order to keep it fully real we'd need an in-game day to be a real day, and that is a problem in itself." The game keeps three views: a forward model per room (planning), per-day counters (what happened, as 8-day ring buffers per resource, per cause of death, per disease), and yearly ledgers. Players trust the ledger.
+- **Cost is movement, not thinking.** "Generally it's when people are moving about that eats resources." The step is bounded by the fastest object (16 tiles per second) so nothing passes through walls. "Running 10k entities at 25× speed is like running 250,000 highly simulated individuals at 1×. It is not designed to work." In practice 10k citizens hold about 5× late game; the simulation and UI share one loop that drops to 30 frames per second.
+- **Single thread, regretted.** "A world simulation is not parallelisable, since everything depends on what happened previously. Were I to make a similar game from scratch again, I'd look into building it so that tasks can be divided better and use more cores, but currently it's not possible." Pathfinding for armies and later four path threads were moved off the main loop after the fact; a hierarchical grid (8×8, 16×16, 32×32 up to the map) with crowding penalties gave "a solid 3× on a 28k settlement".
+- **Stats are keyed arrays with per-race totals and histories.** The save-reading tool that boots the engine headless finds per-race aggregates (population by housing class, happiness, loyalty, fulfilment by category with current and maximum, work fulfilment, deaths and disease histories, stockpiles, flows) and no per-citizen list, so the UI reads totals, never iterates citizens. Needs are data (text files per race): food days and preferences, drink, clothes, housing, services, environment, religion, occupation, government, each a per-race weight.
+- **The world layer is aggregate and coupled by a few events.** Regions have a population that "determines the amount of tax you can extract" with a current and target number from fertility and health buildings; shipments arrive "every other day" into import depots; migrant waves follow happiness thresholds; recruits are drawn from region population; divisions are counts with training and gear until a battle instantiates them as entities. Other cities are never simulated individually.
+- **Saves:** binary through the engine's own serialiser, under 1 MB since V55 ("no need to zip anymore"), and every major version breaks saves by policy.
+
+**Verified from the compiled demo (version 0.51, September 2020; class layouts read from the jar with a small class-file parser, no decompiler).** This settles the three open questions above, for that version:
+
+- **Stat storage: one packed byte array per citizen plus running totals per race and class.** The per-citizen object `HInduvidual` holds `byte[] data`, an age in days, a bools byte, name indices, race, class (slave, citizen, nobility, dead), faction, a workplace reference and a division slot. Each stat is a bit, a nibble (0–15) or a byte at a fixed index in that array (`HStatBit`, `HStatNibble`, `HStatByte`); the 2020 list is hunger, starving, food level, food preference, filth, constipation, sleepiness, sleep quality, exhaustion, injuries, work skill, work hours, awe, road access, lighting, tavern access, bathing, feasting, clothes, tools, combat gear, training, experience, a combat talent trait, employment and division. Every `set` also calls `addGlobally` / `removeGlobally` on an `int[]` per (race, class) (`HData[][]`) and per division, so sums are maintained incrementally and the UI never iterates citizens. Several stats carry a **target** per race and class set by the player (rations, clothes, gear) with a bonus curve. So: struct of packed bytes per citizen, totals as side tables, not an object graph.
+- **Cadence: a fast tick for movement, a slow staggered tick for stats and AI.** `Humanoid` is an entity with physics, collision and an `updateTimer`, `updateI` and `dayOfYear`; its resources (stats, AI) implement both `update(float)` per frame and `update(int, boolean)` per slow step. The constants are 32 slow updates per game day with a byte delta of 8 (256 units per day, so a nibble or byte stat can drift a fixed amount per step), and the AI has a `shouldService(…)` gate and a `nextModule` cursor, so modules (hunger, sleep, health, hygiene, work, idle, battle) are serviced in turn rather than all at once. The AI state is itself a `byte[]` with bit, nibble and byte fields (`AIData`), one state, one sub-action, one plan and one interrupt at a time.
+- **Save: Java serialisation for entities, raw arrays for managers, into one buffer.** `GameSaver` prints "Saving the world…" and writes through `FilePutter`, which wraps an `ObjectOutputStream` over a 64 MB `ByteBuffer`; the entity manager saves its entity array as serialised objects (`Humanoid`, `AIManager` and `HInduvidual` are `Serializable` with custom write methods), while every manager implements `SAVABLE` (save, load, clear) and writes ints, doubles and `int[]` / `short[][]` / `byte[]` arrays in a fixed order with string marks for checking. That is why saves are small and why every version breaks them: the layout is the code.
+- **Caps and scale (0.51):** the entity manager has a hard array of 40,000 entities; the settlement map is 768×768 tiles; the world map is byte arrays per layer (ground, forest, mountain, water) with other settlements as `WorldSettlement` records holding city information, not citizens.
+
+Lessons for us: decide the thread model before the first entity and partition by chunk from the start (Songs of Syx's one loop is its ceiling); never move bodies at warm or cold, only in the hot set, and bound the tick by the fastest body as we already do (0.5 s, [spec 05](../tier0/specs/05-clock.md)); keep per-cell totals and daily ring buffers so City and Macro read sums, never agents; separate the forward estimate the player plans with from the counters of what happened, and accept that they differ.
+
+### 2.3 Paradox pops: Victoria 2, Victoria 3, Imperator, Stellaris
+
+- **Victoria 2:** a pop is one (size, profession, culture, religion) record per province, read as "one nuclear family" scaled to a 200,000 base. Needs are one formula per bucket (life, everyday, luxury) applied to the whole record; satisfaction drives militancy, consciousness and promotion. Monthly dynamics.
+- **Victoria 3:** unique per (profession, culture, religion, workplace, state), sizes "from mere handfuls to millions", "many tens of thousands of pops". Wealth is an accumulator (income minus expenses per week), standard of living derives from it, literacy is a share, political stance is three sub-counts. Patch history is a lesson in fragmentation: 1.0.6 merged very small pops; 1.6 stopped splitting pops for migration ("regularly splitting pops up and moving the pieces all over the place results in a higher number of pops and worsened performance as the game goes on"), moves whole pops smallest first and merges on arrival; defines cap records per profession per building at about log10(employees) with a minimum of 3.
+- **Imperator:** integer pops per territory with class, culture, religion and happiness; "a single randomly chosen pop will always be assimilating" per territory per month. One-random-pop-per-territory is a cheap scheduler.
+- **Stellaris:** 1.x individual pops on tiles; 2.2 removed tiles, pops became unbounded objects with jobs; 3.0 added logistic growth to halve late-game pop counts; 4.0 (2025) "pops will be grouped into pop groups based on species, strata, ethics, and faction, and these groups will produce workforce that is used to fill jobs", "most things that previously affected 1 pop now affect groups of 100". Performance improved; the UI was criticised because players lost the "this pop works that job" model and tooltips did not explain the maths.
+
+### 2.4 RimWorld
+
+A pawn is a composition of trackers (needs, mind state, thinker, health as a list of hediffs per body part with severity stages, story, age, skills, relations, work settings, jobs, inventory, records). Needs are 0–1 bars; mood is a sum of thoughts, each with an offset, a duration, a stack limit and a stack multiplier, and the tooltip shows every term. Pawns leaving the map become world pawns: most are deleted; protected ones (relatives, faction leaders, quest targets, anyone referenced by a tale) are kept and "mothballed", updating only an age counter about every quarter day. Community garbage-collector mods exist because the kept set still bloats saves. Save format is one XML graph (`ExposeData` in three passes: values, cross-references by load id, post-load), hundreds of megabytes late game, no partial save possible.
+
+### 2.5 Project Zomboid
+
+Saves are per-chunk files (`map_X_Y.bin`, 10×10 squares each with objects, erosion, generators, vehicle refs, loot-respawn data), parallel per-cell files for zombie population (`zpop_CX_CY.bin`) and animals, and SQLite for players and vehicles. "When cells are not loaded into memory, zombies become a number for the cell, and those numbers move from one cell to another"; entering a cell spawns that count from a desired-population heat map, and meta zombies "are not subject to pathfinding restrictions", so they appear inside sealed buildings. A historical bug made zombies vanish on leaving and re-entering a chunk: the hot-to-cold hand-off lost instances. Lesson: real zombies are destroyed on unload and re-rolled from counts; a specific individual survives only if its identity lives outside the chunk, which PZ does for players and vehicles only.
+
+### 2.6 Cities: Skylines 1 and 2
+
+CS1: every citizen has a name, life stage, education, household, home, workplace and current activity; "because simulating individual citizens takes some processing power, we opted to cut down the number of citizens" (a tower has 12 households). Hard arrays: 1,048,576 citizens, 65,536 citizen bodies moving, 16,384 vehicles. CS2: "no hard limit, it will all depend on your hardware"; citizens have a life path journal (flavour only, "does not affect performance figures"), health, well-being, conditions; trips chosen by a generalised cost (time, comfort, money, behaviour) weighted by age. Load shedding at scale: "there is a probability for whether or not an agent will travel to work or school", despawn on deadlock with teleport to the previous destination, deaths spread across the day after a death-wave bug. Players noticed each shortcut.
+
+### 2.7 Shadows of Doubt and Watch Dogs: Legion
+
+Shadows of Doubt gives every citizen a name, job, address and 23 traits; "the game needs a brief period of calculation time before the start of each day (10–15 s) where their activities for the day are chosen and mapped out", "4–10 journeys every day"; deviations are computed live because "there will never be more than a handful of citizens requiring deviations"; AI update rate rises near the player and when the citizen is doing an aware action, so "95 % of the citizens at any one time are relatively insignificant". Witness memory decays with familiarity, distinctiveness, alertness and age.
+
+Watch Dogs: Legion's Census (GDC 2021) is "a procedural generation layer that creates characters with demographic profiles that are internally consistent, and a simulation layer that makes the characters persistent and dynamically generates schedules". The dependency chain is job → work hours and clothing → income → affordable neighbourhood → hobbies → relationships, for about nine million Londoners. Identity is seed-derived; only touched characters get stored deltas.
+
+### 2.8 X4, Bannerlord, Kenshi, Caves of Qud, The Sims 3
+
+- **X4:** "high attention" (in sector) versus "low attention" (out of sector). Low attention has no projectiles or collisions; combat is resolved in pulses by applying damage per second to hit-point pools. The chronic complaint is that outcomes differ between the two (stations under-damaging capitals, some ships too survivable out of sector). The lesson is distributional: when the cold combat model is not calibrated against the hot one, players notice who wins and how fast.
+- **Bannerlord:** campaign battles resolve round by round from a scalar troop power. Accepted because the same model runs for AI versus AI everywhere.
+- **Kenshi:** vanilla deletes squads that leave the loaded area; a mod ("Kenshi Virtual Simulation Engine") adds an off-screen world and an "identity hijack" that injects a persistent agent's stats and name into a generic spawn. That is our promotion, retrofitted.
+- **Caves of Qud:** a "reality bubble" of the current screen plus edges; outside it, "time still passes but NPCs will not take any actions"; "every time a zone is frozen or thawed a small save is made of just that map"; zones have deterministic ids and generate from seed on first visit.
+- **The Sims 3:** inactive households age, marry, move and die (story progression), unpopular until a toggle existed. The Sims 4 dropped the open world and later re-added "neighbourhood stories" under player control. Off-screen progression must be legible and consentable.
+
+### 2.9 Academic simulation level of detail
+
+- **Chenney and Forsyth (1997, 2001):** stop integrating out-of-view objects; name the two problems, *consistency* (an object comes back in the right state) and *completeness* (objects that would have entered the view do so). Their cold form is a **distribution over states** learned from the full simulation ("well under one percent of the original parameters"); on re-entry, sample a plausible state given elapsed time rather than catch up step by step. Speedups over two orders of magnitude.
+- **Sunshine-Hill (2010, 2011):** importance by attention and memory, not distance; a "LOD trader" that spends a compute budget on transitions; **alibi generation**, "retroactively elaborating an agent's behaviour to maintain realism under prolonged scrutiny". The guarantee is statistical indistinguishability from the full simulation.
+- **Niederberger and Gross (ETH, 2003–2005):** a constant frame rate is the invariant; the time left is distributed to agents by level, "visible and nearby agents get more time than invisible or distant"; a reactive layer always runs, a planning layer deepens with budget (anytime algorithms make transitions continuous).
+- **Osborne and Dickinson (2010):** groups as a tree; "expanding and collapsing nodes allows dynamic abstraction of individuals depending on proximity to the player". A horde, a convoy, a household are nodes whose children exist only when expanded.
+- **Navarro et al. (2011–2013), multi-level agent-based simulation:** aggregation functions take N agents and produce an aggregate; disaggregation reverses it with **memorisation functions** that store what aggregation lost; validation runs the all-micro and the dynamic-level simulations in parallel and compares aggregate trajectories.
+- **Traffic (SUMO meso, MATSim, Open Traffic Models):** mesoscopic traffic keeps vehicles discrete but without position inside a queue segment, "up to 100 times faster than the microscopic model"; hybrid frameworks give each link its own model class and define an interface for what crosses the boundary.
+- **GLEaM (Balcan 2009):** 3,362 subpopulations around airports; counts per compartment with daily binomial draws; air travel moves integer people; commuting is folded into an effective force of infection because it is an order of magnitude larger than air travel but "the large-scale pattern exhibits only small variations". Our Macro outbreak is this.
+- **Covasim, OpenABM-Covid19, FRED (research epidemic agent models):** people as indices into flat state arrays ("not individual objects"), about 1 KB per agent, around 7 million person-days per second per core; contacts only inside household, school, work and community layers with a one-day step; populations built from census marginals by iterative proportional fitting plus sampling whole households from microdata (Beckman 1996, RTI SynthPop), or the cheap hybrid: an age distribution, a household-size distribution and Poisson contacts.
+
+### 2.10 Saving: Factorio, Minecraft, Noita, No Man's Sky, Star Citizen
+
+- **Factorio:** the one invariant, "saving, exiting, and loading the save shouldn't change any observable behaviour". Save order: force Lua garbage collection, write the prototype name → id mapping, write the list of applied migrations, then the map; "entities are saved in the reverse order they're listed so when they're loaded the order is preserved" (iteration order is state). Load into a staged world requiring full validity before operations; migrations are bounded (a release migrates only from the previous two). Debug mode computes a CRC of the whole map every tick and replays the input log; a mismatch is "usually just a value of one variable", found by diffing two human-readable tagged saves. Multiplayer join is a snapshot plus the input log since, caught up "as fast as possible". Non-blocking save by `fork()` on Linux costs RAM and a stall at the end.
+- **Minecraft region files:** 32×32 chunks per file, 4 KiB sectors aligned to page size, an 8 KiB header of offsets and **per-chunk last-update timestamps**, per-chunk compression (zlib or LZ4), a per-chunk `DataVersion` for lazy schema upgrade on load, a `Status` (generation stage, so half-generated chunks are valid saves), `LastUpdate` (tick last saved), and saved pending scheduled ticks. Load levels: entity-ticking, block-ticking ("lazy"), border, inaccessible. Unloaded chunks do not catch up; crops do not grow while unloaded. Entities moved to a separate region tree in 1.17 so the person table can be touched without the terrain.
+- **Noita:** 512×512 pixel chunk files only for touched chunks, entities per chunk, a global state file; unvisited chunks regenerate from the biome generator.
+- **No Man's Sky:** "every planet has a single number, a random seed, that defines everything"; edits are a bounded cache (about 20–30 thousand per save, oldest evicted). Deltas against generation with an explicit budget.
+- **RimWorld, Dwarf Fortress, Paradox:** one monolithic graph per save (XML, zlib blocks of about 20 KB, zip of text or token-binary tree). DF on a full disk "will pretend to save correctly, but the save will be unloadable": the argument for write-temp, verify by reading back, then rename.
+- **SQLite as a container:** Project Zomboid (players, vehicles), Vintage Story (chunks keyed by a packed position, protobuf blobs, zstd), Luanti/Minetest (blocks table keyed by packed position, per-block "last saved" timestamp, zlib → zstd), Cataclysm: Bright Nights (4,174 files → 15, 70 MB → 10 MB, "crashes no longer cause save corruption"). sqlite.org: "only those parts of the file that actually change are written out", versus zip where "the entire file must be rewritten". Baldur's Gate 3 does **not** use SQLite (a package of binary resources).
+- **Star Citizen:** "only one server node can have authority over any given entity, and only that server is allowed to write entity state back to the replication layer"; the replication layer is event-driven, not tick-driven; the entity graph database is the cold tier; an entity is "stowed" into an inventory and the global database when nobody is around.
+- **Elite Dangerous background simulation:** player actions become counted transactions tallied once a day per system; the cold layer never ticks between batches.
+- **Determinism as a test oracle:** Age of Empires ran "the exact same simulation on each machine" and had to enforce "the same number of calls to random"; Riot's replays found both divergences in uninitialised memory and logged state "only on frames where the value changes" to localise them.
+
+## 3. Lenses per thing: what each level holds
+
+The user's question was how "different lenses" apply to the layers beyond pops. The table generalises [detail-levels.md](detail-levels.md): for each kind of thing, the cold, warm and hot forms, what is stored versus regenerated, and the source that showed it works.
+
+| Thing | Cold (Macro reads it; daily or on demand) | Warm (City reads it; hourly or on event) | Hot (Individual; every tick) | Stored vs regenerated | Shown by |
+| --- | --- | --- | --- | --- | --- |
+| **People** | Census row regenerated from seed, plus per-cell counts by compartment (susceptible, latent, infected, turned, dead) and by key (household, job, age band) | Record: identity, wounds and infection clocks as integers, stocks, schedule (places by hour), beliefs with age, ties, kept-reason flags | Body, senses, executor, path | Store the record only once touched; store a projection of the body on demotion; regenerate everything else from seed | DF historical figures, Watch Dogs Census, Covasim arrays, GLEaM cells |
+| **Groups** (household, squad, horde, convoy, army) | A node: key, count, goal, world path, next event time | Node expanded one level: member records, formation, speed from the slowest body | Members as bodies | Store the node and its member ids; regenerate formation | DF armies, Osborne and Dickinson trees, Bannerlord stacks |
+| **Places** (building, street) | Region numbers: population by state, stocks, infrastructure condition, outbreak history | Building ledger plus room graph, item list, damage record, caught-up tick | Cells, edges, fields, item positions | Store ledger and deltas from the seed layout; regenerate layout from seed on first visit then save it | Minecraft region headers, Qud zone saves, Noita touched chunks, [0017](../decisions/0017-slow-endgame-and-generation-on-the-go.md) |
+| **Things** (items, assemblies) | Kilograms and litres in a ledger, no positions | Item list per building with quality, condition, states, no positions | Every instance with position | Store every instance that diverged from the household's generated kit; regenerate the kit | DF "generates everything except what pertains to historical figures and artifacts" |
+| **Networks** (power, water, roads, radio) | One number per region: share of demand met, backup clock state | Connected components solved on change; one satisfaction ratio per component; boundary-equivalent nodes for what is outside | Node-level flow, breakers, surge, lit windows | Store topology and switch states; regenerate flows on load | Factorio sub-networks, grid reduction literature, [infrastructure.md](../design/infrastructure.md) |
+| **Vehicles** | Count per road segment, or a queue slot with an exit time | Discrete vehicle with a road position and exit time, no physics | Physics, driver as a body | Store identity and assembly; regenerate position inside the segment | SUMO meso, Open Traffic Models |
+| **Fields** (noise, light, smoke, scent) | Not simulated; a per-region "attention" accumulator | One number per building and ring (the warm ring in spec 27) | Cell grid | Never stored except the accumulator; recomputed | [spec 22](../tier0/specs/22-census.md) attention, [18](../tier0/specs/18-noise-field.md), [19](../tier0/specs/19-light-field.md) |
+| **Outbreak** | Stochastic compartments per cell with coupling coefficients; long moves as integer draws | Contact layers (household, work, school, shelter) per record, daily | Wound-based infection per body | Store counts and clocks; the formula is one | GLEaM, Covasim, [spec 21](../tier0/specs/21-infection.md) |
+| **Economy** | Stock and flow per region, Leontief-min production, prices posted | Shops and stockpiles per building, job slots, requests | Hands carrying things | Store stocks; regenerate nothing | Victoria 3, [world-simulation §5](../design/world-simulation.md) |
+| **Weather and time of day** | Daily series per region | Hourly per zone | Per-cell light and temperature | Regenerate from seed and date; store nothing | Shared world fields ([§12](../design/world-simulation.md)) |
+| **Beliefs and news** | Authority state per region, broadcast log | Per-record beliefs with source and age; rumours as events with timers | Perception each tick | Store beliefs for records; regenerate for census rows from the region's series | DF event propagation "with a timer on it", [world-simulation §9](../design/world-simulation.md) |
+
+Rules the table implies, beyond spec 27:
+
+- **Importance is not distance.** A record stays warm if the player watches it from City, if it has a tie to a pop, or if it is doing an aware action (a fight, a breach), even far away (Sunshine-Hill, Shadows of Doubt).
+- **Every level change is a function pair with a memorisation blob.** Demotion writes what the lower level cannot represent (where each body was standing in the room, mid-action state) so promotion can restore it, or states explicitly that it is dropped. This is the field-by-field projection DF never wrote down.
+- **Disaggregation respects the hot layer's constraints.** A count spawning into a building checks walls and doors; Project Zomboid's meta zombies inside sealed houses is the bug to avoid.
+- **Groups are tree nodes.** A horde is one record with a count and a goal until the player can see it, then a list of bodies.
+- **Brains and bodies are pooled resources, records are not.** Assassin's Creed Unity drew 10,000 crowd NPCs with 40 full AI brains and 120 high-resolution bodies, swapped without the player noticing. Promotion attaches a brain and body from a pool to a record.
+
+## 4. The pop data model, by level
+
+Concrete field lists are the deliverable most of the sources lacked, so here is a Proposal built from the ones that exist (DF historical figure, RimWorld pawn, Victoria 3 pop, Covasim arrays, Watch Dogs Census chain, [world-simulation §3](../design/world-simulation.md)).
+
+**Census row (0 bytes, regenerated):** seed → cell → household slot → age, sex, body seed, job, workplace, school, name, face genes, clothes kit, lifepath terms. Built as the research models build synthetic populations: fitted cell weights per census tract (iterative proportional fitting, precomputed with the world), then deterministic household draws keyed by (world seed, cell, slot). Where microdata is missing, the Covasim hybrid: an age distribution, a household-size distribution, and Poisson contacts.
+
+**Record (about 64 bytes to 2 KB), stored in one global person table keyed by a stable 64-bit id:**
+
+| Group | Fields | Why |
+| --- | --- | --- |
+| Identity | census key (so the row can be regenerated), name override, kept-reason flags (player tie, story tie, witnessed, possessed, never cull) | DF `never_cull`, RimWorld kept reasons; garbage collection needs a reason to keep |
+| Where | chunk id or group id, caught-up tick, next event time | One owner at a time (contract rule 6); event scheduling instead of ticking |
+| Body summary | the primary stocks of [spec 11](../tier0/specs/11-body-composition.md) (fat, muscle, structure, water, glycogen, blood, S) as integers; wound list with clocks; infection state and clocks | What DF's record lacks and players exploit |
+| Schedule | places by hour for the day, job slot, accepted jobs | Shadows of Doubt plans a day once; FRED moves people between places |
+| Mind | disposition traits, beliefs with source and age (bounded list), ties (sparse edges) | [inhabitants.md](../design/inhabitants.md) |
+| Things | item instances that diverged from the kit, keys and access | DF: artefacts persist, generic items regenerate |
+| Memorisation blob | what the last demotion could not represent (position in room, mid-action), versioned | Navarro et al.; makes promotion exact where it matters |
+
+Optional sub-profiles as pointers, DF style: a record with no fights has no fight block.
+
+**Body (hot):** everything in specs 11–14, 23–24, attached to the record for as long as the record is hot, then projected back.
+
+**Aggregate (cold, per cell):** counts by (compartment, age band, job band), integer, moved by transfers through the ledger; the sum over records plus unrealised rows equals the cell's census, checked.
+
+**Merge path.** A record whose kept-reason flags are all clear and whose body summary equals what its census row would regenerate (within the record's own quantisation) can be dropped back to a row: the cell count absorbs it. This is the step Dwarf Fortress lacks and Victoria 3 added after release.
+
+## 5. Saving a chunked, multi-level world
+
+Enrichments to [spec 06](../tier0/specs/06-save-replay.md), all Proposals:
+
+1. **Store generation inputs and deltas, never regenerable output.** Seed, generator version, data-definition hash, then only what diverged (visited layouts, touched items, records). A chunk carries a generation status (unvisited, layout generated, visited) so a half-generated chunk is a valid save (Minecraft `Status`).
+2. **Per-chunk header:** schema version, generator version, status, caught-up tick, level (cold, warm, hot) at save time, uncompressed size, CRC-64. The tick is authoritative; a wall-clock timestamp is for tools only.
+3. **Iteration order is state.** Any list whose order affects results is saved in order and restored in order (Factorio saves entities in reverse list order). We already forbid hash containers in update loops ([spec 05](../tier0/specs/05-clock.md) rule 7); this extends it to the save.
+4. **Pending events are saved with their chunk** (Minecraft saves scheduled block ticks). A cold chunk's next-event list is its whole simulation.
+5. **People in one global table, chunks hold ids.** Never two writable forms of the same person. The hot body is a view materialised from the record; aggregates are derived caches stamped with the tick they were derived at and rebuildable.
+6. **Catch-up is deterministic by construction:** the jump draws are keyed by (entity, purpose, caught-up tick), so save → load → visit and never-saving give the same result (spec 27 rule 6, now stated as the Factorio invariant applied to levels).
+7. **Container:** Tier 0 keeps the single binary file. From Tier 1, either one SQLite file per world (chunks and records as blobs keyed by packed ids, zstd about level 3 for autosave, partial writes, crash safety) or region files (32×32 chunks, 4 KiB sectors, two header tables). Both keep the deterministic full-order dump as the reference save used for hashing. Decide at the Tier 1 chunk split; the SQLite precedents (Vintage Story, Luanti, Cataclysm: Bright Nights) are the stronger evidence.
+8. **Three independent versions:** container format (global), per-chunk data version upgraded lazily on load, and per-subsystem versions (Unreal's custom version pattern: one id plus a monotonic number per subsystem). Save the list of applied migrations and the name → id mapping of data definitions (Factorio) so renamed definitions remap on load. Bound the migration window and keep a converter tool outside the game for older saves.
+9. **Text twin.** A human-readable tagged dump of any save, for diffing two runs at the first hash mismatch (Factorio, Paradox text saves). JSON export already exists for debugging; make it complete.
+10. **Atomic write:** temp file, fsync, read back and verify, rename, fsync the directory (DF's full-disk "pretend save"; the 2009 ext4 rename incident).
+11. **Tests:** per-tick CRC in debug and replay from the input log (exists); save at tick T, load into a fresh process, continue the input log, identical hash at T+k (exists at day granularity); **new:** force a chunk cold at T, wake it at T+k, compare with the never-demoted run at the agreement level the jump rules claim (A1 for exact rules, A2 for drawn ones). Hunt the known classes: uninitialised memory, unequal draw counts, float differences across compilers, pointer-order iteration, wall-clock leaks.
+
+## 6. Haven & Hearth and Songs of Syx: individual work at scale
+
+The user's observation (2026-10-07) that these mechanics fit Haven & Hearth logic holds, and the evidence sharpens it:
+
+- **What fits.** H&H: everything takes real time, quality comes from parts capped by skill and tool, and the world does not wait. Songs of Syx: every citizen walks to the material, interrupts for a need, resumes and finishes; the UI "is a fairly complex system just trying to guess what's happening behind the scenes", and the developer believes players feel the realness of a simulation that takes no shortcuts. Our decided pillars (one body model, everything built is scavengeable, H&H time, [vision](../vision.md)) are the same bet.
+- **What must be added for it to scale.** H&H's slowness is felt as game hours compressed by delegation ([concept v2 §3](concept-v2.md)), and a pop at warm or cold must therefore finish a six-hour job in one jump that costs the same stocks and yields the same quality distribution as the hot version. Songs of Syx stays hot for everyone and pays with a single-city scope, a 5× ceiling at 10k citizens and a UI that estimates; we have three zooms and real Earth, so the jump form is not optional.
+- **The UI rule to copy.** Summaries in City and Macro are estimates computed from the simulation's own records and counts, never a second truth. Through a character's eyes they are beliefs ([0012](../decisions/0012-world-simulation-layers.md) fog). Songs of Syx shows that an honest estimate reads as realness; Stellaris 4.0 shows that an aggregate whose tooltip cannot explain itself reads as a cheat.
+
+## 7. What changes in our docs (Proposals)
+
+| Doc | Enrichment |
+| --- | --- |
+| [spec 27](../tier0/specs/27-detail-levels.md) | Memorisation blob on demotion; explicit field-by-field projection body → record; kept-reason flags and a merge path record → row; constraint check at promotion; importance by attention and ties, not only distance; groups as tree nodes; a hot-everywhere versus level-switching harness as a standing test |
+| [spec 06](../tier0/specs/06-save-replay.md) | Section 5 above: per-chunk header, global person table, pending events saved, three version numbers, applied-migration list and id mapping, text twin, verify-before-rename, the demote-wake test |
+| [world-simulation §3](../design/world-simulation.md#3-population-proposal) | Record field groups from section 4; synthetic population by iterative proportional fitting from census marginals as the human generator's first stage |
+| [inhabitants.md](../design/inhabitants.md) | The scale table already matches; add that off-screen life changes must be legible and consentable (Sims 3 lesson) and that the record is browsable by filters (Victoria 3 census) with additive breakdowns (RimWorld thoughts) |
+| [glossary](../glossary.md) | Projection, memorisation blob, kept reason, quantum (the visible unit of an aggregate: a household, a pack) |
+
+Spec 06 and spec 27 were enriched on 2026-10-07 with the items above, marked as Proposals; the design docs are left for the user to confirm.
+
+## 8. Sources
+
+Engineering-quality first. **P** = primary (developer, author, paper, reverse-engineered structure), **S** = secondary (wiki, press), **W** = weak (forum, mod page). Videos are marked; where only the abstract was reachable it says so.
+
+### Dwarf Fortress
+
+- https://github.com/DFHack/df-structures — P. Memory layouts: `df.history_figure.xml`, `df.unit.xml`, `df.nemesis.xml`, `df.site.xml`, `df.army.xml`, `df.army_controller.xml`, `df.regionpop.xml`, `df.block.xml`, `df.world.xml`. The closest thing to a DF data spec.
+- https://docs.dfhack.org/en/stable/docs/dev/Lua%20API.html — P. `isActive` = "non-dead and on the map"; block addressing.
+- https://www.bay12games.com/dwarves/dev_2014.html — P. World activation dev log: realise and offload, calendar timings, clone bugs.
+- https://www.bay12games.com/dwarves/dev_2015.html — P. The cat and alcohol fix.
+- https://www.bay12games.com/media/df_talk_19_transcript.html and http://bay12games.com/media/df_talk_21_transcript.html — P. Tarn Adams on activation goals and event propagation with timers.
+- https://www.gamedeveloper.com/design/q-a-dissecting-the-development-of-i-dwarf-fortress-i-with-creator-tarn-adams — P. World generation pipeline, 1.2 GB, "log of a simulation", skip flags.
+- https://www.gamedeveloper.com/programming/how-tarn-adams-upgraded-and-optimized-dwarf-fortress-for-its-official-steam-release — P. Dirty flags, "might contain items" bits, CPU architecture admission.
+- https://stackoverflow.blog/2021/12/31/700000-lines-of-code-20-years-and-one-developer-how-dwarf-fortress-is-built/ — P. A* plus connected components; components over class hierarchies.
+- https://gdcvault.com/play/1023372/Practices-in-Procedural — P, video (GDC 2016, Adams and Short, "Practices in Procedural Generation"); abstract only reachable.
+- https://dwarffortresswiki.org/index.php/Historical_figure, https://dwarffortresswiki.org/index.php/DF2014:Retire, https://dwarffortresswiki.org/World%20activities, https://dwarffortresswiki.org/index.php/Lag, https://dwarffortresswiki.org/index.php/DF2014:Save, https://dwarffortresswiki.org/index.php/User:Andux/Format_research, https://dwarffortresswiki.org/index.php/DF2014:Advanced_world_generation — S (high quality). Promotion rules, offload rule, what unretire preserves, frame time breakdown, save folder and binary format, culling.
+- https://dwarffortresswiki.org/index.php/DF2014:Release_information/0.40.01 — P (mirror). "World activation!", no army battles yet.
+
+### Agent level of detail and multi-level simulation
+
+- https://pages.cs.wisc.edu/~schenney/research/culling/index.html and https://www.cs.princeton.edu/courses/archive/spr01/cs598b/papers/chenney97.pdf — P. Chenney and Forsyth, view-dependent culling of dynamic systems; proxy simulations; consistency and completeness.
+- https://ojs.aaai.org/index.php/AIIDE/article/view/12389 — P. Sunshine-Hill and Badler, alibi generation (AIIDE 2010). PhD "Perceptually driven simulation" (Penn 2011) at https://repository.upenn.edu/edissertations/435, abstract only.
+- https://arxiv.org/abs/1311.5108 — P. Navarro et al., engineering and validating dynamic multi-level agent simulations (aggregation, disaggregation, memorisation).
+- https://arxiv.org/abs/1205.0561 and https://arxiv.org/abs/2403.16713 — P. Multi-level agent-based modelling survey; design patterns for multilevel simulation.
+- https://core.ac.uk/works/14319338 — P (abstract). Osborne and Dickinson, grouped hierarchical level of detail.
+- Niederberger and Gross, "Hierarchical and heterogeneous reactive agents for real-time applications" (Eurographics 2003) and the ETH thesis — P, paywalled; summarised from abstracts.
+- https://publications.scss.tcd.ie/theses/diss/2016/TCD-SCSS-DISSERTATION-2016-055.pdf — S. A literature review of multi-tier AI level of detail, including Brockington's Neverwinter Nights chapter (AI Game Programming Wisdom 1, 2002), which itself was not reachable.
+- https://sumo.dlr.de/docs/Simulation/Meso.html and https://arxiv.org/abs/1908.04009 — P. Mesoscopic traffic ("up to 100 times faster") and hybrid micro/meso/macro traffic with a model interface.
+- https://arxiv.org/abs/0907.3304 and https://pmc.ncbi.nlm.nih.gov/articles/PMC2793313/ — P. GLEaM.
+- https://pmc.ncbi.nlm.nih.gov/articles/PMC8341708/ (Covasim), https://pmc.ncbi.nlm.nih.gov/articles/PMC8328312 (OpenABM-Covid19), https://pmc.ncbi.nlm.nih.gov/articles/PMC3852955 (FRED) — P. Agents as array indices, contact layers, synthetic populations, cost per agent.
+- https://rosap.ntl.bts.gov/view/dot/57248 (Beckman, Baggerly, McKay 1996) and https://www.rti.org/publication/a-national-synthetic-populations-dataset-for-the-united-states — P. Iterative proportional fitting plus microdata sampling.
+- https://www.factorio.com/blog/post/fff-115 and https://arxiv.org/abs/1707.03672 — P. Electric networks as connected components; physics-preserving grid reduction.
+- https://gdcvault.com/play/1022141/Massive-Crowd-on-Assassin-s — P, video (GDC 2015, Assassin's Creed Unity crowd: 40 brains, 120 bodies, 10,000 on screen).
+- https://gdcvault.com/play/1027018/Census-The-Systemic-Backbone-Behind and https://news.ubisoft.com/en-us/article/4po3S9Pwp1YcgBmGPmQxAh/watch-dogs-legion-the-tools-that-built-london — P, video (GDC 2021, Watch Dogs: Legion Census); abstract and studio article.
+- https://colepowered.com/?p=34142 and https://colepowered.itch.io/shadows/devlog/78044/shadows-of-doubt-devblog-15-moving-in-the-citizens — P. Shadows of Doubt dev blogs 8 and 15.
+- https://api.star-citizen.wiki/comm-links/18397 — P. Server meshing and persistent streaming Q&A: one authority per entity, entity graph, stow and unstow.
+- https://steamcommunity.com/app/392160/discussions/0/840627496100645234/ — S. X4 high versus low attention combat (terms confirmed by a developer).
+- https://steamcommunity.com/sharedfiles/filedetails/?id=1711493305 and https://wiki.cavesofqud.com/wiki/Modding:Intro_-_Zones_and_Worlds — S, P. Caves of Qud reality bubble and zone ids.
+- https://steamcommunity.com/app/294100/discussions/0/3810655055431734476 — S. RimWorld world pawns and mothballing.
+- https://problemchild1500.itch.io/kenshi-virtual-simulation-engine — W. Kenshi off-screen mod and identity hijack.
+- https://www.dpss.space/bgs — S. Elite Dangerous background simulation mechanics.
+
+### Pop data models
+
+- https://admin-forum.paradoxplaza.com/forum/developer-diary/stellaris-dev-diary-370-4-0-changes-part-4.1728047 and https://www.paradoxinteractive.com/games/stellaris/news/stellaris-update-4-0 — P. Pop groups and workforce. Earlier: dev diaries 29 (1.x pops) and 121 (2.2 tiles removed).
+- https://admin-forum.paradoxplaza.com/forum/developer-diary/victoria-3-dev-diary-105-migration-in-1-6.1624226 and https://vic3.paradoxwikis.com/Pops, https://vic3.paradoxwikis.com/Defines — P, S. Pop key, migration without splitting, pops per profession defines.
+- https://vic2.paradoxwikis.com/Population and https://imperator.paradoxwikis.com/Population — S (data-exact). Demand formula per bucket; integer pops.
+- https://www.paradoxinteractive.com/games/cities-skylines-ii/features/citizen-simulation-lifepath, https://colossalorder.fi/?p=1597, https://admin-forum.paradoxplaza.com/forum/developer-diary/co-word-of-the-week-13.1624532 — P. CS2 citizen model, path costs by age, despawn and trip suppression. CS1 limits: https://steamcommunity.com/app/255710/discussions/0/3080998989605580571 (S).
+- https://rimworldwiki.com/wiki/Modding_Tutorials/Docs/Pawn, https://rimworldwiki.com/wiki/Thoughts, https://rimworldwiki.com/wiki/Needs — P-grade docs. Pawn trackers, thoughts with offsets and stacks.
+- https://ck3.paradoxwikis.com/Characters — S. Character fields, DNA, opinions.
+- https://www.freelancetraveller.com/features/rules/chargen/quickforcons.html — S. Traveller term-based character generation as data.
+- https://dwarffortresswiki.org/Thoughts_and_preferences — S. Hidden stress number, prose thoughts.
+
+### Saving
+
+- https://factorio.com/blog/post/fff-270, https://gist.github.com/Rseding91/a309cf0a30782a2e96ef081c39326f42, https://www.factorio.com/blog/post/fff-47, https://www.factorio.com/blog/post/fff-149, https://factorio.com/blog/post/fff-408, https://www.factorio.com/blog/post/fff-204 — P. Save and load invariant, save order, per-tick CRC and replay diffing, join catch-up, fork-based save, entity list iteration. (The "map is a zip of chunks" claim is wrong: the zip holds 1 MB byte-stream slices, https://forums.factorio.com/viewtopic.php?t=133611.)
+- https://minecraft.wiki/w/Region_file_format, https://minecraft.wiki/w/Chunk_format, https://minecraft.wiki/w/Chunk — P (spec of record). Sectors, header tables, per-chunk timestamps, `DataVersion`, `Status`, `LastUpdate`, load levels.
+- https://noita.wiki.gg/wiki/Technical:_File_Formats and https://80.lv/articles/noita-a-game-based-on-falling-sand-simulation — S, P. Touched-chunk files; 64×64 dirty rects.
+- https://www.nomanssky.com/2014/08/no-mans-sky-at-gamescom/ — P. One seed per planet. GDC 2017 "Continuous World Generation in No Man's Sky" at https://www.gdcvault.com/play/1024265/ — P, video, paywalled.
+- https://github.com/chpomob/pz-save-manager/blob/master/docs/project_zomboid_save_format_research.md and https://pzfans.com/ProjectZomboidResetMap/ — S. Project Zomboid file layout and chunk binary; https://steamcommunity.com/app/108600/discussions/0/2984159549099104740 (W) "zombies become a number".
+- https://rimworldwiki.com/wiki/Save_file, https://spdskatr.github.io/RWModdingResources/saving-guide.html, https://yrtwof.github.io/rim/save.html — S. Scribe three-pass load.
+- https://eu4.paradoxwikis.com/Save-game_editing — S. Zip of meta and gamestate, text or token binary.
+- https://sqlite.org/appfileformat.html, https://wiki.vintagestory.at/Modding:VCDBS_format, https://raw.githubusercontent.com/minetest/minetest/master/doc/world_format.md, https://github.com/cataclysmbnteam/Cataclysm-BN/pull/5777 — P. SQLite as an application file; three games' schemas and numbers.
+- https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FArchive/UsingCustomVersion — P. Per-subsystem custom versions.
+- https://github.com/skypjack/entt/wiki/Entity-Component-System — P. Snapshot, snapshot loader, continuous loader with id remapping.
+- https://openrct2.io/blog/2025/08/behind-scenes-0-4-26 — P. zlib to zstd numbers per use case.
+- https://lwn.net/Articles/323263/ — P. The 2009 ext4 rename data loss. 
+- https://www.gamedeveloper.com/programming/1500-archers-on-a-28-8-network-programming-in-age-of-empires-and-beyond and https://www.riotgames.com/en/news/determinism-league-legends-fixing-divergences — P. Lockstep determinism; change-only state logging to find divergences.
+- https://api.star-citizen.wiki/comm-links/18397 and https://highscalability.com/eve-online-architecture/ — P, S. Entity graph persistence; EVE single-shard database.
+
+### Songs of Syx
+
+- https://www.youtube.com/watch?v=xQF5Na_BK2U — S, video ("The Most Complex Medieval Fantasy Game Ever Made"; user-supplied transcript). Individual simulation of 10,000+ citizens, custom Java engine, the UI as an estimate.
+- https://steamcommunity.com/app/1162750/discussions/0/693121929170677518/ — P. V70 dev log: "a complex estimation of what's going to happen", borrowed resources, Java 21.
+- https://steamcommunity.com/app/1162750/discussions/0/3007801544743239898/ — P. "Increasing performance?": time slice bounded by 16 tiles per second, 30 frames per second, "10k at 25× is 250,000 at 1×", why it is single-threaded and the regret.
+- https://steamcommunity.com/app/1162750/discussions/3/3419934814481362952/ — P. Hierarchical path grid (8, 16, 32 levels).
+- https://steamcommunity.com/app/1162750/discussions/0/4901564650261178621/ — P. Region population "determines the amount of tax", "for the future".
+- https://steamcommunity.com/app/1162750/discussions/0/6306823171515377497/ — P. Proximity is part of the estimate.
+- https://store.steampowered.com/news/posts/?feed=steam_community_announcements&appids=1162750&enddate=1612000000 — P. V55 "tiny saves under 1 MB, no need to zip"; V53 +10 %.
+- https://store.steampowered.com/news/posts/?feed=steam_community_announcements&appids=1162750&enddate=1655000000 — P. V62: single-core dependence, 1500×1500 maps.
+- https://songsofsyx.itch.io/songs-of-syx/devlog/157425/the-world-and-beyond — P. Regions, shipments every other day, dynamic trade.
+- https://songsofsyx.itch.io/songs-of-syx/devlog/129935/battles-and-kickstarter — P. Divisions of up to 150, 96 of them.
+- https://github.com/niltonfrederico/annals-of-syx — P (tool). Reads saves by booting the engine headless; shows per-race aggregates and 8-day histories, no per-citizen list.
+- https://github.com/4rg0n/songs-of-syx-mod-example/blob/master/doc/howto/game_code.md — S. Package and class layout from the shipped sources; custom collections "for performance reasons".
+- https://steamcommunity.com/app/1162750/discussions/0/801217116763223941/ — S. Late-game speeds (10k citizens at about 5×).
+- https://gameplay.tips/guides/songs-of-syx-citizen-stats.html — S. Per-race need weight table.
+- https://www.songsofsyx.com/wiki/index.php/Version_history — S. V61 "28k settlement, 3×, theoretical cap over 100k", V71 path threads (via search excerpts; page timed out, verify).
+- Songs of Syx demo 0.51.42 (itch.io, September 2020 build), `SongsOfSyx.jar` — P. Compiled classes only (no sources jar in this build); field and method layouts read with a class-file parser on 2026-10-07. Settles stat storage (packed bytes per citizen, totals per race and class), cadence (32 slow updates per day, staggered AI modules) and the save path (Java serialisation plus fixed-order raw arrays into a 64 MB buffer). Newer builds (0.71) ship `info/SongsOfSyx-sources.jar` and have changed pathfinding and threading since.

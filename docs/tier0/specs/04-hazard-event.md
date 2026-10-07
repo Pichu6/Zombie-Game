@@ -23,6 +23,13 @@ Every "may happen" in the game (a wound gets infected, a hinge fails, a census n
 4. Every event stores its cause (another event or a hazard with its source), so chains can be read back ([25](25-chronicle.md)).
 5. Settings change hazard numbers, never which hazards exist.
 
+Jump forms (added 2026-10-07 from [catch-up-jump-forms.md](../../research/catch-up-jump-forms.md); apply from stage 8 so [27](27-detail-levels.md) can jump):
+
+6. Every hazard also provides its cumulative form H(t0, t1) along the entity's trajectory (closed form where the trajectory has one, else a fixed quadrature), so a jump can invert it.
+7. An exit set may hold one Exp(1) draw per hazard, keyed (entity, hazard), and fire hazard k when H_k reaches its draw; the earliest wins. This is the preferred form for causes of death: hot (test H_k ≥ E_k each step) and cold (invert H_k) then give identical times and causes. Rule 2's per-step form stays valid and gives the same distribution.
+8. A hazard that consumes an integer stock (people bitten, litres drunk, kg eaten) draws Binomial(stock, 1 − exp(−h·Δt)), never Poisson; hazards sharing a stock draw in the exit set's fixed order, each on what the previous left.
+9. A jump over an interval with coupled hazards (one event changes another's rate) runs a next-reaction event loop inside the interval, applying events in time order; only hazards independent inside the interval may use a single closed-form draw.
+
 ## Invariants
 
 - 0 ≤ p ≤ 1; at most one hazard of an exit set fires per step.

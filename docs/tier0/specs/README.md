@@ -11,7 +11,7 @@ Each spec has: **Purpose**, **State** (field, unit, conserved?, owner), **Rules*
 Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simulation-contract-proposal)):
 
 - **A1 identical:** bit-identical numbers for the same binary, data, seed and inputs.
-- **A2 distribution:** same distribution over N ≥ 50 seeded runs (90 % intervals).
+- **A2 distribution:** same distribution over N ≥ 50 seeded runs (90 % intervals). For jump forms, where the cheap side can run thousands of samples, use the stronger form: 50 hot against about 2,000 cold with Anderson–Darling and energy distance ([catch-up-jump-forms.md](../../research/catch-up-jump-forms.md) §5); the 90 % band alone only catches gross errors.
 - **A3 relationship:** same direction of effect, or inside a calibration band.
 
 ## Units
