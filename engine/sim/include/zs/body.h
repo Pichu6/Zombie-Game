@@ -8,6 +8,7 @@
 #include <array>
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -141,6 +142,20 @@ struct BodyState {
 };
 void write_body_state(ArchiveWriter& w, const BodyState& s);
 BodyState read_body_state(ArchiveReader& r);
+
+// Spec 29 rule 6: the jump form of a body's time while demoted (spec 27 rule 2). The pop lives its
+// record-level life meanwhile: it eats, drinks and sleeps normally, so stocks relax toward normal with
+// the body's own time constants and the activity is at rest; wounds clot, heal, get infected and
+// progress by the same rates as stepping, drawn on the wound's own stream (keyed draws, spec 02), and
+// a systemic infection can kill. Masses do not drift (the registry's own life owns ageing).
+struct AdvancedBody {
+  BodyState state;
+  std::optional<DeathCause> death;  // set if the body died in the interval
+  std::int64_t death_tick = -1;
+};
+AdvancedBody advance_demoted(const BodyState& s, std::int64_t from_tick, std::int64_t to_tick, Rng& rng);
+
+
 
 class Bodies : public System {
  public:

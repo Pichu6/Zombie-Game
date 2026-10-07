@@ -109,13 +109,13 @@ TEST_CASE("embodied: round trips with no time between keep the body, the ledger 
   };
   cycle();
   REQUIRE(s.pops->registry().saved_body(30) != nullptr);
-  const auto saved = *s.pops->registry().saved_body(30);
-  const auto reg_hash = s.pops->registry().hash();
+  // The saved blob ends with the demotion tick (spec 29 rule 6), which moves one tick per cycle; the state before it must not.
+  const auto state_part = [](const std::vector<std::uint8_t>& blob) { return std::vector<std::uint8_t>(blob.begin(), blob.end() - 8); };
+  const auto saved = state_part(*s.pops->registry().saved_body(30));
   const auto total = tissue(s);
   for (int i = 0; i < 20; ++i) {
     cycle();
-    CHECK(*s.pops->registry().saved_body(30) == saved);
-    CHECK(s.pops->registry().hash() == reg_hash);
+    CHECK(state_part(*s.pops->registry().saved_body(30)) == saved);
     CHECK(tissue(s) == total);
     CHECK(slots_held(s) == 0);
     CHECK(s.bodies->free_slots() == 2);
@@ -189,19 +189,24 @@ TEST_CASE("embodied: a pop whose body dies while embodied is dead and its slot i
   CHECK(refusals(*s.world, Refusal::Dead) == 1);
 }
 
-TEST_CASE("embodied: a demoted pop's body comes back as it was left, the elapsed time not applied (A3, known gap)") {
+TEST_CASE("embodied: a demoted pop's body comes back advanced over the gap by its jump form (spec 29 rule 6, A1)") {
   auto s = make(2);
   send(*s.world, PopEmbody, 70);
   const EntityId body = s.pops->registry().embodied_body(70);
-  s.world->run_ticks(kDwell);
+  s.world->run_ticks(kDwell + 20 * kTicksPerGameHour);  // nearly a day embodied without food or water
   const Body before = s.bodies->get(body);
+  const double glycogen_before = s.bodies->grams(before, s.bodies->ids().glycogen_mg);
+  CHECK(glycogen_before < static_cast<double>(before.glycogen_max_mg) / 1000.0 * 0.8);
   send(*s.world, PopDisembody, 70);
-  s.world->run_ticks(kTicksPerGameDay);  // a day passes while the pop is a record
+  s.world->run_ticks(2 * kTicksPerGameDay);  // two days pass while the pop is a record and lives its fed life
   send(*s.world, PopEmbody, 70);
   const Body& after = s.bodies->get(s.pops->registry().embodied_body(70));
-  // Stepping would have eaten into the glycogen and water; the state is only paused. Closing this gap is body advance(from, to).
-  CHECK(s.bodies->grams(after, s.bodies->ids().glycogen_mg) == doctest::Approx(s.bodies->grams(before, s.bodies->ids().glycogen_mg)));
-  CHECK(after.sleep_pressure == before.sleep_pressure);
+  // The jump form restored a fed, rested body: glycogen back near full, sleep pressure at the rested baseline.
+  CHECK(s.bodies->grams(after, s.bodies->ids().glycogen_mg) > static_cast<double>(after.glycogen_max_mg) / 1000.0 * 0.9);
+  CHECK(after.sleep_pressure < 0.35);
+  // Masses are untouched by the gap, and the ledger holds exactly what the state says (declared inflow).
+  CHECK(s.world->ledger.balance(after.owner, s.bodies->ids().fat_mg) == s.world->ledger.balance(before.owner, s.bodies->ids().fat_mg));
+  CHECK(s.world->ledger.check() == std::nullopt);
 }
 
 TEST_CASE("embodied: random commands keep the registry and the pool in step (property)") {

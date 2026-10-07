@@ -80,7 +80,7 @@ Status: **Built** (code and tests), **Designed** (a doc says how), **Gap** (no r
 Dependencies only; the first two block the most.
 
 1. **Pops: embodied** (row 2) completes the pop jump and joins the new pop work to the body simulation.
-2. **A generic jump test harness** (round trip, aggregate against enumeration, jump against stepping, order independence, determinism) so each later jump is tested the same way; first applied to the pop jumps already built.
+2. **A generic jump test harness** (round trip, aggregate against enumeration, jump against stepping, order independence, determinism) so each later jump is tested the same way; first applied to the pop jumps already built. *Done 2026-10-07:* `engine/sim/tests/jumps.h` (Anderson–Darling, energy distance, proportions, bands; [catch-up-jump-forms.md](../research/catch-up-jump-forms.md) §5), applied to the demography jump and to the new body jump that closes spec 29 rule 6 (time while demoted).
 3. **Stocks and goods**, then **money**: the two conserved resources every other jump uses.
 4. **Establishments**, then **chains** and **construction**.
 5. **Networks above building scale**, then **fields** and **weather**.

@@ -29,7 +29,7 @@ A pop in the registry is a lazy pop or a record ([spec 28](28-pop-levels.md)). T
 3. **Mass accounting.** The ledger conserves what is *in play*. Embodying declares an **inflow** of the body's tissue amounts to the slot's owner, with the command's event as cause; demoting declares an **outflow** of whatever the body then holds. People are conserved as counts (a pop is lazy, a record or embodied, never two). Tissue mass of lazy pops is outside the ledger by design, so the flows are visible, caused entries and never silent mints.
 4. **Demote** (bodies → registry). Allowed only if the body is alive and not on the map as a walker, and has been embodied for at least the **dwell** time (hysteresis: no flicker at the edge of the hot set). The body's state is saved as `BodyState` in the pop's record, its amounts leave the ledger by outflow, and the slot becomes vacant. If the body died while embodied, the pop is dead: the death is a registry exception (death year) and the slot is freed. *As built:* the corpse's mass leaves the ledger as a declared outflow; keeping the corpse as a thing in the world is a later unit.
 5. **Round trip.** Embody, run no time, demote, embody again: the same body in a possibly different slot, the same state, the same ledger totals (A1).
-6. **Time while demoted.** *Known gap, stated plainly:* a demoted pop's body state is restored **as it was left**; the elapsed time is not yet applied by body jump forms ([27](27-detail-levels.md) rule 2). The pop's own life (age, death, births) continues lazily and correctly; the body's hunger, healing and wound progress are paused. This disagrees with stepping and is to be closed by a body `advance(from, to)`; until then a test records it as expected.
+6. **Time while demoted** (closed 2026-10-07, Proposal for the model). The demotion tick is saved after the `BodyState` in the record's blob; the next embody runs `advance_demoted(state, left_at, now)` ([27](27-detail-levels.md) rule 2) before restoring. The model: while a record, the pop lives its lazy life, so it eats, drinks and sleeps normally: the stomach empties into glycogen and fat as in stepping, then glycogen relaxes to full (τ 12 h), body water to normal (τ 6 h), blood refills at the stepping rate, sleep pressure to the rested baseline 0.3 (τ 12 h), exertion to full, fear decays (τ 30 min), morale to 0.75 (τ 8 h), activity at rest. Masses do not drift (ageing belongs to the registry). Wounds: clots settle, a clean wound heals at its heal tick, a dirty one gets infected by its cumulative hazard (one exponential draw on the wound's stream), infection stages advance by the competing hazards of stepping (one draw per transition), and a systemic infection that worsens kills: the registry takes the death exception, `PopDiedDemoted` is logged and the embody is refused. A gap shorter than one body step (60 s) changes nothing, as stepping would not have run the slow rules either. Older blobs without the tick restore as left. Agreement: deterministic parts identical; the infection share agrees with stepping in proportion (A2); the lazy-life relaxations are a model choice, not something stepping could reproduce (stepping has no meals).
 7. **Single source of truth.** The registry's `embodied` flag and the body pool's occupancy are checked against each other by the audit every tick when checks are on; a disagreement throws.
 8. **Budget.** Embodying moves one body; the pool size is the cap, a request beyond it is refused (never queued silently). Waking a district does not embody it: embodiment is requested by the layer or rule that needs a body (the player's attention, a fight), so one house cannot wake the street ([research](../../research/layer-jumps-multiresolution.md) failure mode 3).
 9. **Commands.** `PopEmbody` and `PopDisembody` (subject = pop) go through the world's command path like every other pop change, so they are replayable, carry a reason, and are saved with the world.
@@ -45,7 +45,7 @@ A pop in the registry is a lazy pop or a record ([spec 28](28-pop-levels.md)). T
 ## Tests (agreement levels, mapped to the failure modes in the research note)
 
 - **Same pop, same body, any order (A1; mode 1, 11):** embody pops A and B in either order: each gets the identical spec and state.
-- **Round trip (A1; mode 2):** embody, demote, embody, demote across 20 cycles with no time: world state hash after each demotion equals the first; ledger totals equal.
+- **Round trip (A1; mode 2):** embody, demote, embody, demote across 20 cycles one tick apart: the saved body state after each demotion equals the first (the blob's trailing demotion tick aside); ledger totals equal.
 - **Conservation (A1; mode 8):** after each step, tissue mass of all slots equals the net declared flows; ledger check passes every tick.
 - **Two truths (A1; mode 9):** random sequences of embody and demote: registry flags equal pool occupancy at every step.
 - **Idempotence (A1; mode 10):** embodying an embodied pop, or demoting a lazy one, is refused and changes nothing.
@@ -53,7 +53,7 @@ A pop in the registry is a lazy pop or a record ([spec 28](28-pop-levels.md)). T
 - **Thrash (A1; mode 4):** requests to demote before the dwell time are refused; a pop pushed back and forth is demoted at most once per dwell.
 - **Death (A1):** a body that bleeds out while embodied makes the pop dead in the registry; its corpse remains; the slot is freed.
 - **Save, load, replay (A1):** a world with embodied pops saves, loads and replays to the same hash; the v4 and earlier registry fixtures still load.
-- **Time gap recorded (A3):** re-embodied state equals the state left (a pause), with a comment that stepping would differ.
+- **Time while demoted (A1, A2):** a pop demoted hungry comes back fed and rested after two days; masses untouched; ledger clean. In `test_jumps.cpp`: the jump is deterministic and the no-time jump is the identity; a dirty cut's infection share after two days agrees with 60 stepped bodies against 3,000 jumps; a clean cut heals at its tick exactly.
 
 ## As built
 
@@ -62,7 +62,8 @@ A pop in the registry is a lazy pop or a record ([spec 28](28-pop-levels.md)). T
 - **Saves:** the registry writes **version 5** only when some pop has embodied data; otherwise it writes version 4, byte for byte as before, so worlds that never embody keep their hashes. Fixture `popreg_v5.bin` is frozen. Body pools save a per-slot section only when the pool is non-empty, for the same reason.
 - The pool size and dwell time are setup settings and are not saved (like any setup choice, every setup must make the same call). Default dwell: 1 game hour.
 - A pop's age at embodiment is its age at that tick, so "same body in any order" holds for pops embodied on the same tick.
-- Tests: `test_body_pool.cpp`, `test_embodied_pops.cpp`. Not yet covered: actors and items, body time while demoted (rule 6, a recorded gap).
+- Tests: `test_body_pool.cpp`, `test_embodied_pops.cpp`, `test_jumps.cpp` (the harness and the body jump). Not yet covered: actors and items.
+- The jump test harness is `engine/sim/tests/jumps.h` (layer jumps §5 step 2): Anderson–Darling k-sample (midrank, Scholz and Stephens 1987), energy distance with a deterministic permutation test, band share, proportion and mean agreement; applied to the demography jump and the body jump.
 
 ## Calibration
 

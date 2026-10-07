@@ -5,6 +5,7 @@
 #include <cmath>
 #include <vector>
 
+#include "jumps.h"
 #include "zs/demography.h"
 #include "zs/detmath.h"
 #include "zs/pop_registry.h"
@@ -174,6 +175,22 @@ TEST_CASE("one jump agrees with week-by-week stepping in distribution (A2, 30 ru
   CHECK(close(jb, sb));
   CHECK(close(jd, sd));
   CHECK(close(ja, sa));
+  // The harness (layer jumps §5 step 2): Anderson-Darling per quantity, energy distance on the triple.
+  const auto adb = jumps::anderson_darling_ksample({jb, sb});
+  const auto add = jumps::anderson_darling_ksample({jd, sd});
+  const auto ada = jumps::anderson_darling_ksample({ja, sa});
+  MESSAGE("Anderson-Darling T: births " << adb.t << ", deaths " << add.t << ", alive " << ada.t << " (reject above 1.96)");
+  CHECK(!adb.reject_5pct);
+  CHECK(!add.reject_5pct);
+  CHECK(!ada.reject_5pct);
+  jumps::Vectors vj, vs;
+  for (std::size_t i = 0; i < jb.size(); ++i) {
+    vj.push_back({jb[i], jd[i], ja[i]});
+    vs.push_back({sb[i], sd[i], sa[i]});
+  }
+  const auto en = jumps::energy_distance(vj, vs, 200);
+  MESSAGE("energy distance " << en.statistic << ", permutation p " << en.p_value);
+  CHECK(!en.reject_5pct);
 }
 
 TEST_CASE("a born pop is found by its id, and a mother's early death removes the children she would have had (A1)") {

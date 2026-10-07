@@ -60,6 +60,7 @@ enum class EventType : std::uint16_t {
   // Spec 29: embodied pops.
   PopEmbodied = 43,       // subject = pop, a = the body (pool slot), b = 1 if restored from a saved state
   PopDisembodied = 44,    // subject = pop, a = the body it left, b = 1 if it died while embodied
+  PopDiedDemoted = 45,  // subject = pop; a = DeathCause, b = the tick: the body jump found it dead (spec 29 rule 6)
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

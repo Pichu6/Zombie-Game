@@ -34,7 +34,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 ## Next step
 
-1. **Fill the layer jumps** ([layer jumps](design/layer-jumps.md) §5): embodied pops are done; next a generic jump test harness, then body time while demoted, stocks and money.
+1. **Fill the layer jumps** ([layer jumps](design/layer-jumps.md) §5): embodied pops, the jump test harness (`engine/sim/tests/jumps.h`) and body time while demoted (spec 29 rule 6, `advance_demoted`) are done (2026-10-07); next stocks and money.
 2. **Write the first generator spec** (global grid, terrain and climate fields, sectors, zones; tests with agreement levels), then build it.
 3. Then, in order ([world systems](design/world-systems.md) section 8): geology and deposits, capacity and settlements, routes, sectors and faction territory, economy core and chains, networks, building stock, the audit and realism report.
 4. Tier 0: play the sandbox from the Windows zip; then stage 10 (kill or keep: real player runs).

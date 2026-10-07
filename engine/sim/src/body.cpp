@@ -1044,3 +1044,112 @@ BodyState read_body_state(ArchiveReader& a) {
 }
 
 }  // namespace zs
+
+namespace zs {
+
+// ---- Spec 29 rule 6: the body's time while demoted ------------------------------------------------------
+
+namespace {
+constexpr double kLazyEatTauS = 12 * 3600.0;    // a fed life refills glycogen over half a day (authored)
+constexpr double kLazyDrinkTauS = 6 * 3600.0;   // and body water over a quarter day (authored)
+constexpr double kLazySleepS = 0.3;             // the rested baseline of nightly sleep (spec 11 needs: tiredness 0)
+constexpr double kLazySleepTauS = 12 * 3600.0;
+constexpr double kLazyMoraleTarget = 0.75, kLazyMoraleTauS = 8 * 3600.0, kFearTauS = 1800.0;
+}  // namespace
+
+AdvancedBody advance_demoted(const BodyState& in, std::int64_t from_tick, std::int64_t to_tick, Rng& rng) {
+  AdvancedBody out;
+  out.state = in;
+  BodyState& s = out.state;
+  if (to_tick - from_tick < kBodyStepTicks || in.spec.walker) return out;  // under one body step: stepping would not have run the slow rules either
+  const double T = static_cast<double>(to_tick - from_tick) * kTickSeconds;
+  // The stomach empties into glycogen, the rest into fat (the same split as metabolism()).
+  {
+    const double stomach = static_cast<double>(s.food_j);
+    const double absorbed = stomach * (1 - dm::exp(-T / kStomachTauS));
+    const double room_mg = std::max(0.0, static_cast<double>(s.glycogen_max_mg - s.glycogen_mg));
+    const double to_glycogen = std::min(absorbed, room_mg * kGlycogenJPerMg);
+    s.glycogen_mg += static_cast<std::int64_t>(to_glycogen / kGlycogenJPerMg);
+    s.fat_mg += static_cast<std::int64_t>((absorbed - to_glycogen) / static_cast<double>(kFatJPer2mg)) * 2;
+    s.food_j -= static_cast<std::int64_t>(absorbed);
+  }
+  // The lazy life: meals, drinks and nights relax the stocks toward normal.
+  s.glycogen_mg += static_cast<std::int64_t>(static_cast<double>(s.glycogen_max_mg - s.glycogen_mg) * (1 - dm::exp(-T / kLazyEatTauS)));
+  s.water_ul += static_cast<std::int64_t>(static_cast<double>(s.water_normal_ul - s.water_ul) * (1 - dm::exp(-T / kLazyDrinkTauS)));
+  if (s.blood_ul < s.blood_normal_ul)
+    s.blood_ul += std::min(s.blood_normal_ul - s.blood_ul, static_cast<std::int64_t>(kBloodRefillLPerDay * 1e6 * T / 86400.0));
+  s.sleep_pressure = kLazySleepS + (s.sleep_pressure - kLazySleepS) * dm::exp(-T / kLazySleepTauS);
+  s.activity = Activity{};
+  s.posture = Posture::Stand;
+  s.exertion = 1;
+  s.fear *= dm::exp(-T / kFearTauS);
+  s.threat = 0;
+  s.morale = kLazyMoraleTarget + (s.morale - kLazyMoraleTarget) * dm::exp(-T / kLazyMoraleTauS);
+  s.active_minutes_today = 0;
+  s.heavy_minutes_today = 0;
+  s.carry = {};
+  // Wounds: clot at rest, infection by cumulative hazard, stages by competing hazards, healing by the clock.
+  for (Wound& wd : s.wounds) {
+    const RegionInfo& ri = kRegions[static_cast<int>(wd.region)];
+    const double cap = (wd.depth == Depth::Deep && ri.vessel_weight >= 1.4 && !wd.dressed) ? 1 - 0.4 * std::min(1.0, wd.length_mm / 80.0) : 1.0;
+    wd.clot = cap;  // minutes at rest settle any clot over a demotion of hours or more
+    std::int64_t t = from_tick;      // where this wound's story stands inside the interval
+    std::int64_t infected_for = 0;   // ticks spent infected inside the interval (no healing then)
+    if (wd.infection == Infection::None && open_wound(wd)) {
+      const double per_s = infection_base_per_day(wd.type) * wd.contamination * clean_factor(wd.cleaned) * (wd.dressed ? 0.7 : 1.0) / 86400.0;
+      if (per_s > 0) {
+        const double wait_s = rng.exponential(wd.id, Purpose::WoundInfection, per_s);
+        const std::int64_t at = from_tick + static_cast<std::int64_t>(wait_s / kTickSeconds);
+        if (at < to_tick) {
+          wd.infection = Infection::Local;
+          wd.infected_tick = at;
+          t = at;
+        }
+      }
+    }
+    while (wd.infection == Infection::Local || wd.infection == Infection::Spreading || wd.infection == Infection::Systemic) {
+      // The exit set runs only once the infection shows (as in wounds_step).
+      const std::int64_t visible_at = wd.infected_tick + ticks(kInfectionVisibleH * 3600);
+      const std::int64_t start = std::max(t, visible_at);
+      if (start >= to_tick) {
+        infected_for += to_tick - t;
+        if (visible_at <= to_tick) wd.infection_visible = true;
+        t = to_tick;
+        break;
+      }
+      wd.infection_visible = true;
+      const double rates_by_stage[3][2] = {{0.4, 0.2}, {0.2, 0.25}, {0.05, 0.5}};
+      const auto* r = rates_by_stage[static_cast<int>(wd.infection) - 1];
+      double worse = r[1];
+      if (wd.infection == Infection::Local) worse *= (wd.cleaned == Cleaned::No ? 1.0 : 0.5) * (wd.dressed ? 0.7 : 1.0);
+      const double resolve_s = r[0] / 86400.0, worse_s = worse / 86400.0, total = resolve_s + worse_s;
+      const double wait_s = rng.exponential(wd.id, Purpose::WoundInfection, total);
+      const std::int64_t at = start + static_cast<std::int64_t>(wait_s / kTickSeconds);
+      if (at >= to_tick) {
+        infected_for += to_tick - t;
+        t = to_tick;
+        break;
+      }
+      infected_for += at - t;
+      t = at;
+      const double weights[2] = {resolve_s, worse_s};
+      if (rng.weighted_choice(wd.id, Purpose::WoundInfection, weights) == 0) {
+        wd.infection = Infection::Resolved;
+      } else if (wd.infection == Infection::Systemic) {
+        out.death = DeathCause::Sepsis;
+        out.death_tick = at;
+        return out;
+      } else {
+        wd.infection = static_cast<Infection>(static_cast<int>(wd.infection) + 1);
+      }
+    }
+    wd.heal_tick += infected_for;
+  }
+  for (std::size_t i = 0; i < s.wounds.size();) {
+    if (to_tick >= s.wounds[i].heal_tick) s.wounds.erase(s.wounds.begin() + static_cast<std::ptrdiff_t>(i));
+    else ++i;
+  }
+  return out;
+}
+
+}  // namespace zs

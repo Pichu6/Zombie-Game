@@ -14,6 +14,7 @@ add_executable(zs_sim_tests
   test_stage7.cpp
   test_stage8.cpp
   test_stage9.cpp
+  test_jumps.cpp
   test_pop.cpp
   test_pop_registry.cpp
   test_demography.cpp

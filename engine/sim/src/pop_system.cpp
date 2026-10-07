@@ -33,7 +33,20 @@ void PopSystem::embody(World& w, const Command& c, EventId cause) {
   bool restored = false;
   if (const auto* saved = registry_.saved_body(c.subject)) {
     ArchiveReader r(*saved);
-    body = bodies_->embody_state(w, read_body_state(r), c.subject, cause);
+    BodyState state = read_body_state(r);
+    // The tick of the demotion follows the state in the blob (older blobs have none: no gap applied).
+    if (!r.at_end()) {
+      const std::int64_t left_at = r.i64();
+      AdvancedBody adv = advance_demoted(state, left_at, w.clock.tick, w.rng);
+      if (adv.death) {  // the pop died while it was a record: the registry takes the exception
+        registry_.set_death_year(c.subject, year_of_tick(adv.death_tick));
+        registry_.end_embodied(c.subject, {});
+        w.emit(EventType::PopDiedDemoted, c.subject, cause, static_cast<std::int64_t>(*adv.death), adv.death_tick);
+        return refuse(w, c, cause, Refusal::Dead);
+      }
+      state = adv.state;
+    }
+    body = bodies_->embody_state(w, state, c.subject, cause);
     restored = true;
   } else {
     body = bodies_->embody(w, body_spec_for(w.rng.seed(), c.subject, year - snap.base.birth_year, snap.base.sex), label, c.subject, cause);
@@ -50,6 +63,7 @@ void PopSystem::disembody(World& w, const Command& c, EventId cause) {
   if (!bodies_->cannot_disembody(w, body).empty()) return refuse(w, c, cause, Refusal::BodyBusy);
   ArchiveWriter out;
   write_body_state(out, bodies_->disembody(w, body, cause));
+  out.i64(w.clock.tick);  // when it left: the next embody advances the body over the gap (spec 29 rule 6)
   registry_.end_embodied(c.subject, out.bytes());
   w.emit(EventType::PopDisembodied, c.subject, cause, static_cast<std::int64_t>(body), 0);
 }
