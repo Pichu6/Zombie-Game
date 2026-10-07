@@ -30,6 +30,7 @@ enum class Purpose : std::uint32_t {
   PopLife = 14,   // spec 28: lifetime draws, keyed by (pop id, which draw)
   PopRank = 15,   // spec 28: cohort permutation rounds
   PopIdMix = 16,  // spec 28: ids of born pops
+  PopBody = 17,   // spec 29: the body generated for an embodied pop, keyed by (pop id, which draw)
 };
 
 class Rng {

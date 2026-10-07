@@ -57,6 +57,9 @@ enum class EventType : std::uint16_t {
   // Spec 28: pop levels.
   PopEffect = 41,         // subject = cohort or roster id, a = EffectKind, b = delta (the reason is the cause event)
   PopCommandRefused = 42, // subject = what it was aimed at, a = the command type
+  // Spec 29: embodied pops.
+  PopEmbodied = 43,       // subject = pop, a = the body (pool slot), b = 1 if restored from a saved state
+  PopDisembodied = 44,    // subject = pop, a = the body it left, b = 1 if it died while embodied
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

@@ -1,6 +1,6 @@
 # 29 · Embodied pops: the jump from the registry to the body simulation
 
-**Status:** Proposal. **Stage:** not Tier 0; first jump of the [layer jumps](../../design/layer-jumps.md) audit (row 2). **Needs:** [03](03-stock-transfer.md), [11](11-body-composition.md), [12](12-body-wounds.md), [27](27-detail-levels.md), [28](28-pop-levels.md). Research: [layer jumps, multi-resolution](../../research/layer-jumps-multiresolution.md). Decision: [0039](../../decisions/0039-fill-the-layer-jumps.md).
+**Status:** Implemented and tested (headless, GCC; see As built). Not yet Validated against real play. **Stage:** not Tier 0; first jump of the [layer jumps](../../design/layer-jumps.md) audit (row 2). **Needs:** [03](03-stock-transfer.md), [11](11-body-composition.md), [12](12-body-wounds.md), [27](27-detail-levels.md), [28](28-pop-levels.md). Research: [layer jumps, multi-resolution](../../research/layer-jumps-multiresolution.md). Decision: [0039](../../decisions/0039-fill-the-layer-jumps.md).
 
 ## Purpose
 
@@ -27,7 +27,7 @@ A pop in the registry is a lazy pop or a record ([spec 28](28-pop-levels.md)). T
 1. **Embody** (registry → bodies). A pop can be embodied if it is alive at the current year, is not already embodied, and a slot is free. Otherwise the request is refused with a logged reason (`PopCommandRefused`). The pop becomes a record if it is not one.
 2. **Where the body comes from.** If the record holds a saved `BodyState`, restore it exactly. Otherwise generate a `BodySpec` from the pop: a **stateless keyed function** of (world seed, pop id, age, sex) using the same distributions as the Tier 0 census (NHANES-like height and BMI, Deurenberg body fat, VO2max by age and sex), so a pop embodied twice from the same record gets the same body in any order (A1). Age is the pop's age at the current year.
 3. **Mass accounting.** The ledger conserves what is *in play*. Embodying declares an **inflow** of the body's tissue amounts to the slot's owner, with the command's event as cause; demoting declares an **outflow** of whatever the body then holds. People are conserved as counts (a pop is lazy, a record or embodied, never two). Tissue mass of lazy pops is outside the ledger by design, so the flows are visible, caused entries and never silent mints.
-4. **Demote** (bodies → registry). Allowed only if the body is alive and not on the map as a walker, and has been embodied for at least the **dwell** time (hysteresis: no flicker at the edge of the hot set). The body's state is saved as `BodyState` in the pop's record, its amounts leave the ledger by outflow, and the slot becomes vacant. If the body died while embodied, the pop is dead: the death is a registry exception (death year) and the corpse stays in the body simulation as a thing, not a slot occupant.
+4. **Demote** (bodies → registry). Allowed only if the body is alive and not on the map as a walker, and has been embodied for at least the **dwell** time (hysteresis: no flicker at the edge of the hot set). The body's state is saved as `BodyState` in the pop's record, its amounts leave the ledger by outflow, and the slot becomes vacant. If the body died while embodied, the pop is dead: the death is a registry exception (death year) and the slot is freed. *As built:* the corpse's mass leaves the ledger as a declared outflow; keeping the corpse as a thing in the world is a later unit.
 5. **Round trip.** Embody, run no time, demote, embody again: the same body in a possibly different slot, the same state, the same ledger totals (A1).
 6. **Time while demoted.** *Known gap, stated plainly:* a demoted pop's body state is restored **as it was left**; the elapsed time is not yet applied by body jump forms ([27](27-detail-levels.md) rule 2). The pop's own life (age, death, births) continues lazily and correctly; the body's hunger, healing and wound progress are paused. This disagrees with stepping and is to be closed by a body `advance(from, to)`; until then a test records it as expected.
 7. **Single source of truth.** The registry's `embodied` flag and the body pool's occupancy are checked against each other by the audit every tick when checks are on; a disagreement throws.
@@ -54,6 +54,15 @@ A pop in the registry is a lazy pop or a record ([spec 28](28-pop-levels.md)). T
 - **Death (A1):** a body that bleeds out while embodied makes the pop dead in the registry; its corpse remains; the slot is freed.
 - **Save, load, replay (A1):** a world with embodied pops saves, loads and replays to the same hash; the v4 and earlier registry fixtures still load.
 - **Time gap recorded (A3):** re-embodied state equals the state left (a pause), with a comment that stepping would differ.
+
+## As built
+
+- `engine/sim`: `Bodies` pool (`reserve_slots`, `embody`, `embody_state`, `disembody`, `release_dead`), `Ledger::declare_inflow/outflow`, `body_spec_for` (`pop_body.h`, `Purpose::PopBody`), registry fields and `Level::Embodied`, `PopSystem::attach_bodies`, commands `PopEmbody` (0x1009) and `PopDisembody` (0x100a), events `PopEmbodied` and `PopDisembodied`.
+- A refusal is a `PopCommandRefused` event whose `b` is a `Refusal` code (no bodies, no such pop, dead, already embodied, not embodied, pool full, dwell, body busy).
+- **Saves:** the registry writes **version 5** only when some pop has embodied data; otherwise it writes version 4, byte for byte as before, so worlds that never embody keep their hashes. Fixture `popreg_v5.bin` is frozen. Body pools save a per-slot section only when the pool is non-empty, for the same reason.
+- The pool size and dwell time are setup settings and are not saved (like any setup choice, every setup must make the same call). Default dwell: 1 game hour.
+- A pop's age at embodiment is its age at that tick, so "same body in any order" holds for pops embodied on the same tick.
+- Tests: `test_body_pool.cpp`, `test_embodied_pops.cpp`. Not yet covered: actors and items, body time while demoted (rule 6, a recorded gap).
 
 ## Calibration
 

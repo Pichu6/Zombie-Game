@@ -373,6 +373,18 @@ std::string Bodies::cannot_disembody(const World& w, EntityId body) const {
 
 BodyState Bodies::disembody(World& w, EntityId body, EventId cause) {
   if (const std::string why = cannot_disembody(w, body); !why.empty()) throw std::logic_error("disembody: " + why);
+  return vacate(w, body, cause);
+}
+
+BodyState Bodies::release_dead(World& w, EntityId body, EventId cause) {
+  const auto it = bodies_.find(body);
+  if (it == bodies_.end() || std::find(slots_.begin(), slots_.end(), body) == slots_.end() || it->second.vacant)
+    throw std::logic_error("release_dead: not an occupied pool body");
+  if (it->second.alive) throw std::logic_error("release_dead: the body is alive");
+  return vacate(w, body, cause);
+}
+
+BodyState Bodies::vacate(World& w, EntityId body, EventId cause) {
   Body& b = bodies_.at(body);
   BodyState st;
   st.spec = b.spec;

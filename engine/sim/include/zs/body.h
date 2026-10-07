@@ -169,6 +169,9 @@ class Bodies : public System {
   std::string cannot_disembody(const World& w, EntityId body) const;
   // Takes a body out of its slot, returning everything it held; its tissue leaves the ledger as a declared outflow.
   BodyState disembody(World& w, EntityId body, EventId cause);
+  // A pool body that died while embodied leaves its slot the same way (the corpse as a thing in the world is a later
+  // unit: for now its mass leaves the ledger as a declared outflow). Throws if the body is alive or not an occupied slot.
+  BodyState release_dead(World& w, EntityId body, EventId cause);
   bool exists(EntityId id) const { return bodies_.contains(id); }
   const Body& get(EntityId id) const { return bodies_.at(id); }
   Body& get(EntityId id) { return bodies_.at(id); }
@@ -212,6 +215,7 @@ class Bodies : public System {
   std::vector<std::string> trait_labels(const Body& b) const;
 
  private:
+  BodyState vacate(World& w, EntityId body, EventId cause);  // the shared tail of disembody and release_dead
   void fine_tick(World& w, Body& b);
   void body_step(World& w, Body& b);
   void metabolism(World& w, Body& b, double dt_s);

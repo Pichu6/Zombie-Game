@@ -23,6 +23,7 @@ add_executable(zs_sim_tests
   test_region_events.cpp
   test_demographics.cpp
   test_body_pool.cpp
+  test_embodied_pops.cpp
 )
 target_include_directories(zs_sim_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest)
 target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck)

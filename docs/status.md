@@ -24,7 +24,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 **Designed, not built** (all Proposals unless a decision says otherwise): [sandbox parameters](design/sandbox-parameters.md), [world numbers](design/world-numbers.md), [world systems](design/world-systems.md) (sectors and zones, the generation pipeline, factions, subjects), built from research notes in `docs/research/` whose numbers are second-hand search summaries.
 
-**Layer jumps** ([0039](decisions/0039-fill-the-layer-jumps.md), Decided intent; [audit](design/layer-jumps.md), Proposal): 22 domains audited for how Macro, City and Individual connect; biggest gap: a registry pop has no embodied level yet (no link to the body simulation).
+**Layer jumps** ([0039](decisions/0039-fill-the-layer-jumps.md), Decided intent; [audit](design/layer-jumps.md), Proposal): 22 domains audited for how Macro, City and Individual connect; first gap closed: embodied pops ([spec 29](tier0/specs/29-embodied-pops.md), headless, tested). Next: a generic jump test harness, then stocks and money.
 
 **Pop lore and custom pops** ([0040](decisions/0040-pop-lore-custom-pops-and-player-slots.md), Decided intent; [design](design/pop-lore-and-custom-pops.md), Proposal): a pop's background shapes the world around it without contradicting committed state; authored pops enter at the start or as recruits; a pop can be a player slot.
 
@@ -32,7 +32,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 ## Next step
 
-1. **Fill the layer jumps** ([layer jumps](design/layer-jumps.md) §5): embodied pops (registry to body simulation), a generic jump test harness, then stocks and money.
+1. **Fill the layer jumps** ([layer jumps](design/layer-jumps.md) §5): embodied pops are done; next a generic jump test harness, then body time while demoted, stocks and money.
 2. **Write the first generator spec** (global grid, terrain and climate fields, sectors, zones; tests with agreement levels), then build it.
 3. Then, in order ([world systems](design/world-systems.md) section 8): geology and deposits, capacity and settlements, routes, sectors and faction territory, economy core and chains, networks, building stock, the audit and realism report.
 4. Tier 0: play the sandbox from the Windows zip; then stage 10 (kill or keep: real player runs).
