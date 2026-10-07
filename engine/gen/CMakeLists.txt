@@ -6,6 +6,7 @@ add_library(zs_gen
   src/lifepath.cpp
   src/registry_bridge.cpp
   src/world_grid.cpp
+  src/world_fields.cpp
 )
 target_include_directories(zs_gen PUBLIC include)
 target_include_directories(zs_gen PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

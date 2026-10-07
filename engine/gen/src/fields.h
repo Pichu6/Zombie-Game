@@ -14,6 +14,9 @@ enum : std::uint32_t {
   TownName = 60, Streets = 61, Survivor = 62,
   LifeCity = 70, LifeTerm = 71, LifeJob = 72, LifeGap = 73, LifeService = 74, LifeEvent = 75, LifeMarried = 76,
   LifeRetire = 77, LifeEmployer = 78,
+  // World fields (spec 31): keyed by plate index or cell id.
+  PlateSeed = 100, PlateType = 101, PlateOmega = 102, PlateWeight = 103, PlateOffset = 104,
+  PlateAge = 105, CellCost = 106, Rough = 107,
 };
 }  // namespace zs::gen::field
 

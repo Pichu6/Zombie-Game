@@ -4,12 +4,15 @@
 //   zs_gen names  --culture ID [--kind K] [--count N] [--seed N]
 //                 kinds: person (default), street, town, province, country
 //   zs_gen cultures                                list the culture packs
+//   zs_gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]
+//                                                  world fields: summary and a text map (spec 31)
 #include <cstdlib>
 #include <iostream>
 #include <string>
 
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
+#include "zs/gen/world_fields.h"
 
 namespace {
 
@@ -22,7 +25,8 @@ std::string arg(int argc, char** argv, const std::string& key, const std::string
 int usage() {
   std::cerr << "usage: zs_gen town|census [--seed N] [--mix FILE]\n"
                "       zs_gen names --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]\n"
-               "       zs_gen cultures\n";
+               "       zs_gen cultures\n"
+               "       zs_gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]\n";
   return 2;
 }
 
@@ -37,6 +41,46 @@ int main(int argc, char** argv) {
     const std::uint64_t seed = std::strtoull(arg(argc, argv, "--seed", "1").c_str(), nullptr, 10);
     if (cmd == "cultures") {
       for (const auto& c : cat.cultures) std::cout << c.id << "  " << c.label << " (" << c.country << ")\n";
+      return 0;
+    }
+    if (cmd == "world") {
+      const int freq = std::atoi(arg(argc, argv, "--freq", "24").c_str());
+      const zs::gen::WorldGrid grid(freq, 6371.0);
+      zs::gen::WorldParams wp;
+      wp.seed = seed;
+      wp.land_share = std::atof(arg(argc, argv, "--land", "0.29").c_str());
+      wp.global_temp_c = std::atof(arg(argc, argv, "--temp", "14").c_str());
+      wp.relief = std::atof(arg(argc, argv, "--relief", "1").c_str());
+      wp.moisture = std::atof(arg(argc, argv, "--moisture", "1").c_str());
+      const auto f = zs::gen::generate_fields(grid, wp);
+      std::cout << "World seed " << seed << ": " << grid.size() << " cells, " << f.plate_count << " plates\n";
+      double share[zs::gen::biome_count] = {};
+      double land_area = 0;
+      for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+        share[static_cast<int>(f.biome[i])] += grid.area_km2(i);
+        if (f.land(i)) land_area += grid.area_km2(i);
+      }
+      double above1000 = 0, depth = 0, sea_area = 0;
+      for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+        if (f.elevation_m[i] > 1000) above1000 += grid.area_km2(i);
+        if (!f.land(i)) depth += -f.elevation_m[i] * grid.area_km2(i), sea_area += grid.area_km2(i);
+      }
+      std::cout << "land above 1000 m: " << 100.0 * above1000 / (land_area > 0 ? land_area : 1) << "% of land; mean ocean depth "
+                << depth / (sea_area > 0 ? sea_area : 1) << " m\n";
+      std::cout << "land " << 100.0 * land_area / grid.sphere_area_km2() << "% of the surface; biomes (% of land):\n";
+      for (int b = 1; b < zs::gen::biome_count; ++b)
+        std::cout << "  " << zs::gen::biome_name(static_cast<zs::gen::Biome>(b)) << " " << 100.0 * share[b] / land_area << "\n";
+      static const char glyph[zs::gen::biome_count] = {' ', '*', ',', 'b', 'f', '"', ':', 's', 'T', '^'};
+      for (int row = 0; row < 36; ++row) {
+        const double lat = 87.5 - 5.0 * row;
+        for (int col = 0; col < 96; ++col) {
+          const auto c = grid.cell_at(lat, -180.0 + 3.75 * (col + 0.5));
+          std::cout << (f.land(c) ? glyph[static_cast<int>(f.biome[c])] : (f.elevation_m[c] > -1500 ? '.' : ' '));
+        }
+        std::cout << "\n";
+      }
+      std::cout << "legend: ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
+                   " ':' desert, s savanna, T tropical forest, ^ mountain\n";
       return 0;
     }
     if (cmd == "town" || cmd == "census") {

@@ -48,4 +48,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 28 | [Pop identity and levels](28-pop-levels.md) | Agent (identity, levels), Belief store | after Tier 0; benchmark first |
 | 29 | [Embodied pops](29-embodied-pops.md) | Agent (embodied level), Body | after Tier 0; first layer jump |
 | 30 | [World grid](30-world-grid.md) | Cell grid (planet) | after Tier 0; generator step 1 |
-| 31 | [Terrain and climate fields](31-terrain-climate.md) | Fields (elevation, climate, biome) | after Tier 0; generator steps 1-2 (Proposal, not built) |
+| 31 | [Terrain and climate fields](31-terrain-climate.md) | Fields (elevation, climate, biome) | after Tier 0; generator steps 1-2 (implemented through biome) |

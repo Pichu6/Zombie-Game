@@ -19,6 +19,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 | Content tools | seeded names, pops and towns, six culture packs, lifepath backgrounds built from places that exist in the town (`data/gen/lifepath.toml`) | `zs_gen town` |
 | Pop levels ([spec 28](tier0/specs/28-pop-levels.md)) | one pop at every layer: ids, random-access lives, births, cohorts and rosters, region-wide events, versioned saves, a world system with commands | `--pop-bench`, `--town` |
 | World grid ([spec 30](tier0/specs/30-world-grid.md)) | the icosahedral hex-and-pentagon grid of world cells (102,012 at Earth size, areas within 1.42x), neighbours, distances, lookup; first unit of the world generator | `ctest` (`zs_gen_tests`) |
+| Terrain and climate ([spec 31](tier0/specs/31-terrain-climate.md)) | plates, elevation, sea level, temperature, rain, biome on the grid, from sliders (land share, temperature, relief, moisture) and a seed | `zs_gen world --seed 1` (text map) |
 | Nation demographics ([0034](decisions/0034-nation-demographics.md)) | a country's own age, education, work, households as data (placeholder profile only) | `data/setup/nations/` |
 
 **Stage 5, the sandbox window:** built, not yet run on a PC. **Windows/MSVC:** CI builds `main` and uploads a zip; the pop work lives on the working branch and has not been through MSVC yet.
