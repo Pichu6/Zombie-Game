@@ -30,6 +30,27 @@ From a 70 km cell to a 200 m zone cell is about 8 to 9 doublings; to the 0.5 m g
 
 **The rule behind all four:** a trick may add detail *below* committed truth and may change how things are *shown*; it never replaces truth, never contradicts the parent, and never sends a value *upward* (macro numbers stay sums of micro entities).
 
+## 3b. Two different scale problems (added 2026-10-07, from the user's point about a city of millions seen from above)
+
+A person, a car and a door are real size ([world simulation](world-simulation.md) §8), so from a city-management height they are far smaller than a pixel. Walking into one pop's home is not the same experience as watching a city of millions, and it should not be the same drawing. Two separate things are going on:
+
+1. **Representation scale (what is drawn).** Solved by cartographic **symbol scale**, as a map does: a thing is drawn at `max(real size, minimum screen size)`. Below the height where its real size is smaller than the minimum, it becomes a symbol that stays readable (a road is drawn wider than a real road, a pop is a dot). The crossover is continuous (the size just stops shrinking), so there is no pop; when the type of drawing changes (mesh → block → footprint → density), the two are cross-faded over a range of heights. **Physics, collision and the simulation always use real size**; only the drawing is exaggerated, and only above the crossover. This does not break "nothing is ever shrunk": it is a drawing rule, like the width of a motorway on a road map.
+2. **Information scale (what the player can read and do).** A million pops cannot be read one by one at any size. At city height the useful view is **aggregates and overlays** (density, traffic flow, power load, unrest, supply), which is what the City and Macro layers' verbs act on ([macro layer](macro-layer.md) §3.3). The layer changes what is *shown* (numbers and flows) as well as how big things are drawn.
+
+| Height band (proposed) | Drawn as | Size | Selectable |
+| --- | --- | --- | --- |
+| Interior, street (under about 100 m) | Real meshes; pops as bodies where hot | Real | Anything, as itself |
+| District (100 m to 2 km) | Buildings extruded from their footprints; pops and vehicles as markers | Real until the minimum, then a fixed screen size (about 6 px) | A building, a marker (a real pop) |
+| City (2 to 30 km) | Buildings merged into zone-coloured blocks; roads at minimum width; **flow lines** for traffic; a **sample** of pops as dots; overlays | Symbol scale | A block, a road, an overlay cell; a dot opens a real pop |
+| Region (30 to 500 km) | City as a footprint and night lights; major roads and rails only | Symbol scale | A city, a sector |
+| Globe | City as an icon sized by population; borders; weather | Symbol scale | A sector, a nation |
+
+**Rule for the million-pop city:** pops are never drawn all. The dots are a **sample** of the real pops, chosen by a keyed draw so the same pops stay shown from frame to frame; the sample's density equals the true density, the numbers on screen are exact sums over the whole city (never counted from the sample), and clicking a dot opens that real pop (a lazy pop becomes a record, [spec 28](../tier0/specs/28-pop-levels.md)). A cap on dots drawn is a rendering budget, not a rule of the simulation.
+
+**Hiding the last jump, from the city into one home:** the dive itself is the cover. While the camera descends, the building's layout is generated (trick T3) and its pops are made records, so nothing waits on the player; the roof and upper floors fade out as the camera passes the roofline; the symbol dots turn into bodies by cross-fade. Taking a body far from the camera uses the GTA-style switch instead ([world simulation](world-simulation.md) §8).
+
+**The map itself is real size** (a 70 km world cell is 70 km). It is never shrunk to fit the screen; the player gets around by zooming and by fast travel with time passing, not by a smaller planet.
+
 ## 4. What this asks of the generator (the part we are building now)
 
 - **Fields must be defined at every scale**, not only on the 70 km cells. Spec 31 stores cell values; T2 needs the same fields evaluable at any point from the cell and its neighbours (interpolate the stored values, add seeded detail constrained by them).
@@ -50,3 +71,5 @@ From a 70 km cell to a 200 m zone cell is about 8 to 9 doublings; to the 0.5 m g
 1. Truly continuous (no snap), or continuous with the layer shown in the interface changing at the enter and leave heights? Recommendation: continuous camera, layer switches at heights with a gap.
 2. Should every building in the world be enterable (generated on approach), or only inside a bounded area? T3 makes the first possible; cost is first-visit generation time and save size.
 3. Is the GTA-style switch still wanted for taking a *different* body far away, with plain zoom for everything else ([world simulation](world-simulation.md) §8)? Recommendation: yes.
+4. Camera tilt: should the city view be a tilted, miniature-style perspective (as in city builders) that straightens to top-down at the Region height, or always top-down? Recommendation: tilted in City, so buildings read as buildings.
+5. The height bands and the 6 px minimum are starting values to tune by looking, once there is a renderer.
