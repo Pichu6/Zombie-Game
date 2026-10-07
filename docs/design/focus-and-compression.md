@@ -1,0 +1,96 @@
+# Focus and compression: show and compute what the player attends to, keep everything coherent
+
+**Status:** Proposal (2026-10-07), from the user's description: only show what the player is seeing, whatever the layer or zoom; the conscious focus decides what is detailed. Layer 3 takes political decisions that take realistic time; layer 2 shows the result (a hospital being built, pops coming and going); layer 1 lets you work in it. Intent is the user's; the mechanisms below are mine and **not decided**. Builds on [spec 27](../tier0/specs/27-detail-levels.md), [spec 28](../tier0/specs/28-pop-levels.md), [spec 29](../tier0/specs/29-embodied-pops.md), [0033](../decisions/0033-restoring-cost-and-two-way-projects.md), [layer jumps](layer-jumps.md), the [zoom continuum](zoom-continuum.md) and the [multi-resolution research](../research/layer-jumps-multiresolution.md) (19 failure modes).
+
+## 1. The principle
+
+> **Store the least that can reproduce everything on demand; compute detail where the player's attention is; once detail has been seen or acted on, it is true for good.**
+
+Three kinds of attention, which replace "everything runs at full detail":
+
+| Attention | Who gets it | Simulated as |
+| --- | --- | --- |
+| **Attended** (hot) | The player's body and the ring around it; a building being inspected | Full detail (bodies, cells, fields every tick), capped by a budget |
+| **Watched** (warm) | Anything the player has an order or a pin on: the hospital project, a supply route, a clinic | A record with a process (progress, roster, stocks, event log), advanced by jump forms; never full detail |
+| **Unattended** (cold) | The rest of the world | Counts, stocks and rates; caught up in one step when read |
+
+An order from layer 3 makes its target at least **watched**, so a project can never be forgotten.
+
+## 2. The compression toolbox (what "compress" means here)
+
+Each technique is already in the repo or a small step from it; the new part is using them together.
+
+| # | Technique | Example | Where it is already |
+| --- | --- | --- | --- |
+| C1 | **Counts, not entities** | 412 walkers as a number per cell until one is near | Spec 22, 28 |
+| C2 | **Rates and jump forms** | Spoilage, growth, wages applied in one step over elapsed time | Spec 27 rule 2 |
+| C3 | **Seeds, not stored detail** | A building's furniture is a function of its seed; generated on approach, saved on first visit | [0017](../decisions/0017-slow-endgame-and-generation-on-the-go.md), world simulation §12 |
+| C4 | **Exceptions only** | A demoted pop saves only what its seed cannot say | Spec 28 rule 3 |
+| C5 | **Schedules as pure functions** | Where a worker is at 08:40 is a function of (pop, time), not a simulated walk | New small unit (see [low-resource note](../research/low-resource-city-simulation.md) point 2) |
+| C6 | **Sample to show, sum to tell** | Dots are a keyed sample of real pops; every number is an exact sum | [Zoom continuum](zoom-continuum.md) 3b |
+| C7 | **Process, not movie** | A project is `progress`, a roster, stocks and an event log; what it looks like is derived (section 4) | This document |
+| C8 | **Incremental aggregates** | A sector's totals are kept as sums updated by each change, so showing them is O(1) | Spec 28 §3 (counts are sums) |
+| C9 | **Inspect on demand** | Clicking a building computes its panel from records then; nothing is maintained for display | Cities: Skylines style |
+| C10 | **History into sums** | Old events are folded into totals and only notable ones kept in the chronicle | Spec 25 |
+
+## 3. What keeps it coherent
+
+1. **One owner per fact.** The finest level that exists holds it; coarser levels are sums or readouts, never a second copy (world systems §1 rule 4; failure mode 9).
+2. **Observation commits.** Detail that is only derived (not stored) may be re-derived any number of times and will give the same answer (keyed, pure). The moment the player sees it or changes it, what is **observed** becomes a stored exception. You can never see a thing, look away and find it was something else (modes 1, 11).
+3. **Monotone refinement.** Derived detail is a function of (plan, seed, one scalar), such that **the state at an earlier scalar is a prefix of the state at a later one**. This is what lets layer 1, 2 and 3 views taken at different times agree (section 4).
+4. **Conservation across every jump:** people, kg, litres and money move between owners; a declared flow, never a mint (mode 8).
+5. **Idempotent catch-up:** `advance(a, b)` then `advance(b, b)` is a no-op; save, load, wake gives the same hash (modes 10, 11).
+6. **Reasons travel with orders and results** ([macro layer](macro-layer.md) §5), so the inspector can say *why* the hospital is late.
+7. **A hot-only rule is never jumped** (a fight, a door push): it runs only when attended (mode 12).
+
+## 4. Worked case: "build a hospital", through all three layers
+
+**t0, layer 3.** The player orders a 400-bed hospital in a sector. The order is a command with a reason. It becomes a **Project** record (Decided path, [world simulation](world-simulation.md) §7; [0033](../decisions/0033-restoring-cost-and-two-way-projects.md)):
+
+| Part | What it holds | Real because |
+| --- | --- | --- |
+| Plan | Site plot, floor plans, structure, a **bill of materials** (kg of concrete, steel, pipe, wire, equipment) and **labour-hours by skill**, from a hospital template and the quality system | Fixed **at order time**, so every later view matches it |
+| Money | Budget escrowed from the state's ledger | Money is conserved |
+| Demand | Job postings (rosters) and material requests to the supply chain | Pops and companies answer by the normal rules, [0033](../decisions/0033-restoring-cost-and-two-way-projects.md) |
+| Progress | One scalar `p` in [0, 1]: work done weighted by the plan | The only thing that advances |
+| Log | Events: steel delayed, blackout, strike, a worker hurt, with their causes | For the inspector |
+
+**What advances `p`.** Work per hour = `min(labour on site, material on site, power, ...)`. Labour is the roster's pops times their skill; material is what the ledger has delivered to the site's owner; deliveries are real transfers over real routes at real speed. Cold, this is integrated in one step (`advance`); hot, the same work is done by pops doing tasks, and the two agree in distribution (A2, tested as jump against stepping).
+
+**Layer 3 shows** `p`, the ETA, and the **bottleneck with its cause** ("waiting on 12 t of steel, route blocked at the bridge"). All are readouts.
+
+**Layer 2 shows** a building at a **stage** derived from `p` (site clearing, foundation, frame, envelope, fit-out, commissioning), its massing and look from the plan and a seed. **Trucks** are the real deliveries in transit (each transfer is split into loads with a departure time and a path); **workers** are the roster, placed by their schedule function (home to site by shift). Nothing here is decoration.
+
+**Layer 1 shows** the interior at stage `p`: because tasks complete in a **fixed order given by the plan** (a seeded order for crews), the rooms that are framed, wired or finished at `p` are a prefix of the plan, so walking in at any time agrees with the aerial view and with an earlier visit. If the player takes a job on the site, their labour-hours are real and raise `p` (two-way, 0033); if they sabotage or steal materials, the ledger shows it.
+
+**Completion:** the finished facility posts its own jobs and its own supply demand. The building is then an establishment, summed into the sector's numbers.
+
+**What is stored for the whole hospital while nobody looks:** the plan, `p`, the roster, the site's stocks and the event log: hundreds of bytes plus the plan, not a building.
+
+**Disruption keeps it coherent:** a blackout or strike sets the work rate to zero over an interval in the log; `p` is the integral, so the views remain consistent; at layer 1 the crew is idle *now* because the cause is *now*. History is only for the inspector.
+
+## 5. Where this can go wrong (from the research, applied)
+
+| Risk | Rule |
+| --- | --- |
+| Layer 1 shows something layer 2 contradicts | One scalar `p` and a prefix-ordered plan feed both |
+| The view at hour 3 differs from a view at hour 1 plus 2 hours | `advance` is pure and keyed; tests compare one jump against many steps |
+| Waking the site wakes the whole district (mode 3) | A project is *watched* (record only); only an observer's ring becomes *attended* |
+| Teleporting workers hide bugs (mode 19) | A worker's position is the schedule function; any override is logged with a reason |
+| Seam exploits: leave, return, get more (mode 18) | Same ledger whether attended or not |
+| Rare events lost in a long jump (mode 17) | Events (accident, blackout) are drawn by keyed hazards over the interval, not skipped |
+| Realistic duration versus play speed | Per-layer time scale ([0032](../decisions/0032-real-time-reference-and-generational-runs.md)): layer 3 fast, layer 1 real time; a hospital's real build time (years) is a number of the plan |
+
+## 6. What it needs built, in order
+
+1. **Specs first** (no code yet): **Project** (the process above, [layer jumps](layer-jumps.md) row 9), **Schedule and position at time t** (C5), **Attention** (the three levels and who owns the budget; extends spec 27).
+2. **Prerequisites already in the audit:** stocks and goods, then money, then establishments (rows 5, 6, 7).
+3. **The generic jump test harness** (round trip, aggregate against enumeration, jump against stepping, order independence), applied first to the pop jumps already built.
+4. A **vertical slice** to prove it: one Project (a small clinic), one sector, ten pops, one supply route, run cold, watch at layers 2 and 1, compare the hot and cold runs.
+
+## 7. Questions for the user
+
+1. **Commit on observation:** is it right that unobserved detail is not canonical until seen (already the rule for buildings, 0017), and extended to a project's interior?
+2. **Pins:** should the player be able to pin things (a project, a clinic, a person) so they stay *watched*, besides the ones orders create automatically?
+3. **Real durations:** should a hospital really take about 2 to 3 game years (the realistic range), with the 1 real hour = 1 game day default making that about a month of play at layer 3?
+4. **Order of work:** the Project spec first (your example, but it leans on stocks and money, which are gaps), or the schedule-and-position unit first (smaller, and it also serves the dots in a city)?
