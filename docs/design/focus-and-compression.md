@@ -92,7 +92,7 @@ Each technique is already in the repo or a small step from it; the new part is u
 
 1. **Commit on observation:** yes, where it is better for memory.
 2. **Pins:** yes, but each layer must give its own information about the same thing (section 8).
-3. **Durations:** real for everything; long waits are played as progress bars with a speed ladder (pause, slow, 1:1, 1 hour = 1 day, faster), [0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md). Starting speed is open.
+3. **Durations:** real for everything; long waits are played as progress bars with a speed ladder (pause, slow, 1:1, 1 hour = 1 day, faster), [0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md). A new game starts at 1 hour = 1 day and time stops while closed ([0043](../decisions/0043-start-speed-and-time-while-closed.md)).
 4. **Still open:** the order of work. Recommendation: the **schedule and position at time t** unit first (small, and it serves the dots and the project's workers), then the **Project** spec.
 
 ## 8. Pins and lenses: one thing, a different view per layer
