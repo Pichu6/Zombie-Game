@@ -26,6 +26,8 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 **Designed, not built** (all Proposals unless a decision says otherwise): [sandbox parameters](design/sandbox-parameters.md), [world numbers](design/world-numbers.md), [world systems](design/world-systems.md) (sectors and zones, the generation pipeline, factions, subjects), built from research notes in `docs/research/` whose numbers are second-hand search summaries.
 
+**Zoom continuum** ([design](design/zoom-continuum.md), Proposal, 2026-10-07): the "Google Earth" idea, one continuous camera from globe to person with the layers by height; four kinds of trick and where each is allowed; the world grid is nested, so it is already the zoom ladder. Touches three earlier decisions, listed in its section 5.
+
 **Layer jumps** ([0039](decisions/0039-fill-the-layer-jumps.md), Decided intent; [audit](design/layer-jumps.md), Proposal): 22 domains audited for how Macro, City and Individual connect; first gap closed: embodied pops ([spec 29](tier0/specs/29-embodied-pops.md), headless, tested). Next: a generic jump test harness, then stocks and money.
 
 **Pop lore and custom pops** ([0040](decisions/0040-pop-lore-custom-pops-and-player-slots.md), Decided intent; [design](design/pop-lore-and-custom-pops.md), Proposal): a pop's background shapes the world around it without contradicting committed state; authored pops enter at the start or as recruits; a pop can be a player slot.

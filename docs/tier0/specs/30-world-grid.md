@@ -30,6 +30,7 @@ Cell ids are `0 .. 10 n² + 1`, assigned by a fixed construction order, so the s
 
 ## Invariants
 
+- Nested: every cell centre at frequency n is a cell centre at 2n (tested; the zoom ladder, [zoom continuum](../../design/zoom-continuum.md)).
 - Cell count = 10 n² + 2; exactly 12 cells have 5 neighbours, all others 6.
 - Neighbour relation is symmetric and irreflexive; the graph is connected.
 - Euler's formula holds for the triangle mesh (V − E + F = 2, with E = 30 n², F = 20 n²).

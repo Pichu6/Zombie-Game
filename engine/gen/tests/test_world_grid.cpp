@@ -126,3 +126,14 @@ TEST_CASE("grid: deterministic, and the golden hash is pinned") {
   // Pinned on Linux (GCC and Clang); Windows must reproduce it.
   CHECK(grid_hash(a) == 6600657962485029725ull);
 }
+
+TEST_CASE("grid: frequency n is nested inside 2n, so the grid is a zoom ladder") {
+  // Every cell centre of a coarse grid is exactly a cell centre of the grid at double the frequency.
+  for (const int n : {1, 2, 4, 6}) {
+    const WorldGrid coarse(n, 6371), fine(2 * n, 6371);
+    for (CellId i = 0; i < coarse.size(); ++i) {
+      const CellId j = fine.nearest_cell(coarse.centre(i), 0);
+      CHECK(std::abs(dot(fine.centre(j), coarse.centre(i)) - 1.0) < 1e-12);
+    }
+  }
+}
