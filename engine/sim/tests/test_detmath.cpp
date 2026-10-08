@@ -2,6 +2,7 @@
 #include <bit>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 #include <doctest.h>
 
@@ -60,4 +61,14 @@ TEST_CASE("detmath gives the same bits on every compiler (A1 across compilers)")
   }
   // Pinned on Linux (GCC). Windows (MSVC) must produce the same value.
   CHECK(zs::hash_bytes(w.bytes()) == 0x7fccc6b0bd223228ULL);
+}
+
+TEST_CASE("sin and cos return NaN for infinities and beyond 2^30 instead of an unbounded cast (DET-8)") {
+  const double inf = std::numeric_limits<double>::infinity();
+  CHECK(std::isnan(dm::sin(inf)));
+  CHECK(std::isnan(dm::cos(-inf)));
+  CHECK(std::isnan(dm::sin(1e19)));
+  CHECK(std::isnan(dm::cos(-1e19)));
+  CHECK(std::isfinite(dm::sin(0x1p30)));
+  CHECK(std::isfinite(dm::cos(-0x1p30)));
 }

@@ -3,6 +3,12 @@
 
 #include "zs/clock.h"
 #include "zs/demo.h"
+#include "zs/world.h"
+
+#if defined(_M_X64) || defined(__x86_64__) || defined(_M_IX86) || defined(__i386__)
+#include <xmmintrin.h>
+#define ZS_TEST_MXCSR 1
+#endif
 
 using namespace zs;
 
@@ -42,3 +48,17 @@ TEST_CASE("speed never changes results: same hash whatever the app's speed (A1)"
   }
   CHECK(a->state_hash() == b->state_hash());
 }
+
+#ifdef ZS_TEST_MXCSR
+TEST_CASE("a step restores the default floating-point environment (DET-40)") {
+  World w(1);
+  const unsigned clean = _mm_getcsr();
+  _mm_setcsr(clean | 0x8000 | 0x0040 | 0x6000);  // flush-to-zero, denormals-are-zero, round toward zero
+  w.step();
+  CHECK((_mm_getcsr() & 0xE040u) == (clean & 0xE040u));
+  CHECK(w.fp_env_restored == 1);
+  w.step();
+  CHECK(w.fp_env_restored == 1);
+  _mm_setcsr(clean);
+}
+#endif

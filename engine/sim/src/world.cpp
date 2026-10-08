@@ -4,6 +4,13 @@
 
 #include <stdexcept>
 
+#if defined(_M_X64) || defined(__x86_64__) || defined(_M_IX86) || defined(__i386__)
+#include <xmmintrin.h>
+#define ZS_HAS_MXCSR 1
+#else
+#define ZS_HAS_MXCSR 0
+#endif
+
 namespace zs {
 
 World::World(std::uint64_t seed) : rng(seed) {}
@@ -32,7 +39,24 @@ EventId World::emit(EventType type, EntityId subject, EventId cause, std::int64_
   return id;
 }
 
+namespace {
+// The default SSE environment: round to nearest, no flush-to-zero, no denormals-are-zero (DET-40). Something in
+// the process (a driver, a plugin) may change it; the simulation puts it back before each step.
+bool restore_fp_env() {
+#if ZS_HAS_MXCSR
+  constexpr unsigned kRounding = 0x6000, kFlushToZero = 0x8000, kDenormalsAreZero = 0x0040;
+  const unsigned csr = _mm_getcsr();
+  if (csr & (kRounding | kFlushToZero | kDenormalsAreZero)) {
+    _mm_setcsr(csr & ~(kRounding | kFlushToZero | kDenormalsAreZero));
+    return true;
+  }
+#endif
+  return false;
+}
+}  // namespace
+
 void World::step() {
+  if (restore_fp_env()) ++fp_env_restored;
   emitted_.clear();
   // 1. Input commands, in submission order.
   for (const Command& c : pending_) {

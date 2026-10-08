@@ -25,7 +25,7 @@ Any run can be saved, loaded, replayed exactly and inspected. This is how an eme
 5. Loading goes into a fresh candidate world built by the same setup; the running world is replaced only if the load succeeded. Saving writes a temporary file, reads it back, then renames it. Only primary state is saved; readouts are recomputed.
 6. Data (item definitions, map, census table, calibration numbers) lives in text files under `data/tier0/`, never in code.
 
-Rules from the engineering research (added 2026-10-08, [0055](../../decisions/0055-defaults-for-fixes-from-engineering-research.md) §3-4; not built yet, [research fixes](../research-fixes.md) packages 2-4):
+Rules from the engineering research (added 2026-10-08, [0055](../../decisions/0055-defaults-for-fixes-from-engineering-research.md) §3-4; rules 15 and 19 built 2026-10-08, rules 16-18 and 20 not yet, [research fixes](../research-fixes.md) packages 2-4):
 
 15. **Every save goes through `zs::write_file`**, the window's F5 included (today it writes with a plain stream, [DC-39](../../research/data-compression.md)), and `write_file` flushes the temp file to disk before the rename (`FlushFileBuffers` on Windows, `fsync` and a directory `fsync` on POSIX, [DC-40](../../research/data-compression.md)), as rule 13 asks.
 16. **Format version 4** adds to the header, in one step: the codec, the uncompressed size, and rule 4's binary hash, data hash, seed and settings ([DC-38](../../research/data-compression.md)). The version 3 reader stays.

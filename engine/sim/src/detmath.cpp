@@ -1,6 +1,7 @@
 #include "zs/detmath.h"
 
 #include <bit>
+#include <cassert>
 #include <cmath>  // only for std::sqrt, which IEEE 754 requires to be correctly rounded
 #include <cstdint>
 #include <limits>
@@ -18,9 +19,15 @@ constexpr double pio2_3 = 2.02226624879595063154e-21;
 constexpr double two_over_pi = 6.36619772367581382433e-01;
 constexpr double sqrt2 = 1.41421356237309504880;
 
+// Callers keep |t| well below 2^62, so the cast is defined (DET-8).
 std::int64_t round_to_int(double t) {
+  assert(t > -0x1p62 && t < 0x1p62);
   return static_cast<std::int64_t>(t >= 0.0 ? t + 0.5 : t - 0.5);
 }
+
+// sin and cos reduce by multiples of pi/2 with a three-part constant, exact while |x| <= 2^30; the simulation never
+// needs more. Beyond it, and for infinities, they return NaN instead of casting an unbounded double (DET-8).
+constexpr double kTrigLimit = 0x1p30;
 
 // Exact multiplication by 2^k, built from the bit pattern.
 double scale2(double x, std::int64_t k) {
@@ -120,6 +127,7 @@ double pow(double base, double exponent) { return exp(exponent * log(base)); }
 
 double sin(double x) {
   if (x != x) return x;
+  if (!(x >= -kTrigLimit && x <= kTrigLimit)) return std::numeric_limits<double>::quiet_NaN();
   const std::int64_t k = round_to_int(x * two_over_pi);
   const double kd = static_cast<double>(k);
   const double r = ((x - kd * pio2_1) - kd * pio2_2) - kd * pio2_3;
@@ -133,6 +141,7 @@ double sin(double x) {
 
 double cos(double x) {
   if (x != x) return x;
+  if (!(x >= -kTrigLimit && x <= kTrigLimit)) return std::numeric_limits<double>::quiet_NaN();
   const std::int64_t k = round_to_int(x * two_over_pi);
   const double kd = static_cast<double>(k);
   const double r = ((x - kd * pio2_1) - kd * pio2_2) - kd * pio2_3;

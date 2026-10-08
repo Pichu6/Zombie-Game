@@ -98,6 +98,9 @@ class World {
   // Ledger check every tick. On by default in debug builds; tests turn it on everywhere.
   bool check_every_tick = kDebugBuild;
   std::optional<std::string> last_violation;
+  // Times step() found the floating-point environment changed (rounding, flush-to-zero, denormals-are-zero) and
+  // restored the default (engine architecture section 5). Not state: not saved or hashed.
+  std::uint64_t fp_env_restored = 0;
 
   // Persistence. Load into a candidate world built by the same setup, then swap if it succeeded.
   std::vector<std::uint8_t> save() const;
