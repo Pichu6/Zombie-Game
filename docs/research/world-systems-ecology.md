@@ -1,9 +1,50 @@
 # World systems: flora, fauna, soils and fisheries in numbers
 
-**Date:** 2026-10-06
-**Status:** research note, not a decision. Nothing here is Decided, Implemented or Validated. It feeds [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md) and [0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md) (decision 5: the simulation must cover flora, fauna and resources) and sits beside [world numbers](../design/world-numbers.md) and [world survival](../design/world-survival.md) (agriculture, wildlife).
+**Date:** 2026-10-06. **Status:** research note, not a decision; nothing here is Decided, Implemented or Validated. **Feeds:** [world systems](../design/world-systems.md), [world survival](../design/world-survival.md) (agriculture, wildlife), [world numbers](../design/world-numbers.md), [spec 37](../tier0/specs/37-flora-and-fauna.md), [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md), [0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md) (decision 5: the simulation must cover flora, fauna and resources). **Evidence:** WebFetch was blocked by the network proxy (daac.ornl.gov returned EGRESS_BLOCKED; other hosts were not tried after that). Numbers tagged "search" come from WebSearch result summaries, not from reading the source page; "derived" is our arithmetic on cited inputs; "memory" is background knowledge not confirmed in this session (low confidence, URL only a place to check). In section 1, H = the summary quotes a well-known value, M = second-hand or range-valued, L = memory or derived from weak inputs. **IDs:** WSE.
 
-**Method and limits.** WebFetch was blocked by the network proxy (daac.ornl.gov returned EGRESS_BLOCKED; other hosts were not tried after that). Every number tagged "search" comes from WebSearch result summaries, not from reading the source page. "derived" means our own arithmetic on cited inputs. "memory" means background knowledge not confirmed in this session; the URL is only a place to check, and the confidence is L. Confidence: H = summary quotes the number and it matches well-known values; M = second-hand or range-valued; L = memory or derived from weak inputs.
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| WSE-1 | Global forest area is 4.06 billion ha, 31% of land (FRA 2020); 45% of it is tropical | reported | https://www.fao.org/newsroom/detail/World's-most-comprehensive-analysis-of-forest-resources-launched-today-in-an-innovative-format/en |
+| WSE-2 | Forest carbon density is 159 (1990) to 163 (2020) t C per ha; the forest carbon stock fell from 668 to 662 Gt C | reported | https://openknowledge.fao.org/3/ca9825en/ca9825en.pdf |
+| WSE-3 | Ocean NPP is 48.5 Pg C per year (Field et al. 1998) | reported | https://bionumbers.hms.harvard.edu/bionumber.aspx?id=102936 |
+| WSE-4 | Total NPP across 53 sites (grassland, tropical forest, boreal) ranges 182 to 3,538 g dry matter per m2 per year | reported | https://daac.ornl.gov/NPP/guides/NPP_MULTIBIOME.html |
+| WSE-5 | Global vegetation carbon is about 450 Pg C today against about 916 without land use; 42-47% of that loss comes from forest management and grazing without land-cover change | reported | https://ideas.repec.org/a/nat/nature/v553y2018i7686d10.1038_nature25138.html |
+| WSE-6 | Plantation mean annual increment runs from 1-2 (poor sites) to 25-30 m3 per ha per year; pine from 3 (Scandinavia) to 24 (New Zealand) | reported | https://www.fao.org/4/ac121e/ac121e02.htm |
+| WSE-7 | Eucalyptus grandis and hybrids grow 15-40 m3 per ha per year on 5-15 year rotations; temperate eucalypts 5-18 on 10-15 years | reported | https://www.fao.org/4/ac121e/ac121e03.htm |
+| WSE-8 | Rotations range from 5 years (coppiced eucalypt) to over 100 years (high-value temperate timber) | reported | https://www.fao.org/4/ac121e/ac121e02.htm |
+| WSE-9 | Neotropical secondary forest holds 122 Mg per ha above-ground biomass after 20 years (20-225 across sites), reaches 90% of old-growth biomass in a median 66 years, and takes up 3.05 Mg C per ha per year, 11 times old growth | reported | https://repository.lsu.edu/biosci_pubs/4715 |
+| WSE-10 | Damuth's law: herbivore density scales with body mass to the -0.75 power, so a population's energy use is independent of body size | reported | https://pdodds.w3.uvm.edu/files/papers/others/1981/damuth1981a.pdf |
+| WSE-11 | 10,000 kg of prey supports about 90 kg of carnivore, at any body mass | reported | https://synapsesocial.com/papers/W2014666871 |
+| WSE-12 | Trophic transfer efficiency averages 10% (observed 2-24%) | reported | https://fishbase.se/Ecopath/PPRnatur.htm |
+| WSE-13 | Large-herbivore biomass rises with rainfall and soil nutrients in African savanna (coefficients not extracted); Serengeti wet-season density about 100 animals per km2 | reported | https://link.springer.com/article/10.1007/BF00317566 |
+| WSE-14 | Wild mammals hold 0.007 Gt C, humans 0.06, livestock 0.11; all life 550 Gt C, plants 450, animals about 2 | reported | https://wis-wander.weizmann.ac.il/node/9421 |
+| WSE-15 | Schaefer maximum sustainable yield is rK/4 at B = K/2; refined models put MSY at about 30% of unexploited size | reported | https://en.wikipedia.org/wiki/Maximum_sustainable_yield |
+| WSE-16 | Feed conversion in 2023: chicken 1.7, pork 2.75, beef 6.0 kg feed per kg gain (1950s: 4.75, 4.5, 7.5) | reported | https://www.spglobal.com/energy/en/news-research/special-reports/agriculture/atlas-of-food-fertilizer-rice-grain-sugar-protein/protein/meat-production |
+| WSE-17 | One animal unit (1,000 lb cow) eats 9,360 lb (about 4.25 t) of dry forage per year | reported | https://projects.sare.org/media/pdf/P/u/b/Pub-31-1005-Carrying-Capacity-and-Stocking-Rate.pdf |
+| WSE-18 | Stocking rate: 6-7.3 ha per cow-year on unirrigated annual rangeland (Sierra Foothills); about 0.4 ha per cow for a 6-month season on irrigated pasture | reported | https://ucanr.edu/sites/SoCo/files/27848.pdf |
+| WSE-19 | Per-capita fish consumption rose from 9.1 (1961) to 20.7 (2022) kg per person per year | reported | https://www.fao.org/newsroom/detail/fao-report-global-fisheries-and-aquaculture-production-reaches-a-new-record-high/en |
+| WSE-20 | Fisheries plus aquaculture produced 223.2 Mt in 2022; aquaculture was 51% of aquatic animals; 62.3% of monitored stocks were fished sustainably in 2021 | reported | https://www.fao.org/newsroom/detail/fao-report-global-fisheries-and-aquaculture-production-reaches-a-new-record-high/en |
+| WSE-21 | Worm et al. 2006 called a fishery collapsed when catch fell under 10% of the series maximum (a heavily criticised definition); one agency's rebuilding target is B_MSY at about 40% of unfished biomass | reported | https://www.forest-trends.org/wp-content/uploads/imported/murawski_etal_2007_letters_how-bad-ocean-biodiv-loss-pdf.pdf |
+| WSE-22 | Tolerable erosion, equal to soil formation, is about 1 t per ha per year; ploughing erodes 1-2 orders of magnitude faster; no-till is close to formation | reported | https://pmc.ncbi.nlm.nih.gov/articles/PMC1948917 |
+| WSE-23 | US soil-loss tolerance is 5-12 t per ha per year (about 0.4-1 mm per year) | reported | https://soil.copernicus.org/articles/5/253/2019/ |
+| WSE-24 | Shifting-cultivation fallow is usually 7-10 years; about 20 years restores nutrients to forest level | reported | https://en.wikipedia.org/wiki/Shifting_cultivation |
+| WSE-25 | Fertiliser raises yield 30-50%, often 60% or more against unfertilised; synthetic nitrogen feeds 44-48% of people | reported | https://repository.rothamsted.ac.uk/id/eprint/32789 |
+| WSE-26 | Net forest loss fell from 7.8 (1990-2000) to 5.2 (2000-2010) to 4.7 (2010-2020) Mha per year; gross deforestation was 10 Mha per year in 2015-2020 | reported | https://www.drishtiias.com/daily-updates/daily-news-analysis/deforestation-rate-declined/print_manually |
+| WSE-27 | Yield lost to pests and pathogens: wheat 21.5%, rice 30.0%, maize 22.5%, potato 17.2%, soybean 21.4%, highest in food-deficit regions | reported | https://hal.inrae.fr/hal-02628565 |
+| WSE-28 | 61% of human pathogen species (868 of 1,415) are zoonotic, and 75% of emerging ones | reported | https://pmc.ncbi.nlm.nih.gov/articles/PMC1088493 |
+| WSE-29 | 60.3% of emerging infectious disease events (1940-2004) were zoonotic, 71.8% of those from wildlife | reported | https://pmc.ncbi.nlm.nih.gov/articles/PMC5960580 |
+| WSE-30 | Fuelwood use in developing countries averages 0.40 m3 per person per year (tropical 0.51, Africa 0.67, Oceania 0.88) | reported | https://www.fao.org/4/q4960e/q4960e02.htm |
+| WSE-31 | Pre-industrial Spain (1860) burned up to 1.8 kg of firewood per person per day | reported | https://pfcyl.es/sites/default/files/biblioteca/documentos/forests_fuelwood_pulpwood_and_lumber_in_spain_1860-2000._a_non_declensionist_story.pdf |
+| WSE-32 | A modern house holds about 7-14.6 m3 of wood (8.0 France to 20.5-28.6 Sweden per dwelling) | reported | https://fwpa.com.au/news/how-much-wood-in-an-average-house-14-58-m3-not-42/ |
+| WSE-33 | Ache foragers return about 830 kcal per hour hunting and 850-1,200 kcal per hour from palm starch | reported | https://www.unm.edu/%7Erobwal/achehunt.pdf |
+| WSE-34 | A stand with MAI 3-25 m3 per ha per year on 100-300 m3 per ha of stock gives a regrowth rate r of about 0.01-0.1 per year (from WSE-6) | derived | this note |
+| WSE-35 | Forest recovery AGB(t) = AGB_old x (1 - exp(-t / tau)) with tau about 29 years gives 90% at 66 years (from WSE-9) | derived | this note |
+| WSE-36 | Carnivore stock is about 0.009 of prey biomass (from WSE-11) | derived | this note |
+| WSE-37 | Model plants, wildlife and fish as logistic stocks with harvest, soil fertility as a 0-1 multiplier with fallow regrowth (0.05-0.2 per year, our choice), and crop yield = potential x fertility x water x (1 - pest loss) | estimate | this note |
+| WSE-38 | Forest recovery takes decades, so land-use mistakes outlive the generation that made them, which suits the generational run | estimate | this note |
+| WSE-39 | Licences: FAOSTAT is CC BY 4.0, TRY CC BY 4.0, GBIF per dataset (keep CC0 and CC BY); Sea Around Us is CC BY-NC-SA and not allowed | reported | https://www.fao.org/contact-us/terms/db-terms-of-use |
 
 ## 1. Numbers
 

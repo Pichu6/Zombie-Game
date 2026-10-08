@@ -1,8 +1,47 @@
 # World systems: where resources are, and how grids and networks are laid out
 
-**Research note, not a decision.** Date: 2026-10-06. Feeds [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md), [0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md), [world numbers](../design/world-numbers.md) and [infrastructure](../design/infrastructure.md). Nothing here is Decided, Implemented or Validated.
+**Date:** 2026-10-06. **Status:** research note, not a decision; nothing here is Decided, Implemented or Validated. **Feeds:** [world systems](../design/world-systems.md), [infrastructure](../design/infrastructure.md), [world numbers](../design/world-numbers.md), [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md), [0036](../decisions/0036-worlds-start-with-nations-and-everything-follows-logic.md). **Evidence:** WebFetch was blocked by the network egress proxy (tested on pubs.usgs.gov: `EGRESS_BLOCKED`), so every number comes from WebSearch result summaries, not from reading the source page; confidence is medium at best. In section 1, "high" means a well-known figure several summaries agree on, "medium" one summary of a credible source, "low" a secondary or blog source or a vendor range; rows marked "design" are not sourced and exist to be calibrated. **IDs:** WSR.
 
-**Evidence caveat.** WebFetch was blocked by the network egress proxy (tested on pubs.usgs.gov: `EGRESS_BLOCKED`). **Every number below comes from WebSearch result summaries, not from reading the source page.** Confidence is therefore medium at best; the "confidence" column says how much a summary can be trusted (high = a well-known figure that several summaries agree on; medium = one summary of a credible source; low = a secondary or blog source, or a range from a vendor). Rows with a source marked "design" are not sourced and exist to be calibrated.
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| WSR-1 | Banded iron formations (nearly all Precambrian) hold over 60% of world iron reserves; main regions Australia, Brazil, Canada, India, Russia, South Africa, Ukraine, USA | reported | https://www.encyclopedia.com/earth-and-environment/minerals-mining-and-metallurgy/metallurgy-and-mining-terms-and-concepts-42 |
+| WSR-2 | About 70% of land-based nickel resources are laterite (tropical weathered ultramafics), about 30% sulfide; production over the last decade was 60% laterite, 40% sulfide | reported | https://en.wikipedia.org/wiki/Lateritic_nickel_ore_deposits |
+| WSR-3 | Komatiite-hosted nickel sulfide on Archean cratons gives about 10% of annual nickel production and about 18% of sulfide nickel reserves | reported | https://dmp.wa.gov.au/msa/komatiite-ni-489.aspx |
+| WSR-4 | Fewer than 40 supergiant oil fields (at least 5 billion bbl recoverable) exist; two thirds are in the Arabian-Iranian basin | reported | https://www.pmfias.com/petroleum-and-mineral-oil-world-distribution-supergiants-oilfields-across-world/ |
+| WSR-5 | In 1998, 50% of remaining US giant-field oil reserves were in 6 fields and 80% in 42 fields | reported | https://pubs.usgs.gov/of/1999/0131/report.pdf |
+| WSR-6 | Copper deposit tonnage and grade are both roughly lognormal, with no significant tonnage-grade correlation for porphyry copper | reported | https://pubs.usgs.gov/publication/pp907A |
+| WSR-7 | USGS 2008 porphyry copper model: 488 Phanerozoic plus 24 Precambrian deposits, median 250 Mt ore at median 0.39% Cu | reported | https://www.usgs.gov/publications/porphyry-copper-deposits-world-database-and-grade-and-tonnage-models-2008 |
+| WSR-8 | Lasky relation: cumulative tonnage vs grade follows g = C1 - C2 log t (form only; constants not found) | reported | https://pubs.usgs.gov/publication/70011787 |
+| WSR-9 | Tonnes of ore per tonne of metal = 100 / grade%; copper below about 0.20-0.25% Cu is judged unlikely to be mined for common uses | reported | https://pubs.usgs.gov/publication/70232648 |
+| WSR-10 | Average copper ore grade fell about 25% in ten years while energy use rose 46% against production up 30% | reported | https://zaguan.unizar.es/record/60643?ln=fr |
+| WSR-11 | Copper concentrators use 0.45-0.6 m3 of water per t ore (up to 3); gold mines about 0.35 m3 per t ore | reported | https://www.mining-technology.com/sponsored/how-less-water-can-help-fill-the-copper-supply-gap/ |
+| WSR-12 | Blast furnace plus BOF steel takes 24.2 GJ per t steel (2.3 t CO2 per t) | reported | https://www.rite.or.jp/system/en/global-warming-ouyou/download-data/2019_BF-BOF_energy%20intensity%20by%20RITE.pdf |
+| WSR-13 | Cement clinker needs 3.53 GJ thermal per t clinker; cement about 104 kWh electricity per t | reported | https://www.rite.or.jp/system/en/latestanalysis/pdf/E-Comparison_EnergyIntensity2010cement.pdf |
+| WSR-14 | Primary aluminium smelting uses 13-15 MWh per t Al (global average 13,990 kWh) | reported | https://www.alcircle.com/news/powering-aluminium-part-1-inside-the-global-smelting-energy-map-2023-24-116194 |
+| WSR-15 | Alumina refining takes about 10 GJ per t (range 7-21); 2-2.5 t bauxite per t alumina; 1.9-1.95 t alumina per t aluminium | reported | https://en.wikipedia.org/wiki/Bayer_process |
+| WSR-16 | High-income countries use about 67 times more electricity per person than low-income ones; every country above $30,000 GDP per capita uses at least 4,000 kWh per person per year | reported | https://energyforgrowth.org/article/watch-countries-climb-the-energy-ladder/ |
+| WSR-17 | Capacity factors: nuclear 74%, coal 50-70%, gas CC 40-60%, large hydro 30-50%, wind 30-60% (35% typical), solar PV 12-25% (25% typical) | reported | https://visualizingenergy.org/what-are-capacity-factors-and-why-are-they-important |
+| WSR-18 | Mean plant sizes: coal 380 MW, gas CC power block 500-820 MW, nuclear about 900 MW per reactor, wind 84 MW, solar about 11 MW | reported | https://www.eia.gov/todayinenergy/detail.php?id=38312 |
+| WSR-19 | World transmission and distribution losses average 8.3% of output; Singapore 2%, USA 5.9%, India 19.4%, Togo 72.5%; 54% of countries lose 10% or more | reported | https://data.worldbank.org/indicator/EG.ELC.LOSS.ZS |
+| WSR-20 | Voltage hierarchy: transmission 132/220/400/765 kV, sub-transmission 33/66 kV, primary distribution 11/6.6/3.3 kV, last mile 415/230 V | reported | https://electrical-engineering-portal.com/single-line-diagram-of-the-ac-transmission-and-distribution-system |
+| WSR-21 | In 2024, 74% of people had safely managed drinking water (urban 83%, rural 60%) and 58% safely managed sanitation (urban 66%, rural 49%) | reported | https://washdata.org/report/jmp-2024-annual-report |
+| WSR-22 | Non-revenue water is typically 30-35% of supply, 50-60% in some areas; leaks total about 32 billion m3 per year, half in developed countries | reported | https://en.wikipedia.org/wiki/Non-revenue_water |
+| WSR-23 | Household water use ranges 70-300 L per person per day (USA about 300, Europe about 130) | reported | https://link.springer.com/10.1007/s11269-016-1314-x |
+| WSR-24 | Paved road per million people: 170 km (low income), 1,660 km (middle), 10,110 km (high) | reported | https://ssatp.org/sites/default/files/publication/part3.pdf |
+| WSR-25 | Highest road density in Europe is Belgium at 4.67 km per km2; rail density is about 0.07 km per km2 in the EU and 0.02 in the USA | reported | https://en.wikipedia.org/wiki/Kilometre_per_square_kilometre |
+| WSR-26 | Airports per million people: USA 42.7, Canada 42.4, Bolivia 81.7 (2013) | reported | https://citypopulation.de/en/world/bymap/airports/ |
+| WSR-27 | Slime-mould (Physarum) networks matched the Tokyo rail network in efficiency, fault tolerance and cost | reported | https://pubmed.ncbi.nlm.nih.gov/20093467/ |
+| WSR-28 | Mobile cell radius: 1-2 km in cities, 5-10 km in busy macro areas, over 10 km (up to 32 km) in sparse areas; 47% of people lacked 4G access in 2024 | reported | https://radio-waves.orange.com/en/how-does-a-mobile-network-work |
+| WSR-29 | Generator rule: tag each cell with a geological setting (craton, arc, basin, laterite lowland, river and coast, aquifer) that sets its deposit odds, and store a reason string per placement | estimate | this note |
+| WSR-30 | Draw deposit tonnage and grade as independent lognormals (copper median 250 Mt, 0.39% Cu) and oil fields from a Pareto tail with exponent near 1 (from WSR-5, WSR-6, WSR-7) | derived | this note |
+| WSR-31 | Reserves are the deposits whose cost per tonne of metal (rising with 1/grade) is below the price, so price and technology widen the resource base (from WSR-8, WSR-9) | derived | this note |
+| WSR-32 | Siting rule: aluminium smelters beside the cheapest firm power, cement at limestone, steel at coal plus iron plus a port, concentrators near the mine | estimate | this note |
+| WSR-33 | Installed capacity per source = annual energy / (8760 h x capacity factor), with plants opened at the table sizes until the target is met (from WSR-17, WSR-18) | derived | this note |
+| WSR-34 | Lay grids, roads and rail as a minimum spanning tree on terrain cost, then add loops where cheap relative to the detour saved; transmission meshed, distribution radial from each substation | estimate | this note |
+| WSR-35 | Grid losses and non-revenue water are outcomes of maintenance spending, felt by pops as blackouts and dry taps | estimate | this note |
+| WSR-36 | Data licences: USGS and Natural Earth are public domain, the WRI power plant database and some IRENA datasets are CC BY 4.0; OpenStreetMap (ODbL share-alike) and the Energy Institute review need a decision before use | reported | https://old-datasets.wri.org/dataset/globalpowerplantdatabase |
 
 ## 1. Numbers
 

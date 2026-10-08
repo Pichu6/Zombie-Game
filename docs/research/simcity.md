@@ -1,8 +1,24 @@
 # SimCity, as a reference for the City layer
 
-**Date:** 2026-10-08. **Status:** research note, not a decision. **Why:** the user listed it among the City-layer references. Part of [reference games by layer](reference-games-by-layer.md). Related: [low-resource city simulation](low-resource-city-simulation.md).
+**Date:** 2026-10-08. **Status:** research note, not a decision. **Feeds:** [world systems](../design/world-systems.md), [world simulation](../design/world-simulation.md), [spec 33](../tier0/specs/33-establishments-and-chains.md), [spec 34](../tier0/specs/34-projects.md). **Evidence:** the 2013 agent behaviour was checked by web search (Wikipedia, EA's own explainer, patch coverage, a player's account on Kotaku); the classic mechanics are general knowledge. **IDs:** SC.
 
-**Evidence caveat:** the 2013 agent behaviour is checked by web search (Wikipedia, EA's own explainer, patch coverage, a player's account on Kotaku). The classic mechanics are general knowledge.
+Why: the user listed it among the City-layer references. Part of [reference games by layer](reference-games-by-layer.md). Related: [low-resource city simulation](low-resource-city-simulation.md).
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| SC-1 | In SimCity the player zones residential, commercial and industrial land, a demand meter (RCI) says which is wanted, and buildings grow by themselves | reported | general knowledge |
+| SC-2 | Services (police, fire, schools) cover a radius; land value rises with services and falls with pollution and crime | reported | general knowledge |
+| SC-3 | The budget sets tax rates per zone type, plus ordinances | reported | general knowledge |
+| SC-4 | SimCity 2013 (GlassBox) used an agent-and-sink model: buildings are sinks that agents fill | reported | https://www.pcgamer.com/uk/simcity-inside-the-glassbox-engine |
+| SC-5 | In SimCity 2013 Sims owned no home or job: each morning they went to the nearest open job, each evening to the nearest open house, crowding the first place until it filled | reported | https://kotaku.com/with-simple-ai-like-this-why-does-simcity-need-cloud-c-5990362 |
+| SC-6 | The August 2013 traffic update made a Sim reserve a slot before setting out | reported | https://www.gamewatcher.com/2013-21-08-simcity-traffic-tuning-update-7-0-releases-august-22nd |
+| SC-7 | Disasters (fires, floods, monsters) are answered by the city's systems | reported | general knowledge |
+| SC-8 | The 2013 failure is the case for pops as persistent records with a home and a workplace of their own | estimate | this note |
+| SC-9 | Take zoning as the City layer's main verb, but buildings are projects with budgets, not growth by themselves | estimate | this note |
+| SC-10 | Take demand meters, computed from real shortages (homeless households, unfilled jobs, unsold goods) | estimate | this note |
+| SC-11 | Take service coverage as a readout, but coverage comes from staff and travel, not a radius rule | estimate | this note |
 
 ## What it is
 

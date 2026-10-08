@@ -1,8 +1,26 @@
 # GTA, as a reference for the Individual layer
 
-**Date:** 2026-10-08. **Status:** research note, not a decision. **Why:** the user listed GTA among the Individual-layer references, and [0020](../decisions/0020-activity-answers.md) and [0025](../decisions/0025-sandbox-engine-first-game.md) already name its activities and GTA Online. Part of [reference games by layer](reference-games-by-layer.md).
+**Date:** 2026-10-08. **Status:** research note, not a decision. **Feeds:** [activities](../design/activities.md), [inhabitants](../design/inhabitants.md), [spec 29](../tier0/specs/29-embodied-pops.md), [spec 39](../tier0/specs/39-orders-and-belief.md), [0020](../decisions/0020-activity-answers.md). **Evidence:** general knowledge of GTA V and GTA Online; the wanted-system search returned mostly mods and GTA VI speculation, so the details are the widely known base behaviour, not checked numbers. **IDs:** GTA.
 
-**Evidence caveat:** general knowledge of GTA V and GTA Online. The wanted-system search returned mostly mods and GTA VI speculation, so the details below are the widely known base behaviour, not checked numbers.
+Why: the user listed GTA among the Individual-layer references, and [0020](../decisions/0020-activity-answers.md) and [0025](../decisions/0025-sandbox-engine-first-game.md) already name its activities and GTA Online. Part of [reference games by layer](reference-games-by-layer.md).
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| GTA-1 | GTA's wanted level runs from one to five stars; a crime seen or reported raises it | reported | general knowledge |
+| GTA-2 | The police response escalates with the wanted level, from patrol cars to helicopters and armed units | reported | general knowledge |
+| GTA-3 | The wanted level is lost by breaking line of sight and leaving the search area | reported | general knowledge |
+| GTA-4 | Pedestrians can phone the police to report a crime | reported | general knowledge |
+| GTA-5 | Ambient pedestrians and traffic spawn around the player and vanish behind them; the mix depends on district and hour | reported | general knowledge |
+| GTA-6 | Side activities (golf, tennis, darts, races, hunting, flight school, stock market) are short, simple and optional | reported | general knowledge |
+| GTA-7 | The phone (contacts, jobs, messages, internet, camera) is the in-world menu | reported | general knowledge |
+| GTA-8 | GTA Online businesses: buy a property, keep it supplied, sell the product, with supply runs and raids | reported | general knowledge |
+| GTA-9 | The car radio stations act as the world's voice | reported | general knowledge |
+| GTA-10 | Take the escalation idea, but the response should grow with what the authorities believe (witnesses as pops with beliefs), not a star meter | estimate | this note |
+| GTA-11 | Do not take pedestrians that exist only while seen; ours are persistent pops embodied near the player | estimate | this note |
+| GTA-12 | Do not take instant police response from nowhere; units travel from a station with the police's real staff and vehicles | estimate | this note |
+| GTA-13 | Take many short, optional side activities, and the phone as the Individual layer's menu (only while networks work) | estimate | this note |
 
 ## What it is
 

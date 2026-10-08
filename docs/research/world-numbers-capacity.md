@@ -1,9 +1,40 @@
 # World numbers: how many people can a world hold?
 
-**Date:** 2026-10-06
-**Status:** research note, not a decision. Nothing here is Decided, Implemented or Validated. It feeds [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md) and [world-simulation section 12](../design/world-simulation.md).
+**Date:** 2026-10-06. **Status:** research note, not a decision; nothing here is Decided, Implemented or Validated. **Feeds:** [world numbers](../design/world-numbers.md), [world simulation](../design/world-simulation.md) (section 12), [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md). **Evidence:** WebFetch was blocked by the network proxy (ourworldindata.org, wikipedia.org, usgs.gov all returned EGRESS_BLOCKED). Numbers tagged "search" come from WebSearch result summaries, not from reading the source page; "derived" is our arithmetic on cited inputs; "memory" is the author's background knowledge, not confirmed in this session, with a URL only as a place to check (low confidence). In section 1, H = the summary quotes a well-known value, M = second-hand or range-valued, L = memory or derived from weak inputs. **IDs:** WNC.
 
-**Method and limits.** WebFetch was blocked by the network proxy (ourworldindata.org, wikipedia.org, usgs.gov all returned EGRESS_BLOCKED). Every number tagged "search" below comes from WebSearch result summaries, not from reading the source page. Numbers tagged "derived" are our own arithmetic on cited inputs. Numbers tagged "memory" are from the author's background knowledge, were not confirmed in this session, and carry a URL only as a place to check; treat them as low confidence until someone opens the source. Confidence: H = summary quotes the number and it matches well-known values; M = quoted in a summary but second-hand or range-valued; L = memory or derived from weak inputs.
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| WNC-1 | Earth's land area is 148.94 million km2, 29.1% of the surface; the total surface (4 pi R^2, R = 6371 km) is 510.1 million km2 | reported | https://www.arhfoundation.org/total-land-area-earth-148-94-million-sq-km |
+| WNC-2 | Habitable land (not ice, not barren) is 104 million km2, 71% of land | reported | https://ourworldindata.org/global-land-for-agriculture |
+| WNC-3 | Agricultural land is about 48 million km2, about 44% of habitable land; one third is cropland, two thirds grazing | reported | https://ourworldindata.org/global-land-for-agriculture |
+| WNC-4 | Livestock use 77% of farmland but give 18% of calories and 37% of protein | reported | https://ourworldindata.org/global-land-for-agriculture |
+| WNC-5 | Land fraction, ice, desert and arable shares do not follow from planet radius; they come from water inventory, relief and climate, so they are generator outputs or sliders | estimate | https://arxiv.org/abs/1904.12267 |
+| WNC-6 | NPP bands by biome: tropical forest 2000-3000, temperate forest 600-1500, temperate grassland 400-1000, savanna 400-600, Mediterranean 300-600, boreal 200-600, tundra 100-200, desert 0-120 g dry matter per m2 per year | reported | https://see.leeds.ac.uk/enviroweb/biosphere/1_organic_matter/organic9.php |
+| WNC-7 | Global terrestrial NPP is 56.8 Pg C per year | reported | https://encyclopedia.pub/entry/13323 |
+| WNC-8 | Human appropriation of NPP rose from 13% (1910) to 25% (2005) of potential NPP | reported | https://wad.jrc.ec.europa.eu/humanappropriation |
+| WNC-9 | Hunter-gatherer density tracks NPP but with about 1000-fold unexplained variation per unit NPP; temperate and subtropical forests give the highest densities | reported | https://dx.doi.org/10.1038/s41467-022-32750-x |
+| WNC-10 | Population density in France: Mesolithic about 0.1, Middle Neolithic 1-2, end of Iron Age 10-20 people per km2 | reported | https://archeologie.culture.gouv.fr/megalithes/en/population-changes |
+| WNC-11 | Early farmers in Schleswig-Holstein (3700-3200 BC) reached 2.5-7.5 people per km2 | reported | https://hraf.yale.edu/ehc/documents/1289 |
+| WNC-12 | World population about 10,000 BC was about 4 million | reported | https://en.wikipedia.org/wiki/Estimates_of_historical_world_population |
+| WNC-13 | English wheat yield: just over 1 t/ha (16th century), 1.5 (about 1800), nearly 4 (1965), about 8 (2018); yields "nearly doubled" to reach the 16th-century level, so medieval was about 0.5-0.6 (our reading) | reported | https://ourworldindata.org/grapher/wheat-yields |
+| WNC-14 | Haber-Bosch nitrogen feeds 44% (2000) to 48% (2008) of the world's population | reported | https://www.iai.int/admin/site/sites/default/files/uploads/2008.Erisman-et-al_NatureGeo.pdf |
+| WNC-15 | WHO water tiers: survival 7.5, basic at least 20, intermediate 50, optimal 100 L per person per day | reported | https://www.ferrovial.com/blog/en/2020/03/how-many-litres-of-water-does-a-person-need-per-day/ |
+| WNC-16 | Agriculture takes 71% of freshwater withdrawals (industry 15%, municipal 13%, 2022); irrigation grows about 40% of world food | reported | https://ourworldindata.org/grapher/agricultural-water-as-a-share-of-total-water-withdrawals |
+| WNC-17 | Falkenmark thresholds: stress below 1700, scarcity below 1000, absolute scarcity below 500 m3 renewable water per person per year | reported | https://pmc.ncbi.nlm.nih.gov/articles/PMC5547033/ |
+| WNC-18 | Primary energy per person in 2024: world 73, North America 217, USA 265.9, Iceland 788, Qatar 769 GJ per year | reported | https://dieselnet.com/news/2025/06energyreview.php |
+| WNC-19 | Quality of life rises about linearly with energy use early on, with diminishing returns above 50-70 GJ per person per year | reported | https://vaclavsmil.com/?p=5639 |
+| WNC-20 | Food alone is about 3 GJ per person per year (2000 kcal/day = 3.05 GJ/yr), a floor for pre-industrial energy use | derived | this note |
+| WNC-21 | World copper mine production was 22 Mt in 2023 against reserves of 880-980 Mt | reported | https://www.usgs.gov/publications/mineral-commodity-summaries-2025 |
+| WNC-22 | Copper reserves-to-production is about 40-45 years, but reserves grow with price and technology, so they are not a fixed stock (from WNC-21) | derived | this note |
+| WNC-23 | Malthus: birth rates rise and death rates fall with living standards; pre-1750 Europe was a high-pressure equilibrium with slow growth, though England's birth rates were lower than the model predicted (preventive check) | reported | https://faculty.econ.ucdavis.edu/faculty/gclark/Farewell%20to%20Alms/FTA-chapter2.pdf |
+| WNC-24 | Boserup: food pressure induces intensification, so catastrophes often do not come | reported | https://acawiki.org/Population_and_Technology_in_Preindustrial_Europe |
+| WNC-25 | Pasture yields about a tenth or less of cropland's calories per hectare (from WNC-3, WNC-4) | derived | this note |
+| WNC-26 | Agrarian carrying capacity K = (cropland x calories per ha x (1 - feed share) + pasture calories) / (365 x kcal per person per day), with yield by era and a biome fertility multiplier | estimate | this note |
+| WNC-27 | Model population with vital rates driven by welfare (food over need) rather than a single logistic r, and advance the technology era when pressure P/K stays above a chosen threshold (0.8 proposed) | estimate | this note |
+| WNC-28 | Water stress and fuel or ore stocks cap a region's size independently of food; trade and technology let effective capacity exceed local capacity | estimate | this note |
+| WNC-29 | HYDE 3.2 (population and land-use history, 10,000 BCE to 2023) is CC BY 4.0 and is the calibration set for densities and cropland shares per era | reported | https://datahub.io/climate-and-environment/hyde-history-database-of-the-global-environment |
 
 ## 1. Numbers
 
