@@ -33,6 +33,7 @@ add_executable(zs_sim_tests
   test_grid.cpp
   test_fields.cpp
   test_biota.cpp
+  test_outbreak.cpp
 )
 target_include_directories(zs_sim_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest)
 target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck)
