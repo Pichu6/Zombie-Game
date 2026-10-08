@@ -112,6 +112,8 @@ If hot work goes over budget, warm and macro slices wait (they have deadlines, n
 - Does the sim's grid pathing scale to open 3D ground, or do we add Detour, and if so do its float-based paths feed the sim? ([engine-stack](../research/engine-stack.md))
 - Raw Vulkan with vk-bootstrap and VMA rather than SDL_gpu ([ES-47](../research/engine-stack.md)), to be confirmed in a decision superseding 0002. ([engine-stack](../research/engine-stack.md))
 - Will a macOS build ever be a target? If so, recheck toml++ float parsing on libc++ and SDL_gpu's portability case. ([engine-stack](../research/engine-stack.md))
+- Do the id-set and record-layout ratios hold on MSVC and a desktop CPU? Rerun the benchmark before the layout goes into a spec. ([ecs-memory-layout](../research/ecs-memory-layout.md))
+- Which pop record fields are hot and which cold (spec 28)? Needs the realistic record that benchmark B1 waits for. ([ecs-memory-layout](../research/ecs-memory-layout.md))
 
 ## Research
 
@@ -124,3 +126,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [renderer](../research/renderer.md): The renderer, at engineering level
 - [engine-stack](../research/engine-stack.md): The engine stack behind decision 0002: licences, versions, determinism, alternatives
 - [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
+- [ecs-memory-layout](../research/ecs-memory-layout.md): Entity storage and memory layout: archetypes, sparse sets, id sets, profiling

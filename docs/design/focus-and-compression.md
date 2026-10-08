@@ -125,6 +125,7 @@ Every long thing is the same kind of record, a **Process**: a plan (inputs, labo
 
 - Do Roaring-style compressed id sets beat plain sorted arrays at our roster sizes? Needs a measurement. ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
 - How do Songs of Syx and Dwarf Fortress actually lay out their data? Not readable yet. ([low-resource-city-simulation](../research/low-resource-city-simulation.md))
+- Should a stored region-scale id set be over founder slots, record slots or 64-bit PopId (roaring64)? Is CRoaring's portable serialisation byte-identical for the same set whatever its history, as the save hash needs? ([ecs-memory-layout](../research/ecs-memory-layout.md))
 
 ## Research
 
@@ -135,3 +136,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md): Layer jumps: what multi-resolution simulation research and games say
 - [low-resource-city-simulation](../research/low-resource-city-simulation.md): Low-resource city simulation: "ASCII City" and the games that fake or tame big populations
 - [pop-storage-and-lenses](../research/pop-storage-and-lenses.md): Pop simulation, saving data, and "lenses" across zoom
+- [ecs-memory-layout](../research/ecs-memory-layout.md): Entity storage and memory layout: archetypes, sparse sets, id sets, profiling
