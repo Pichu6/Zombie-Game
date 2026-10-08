@@ -33,10 +33,24 @@ The Tier 0 window: SDL3 + Dear ImGui, top-down 2D, no Vulkan ([0010](../../decis
 2. A headless runner app runs the same simulation with no window (batch runs, AI-only runs, tests).
 3. Placeholder art: coloured shapes and text; placeholders are marked as such.
 
+Rules from the readability research (added 2026-10-08, [0055](../../decisions/0055-defaults-for-fixes-from-engineering-research.md) §2, [view-readability](../../research/view-readability.md); not built yet, [research fixes](../research-fixes.md) package 1). They answer the user's two complaints: the window is hard to read and WASD feels poor. All are view-side; rule 1 holds.
+
+4. **Time from the pacer.** The window drives time with spec 40's `Pacer`: the ladder from `Pace::Real`, labels from `pace_name`, "1x" means real time. While a WASD key is held or the controlled pop walks to a target, a cap named `walking` holds speed at 3x; while a walker is within reach of the controlled pop, a cap `fight` holds it at Real. The time bar names the cap that limits ([VR-1..3](../../research/view-readability.md)).
+5. **WASD refuses walls.** A press moves only if the edge to the neighbour cell is walkable; a diagonal only if both orthogonal edges are, else along the one passable axis, else nothing, and the blocking edge flashes. It is a `MoveTo` to the neighbour; the next move is sent only after the clock passes the tick the last one was sent at ([VR-4..6, VR-8](../../research/view-readability.md)).
+6. **WASD takes over.** A press while the controlled pop is busy sends `Cancel` and then the move; while paused the window shows "Paused: Space to run" ([VR-7](../../research/view-readability.md)).
+7. **Follow camera.** The camera follows the controlled pop with frame-rate-independent smoothing (`k = 1 - exp(-dt / 0.1 s)`) and a dead zone of about 20 % of the view, clamped to the map; a middle-drag pan or PgUp/PgDn breaks the follow; F or Home recentres and resumes it; any WASD press resumes it. While following, the drawn level is the pop's level ([VR-12..22](../../research/view-readability.md)).
+8. **Bodies move smoothly.** Pops and walkers are drawn between cells by their progress along the path (read-only); walkers sharing a cell are offset as pops are, or shown with a count ([VR-9..11](../../research/view-readability.md), [RN-40](../../research/renderer.md)).
+9. **Shapes and colours, never colour alone.** Pops are discs with centred initials (radius at least 0.42 cell), walkers diamonds (active ones with a line to their target), objects outlined squares with two- or three-letter labels explained in a "Map key" panel; the controlled pop has a thick ring and an arrow, the selection a second ring. Group colours from Paul Tol's "bright" palette ([VR-28..33](../../research/view-readability.md), [art direction](../../design/art-direction.md)).
+10. **State column.** The three to five worst states of the controlled pop are shown by it on the map and in the Group panel: hunger, thirst, fatigue, cold or heat, pain, bleeding, fear, and sickness from visible symptoms only (infection stays hidden, [21](21-infection.md)). Thresholds come from the body's existing bands; bars are coloured by those thresholds with a word, and morale is inverted so that worse is always the same way ([VR-35](../../research/view-readability.md), [PZ-13](../../research/project-zomboid.md)).
+11. **Alerts pause.** A walker coming into sight of a group member, a bite and a group member down go to `Pacer::alert` and pause at normal speed; an alert column names the threat, its distance and direction ([VR-26, VR-38](../../research/view-readability.md)).
+12. **Readable log and overlays.** Identical log lines within a game minute coalesce as "x N", wounds group by region; overlays carry a legend with scale and background, say "nothing above background" when empty, and light shows only cells above outdoor ambient. The hovered cell and the menu's cell are outlined; the controlled pop's path is drawn dotted ([VR-25, VR-34..36](../../research/view-readability.md)).
+13. **Map size.** The map fits below the time bar and left of the panels and starts at about 32 px per cell, following ([VR-27](../../research/view-readability.md)).
+
 ## Tests
 
 - The headless runner and the windowed app reach the same state hash from the same inputs. (A1)
 - Screenshot check per stage (manual): the user can read each new system on screen.
+- Rules 4-13 change no golden (view only); `zs --shot` before and after, with `--overlay noise` and `--overlay light`, then the user plays it: WASD feels like walking, the camera follows, a walker is told from a pop at a glance. A passing test is not visual validation.
 
 ## Model as implemented (stage 5)
 
@@ -61,7 +75,7 @@ Needs Visual Studio 2022 (Desktop C++), CMake 3.25+ and Git. From the repo folde
 cmake -S . -B build
 cmake --build build --config Release
 build\engine\sim\tests\Release\zs_sim_tests.exe
-build\apps\sandbox\Release\zs.exe --seed 5
+build\apps\zs\Release\zs.exe --seed 5
 ```
 
 The tests are the first MSVC check: the golden hashes must match Linux.

@@ -17,7 +17,7 @@ Randomness that never depends on the order in which systems run or on what the p
 
 1. One counter-based generator: Philox-4x32-10 (Salmon et al. 2011, Random123). Output = Philox(seed, key).
 2. Each (entity, purpose) keeps its own counter; drawing for one purpose never shifts another.
-3. Our own samplers (uniform, normal by Box-Muller, exponential, Bernoulli, weighted choice), using `detmath` ([01](01-quantity.md) rule 5) for any log, sin or cos. Never `std::*_distribution`, whose output differs between standard libraries.
+3. Our own samplers (uniform, normal by Box-Muller, exponential, Bernoulli, weighted choice), using `detmath` ([01](01-quantity.md) rule 5) for any log, sin or cos. Never `std::*_distribution`, whose output differs between standard libraries; never `std::shuffle` or `std::sample`, for the same reason; a `std::` engine (`std::mt19937` and the like) only in tests ([DET-19, DET-20](../../research/determinism.md); added 2026-10-08, the code already complies).
 4. A draw is a pure function of seed, key and counter. Looking at an entity draws nothing.
 5. (Added 2026-10-07, [catch-up-jump-forms.md](../../research/catch-up-jump-forms.md).) Keys name the event, not the tick: (person, bite index, `latent`), not (person, tick). Counters for interval rules are (canonical interval index from the world clock, draw slot), so a jump over 18 hours and a hot run split at hour 6 consume the same slots. Sub-keys are folded through the hash (Random123 / JAX `fold_in`), never made by arithmetic on ids.
 

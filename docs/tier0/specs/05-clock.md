@@ -25,7 +25,7 @@ One global clock and one fixed update order for every system, so a run is reprod
 5. Rest-until-event stops on any slow-down event or at a chosen hour.
 6. Combat forces 1× while any pop is in melee range of a hostile.
 
-7. No system iterates over a hash container (unordered map or set) when the order can affect results; entity lists are kept sorted by id. Path searches ([09](09-site-map.md), [18](18-noise-field.md)) use a fixed neighbour order and explicit tie-breaks.
+7. No system iterates over a hash container (unordered map or set) when the order can affect results; entity lists are kept sorted by id. Path searches ([09](09-site-map.md), [18](18-noise-field.md)) use a fixed neighbour order and explicit tie-breaks. `std::sort` is used only with a total order (ties broken by id), since its order of equal elements differs between standard libraries; `std::hash` never feeds anything saved or hashed ([DET-21, DET-22](../../research/determinism.md); added 2026-10-08, the code already complies).
 8. (Decided, [0041](../../decisions/0041-threading-and-partition.md), 2026-10-07; model in [threading-and-partition.md](../../research/threading-and-partition.md).) From the chunk split, the tick is two phases: a parallel pre-update of chunks on a frozen copy of the previous tick, writing only their own entities and an outbox of keyed messages, then a serial commit in chunk and entity id order. Fields are double-buffered across borders. Asynchronous work commits at a tick chosen from state. The replay hash must not depend on the worker count. Tier 0 runs the same phases with one chunk and one worker.
 
 ## Invariants

@@ -32,6 +32,8 @@ Years per second at Macro, days at City, real seconds at Individual: one clock. 
 8. **Real time to ticks.** `ticks_for(real_seconds, now)` = real seconds × the effective factor ÷ the tick length, whole ticks out, the fraction carried to the next frame. The app calls it each frame, then `World::jump(tick + ticks)`.
 9. **Save.** The pacer's request, caps, alert, carry and dwell save with the app's time control; the wake ticks are derived, nothing to save. Time does not pass while the game is closed ([0050](../../decisions/0050-start-speed-and-time-while-closed.md) item 2); if that setting is ever on, loading calls `jump(now)` and the same rules catch the world up.
 
+10. **The window uses the pacer** (added 2026-10-08, [0055](../../decisions/0055-defaults-for-fixes-from-engineering-research.md) §2; not built yet, [research fixes](../research-fixes.md) package 1). The sandbox time bar drops its own speeds and calls `ticks_for` each frame. Its caps: `walking` at 3x while the controlled pop moves under direct control, `fight` at Real while a walker is within its reach ([16](16-view-2d.md) rule 4). Its alerts, which pause at normal speed: a walker comes into sight of a group member, a bite, a group member down ([16](16-view-2d.md) rule 11).
+
 ## Invariants
 
 - `World::next_wake(now) ≥ now`; with a pending command it is `now`.
@@ -62,7 +64,7 @@ Years per second at Macro, days at City, real seconds at Individual: one clock. 
 
 ## Not in this spec
 
-Per-region clocks (one body steps the whole world here; chunks with their own `caught_up` are [27](27-detail-levels.md) Tier 1); the sandbox time bar reading the pacer ([16](16-view-2d.md): it has its own 1× = one real hour per game day, to be relabelled, [0048](../../decisions/0048-realistic-time-default-commit-on-observation-and-pins.md)); the GTA-style switch that hides a promotion; threads ([0041](../../decisions/0041-threading-and-partition.md)); frame budgets (a jump of a year is a loop of 8,760 hourly steps; whether that fits a frame is the benchmark's question).
+Per-region clocks (one body steps the whole world here; chunks with their own `caught_up` are [27](27-detail-levels.md) Tier 1); the sandbox time bar reading the pacer (specified in rule 10, built with [research fixes](../research-fixes.md) package 1; until then it has its own 1× = one real hour per game day, [0048](../../decisions/0048-realistic-time-default-commit-on-observation-and-pins.md)); the GTA-style switch that hides a promotion; threads ([0041](../../decisions/0041-threading-and-partition.md)); frame budgets (a jump of a year is a loop of 8,760 hourly steps; whether that fits a frame is the benchmark's question).
 
 ## Open
 

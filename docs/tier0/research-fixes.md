@@ -2,7 +2,7 @@
 
 A work list for a **local session on Windows** (MSVC), built from six research notes and decided by default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md). Each package names the spec to update first (a unit's spec is written before its code), the code with line numbers, the finding IDs behind it, and how to check it. Line numbers are at commit `8295162` (code identical to `origin/main` `2646536`); re-check them before editing.
 
-**Status of everything below: Proposal, not Implemented.** Nothing here has been applied. Work in order; push after each package; tick the box in this file when a package is Implemented and say how it was Validated.
+**Status of everything below: Proposal, not Implemented.** The spec wording of packages 1, 3 and 4 was written on 2026-10-08 (specs 01, 02, 05, 06, 16, 40 and engine architecture §5, each marked "not built yet"); no code has been changed. Work in order; push after each package; tick the box in this file when a package is Implemented and say how it was Validated.
 
 ## Order
 
@@ -18,7 +18,7 @@ A work list for a **local session on Windows** (MSVC), built from six research n
 
 ## 1. Window: WASD and readability
 
-- [ ] **Spec first:** [spec 16](specs/16-view-2d.md): add the follow camera, the state column, map key, shapes and palette, WASD wall rule and cancel, and the walking cap (0055 §2). [spec 40](specs/40-time.md): the window uses the `Pacer`; the alerts list (0055 §2.7).
+- [ ] **Spec first** (written 2026-10-08: spec 16 rules 4-13, spec 40 rule 10): [spec 16](specs/16-view-2d.md): add the follow camera, the state column, map key, shapes and palette, WASD wall rule and cancel, and the walking cap (0055 §2). [spec 40](specs/40-time.md): the window uses the `Pacer`; the alerts list (0055 §2.7).
 - **Code:** `apps/zs/window.cpp`. All fixes are view-side: the window keeps no game state and only sends intents (spec 16 rule 1). Full table with reasons: [view-readability](../research/view-readability.md) "What this means for us".
 
 | Fix | Where | Change | Findings |
@@ -53,7 +53,7 @@ A work list for a **local session on Windows** (MSVC), built from six research n
 
 ## 3. Determinism guards
 
-- [ ] **Spec first:** [spec 01](specs/01-quantity.md) rule 4: name clang-cl and ARM64, require MSVC 2022+, make the float path "required, measured on GCC 13 and Clang 18", add the negative check "goldens fail with contraction on". [spec 02](specs/02-draw.md): `std::` engines only in tests; forbid `std::shuffle` and `std::sample`. [spec 05](specs/05-clock.md) rule 7: ban `std::sort` without a total order and `std::hash` in anything saved or hashed. [engine architecture](../design/engine-architecture.md) §5: per-worker FP environment, Jolt flags, fixed reduction order. ([DET](../research/determinism.md) §5)
+- [ ] **Spec first** (written 2026-10-08: spec 01 rule 4, determinism target and tests; spec 02 rule 3; spec 05 rule 7; engine architecture §5 items 5-6): [spec 01](specs/01-quantity.md) rule 4: name clang-cl and ARM64, require MSVC 2022+, make the float path "required, measured on GCC 13 and Clang 18", add the negative check "goldens fail with contraction on". [spec 02](specs/02-draw.md): `std::` engines only in tests; forbid `std::shuffle` and `std::sample`. [spec 05](specs/05-clock.md) rule 7: ban `std::sort` without a total order and `std::hash` in anything saved or hashed. [engine architecture](../design/engine-architecture.md) §5: per-worker FP environment, Jolt flags, fixed reduction order. ([DET](../research/determinism.md) §5)
 - `.github/workflows/` — add a Linux job: GCC and Clang, `cmake --preset release -DZS_BUILD_WINDOW=OFF`, `cmake --build --preset release`, `ctest --preset release` (install Ninja). Measured passing on GCC 13.3 and Clang 18.1 at `8295162`. (DET)
 - `CMakeLists.txt:15-16` — clang-cl takes the `if(MSVC)` branch and keeps contraction on. Inside it, when `CMAKE_CXX_COMPILER_ID` is `Clang`, add `/clang:-ffp-contract=off`. (DET-16, measured: contraction breaks 7 goldens)
 - `engine/sim/src/detmath.cpp:21-23, 121-123, 134-136` — `round_to_int` casts unbounded doubles (`sin(1e19)` = -1.9e34, `sin(inf)` = inf). Return NaN for non-finite input; assert `|x| <= 2^30` in `sin`/`cos`; assert `|t| < 2^62` in `round_to_int`; add those cases to `test_detmath.cpp`. (DET-8)
@@ -64,7 +64,7 @@ A work list for a **local session on Windows** (MSVC), built from six research n
 
 ## 4. Save format 4 and zstd
 
-- [ ] **Spec first:** [spec 06](specs/06-save-replay.md): format version 4 header (codec, uncompressed size, binary hash, data hash, seed, settings); zstd levels and frame rules (0055 §4); one full save per game day plus deltas in the autosave history; goldens hash uncompressed bytes.
+- [ ] **Spec first** (written 2026-10-08: spec 06 rules 15-20): [spec 06](specs/06-save-replay.md): format version 4 header (codec, uncompressed size, binary hash, data hash, seed, settings); zstd levels and frame rules (0055 §4); one full save per game day plus deltas in the autosave history; goldens hash uncompressed bytes.
 - Vendor zstd (a pinned release, BSD licence) in `third_party/` and list it in `third_party/README.md`.
 - `engine/sim/src/world.cpp:164-175` — write the version 4 header; keep the version 3 reader.
 - Compress with zstd level 3 (saves) or 1 (autosaves, traces), single-threaded, checksum on.

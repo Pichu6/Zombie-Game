@@ -65,6 +65,8 @@ Saves, replays and golden hashes need the same result for the same seed on any m
 2. Draws are keyed by entity and purpose (Philox), not by which thread runs first.
 3. Sums over many entities (a noise total) use integers or a fixed reduction order, never "whichever worker finishes first".
 4. **Test:** the same run with 1, 2 and 8 workers gives the same golden hash. This test lands with the job system.
+5. **Floating-point environment:** each step checks MXCSR (rounding to nearest, no FTZ/DAZ) and restores the default on the main thread now; each worker sets the same environment when it starts ([DET-25, DET-40](../research/determinism.md); [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md) §3.5).
+6. **Jolt in the simulation**, if a rule ever needs it (physics is view-side until then, [ES-45](../research/engine-stack.md)): built with `CROSS_PLATFORM_DETERMINISTIC`, its thread-ordered outputs (contacts, activations) sorted before use ([DET-24, DET-26](../research/determinism.md)).
 
 ## 6. Budgets for the three layers
 
