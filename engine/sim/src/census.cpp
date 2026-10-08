@@ -6,6 +6,7 @@
 #include "zs/dead.h"
 #include "zs/detmath.h"
 #include "zs/hazard.h"
+#include "zs/pop_system.h"
 
 namespace zs {
 namespace {
@@ -167,7 +168,13 @@ void Census::set_fate(World& w, std::size_t person, Fate f) {
   if (p.fate == f) return;
   w.ledger.transfer(w.clock.tick, owners_[static_cast<std::size_t>(p.fate)], owners_[static_cast<std::size_t>(f)],
                     people_r_, 1, 0);
+  const bool died = is_dead(f) && !is_dead(p.fate);
   p.fate = f;
+  if (died && pops_) pops_->record_death(w, census_pop_id(static_cast<std::uint32_t>(person)));
+}
+
+bool is_dead(Fate f) {
+  return f == Fate::Dead || f == Fate::WalkerOffMap || f == Fate::WalkerOnMap || f == Fate::Destroyed;
 }
 
 double Census::border_m(const Cell& c) const {

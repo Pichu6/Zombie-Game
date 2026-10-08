@@ -9,10 +9,26 @@
 
 #include "zs/actions.h"
 #include "zs/dead.h"
+#include "zs/grid.h"
 #include "zs/pop_ai.h"
 #include "zs/power.h"
 
+namespace zs {
+class PopSystem;
+class EconomySystem;
+class OrdersSystem;
+class GridSystem;
+}  // namespace zs
+
 namespace zs::tier0 {
+
+// Spec 41: the owners the one world sets up (the run only).
+struct WorldOwners {
+  OwnerId country = 0, region = 0;
+  OwnerId main_building = 0, house_a = 0, house_b = 0;
+  std::vector<OwnerId> pops;  // by census row (= registry slot)
+  GridId nation = 0, district = 0;
+};
 
 struct Tier0 {
   std::unique_ptr<World> world;
@@ -25,6 +41,12 @@ struct Tier0 {
   Walkers* walkers = nullptr;
   PopAI* ai = nullptr;         // stage 8, group runs only
   Run* run = nullptr;          // stage 9, make_run only
+  // Spec 41, the one world (make_run only): the registry, the economy, orders and the grid tree.
+  PopSystem* pops = nullptr;
+  EconomySystem* econ = nullptr;
+  OrdersSystem* orders = nullptr;
+  GridSystem* grids = nullptr;
+  WorldOwners owners;
   EntityId player = 0;  // the body of the pop at the map's player start
   std::vector<EntityId> group;  // the player first, then survivors who start with it
 };
@@ -38,7 +60,12 @@ Tier0 make_world(std::uint64_t seed, bool with_dead = false, int group = 0);
 // The run "The generator problem" (spec 26): the player alone in the main building with the dead,
 // the found survivors waiting where data/tier0/run.toml puts them, the stranger still away, every pop
 // driven by the AI unless possessed. `group` lists the player and the found survivors (joined or not).
+// Spec 41: it is the one world: the census rows are the registry's founders, and the registry, the economy,
+// orders and the grid tree run in it after the Tier 0 systems.
 Tier0 make_run(std::uint64_t seed);
+
+// Spec 41: adds the world-scale systems to a run under setup (called by make_run; src/one_world.cpp).
+void add_world_systems(Tier0& t);
 
 // The stage 4 scripted pop (plan: "done when"): drinks, eats, picks up first-aid supplies,
 // disinfects and dresses its wound, takes tools, breaks a chair into planks and nails them across

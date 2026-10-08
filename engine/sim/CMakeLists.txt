@@ -15,6 +15,7 @@ add_library(zs_sim
   src/body_lab.cpp
   src/actions.cpp
   src/tier0.cpp
+  src/one_world.cpp
   src/power.cpp
   src/noise.cpp
   src/census.cpp

@@ -37,7 +37,7 @@ Setup make(std::size_t slots, std::uint64_t seed = 11) {
   return s;
 }
 
-int refusals(const World& w, Refusal why) {
+int refusals(const World& w, PopRefusal why) {
   int n = 0;
   for (const Event& e : w.log.all()) n += e.type == EventType::PopCommandRefused && e.b == static_cast<std::int64_t>(why);
   return n;
@@ -120,7 +120,7 @@ TEST_CASE("embodied: round trips with no time between keep the body, the ledger 
     CHECK(slots_held(s) == 0);
     CHECK(s.bodies->free_slots() == 2);
   }
-  CHECK(refusals(*s.world, Refusal::None) == 0);
+  CHECK(refusals(*s.world, PopRefusal::None) == 0);
 }
 
 TEST_CASE("embodied: the pop's body mass enters the ledger as a declared inflow and leaves again (A1)") {
@@ -138,11 +138,11 @@ TEST_CASE("embodied: embodying twice, demoting a lazy pop, a dead pop and a miss
   send(*s.world, PopEmbody, 40);
   const auto hash = s.pops->registry().hash();
   send(*s.world, PopEmbody, 40);
-  CHECK(refusals(*s.world, Refusal::AlreadyEmbodied) == 1);
+  CHECK(refusals(*s.world, PopRefusal::AlreadyEmbodied) == 1);
   send(*s.world, PopDisembody, 41);
-  CHECK(refusals(*s.world, Refusal::NotEmbodied) == 1);
+  CHECK(refusals(*s.world, PopRefusal::NotEmbodied) == 1);
   send(*s.world, PopEmbody, 999999);
-  CHECK(refusals(*s.world, Refusal::NoSuchPop) == 1);
+  CHECK(refusals(*s.world, PopRefusal::NoSuchPop) == 1);
   CHECK(s.pops->registry().hash() == hash);
   CHECK(s.bodies->free_slots() == 1);
 }
@@ -152,7 +152,7 @@ TEST_CASE("embodied: the pool is the cap and the request beyond it is refused, n
   for (PopId p = 100; p < 108; ++p) send(*s.world, PopEmbody, p);
   CHECK(s.bodies->free_slots() == 0);
   send(*s.world, PopEmbody, 108);
-  CHECK(refusals(*s.world, Refusal::PoolFull) == 1);
+  CHECK(refusals(*s.world, PopRefusal::PoolFull) == 1);
   CHECK(s.pops->registry().counts().embodied == 8);
   CHECK(s.pops->registry().level(108) == Level::Lazy);
 }
@@ -161,7 +161,7 @@ TEST_CASE("embodied: demoting before the dwell time is refused (A1)") {
   auto s = make(2);
   send(*s.world, PopEmbody, 50);
   send(*s.world, PopDisembody, 50);
-  CHECK(refusals(*s.world, Refusal::Dwell) == 1);
+  CHECK(refusals(*s.world, PopRefusal::Dwell) == 1);
   CHECK(s.pops->registry().level(50) == Level::Embodied);
   s.world->run_ticks(kDwell);
   send(*s.world, PopDisembody, 50);
@@ -169,7 +169,7 @@ TEST_CASE("embodied: demoting before the dwell time is refused (A1)") {
   // Pushed back and forth: embodied again resets the clock.
   send(*s.world, PopEmbody, 50);
   send(*s.world, PopDisembody, 50);
-  CHECK(refusals(*s.world, Refusal::Dwell) == 2);
+  CHECK(refusals(*s.world, PopRefusal::Dwell) == 2);
 }
 
 TEST_CASE("embodied: a pop whose body dies while embodied is dead and its slot is freed (A1)") {
@@ -186,7 +186,7 @@ TEST_CASE("embodied: a pop whose body dies while embodied is dead and its slot i
   CHECK(snap.base.death_year <= year_of_tick(s.world->clock.tick));
   CHECK(slots_held(s) == 0);
   send(*s.world, PopEmbody, 60);
-  CHECK(refusals(*s.world, Refusal::Dead) == 1);
+  CHECK(refusals(*s.world, PopRefusal::Dead) == 1);
 }
 
 TEST_CASE("embodied: a demoted pop's body comes back advanced over the gap by its jump form (spec 29 rule 6, A1)") {

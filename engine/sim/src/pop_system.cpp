@@ -16,18 +16,18 @@ void PopSystem::attach_bodies(World& w, Bodies& bodies) {
   bodies_ = &bodies;
 }
 
-void PopSystem::refuse(World& w, const Command& c, EventId cause, Refusal why) {
+void PopSystem::refuse(World& w, const Command& c, EventId cause, PopRefusal why) {
   w.emit(EventType::PopCommandRefused, c.subject, cause, c.type, static_cast<std::int64_t>(why));
 }
 
 void PopSystem::embody(World& w, const Command& c, EventId cause) {
-  if (!bodies_) return refuse(w, c, cause, Refusal::NoBodies);
+  if (!bodies_) return refuse(w, c, cause, PopRefusal::NoBodies);
   const double year = year_of_tick(w.clock.tick);
   PopSnapshot snap;
-  if (!registry_.snapshot(c.subject, year, snap)) return refuse(w, c, cause, Refusal::NoSuchPop);
-  if (year < snap.base.birth_year || year >= snap.base.death_year) return refuse(w, c, cause, Refusal::Dead);
-  if (registry_.embodied_body(c.subject) != 0) return refuse(w, c, cause, Refusal::AlreadyEmbodied);
-  if (bodies_->free_slots() == 0) return refuse(w, c, cause, Refusal::PoolFull);
+  if (!registry_.snapshot(c.subject, year, snap)) return refuse(w, c, cause, PopRefusal::NoSuchPop);
+  if (year < snap.base.birth_year || year >= snap.base.death_year) return refuse(w, c, cause, PopRefusal::Dead);
+  if (registry_.embodied_body(c.subject) != 0) return refuse(w, c, cause, PopRefusal::AlreadyEmbodied);
+  if (bodies_->free_slots() == 0) return refuse(w, c, cause, PopRefusal::PoolFull);
   const std::string label = "pop " + std::to_string(c.subject);
   EntityId body = 0;
   bool restored = false;
@@ -42,7 +42,7 @@ void PopSystem::embody(World& w, const Command& c, EventId cause) {
         registry_.set_death_year(c.subject, year_of_tick(adv.death_tick));
         registry_.end_embodied(c.subject, {});
         w.emit(EventType::PopDiedDemoted, c.subject, cause, static_cast<std::int64_t>(*adv.death), adv.death_tick);
-        return refuse(w, c, cause, Refusal::Dead);
+        return refuse(w, c, cause, PopRefusal::Dead);
       }
       state = adv.state;
     }
@@ -56,11 +56,11 @@ void PopSystem::embody(World& w, const Command& c, EventId cause) {
 }
 
 void PopSystem::disembody(World& w, const Command& c, EventId cause) {
-  if (!bodies_) return refuse(w, c, cause, Refusal::NoBodies);
+  if (!bodies_) return refuse(w, c, cause, PopRefusal::NoBodies);
   const EntityId body = registry_.embodied_body(c.subject);
-  if (body == 0) return refuse(w, c, cause, Refusal::NotEmbodied);
-  if (w.clock.tick - registry_.embodied_since(c.subject) < dwell_ticks_) return refuse(w, c, cause, Refusal::Dwell);
-  if (!bodies_->cannot_disembody(w, body).empty()) return refuse(w, c, cause, Refusal::BodyBusy);
+  if (body == 0) return refuse(w, c, cause, PopRefusal::NotEmbodied);
+  if (w.clock.tick - registry_.embodied_since(c.subject) < dwell_ticks_) return refuse(w, c, cause, PopRefusal::Dwell);
+  if (!bodies_->cannot_disembody(w, body).empty()) return refuse(w, c, cause, PopRefusal::BodyBusy);
   ArchiveWriter out;
   write_body_state(out, bodies_->disembody(w, body, cause));
   out.i64(w.clock.tick);  // when it left: the next embody advances the body over the gap (spec 29 rule 6)

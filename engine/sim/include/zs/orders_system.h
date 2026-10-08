@@ -45,6 +45,7 @@ class OrdersSystem : public System {
   const Beliefs& beliefs() const { return beliefs_; }
   // Who hears a broadcast (setup; the region's people until the registry provides them).
   void set_audience(std::vector<PopId> pops) { audience_ = std::move(pops); }
+  const std::vector<PopId>& audience() const { return audience_; }
   bool comms_up() const { return comms_up_; }
   double distortion_per_hop() const { return distortion_; }
   void set_distortion_per_hop(double d) { distortion_ = d; }  // setup

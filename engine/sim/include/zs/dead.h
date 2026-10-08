@@ -21,12 +21,15 @@
 namespace zs {
 
 class Walkers;
+class PopSystem;
 
 // ---- Census (spec 22) ----
 
 enum class Fate : std::uint8_t { Fled, Dead, Survivor, WalkerOffMap, WalkerOnMap, Destroyed, Pop };
 inline constexpr std::size_t kFateCount = 7;
 const char* to_string(Fate f);
+// Dead, a walker or destroyed: no longer a living person (spec 41: the registry agrees).
+bool is_dead(Fate f);
 
 struct Person {
   std::string name, household, home;
@@ -64,6 +67,9 @@ class Census : public System {
   // State changes (each moves one person between ledger owners).
   void set_fate(World& w, std::size_t person, Fate f);
 
+  // Spec 41: the census rows are the registry's founders (slot = row). Once attached, a death here is a death there.
+  void attach_pops(PopSystem* pops) { pops_ = pops; }
+
  private:
   void arrive(World& w, std::size_t person);
   double border_m(const Cell& c) const;
@@ -73,6 +79,7 @@ class Census : public System {
   Bodies& bodies_;
   Power& power_;
   Walkers* walkers_ = nullptr;
+  PopSystem* pops_ = nullptr;  // spec 41, the one world only
   ResourceId people_r_ = 0;
   std::array<OwnerId, kFateCount> owners_{};
   std::vector<Person> people_;

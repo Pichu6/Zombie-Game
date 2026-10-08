@@ -154,7 +154,10 @@ Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run) {
     }
     for (EntityId b : t.group) t.ai->add_pop(w, b);
   }
-  if (is_run) setup_run(t, data + "/tier0/run.toml");
+  if (is_run) {
+    setup_run(t, data + "/tier0/run.toml");
+    add_world_systems(t);
+  }
   w.close_setup();
   return t;
 }

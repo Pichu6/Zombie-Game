@@ -24,7 +24,7 @@ enum PopCommand : std::uint16_t {
 };
 
 // Why a pop command was refused: carried in the PopCommandRefused event's `b` (0 = none given).
-enum class Refusal : std::int64_t {
+enum class PopRefusal : std::int64_t {
   None = 0,
   NoBodies = 1,       // no body simulation attached
   NoSuchPop = 2,
@@ -53,6 +53,10 @@ class PopSystem : public System {
   // The least time a pop stays embodied before it may be demoted (hysteresis); a setting, not saved. Default 1 game hour.
   void set_dwell_ticks(std::int64_t ticks) { dwell_ticks_ = ticks; }
 
+  // Spec 41: the census reports a death of one of its rows (a founder) as it happens. The census's change is
+  // itself derived from the world's state, so replay repeats it; this is not a player command.
+  void record_death(const World& w, PopId id) { registry_.set_death_year(id, year_of_tick(w.clock.tick)); }
+
   void apply_command(World& w, const Command& c, EventId cause) override;
   void update(World& w) override;  // audits the registry when the world checks every tick
   // With bodies attached a pop may die any tick; without them the registry only changes by command.
@@ -63,7 +67,7 @@ class PopSystem : public System {
  private:
   void embody(World& w, const Command& c, EventId cause);
   void disembody(World& w, const Command& c, EventId cause);
-  void refuse(World& w, const Command& c, EventId cause, Refusal why);
+  void refuse(World& w, const Command& c, EventId cause, PopRefusal why);
   std::optional<std::string> audit_bodies() const;
 
   PopRegistry registry_;
