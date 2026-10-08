@@ -1,11 +1,43 @@
 # World numbers: how people spread over land, and how towns and cities arise
 
-**research note, not a decision**
+**Date:** 2026-10-06. **Status:** research note, not a decision; everything below is Proposal or research, nothing is Decided, Implemented or Validated. **Feeds:** [world numbers](../design/world-numbers.md), [world simulation](../design/world-simulation.md) (section 12, the generator's world fields), [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md). **Evidence:** WebFetch was blocked by the egress proxy, so no paper was read; every number comes from WebSearch result summaries, several only from secondary pages. Figures quoted from memory of the literature are marked "memory, not confirmed" with Low confidence. Sandbox bands and design values in the equations are our own proposals, not sourced. **IDs:** WNS.
 
-- **Date:** 2026-10-06
-- **Serves:** [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md) (realistic numbers, pop/nation loop) and [world-simulation section 12](../design/world-simulation.md) (generator writes world fields: elevation, rivers, climate, soil, population).
-- **Status of everything below:** Proposal / research. Nothing is Decided, Implemented or Validated.
-- **Method and limits:** WebFetch was blocked by the network egress proxy (tested on acris.aalto.fi and en.wikipedia.org). **Every number below comes from WebSearch result summaries, not from reading the papers.** Where a figure is quoted from memory of the literature and the search did not return it, it is marked "memory, not confirmed" and its confidence is Low. Sandbox bands and "design" values in the equations are our own proposals, not sourced.
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| WNS-1 | About 50% of the world's people live on about 1% of its land (cells of 9 sq mi with over 8,000 people each, about 350 per km2); cell-size dependent. | reported | https://99percentinvisible.org/article/99-darkness-see-half-worlds-population-lives-1-land/ |
+| WNS-2 | About 38% (1990) to 40% (commonly quoted) of the world's population lives within 100 km of a sea coast. | reported | https://www.causeartist.com/content/files/esa/sustdev/natlinfo/indicators/methodology_sheets/oceans_seas_coasts/pop_coastal_areas.pdf |
+| WNS-3 | The near-coast lowland (under 100 km from shore and under 100 m elevation) holds 27% of people on 9% of land (2010); about 25% in 1990. | reported | https://www.ldeo.columbia.edu/~small/PDF/ISDE_SmallCohen.pdf |
+| WNS-4 | That coastal lowland is about 3.0x the world mean density; the rest of land about 0.8x (from WNS-3). | derived | this note |
+| WNS-5 | About half of urban dwellers live in settlements under 500,000; about 1 in 8 lives in the 33 megacities of over 10 million (2018). | reported | https://population.un.org/wup/publications/Files/WUP2018-KeyFacts.pdf |
+| WNS-6 | Under Gibrat's law the steady-state Zipf/Pareto exponent of city sizes is 1 (size of rank r is about S1 / r). | reported | https://scholar.harvard.edu/sites/scholar.harvard.edu/files/xgabaix/files/zipfs_law.pdf |
+| WNS-7 | Across 73 countries the mean Pareto exponent is 1.11 (Soo 2005, OLS); Zipf is rejected in 53 of 73 by OLS and 30 of 73 by the Hill estimator; a later study finds a mean of about 1.02. | reported | https://researchonline.lse.ac.uk/id/eprint/19947 |
+| WNS-8 | The standard error of a Pareto exponent fit is zeta x sqrt(2/n), n the number of cities in the tail, so a world of 30 towns cannot tell zeta 1.0 from 1.25 by fit alone. | reported | https://nber.org/papers/t0342 |
+| WNS-9 | Under Gibrat's law growth is independent of city size; the full US 2000 city distribution is lognormal, not only the upper tail. | reported | https://ideas.repec.org/h/eee/regchp/4-53.html |
+| WNS-10 | Pre-industrial city sizes are flatter: a power law is rejected for Europe 1300 to 1600; the Netherlands exponent was 0.55 (1600), 1.03 (1900), 0.72 (1990); large empires are argued to have exponents above 1. | reported | https://mpra.ub.uni-muenchen.de/83096/1/MPRA_paper_83096.pdf |
+| WNS-11 | Optimal primacy rises with income to about USD 5,000 (1987 PPP) then falls; 0.1 off the optimum costs about 0.6% growth a year. | reported | https://www.nber.org/papers/w7503.pdf |
+| WNS-12 | In dictatorships the central city is about 50% larger than in democracies; high tariffs and internal trade costs raise primacy. | reported | https://www.nber.org/papers/w4715.pdf |
+| WNS-13 | World urban share was 55% in 2018, projected 68% in 2050; largest cities 2018: Tokyo about 37 million, Delhi 29, Shanghai 26. | reported | https://population.un.org/wup/publications/Files/WUP2018-KeyFacts.pdf |
+| WNS-14 | Before industrialisation the urban share was under 10% (Europe, towns over 10,000, 14th to 19th century) and about 7% (China 1800). | reported | https://www.statista.com/statistics/1304890/urbanization-europe-1800 |
+| WNS-15 | Largest Western European city in 1500 was Paris at about 225,000, almost double Naples; Baghdad, Cairo and Constantinople were about 250,000 each in 1200. | reported | https://statista.com/statistics/1021988/thirty-largest-cities-western-europe-1500 |
+| WNS-16 | Urban share rises with the log of GDP per capita in cross-section; the slope was not retrieved. | reported | https://pmc.ncbi.nlm.nih.gov/articles/PMC4123908 |
+| WNS-17 | Archaeological suitability studies rank soil fertility first, then slope, elevation and distance to streams; numeric weights were not found. | reported | https://orbilu.uni.lu/bitstream/10993/58733/1/Sikk_etal_2022_JArcheoReports.pdf |
+| WNS-18 | Pre-industrial carrying capacity is set mostly by soil fertility and area; density in 1 to 1500 CE is higher with land productivity and earlier agriculture. | reported | https://www.cts.cuni.cz/~storch/publications/Fanta_et_al_2018_PRSB_Equilibrium_dynamics_of_human_populations.pdf |
+| WNS-19 | Urban scaling: socio-economic outputs (GDP, wages, patents, crime, disease) scale with exponent about 1.15, infrastructure about 0.85 (German road area 0.83), individual needs about 1. | reported | https://arxiv.org/abs/1301.1674 |
+| WNS-20 | Urban scaling exponents move with how the city is delimited; in England and Wales most per-capita indicators scale about linearly. | reported | https://discovery-pp.ucl.ac.uk/1455713/4/20140745.full.pdf |
+| WNS-21 | Roman transport cost for wheat: sea 0.00067, river downstream 0.0038, upstream 0.0068, wagon 0.035 denarii per kg per km. | reported | https://www.ancientportsantiques.com/wp-content/uploads/Documents/ETUDESarchivees/MedNavigationRoutes/ORBISprices-Scheidel2013.pdf |
+| WNS-22 | Roman wagon transport cost about 52x sea, about 10x river downstream and about 5x upstream (from WNS-21). | derived | this note |
+| WNS-23 | Tobler walking speed: 5 km/h on flat ground, max 6 km/h at about -2.86 degrees, W = 6 exp(-3.5 abs(S + 0.05)); off-path x 3/5, horseback x 5/4. | reported | https://en.wikipedia.org/wiki/Tobler%27s_hiking_function |
+| WNS-24 | Late-medieval pack animals: pack horse about 120 kg up to 25 km/day; donkey 75 kg; mule 100 kg; camel 175 kg. | reported | https://transportgeography.org/contents/chapter1/emergence-of-mechanized-transportation-systems/pre-industrial-travel-modes/ |
+| WNS-25 | Gravity-model distance elasticity of trade clusters between -1.0 and -0.6 with no downward trend (meta-analysis of 1,467 estimates in 103 papers). | reported | https://blogs.ubc.ca/khead/files/2016/07/meta.pdf |
+| WNS-26 | Christaller hierarchies: k = 3 (market), 4 (transport) or 7 (administrative); town spacing multiplies by sqrt(k) per level. | reported | https://www.geog.leeds.ac.uk/people/a.turner/projects/medalus3/cpt.htm |
+| WNS-27 | Village-to-market-town spacing is about 5 to 11 km: Skinner's standard market serves 18 villages and 6,000 to 12,000 people with the farthest village at most 8 km; Bracton's rule was 10.7 km. | reported | https://escholarship.org/uc/item/51x4g3qh |
+| WNS-28 | Proposal: place settlements by a log-linear cell suitability (soil, water, climate, slope, elevation, coast, river) and a carrying capacity, calibrated so about 50% of people sit on 1% of land and about 40% within 100 km of coast (E1, E2). | estimate | this note |
+| WNS-29 | Proposal: draw town sizes from a Pareto law, realistic zeta 0.9 to 1.2 (0.7 to 1.0 pre-industrial), with Gibrat growth noise and a drift to carrying capacity (E3, E4). | estimate | this note |
+| WNS-30 | Proposal: city output scales superlinearly (beta 1.10 to 1.20), infrastructure sublinearly (0.80 to 0.90); draw one exponent per world and show it, because published exponents depend on the city boundary (E6). | estimate | this note |
+| WNS-31 | Proposal: build roads as a minimum spanning tree on transport cost-distance, add loops where gravity flow per cost is high, upgrade edges by traffic, and check total length against N^0.85 (E7, E8, E10). | estimate | this note |
+| WNS-32 | A saved world stores its draws (exponents, zeta, seed) with its settlements, so a generator change never alters a save. | estimate | this note |
 
 ## Numbers
 

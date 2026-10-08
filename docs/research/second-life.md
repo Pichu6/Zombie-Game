@@ -1,8 +1,24 @@
 # Second Life, as a reference for ownership
 
-**Date:** 2026-10-08. **Status:** research note, not a decision. **Why:** [0025](../decisions/0025-sandbox-engine-first-game.md) names Second Life-type worlds for the range of activities; the user listed it again. What it does best is ownership, which is still a gap in [layer jumps](../design/layer-jumps.md) (row 19). Part of [reference games by layer](reference-games-by-layer.md).
+**Date:** 2026-10-08. **Status:** research note, not a decision. **Feeds:** [layer jumps](../design/layer-jumps.md), [items and crafting](../design/items-crafting.md), [spec 32](../tier0/specs/32-stocks-goods-and-money.md), [0025](../decisions/0025-sandbox-engine-first-game.md). **Evidence:** checked by web search against the Second Life wiki and knowledge base; some pages are from the Linden-era forums and may be dated. **IDs:** SL.
 
-**Evidence caveat:** checked by web search against the Second Life wiki and knowledge base; some pages are from the Linden-era forums and may be dated.
+[0025](../decisions/0025-sandbox-engine-first-game.md) names Second Life-type worlds for the range of activities; the user listed it again. What it does best is ownership, which is still a gap in [layer jumps](../design/layer-jumps.md) (row 19). Part of [reference games by layer](reference-games-by-layer.md).
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| SL-1 | Second Life is Linden Lab's virtual world (2003): users build and script almost everything, own land, and trade items for Linden dollars. | reported | https://wiki.secondlife.com/wiki/Permission |
+| SL-2 | Every item carries four permissions (move, modify, copy, transfer), set separately for owner, group, everyone and the next owner. | reported | https://wiki.secondlife.com/wiki/Permission |
+| SL-3 | A copy keeps its creator and can never be more permissive than its source (e.g. clothing buyers can change and copy but not resell). | reported | https://community.secondlife.com/knowledgebase/english/object-permissions-r57/ |
+| SL-4 | Each object remembers who made it. | reported | https://wiki.secondlife.com/wiki/Permission |
+| SL-5 | A region is 256 m x 256 m, run by one simulator process. | reported | https://wiki.secondlife.com/wiki/Viewerhelp:Types_and_sizes_of_land |
+| SL-6 | A parcel is part of a region, owned by one user or group, made of 4 m x 4 m blocks, with its own access rules and settings. | reported | https://wiki.secondlife.com/wiki/Viewerhelp:Types_and_sizes_of_land |
+| SL-7 | Land and items can belong to a group with roles. | reported | https://wiki.secondlife.com/wiki/Viewerhelp:Types_and_sizes_of_land |
+| SL-8 | Take: rights separate from possession (who owns, who holds, who may use, who may pass on); next-owner rights map to lent, rented, given, held in trust, confiscated. | estimate | this note |
+| SL-9 | Take: a creator and quality recorded on every made thing (provenance). | estimate | this note |
+| SL-10 | Take: parcels with an owner (pop, household, firm or state) and access rules for who may enter or build; one region per process is a partition idea. | estimate | this note |
+| SL-11 | Do not take: real-money trade, copying items (everything is a real stock, no duplication) or user scripting. | estimate | this note |
 
 ## What it is
 
