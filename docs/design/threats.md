@@ -181,12 +181,19 @@ Cost bands: parameters and presentation (cheap); new module on a humanoid (mediu
 - World creation sets a causal timeline, not a script. NPCs know fragments according to profession and place. Proposal.
 - Test presets: necrobiotic, living infected, conscious/relational; no alternative one in the first slice. Proposal.
 
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Should audio occlusion come from the sim's noise path loss, so that what the player hears matches what a zombie hears ([ES-46](../research/engine-stack.md))? ([engine-stack](../research/engine-stack.md))
+
 ## Research
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
 - [concept-v2](../research/concept-v2.md): Juego Zombie · Concept v2
 - [project-zomboid](../research/project-zomboid.md): Project Zomboid, as a reference for the Individual layer
+- [engine-stack](../research/engine-stack.md): The engine stack behind decision 0002: licences, versions, determinism, alternatives
 
 ## Prototype sources
 

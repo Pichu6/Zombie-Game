@@ -108,6 +108,10 @@ If hot work goes over budget, warm and macro slices wait (they have deadlines, n
 - ECS storage as archetypes or sparse sets? Stable ids favour sparse sets. ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
 - Two frames in flight (as niagara and Sascha Willems' examples use) or "2-3"? The research recommends 2. ([renderer](../research/renderer.md))
 - Minimum GPU: Vulkan 1.3 with buffer device address, descriptor indexing, dynamic rendering and synchronization2; mesh shaders optional? ([renderer](../research/renderer.md))
+- Does any simulation rule need rigid-body physics, or does Jolt stay view-side ([ES-45](../research/engine-stack.md))? ([engine-stack](../research/engine-stack.md))
+- Does the sim's grid pathing scale to open 3D ground, or do we add Detour, and if so do its float-based paths feed the sim? ([engine-stack](../research/engine-stack.md))
+- Raw Vulkan with vk-bootstrap and VMA rather than SDL_gpu ([ES-47](../research/engine-stack.md)), to be confirmed in a decision superseding 0002. ([engine-stack](../research/engine-stack.md))
+- Will a macOS build ever be a target? If so, recheck toml++ float parsing on libc++ and SDL_gpu's portability case. ([engine-stack](../research/engine-stack.md))
 
 ## Research
 
@@ -118,3 +122,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [second-order-dynamics](../research/second-order-dynamics.md): Second-order dynamics for procedural motion
 - [threading-and-partition](../research/threading-and-partition.md): Threading and partition model
 - [renderer](../research/renderer.md): The renderer, at engineering level
+- [engine-stack](../research/engine-stack.md): The engine stack behind decision 0002: licences, versions, determinism, alternatives
