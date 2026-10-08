@@ -1,8 +1,8 @@
-# 0043 · A new game starts at 1 real hour = 1 game day; time does not pass while the game is closed
+# 0050 · A new game starts at 1 real hour = 1 game day; time does not pass while the game is closed
 
 - **Date:** 2026-10-07
 - **Status:** Decided by the user ("lets go with recommended options"). The exact speed steps remain a Proposal.
-- **Answers:** the two open points of [0042](0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md), and the open point of [0032](0032-real-time-reference-and-generational-runs.md) about the starting speed.
+- **Answers:** the two open points of [0049](0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md), and the open point of [0032](0032-real-time-reference-and-generational-runs.md) about the starting speed.
 
 ## Decisions
 
@@ -11,5 +11,5 @@
 
 ## Notes
 
-- This restores the position of [0032](0032-real-time-reference-and-generational-runs.md) and [vision](../vision.md) on the usual speed; durations stay real ([0042](0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md)).
+- This restores the position of [0032](0032-real-time-reference-and-generational-runs.md) and [vision](../vision.md) on the usual speed; durations stay real ([0049](0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md)).
 - A reference for the long-wait style (progress bars, real durations, many things running at once) is Haven and Hearth: [research](../research/haven-and-hearth.md). Its own day is about 7.3 real hours, much slower than ours.

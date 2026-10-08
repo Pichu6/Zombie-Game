@@ -1,6 +1,6 @@
 # Haven and Hearth: a reference game for long real-time play
 
-**Date:** 2026-10-07. **Status:** research note, not a decision. **Why:** the user named it as the model for our long-wait style: real durations, progress-bar activities, a speed ladder ([0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md), [0043](../decisions/0043-start-speed-and-time-while-closed.md)). Kept here as the "reference game" memory for it.
+**Date:** 2026-10-07. **Status:** research note, not a decision. **Why:** the user named it as the model for our long-wait style: real durations, progress-bar activities, a speed ladder ([0049](../decisions/0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md), [0050](../decisions/0050-start-speed-and-time-while-closed.md)). Kept here as the "reference game" memory for it.
 
 **Evidence caveat (as in the other notes):** the Ring of Brodgar wiki (the game's community wiki) and several news pages were **blocked by the proxy**, so everything below is from **web-search summaries** of those pages, not full reads. Numbers are "reported". Items marked *derived* are our arithmetic from reported figures. Re-check the primary page before relying on one. What I could not find is listed at the end.
 
@@ -53,13 +53,13 @@ So the game's own day is about **7 times slower than our usual speed** (1 hour =
 
 ## The loop that matters to us
 
-The core loop reported by reviews: start a **timed action** (dig, craft, harvest, cook), watch a **progress bar** fill, do something else or wait; many long processes (curing, growing, smelting) run in the background while you do other things. This is the "loop animation with a progress bar" of [0042](../decisions/0042-real-durations-played-as-progress-bars-with-a-speed-ladder.md). The reported strengths are persistence, the real cost of everything, and a world that remembers; the reported cost is long waits and grind, which is why our speed ladder and mini-games exist.
+The core loop reported by reviews: start a **timed action** (dig, craft, harvest, cook), watch a **progress bar** fill, do something else or wait; many long processes (curing, growing, smelting) run in the background while you do other things. This is the "loop animation with a progress bar" of [0049](../decisions/0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md). The reported strengths are persistence, the real cost of everything, and a world that remembers; the reported cost is long waits and grind, which is why our speed ladder and mini-games exist.
 
 ## What we take, and what we do not (Proposal)
 
 | Take | Do not take |
 | --- | --- |
-| Real durations, with timed actions as the unit of play (a Process) | A shared always-on server: ours is single-player, time stops when closed (0043) |
+| Real durations, with timed actions as the unit of play (a Process) | A shared always-on server: ours is single-player, time stops when closed (0050) |
 | Many processes running at once, queued by the player | Abstract nutrition points |
 | A world that remembers and does not regenerate for free (matches "nothing is created or destroyed") | Random world resets as a design feature |
 | Quality from the person times the craft, with softcaps | The client code: it is LGPL, our engine is our own ([0002](../decisions/0002-engine-stack.md)); read it for ideas only |

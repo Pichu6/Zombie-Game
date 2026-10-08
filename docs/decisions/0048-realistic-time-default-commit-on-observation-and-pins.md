@@ -1,4 +1,4 @@
-# 0041 · Real time is the default speed; observed detail is stored only where it saves memory; pins, with one view per layer
+# 0048 · Real time is the default speed; observed detail is stored only where it saves memory; pins, with one view per layer
 
 - **Date:** 2026-10-07
 - **Status:** Decided by the user (the three answers below). The mechanisms are Proposals in [focus and compression](../design/focus-and-compression.md).

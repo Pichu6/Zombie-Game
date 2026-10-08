@@ -1,8 +1,8 @@
-# 0042 · Durations are real; long waits are played as progress-bar activities, with a speed ladder
+# 0049 · Durations are real; long waits are played as progress-bar activities, with a speed ladder
 
 - **Date:** 2026-10-07
 - **Status:** Decided by the user (intent below). The speed steps, the mini-game hooks and the offline question are Proposals or open.
-- **Supersedes:** item 1 of [0041](0041-realistic-time-default-commit-on-observation-and-pins.md) ("a new game runs at 1:1 real time"), which misread the user's answer. Items 2 and 3 of 0041 stand. Returns the speed question to the position of [0032](0032-real-time-reference-and-generational-runs.md).
+- **Supersedes:** item 1 of [0048](0048-realistic-time-default-commit-on-observation-and-pins.md) ("a new game runs at 1:1 real time"), which misread the user's answer. Items 2 and 3 of 0048 stand. Returns the speed question to the position of [0032](0032-real-time-reference-and-generational-runs.md).
 
 ## Decisions
 
