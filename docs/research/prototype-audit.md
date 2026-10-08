@@ -1,6 +1,28 @@
 # Docs and agent tooling: what to keep for the new project
 
-Read-only audit of `D:/Proyectos/juego zombie`, done on 2026-10-05. Nothing was changed.
+**Date:** 2026-10-05. **Status:** research note, not a decision. **Feeds:** [0004](../decisions/0004-docs-without-rag.md). **Evidence:** read-only audit of the old prototype at `D:/Proyectos/juego zombie`, done on 2026-10-05 by reading its files directly; nothing was changed. File sizes and counts are from that audit; the verdicts are our judgement. **IDs:** PA.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| PA-1 | The prototype carried a lot of infrastructure built to make up for agents without memory: vector RAG on Ollama, code maps, line budgets, "don't read more than 150 lines" rules, and four skills tied to Godot, Tripo and Blender | sourced | `D:/Proyectos/juego zombie` |
+| PA-2 | The prototype's `AGENTS.md` (7.5 KB) held rules for Codex/Antigravity: Godot, token budget and a "lazy senior" ladder built on 8 Godot addons | sourced | `D:/Proyectos/juego zombie` `AGENTS.md` |
+| PA-3 | The prototype's RAG was seven Python modules plus 5 tests, on Ollama with EmbeddingGemma and SQLite, for semantic search over its wiki | sourced | `D:/Proyectos/juego zombie` |
+| PA-4 | The prototype enforced a 200-line limit per file with `file_budget.py`, plus a GDScript/Python AST map and link checks | sourced | `D:/Proyectos/juego zombie` |
+| PA-5 | The prototype's `doc/wiki/` held 101 documents: 31 continuity, 43 prototype implementation, 22 design, 15 rules | sourced | `D:/Proyectos/juego zombie` `doc/wiki/` |
+| PA-6 | The prototype's design document `doc/GDD_Survival_3D.md` is 74 KB | sourced | `D:/Proyectos/juego zombie` |
+| PA-7 | The prototype's continuity file reached 20 KB because it was append-only | sourced | `D:/Proyectos/juego zombie` |
+| PA-8 | `references/cdda_reference/` holds Cataclysm DDA data (masses, insulation, recipes); CDDA is CC BY-SA 3.0, so copying its data would bring that licence along: use it only to calibrate our own values | sourced | `D:/Proyectos/juego zombie` `references/cdda_reference/` |
+| PA-9 | The *Zombie Survival Guide* and *Zombie Combat Manual* PDFs are copyrighted and stay out of the repo | estimate | this note |
+| PA-10 | With about 100 short documents, a vector index adds upkeep and nothing else; direct text search and ranged reads are enough; re-evaluate at thousands of documents | estimate | this note |
+| PA-11 | "Don't read more than 150-200 lines" rules make the agent read partially and understand worse; savings come from small, well-split documents | estimate | this note |
+| PA-12 | A per-file line limit makes no sense in C++; the goal is one responsibility per module | estimate | this note |
+| PA-13 | Replace `AGENTS.md` with a short `CLAUDE.md`, keeping the what to do / where we are / next step format and the split between proposal, implementation and validation | estimate | this note |
+| PA-14 | Archive the four prototype skills, `llms.txt`, `.codex/config.toml`, `.superpowers/` and the video transcripts; don't carry over the RAG, the code map, the line budget or the local LLM | estimate | this note |
+| PA-15 | Distill, don't copy: the ~22 design docs, the GDD and the confirmed decisions go into per-system docs; continuity, audits and history are archived | estimate | this note |
+| PA-16 | One truth per thing: state in `status.md`, the why in `decisions/`, the how in `design/`; no append-only logs | estimate | this note |
+| PA-17 | A simpler broken-link check for the docs could come back | estimate | this note |
 
 ## Short answer
 

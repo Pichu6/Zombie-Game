@@ -1,10 +1,41 @@
 # Simulation scale in other games
 
-Date: 2026-10-06.
+**Date:** 2026-10-06. **Status:** research note, not a decision; nothing here is Decided, Implemented or Validated by us. **Feeds:** [pop continuity](../design/pop-continuity.md), [spec 28](../tier0/specs/28-pop-levels.md), [0033](../decisions/0033-restoring-cost-and-two-way-projects.md). **Evidence:** web search on 2026-10-06; direct page fetches were blocked by the proxy for most sites (Dwarf Fortress wiki, Paradox, Colossal Order, Steam, Nexus, Project Zomboid), so every figure comes from a search-result excerpt of the cited page, not a full read. Many sources are player posts or mod pages, not developer statements; the table says which. Treat all numbers as reported and re-check the primary page before relying on one. **IDs:** SS.
 
-**This is a research note, not a decision.** Nothing here is Decided, and nothing is Implemented or Validated by us. It feeds the open question in [pop continuity](../design/pop-continuity.md) (lazy / record / embodied pops).
+It feeds the open question in [pop continuity](../design/pop-continuity.md) (lazy / record / embodied pops).
 
-**Method and limits.** Collected by web search on 2026-10-06. Direct page fetches were blocked by the network proxy for most sites (Dwarf Fortress wiki, Paradox, Colossal Order, Steam, Nexus, Project Zomboid), so every figure below comes from a search-result excerpt of the cited page, not from a full read. Many sources are player posts or mod pages, not developer statements; the table says which. Treat all numbers as "reported", and re-check the primary page before relying on one.
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| SS-1 | Dwarf Fortress tracks named individuals as historical figures; world gen has a soft cap on living histfigs with token range -1 to 100,000, example value 15,000 | reported | https://dwarffortresswiki.org/index.php/Advanced_world_generation |
+| SS-2 | Dwarf Fortress treats most of the population abstractly because of memory, tracking only a small percentage, and culls unimportant dead histfigs after world gen (died early, no children, killed nothing named) | reported | https://dwarffortresswiki.org/index.php/Historical_figure |
+| SS-3 | A realistic Dwarf Fortress fort population is 200-250 (player report) | reported | https://steamcommunity.com/app/975370/discussions/0/4038102936186697965/ |
+| SS-4 | Dwarf Fortress frame loss is blamed on line-of-sight checks across all creatures, not pathfinding, about 6 % of a tick in one profile | reported | this note (Lessons) |
+| SS-5 | RimWorld: one player had ~2,000 unprocessed world pawns with 200+ still ticking after 7 years; TPS fell from 600-700 to 100-120, and trimming to under 1,000 gave 250-270 (single anecdote) | reported | https://steamcommunity.com/sharedfiles/filedetails/?id=2982026860 |
+| SS-6 | Crusader Kings 3 players report about 35,000 living characters at once, about 70,000 total for 1337-1453 and 100,000-200,000 for 769-1453 (forum posts) | reported | https://forum.paradoxplaza.com/forum/threads/total-number-of-characters-in-one-game.875847/ |
+| SS-7 | A CK3 culling mod reports about 24,000 vs 30,000 NPCs in 1200 AD, with 10-20 % better performance; most CK3 cost is AI decisions and event processing | reported | https://www.nexusmods.com/crusaderkings3/mods/179 |
+| SS-8 | Victoria 3 cost scales with the number of pop objects, not people; one pop can be 50,000 people; developers cut late-game pop object count about 25 % in one pass | reported | https://www.paradoxinteractive.com/games/victoria-3/news/dev-diary-76-performance |
+| SS-9 | Victoria 3's employment update is its most expensive task, split into a parallel and a serial part (creating/destroying pops needs global operations); its tick is 6 hours | reported | https://www.paradoxinteractive.com/games/victoria-3/news/dev-diary-76-performance |
+| SS-10 | Stellaris 4.0 applies effects to pops in groups of 100, a rework done for late-game performance | reported | https://www.pcgamesn.com/stellaris/4-0-population-rework |
+| SS-11 | Cities: Skylines 1 limits: 1,048,576 citizens, 524,288 citizen units, 65,536 citizen instances (walking agents); only travelling citizens get an instance | reported | https://steamcommunity.com/sharedfiles/filedetails/?id=2712549268 |
+| SS-12 | The CS1 instance cap of 65,536 exists because the id is 16 bits; 4-byte ids would double the memory | reported | https://steamcommunity.com/sharedfiles/filedetails/?id=2712549268 |
+| SS-13 | Cities: Skylines 2 has no hard agent cap; its lifepath journal per citizen is stored events and does not affect rendering performance; agents reading nearby agents while moving (traffic) is the costly part | reported | https://colossalorder.fi/?p=1851 |
+| SS-14 | The Sims 4 simulates only the active lot and trims population to about 180 sims (fan sources) | reported | https://sims.fandom.com/wiki/Story_progression |
+| SS-15 | Bannerlord has 67 wanderers, 32 alive at a time; troops are anonymous counts, and a simulated battle resolves e.g. 4,000 vs 2,000 troops as one calculation | reported | https://professordavidsgamesjournal.substack.com/p/mount-and-blade-ii-bannerlord |
+| SS-16 | Kenshi's Hub normally has about 200-300 NPCs; vanilla simulates only what is near the player | reported | https://steamcommunity.com/app/233860/discussions/0/806845754928829987/ |
+| SS-17 | Football Manager 26 holds 750,000+ people, 58 playable nations, 156 playable leagues; typical configs load 70,000-280,000 players and need about 2.5 GB RAM by default | reported | https://www.passion4fm.com/how-to-set-up-your-database-size-in-football-manager/ |
+| SS-18 | Project Zomboid: about 52,000 zombies at start and about 150,000 by peak day (player discussion); map cells are 300x300 tiles | reported | https://projectzomboid.com/blog/news/2015/05/bring-out-your-zed/ |
+| SS-19 | Project Zomboid keeps zombies outside the loaded area as a number per cell that moves between cells, and respawns only below the target and not in recently loaded areas | reported | https://projectzomboid.com/blog/news/2015/05/bring-out-your-zed/ |
+| SS-20 | Songs of Syx reports populations exceeding 40,000 individually simulated units in a custom Java engine | reported | https://store.steampowered.com/app/1162750/Songs_of_Syx/ |
+| SS-21 | Manor Lords towns commonly max at about 2,000; one player reached 4,548, after which pathfinding practically stopped | reported | https://www.pcgamer.com/games/city-builder/one-manor-lords-player-is-managing-a-city-with-over-3000-residents-and-just-1-market-to-push-the-game-to-the-limit/ |
+| SS-22 | Elite Dangerous's background sim has no individual NPC records: 1-7 factions per populated system, influence totalling 100 % | reported | https://forums.frontier.co.uk/threads/a-full-explanation-of-elite-dangerous-bgs.451257/ |
+| SS-23 | Per-person memory and CPU at each detail level was not found for any game; only counts, caps and anecdotes | reported | this note (Unverified) |
+| SS-24 | Lesson: every game keeps a small tracked set and abstracts the rest; for us the open question is only the size of the middle (record) tier | estimate | this note |
+| SS-25 | Lesson: our budget should count records and embodied bodies, never population (from SS-8) | derived | this note |
+| SS-26 | Lesson: culling is a design feature; we need an explicit rule for when a record collapses back to lazy (seed only) and what is kept after death (from SS-2, SS-5, SS-7) | derived | this note |
+| SS-27 | Lesson: embodied pops must only perceive other embodied things nearby; record-level pops update on a schedule or on events, not every tick (from SS-4, SS-7) | derived | this note |
+| SS-28 | First budget: 50-300 embodied pops at once, 10,000-100,000 stored record pops, records of a few hundred bytes to 1 KB, record updates event-driven or a few times per game day; all to be measured with the bench | estimate | this note |
 
 ## Comparison
 
@@ -40,7 +71,7 @@ Date: 2026-10-06.
 
 ## Numbers to use as a first budget (estimates)
 
-All of these are our estimates, not found in sources, except where a source is named. They need measurement with `zs_headless --bench` before use.
+All of these are our estimates, not found in sources, except where a source is named. They need measurement with `zs --bench` before use.
 
 | Item | First budget | Basis |
 | --- | --- | --- |

@@ -1,8 +1,29 @@
 # Project Zomboid, as a reference for the Individual layer
 
-**Date:** 2026-10-08. **Status:** research note, not a decision. **Why:** the user named it first among the Individual-layer references; [0010](../decisions/0010-concept-v2.md) already takes its hero, its sandbox settings and its custom character. Part of [reference games by layer](reference-games-by-layer.md). Its zombie counts per cell are in [sim-scale](sim-scale-in-other-games.md).
+**Date:** 2026-10-08. **Status:** research note, not a decision. **Feeds:** [body](../design/body.md), [body trauma](../design/body-trauma.md), [threats](../design/threats.md), [sandbox parameters](../design/sandbox-parameters.md), [spec 21](../tier0/specs/21-infection.md), [0010](../decisions/0010-concept-v2.md). **Evidence:** general knowledge of the game, with the infection figures checked by web search (third-party guides, not The Indie Stone); figures are reported and may differ between Build 41 and Build 42. **IDs:** PZ.
 
-**Evidence caveat:** general knowledge of the game, with the infection figures checked by web search (third-party guides, not The Indie Stone). Figures are "reported" and may differ between Build 41 and Build 42.
+**Why:** the user named it first among the Individual-layer references; [0010](../decisions/0010-concept-v2.md) already takes its hero, its sandbox settings and its custom character. Part of [reference games by layer](reference-games-by-layer.md). Its zombie counts per cell are in [sim-scale](sim-scale-in-other-games.md).
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| PZ-1 | Project Zomboid is an isometric zombie survival game by The Indie Stone, in early access since 2013, written in Java with much game logic in readable Lua; one survivor, a rural Kentucky map, permanent death | reported | this note (general knowledge) |
+| PZ-2 | Moodles: a column of small icons, each a state with up to four levels (hungry, thirsty, tired, panicked, bleeding, injured, sick, cold, wet, stressed, bored, unhappy), a sentence on hover, no bars or numbers | reported | this note (general knowledge) |
+| PZ-3 | With default settings about 7 % of scratches, 25 % of lacerations and 100 % of bites give zombie infection; death follows in about 2-3 days and disinfectant does not stop it | reported | https://pzfans.com/bitten_in_pz_build_41_vs_42_survival_hacks_unveiled/ |
+| PZ-4 | The health panel shows wounds per body part (scratch, laceration, deep wound, bite, fracture, burn) with bandage state (clean, dirty) and ordinary infection | reported | this note (general knowledge) |
+| PZ-5 | Skills are learned by doing: XP from use, books multiply the XP rate, occupations and traits are bought with points at character creation | reported | this note (general knowledge) |
+| PZ-6 | Nutrition tracks calories, carbohydrates, proteins and fats; weight changes over weeks and with it strength and speed | reported | this note (general knowledge) |
+| PZ-7 | Gunshots, alarms and meta-events such as the helicopter draw zombies from far away | reported | this note (general knowledge) |
+| PZ-8 | Water and power shut off on a random day inside a range set in the sandbox | reported | this note (general knowledge) |
+| PZ-9 | Sandbox settings offer dozens of sliders: zombie speed, infection transmission, population, loot rarity, start day | reported | this note (general knowledge) |
+| PZ-10 | Barricades are planks over windows with health; cars have part condition, fuel and keys | reported | this note (general knowledge) |
+| PZ-11 | While incubating, PZ shows "queasy" with the same symptoms as food poisoning | reported | this note (general knowledge) |
+| PZ-12 | The game opens with "This is how you died" | reported | this note (general knowledge) |
+| PZ-13 | Take the moodle column as the Individual layer's body lens, read from the real body, and the health panel by body part; do not make moodles the model | estimate | this note |
+| PZ-14 | Do not take fixed infection chances per wound type: ours come from a dose from the wound (spec 21) | estimate | this note |
+| PZ-15 | Take "This is how you died" as the tone of the death screen and chronicle, and meta-events that move the dead across a whole area; do not respawn the dead to meet a target count | estimate | this note |
+| PZ-16 | Do not take XP bars and book multipliers as abstract numbers; reading should change what a pop knows | estimate | this note |
 
 ## What it is
 

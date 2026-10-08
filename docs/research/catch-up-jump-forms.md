@@ -1,8 +1,40 @@
 # Catch-up: jump forms for drawn and competing rules
 
-**Status:** Research note, 2026-10-07. Not a decision. Follows [pop-simulation-and-persistence.md](pop-simulation-and-persistence.md), whose biggest open risk was this: [spec 27](../tier0/specs/27-detail-levels.md) rule 2 asks every rule for a jump form `advance(state, from, to)`, and the sources solved it only for exact rates. This note gives the mathematics for drawn rules (arrivals, bites, infection clocks), competing rules (which of bleeding, dehydration and infection kills first) and coupled rules (a door that breaks and lets a horde in), with the agreement level each can honestly claim.
+**Date:** 2026-10-07. **Status:** research note, not a decision. **Feeds:** [layer jumps](../design/layer-jumps.md), [spec 27](../tier0/specs/27-detail-levels.md), [spec 04](../tier0/specs/04-hazard-event.md), [spec 02](../tier0/specs/02-draw.md), [specs README](../tier0/specs/README.md). **Evidence:** papers and documentation listed in Sources, primary unless marked; Chatterjee 2005 read through a review, the SciPy and R manuals, the Unloaded Activity mod, the RimWorld wiki and the idle-game article are secondary. **IDs:** CJ.
+
+Follows [pop-simulation-and-persistence.md](pop-simulation-and-persistence.md), whose biggest open risk was this: [spec 27](../tier0/specs/27-detail-levels.md) rule 2 asks every rule for a jump form `advance(state, from, to)`, and the sources solved it only for exact rates. This note gives the mathematics for drawn rules (arrivals, bites, infection clocks), competing rules (which of bleeding, dehydration and infection kills first) and coupled rules (a door that breaks and lets a horde in), with the agreement level each can honestly claim.
 
 Notation: tick Δt = 0.5 s; interval [t0, t1], length T; rate λ per second; Λ = ∫λ dt over the interval.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| CJ-1 | Gillespie's direct method (and Anderson's 2007 next-reaction method with time-dependent rates and delays) is exact for any Markov jump process whose rates depend on state and time; it is the universal jump for coupled rules | sourced | Gillespie 1977; Anderson 2007 |
+| CJ-2 | An event loop costs the number of events, not ticks: an 18 h jump is a few dozen events instead of 129,600 ticks of 0.5 s (from CJ-1) | derived | this note |
+| CJ-3 | Arrivals whose rate does not depend on what the arrivals change jump exactly as count ~ Poisson(Λ), with times as sorted uniforms over the interval | sourced | Gallager §2.5 |
+| CJ-4 | Relaxations (fridge cooling, water and energy drift, logistic growth, healing, fuel) jump exactly with closed-form ODE solutions chained across breakpoints such as power on/off | sourced | this note (Newton cooling, standard ODEs) |
+| CJ-5 | Consumption of an integer stock must draw Binomial(stock, 1 − e^(−λT)), never Poisson; channels sharing a stock draw one after another from what the previous left, so nothing goes negative | sourced | Tian and Burrage 2004; Chatterjee 2005 via review |
+| CJ-6 | Competing causes of death: one Exp(1) draw E_k per (person, cause); death by cause k when cumulative hazard H_k reaches E_k; the earliest wins | sourced | Competing risks encyclopedia entry |
+| CJ-7 | If the hot path also keeps one E_k per cause and tests H_k ≥ E_k each tick, hot and cold give identical death times and causes | estimate | this note |
+| CJ-8 | Key draws by event identity (person, bite index, purpose), not by tick; counter = (canonical interval index, draw slot); sub-keys folded through the hash, never by arithmetic on ids | sourced | Salmon et al. 2011 (Random123); JAX PRNG design |
+| CJ-9 | Tau-leaping freezes rates over a leap τ chosen so no rate changes by more than ε ≈ 3 %, and falls back to the exact method when τ < about 10/a0 | sourced | Gillespie 2001; Cao, Gillespie, Petzold 2006 |
+| CJ-10 | Below about 30 items, use the exact event loop instead of a leap (the Cao–Gillespie–Petzold switch) | sourced | Cao, Gillespie, Petzold 2006 |
+| CJ-11 | Thinning handles growing hazards with no closed-form H, but needs a bound λ* ≥ λ(t) over the whole interval; unbounded hazards (panic feedback) must be capped in their definition | sourced | Lewis and Shedler 1979 |
+| CJ-12 | Quantised state: a fridge at 0.5 °C quanta is dozens of events over 18 h, with error bounded by the quantum | sourced | Kofman–Junco 2001 (QSS review) |
+| CJ-13 | Hot per-tick probability must be 1 − e^(−λΔt), not λΔt, and decay must use exact factors e^(−kΔt), for hot and cold to agree | estimate | this note |
+| CJ-14 | A horde pushing a door with constant Z breaks it at the k-th Poisson hit: one Gamma(k, μZ) draw; with growing Z, walk sorted arrival times with a piecewise-constant rate | derived | this note (from CJ-3) |
+| CJ-15 | Infection clocks drawn once at the bite and keyed (person, bite index, purpose) become deterministic scheduled events, identical across hot and cold if hot rounds the turning to the same tick | estimate | this note |
+| CJ-16 | Events generated per rule must be merged and applied in time order inside the interval; drawing all independently and applying at once is exact only when no rule's rate depends on another's outcome | estimate | this note |
+| CJ-17 | If a post-leap check would cross zero, halve τ and redraw with a fresh counter, never the rejected one | sourced | Anderson 2008, post-leap checks |
+| CJ-18 | 50 hot runs against 1 cold jump tests nothing; run about 2,000 cold jumps and compare 50 hot samples with Anderson–Darling (univariate) or energy distance with permutation p-values (joint vector) | estimate | this note; SciPy and R manuals (secondary) |
+| CJ-19 | The specs README's "90 % interval over 50 runs" check only detects gross errors, a shift of about half a standard deviation | estimate | this note |
+| CJ-20 | Ledgers kept as integers from a shared float; summing 129,600 tick increments differs from one closed form by rounding, so allow ±1 unit in the agreement test | estimate | this note |
+| CJ-21 | Aggregate and detailed models are consistent only under restrictions: a rate rule is consistent only when it does not depend on sub-interval history; otherwise the event loop is the jump | sourced | Davis 1993; Hillestad and Juncosa (RAND) |
+| CJ-22 | The Minecraft mod Unloaded Activity computes a reloaded chunk from missed random ticks with binomial and negative-binomial draws | reported | https://modrinth.com/mod/unloaded-activity |
+| CJ-23 | RimWorld uses rare and long tickers every 250 and 2,000 ticks: multi-rate without catch-up | reported | https://rimworldwiki.com/wiki/Time |
+| CJ-24 | Idle games compute offline progress as rate × elapsed with closed-form sums | reported | https://www.gamedeveloper.com/design/the-math-of-idle-games-part-i |
+| CJ-25 | Stellaris evaluates jobs every 7 days | reported | Stellaris dev diary 170 |
 
 ## 1. Answer in one page
 

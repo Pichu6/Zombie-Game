@@ -1,6 +1,31 @@
 # Detail levels: one simulation, read and run in chunks
 
-**Status:** Proposal (2026-10-06). Asked by the user: "do we need 3 levels of simulation, one per layer of gameplay? The simulation should be divided in chunks, read when needed."
+**Date:** 2026-10-06. **Status:** research note, not a decision (written as a Proposal; its rules were later taken into [spec 27](../tier0/specs/27-detail-levels.md)). **Feeds:** [world simulation](../design/world-simulation.md), [layer jumps](../design/layer-jumps.md), [pop continuity](../design/pop-continuity.md), [zoom continuum](../design/zoom-continuum.md), [engine architecture](../design/engine-architecture.md), [focus and compression](../design/focus-and-compression.md), [spec 27](../tier0/specs/27-detail-levels.md). **Evidence:** the game comparisons come from general knowledge of the games, with no pages cited or read in this note; the engineering evidence was added later in [pop-simulation-and-persistence.md](pop-simulation-and-persistence.md). The rest is our own proposal. **IDs:** DL.
+
+Asked by the user: "do we need 3 levels of simulation, one per layer of gameplay? The simulation should be divided in chunks, read when needed."
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| DL-1 | Minecraft ticks chunks near players; far chunks are frozen on disk and nothing happens there | reported | this note (no source cited) |
+| DL-2 | Factorio simulates every built chunk at full detail all the time, which works because its per-entity cost is tiny and deterministic | reported | this note (no source cited) |
+| DL-3 | X4 runs full physics in the player's sector and a coarse out-of-sector model elsewhere, with the same ships and outcomes by formula | reported | this note (no source cited) |
+| DL-4 | RimWorld keeps world-map pawns as records; off-map caravans and raids are abstract | reported | this note (no source cited) |
+| DL-5 | Dwarf Fortress keeps world history and off-site armies as abstract events while the fort runs at full detail | reported | this note (no source cited) |
+| DL-6 | Mount & Blade and Kenshi auto-resolve far battles from troop stats and fight near ones | reported | this note (no source cited) |
+| DL-7 | Star Citizen gives each entity one authority at a time and streams containers of objects in and out | reported | this note (no source cited) |
+| DL-8 | Not three simulations: separate copies of the facts drift apart (dead in one, alive in another) and every rule is written three times; one simulation runs each thing at the cheapest detail that gives the right answer | estimate | this note |
+| DL-9 | Gameplay layers (Individual, City, Macro) are cameras and verb sets over one simulation; detail follows the player's body, never the camera | estimate | this note |
+| DL-10 | Three detail levels for people, places, things and time: cold (lazy row of 0 bytes or a 64-byte record, region numbers, ledger stocks, daily), warm (record with schedule and needs, building ledger plus room graph, hourly or event-driven), hot (full body, cells and fields, every item, every 0.5 s tick) | estimate | this note |
+| DL-11 | Each rule exists once as a rate; hot steps it, warm and cold apply it in one jump (a fridge off for 18 h spoils 18 h worth) | estimate | this note |
+| DL-12 | A chunk is a building with its lot or a street segment, not a square of terrain; a hot chunk's neighbours are at least warm because fields cross borders | estimate | this note |
+| DL-13 | The hot bubble is the chunks within reach of any player-controlled body, roughly what it can hear and see through, plus one ring | estimate | this note |
+| DL-14 | Each chunk is saved on its own with the tick it was last brought up to date, and is caught up by the warm rules when it wakes | estimate | this note |
+| DL-15 | Promotion and demotion go through one aggregate/disaggregate function pair checked by the ledger so no person, kilogram or litre is created or lost | estimate | this note |
+| DL-16 | Draws keyed per entity and purpose make waking early or late give the same outcome for the same elapsed time | estimate | this note |
+| DL-17 | Tier 0 stage 7 census is the first working case: 60 neighbours as rows, off-map walkers as a count that becomes a body at the map edge and a number again when destroyed, ledger-checked every tick | estimate | this note |
+| DL-18 | Risks to test early: cold-versus-hot agreement in distribution, border effects (a hot generator heard in a cold house), wake-cost spikes, and step-by-step things (fights, doors) never resolved cold in view | estimate | this note |
 
 ## Answer in one paragraph
 

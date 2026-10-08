@@ -1,8 +1,36 @@
 # Haven and Hearth: a reference game for long real-time play
 
-**Date:** 2026-10-07. **Status:** research note, not a decision. **Why:** the user named it as the model for our long-wait style: real durations, progress-bar activities, a speed ladder ([0049](../decisions/0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md), [0050](../decisions/0050-start-speed-and-time-while-closed.md)). Kept here as the "reference game" memory for it.
+**Date:** 2026-10-07. **Status:** research note, not a decision. **Feeds:** [focus and compression](../design/focus-and-compression.md), [items and crafting](../design/items-crafting.md), [0049](../decisions/0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md), [0050](../decisions/0050-start-speed-and-time-while-closed.md). **Evidence:** the Ring of Brodgar wiki (the game's community wiki) and several news pages were blocked by the proxy, so everything is from web-search summaries of those pages, not full reads; numbers are reported, derived rows are our arithmetic from them; re-check the primary page before relying on one. What could not be found is listed at the end. **IDs:** HH.
 
-**Evidence caveat (as in the other notes):** the Ring of Brodgar wiki (the game's community wiki) and several news pages were **blocked by the proxy**, so everything below is from **web-search summaries** of those pages, not full reads. Numbers are "reported". Items marked *derived* are our arithmetic from reported figures. Re-check the primary page before relying on one. What I could not find is listed at the end.
+**Why:** the user named it as the model for our long-wait style: real durations, progress-bar activities, a speed ladder ([0049](../decisions/0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md), [0050](../decisions/0050-start-speed-and-time-while-closed.md)). Kept here as the "reference game" memory for it.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| HH-1 | Haven and Hearth is a persistent-world multiplayer survival and crafting game (MMORPG), low-fantasy with Germanic-myth flavour, by two developers (Jorb and Loftar, Seatribe) | reported | https://ringofbrodgar.com/wiki/About_Haven_and_Hearth |
+| HH-2 | Its client (hafen-client) is public, reported as LGPL-3 with parts under other licences; the server is closed | reported | https://github.com/Fr-Dae/hafen-client |
+| HH-3 | Everything players do persists: buildings stand until destroyed, dug caves stay, trees do not respawn unless planted, little natural resource regeneration | reported | https://ringofbrodgar.com/wiki/About_Haven_and_Hearth |
+| HH-4 | Death is permanent: you lose the character, not experience points | reported | https://ringofbrodgar.com/wiki/About_Haven_and_Hearth |
+| HH-5 | The map is reset from time to time, reported as about every two years (low confidence) | reported | https://massivelyop.com/?p=22764 |
+| HH-6 | A game year is 180 game days: spring 30, summer 105, autumn 30, winter 15 | reported | https://ringofbrodgar.com/wiki/Autumn |
+| HH-7 | A game year lasts 54 days 17 hours 4 minutes of real time (summer 31 d 21 h 57 min; spring and autumn 9 d 2 h 51 min each; winter 4 d 13 h 25 min) | reported | https://ringofbrodgar.com/wiki/Autumn |
+| HH-8 | One game day is about 7.3 real hours (1,313 h / 180) (from HH-7, HH-6) | derived | this note |
+| HH-9 | Game speed is about 3.3× real time, about 7 times slower than our usual speed of 1 h = 1 day (from HH-8) | derived | this note |
+| HH-10 | At our usual speed (1 h = 1 day) a 365-day year is 15.2 days of continuous play; at 60× it is 6.1 hours; at 360× one hour (365 × real time per game day) | derived | this note |
+| HH-11 | Crops grow through several stages, each hours to days; a bee hive speeds them; the figures are from the old version and may be outdated | reported | https://ringofbrodgar.com/wiki/Crops |
+| HH-12 | No levels: characters grow by attributes (Strength, Agility, Intelligence and others) and by skills, abilities and credos | reported | https://ringofbrodgar.com/wiki/Legacy:Skills |
+| HH-13 | Learning Points are earned by discovering and producing new things and by studying curiosities over time, and are spent on skills | reported | https://ringofbrodgar.com/wiki/Legacy:Skills |
+| HH-14 | Food Event Points: eating fills a bar; when full, one attribute rises by one, chosen at random in proportion to the food's FEP split (4 Strength to 3 Charisma gives 57.1 % and 42.9 %) | reported | https://ringofbrodgar.com/wiki/FEP |
+| HH-15 | The FEP bar needs as many points as your highest attribute, and eating varied foods lowers the cost | reported | https://ringofbrodgar.com/wiki/FEP |
+| HH-16 | A product's maximum quality comes from an attribute and a skill, e.g. sqrt(Dexterity × Sewing) for leather and silk, sqrt(Strength × Smithing) for smithing (softcaps) | reported | https://ringofbrodgar.com/wiki/Legacy:Skills |
+| HH-17 | Convenience is a skill that speeds civil actions such as crafting and digging | reported | https://ringofbrodgar.com/wiki/Legacy:Skills |
+| HH-18 | Core loop: start a timed action (dig, craft, harvest, cook), watch a progress bar fill, do something else or wait; many long processes (curing, growing, smelting) run in the background | reported | https://techraptor.net/gaming/news/haven-hearth-receive-major-overhaul |
+| HH-19 | Reported strengths are persistence, the real cost of everything and a world that remembers; the reported cost is long waits and grind | reported | https://www.tvtropes.org/pmwiki/pmwiki.php/VideoGame/HavenAndHearth |
+| HH-20 | Its long timers are made to be checked on, not watched, and its always-on shared server means it never has a catch-up problem | estimate | this note |
+| HH-21 | Take: real durations with timed actions as the unit of play, many processes queued at once, a world that does not regenerate for free, quality from person times craft with softcaps, permadeath | estimate | this note |
+| HH-22 | Do not take: a shared always-on server, abstract nutrition points, random world resets, or the client code (LGPL; read for ideas only) | estimate | this note |
+| HH-23 | A geometric mean of the person's body attribute and skill is a candidate form for our quality number (from HH-16) | estimate | this note |
 
 ## What it is
 
