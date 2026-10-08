@@ -54,3 +54,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 34 | [Projects](34-projects.md) | Plan, Project (escrow, stages, stalls, finish) | after Tier 0; layer jumps row 9 |
 | 35 | [Networks above building scale](35-networks.md) | Grid tree (sources, switches, loads, child grids) | after Tier 0; layer jumps row 10 |
 | 36 | [Fields and weather](36-fields-and-weather.md) | Coarsen and refine; weather from climate; ambient noise | after Tier 0; layer jumps rows 11 and 12 |
+| 37 | [Flora and fauna](37-flora-and-fauna.md) | Population (logistic stock, roster of individuals, take) | after Tier 0; layer jumps row 13 |

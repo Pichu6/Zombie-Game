@@ -15,6 +15,10 @@ void EconomySystem::start_establishments(const World& w) {
   read_staff(w);
 }
 
+void EconomySystem::start_populations(const World& w) {
+  for (std::size_t i = 0; i < populations_.size(); ++i) populations_.reset(w.ledger, goods_, i, w.clock.tick);
+}
+
 void EconomySystem::read_staff(const World& w) {
   if (!pops_) return;
   const double year = year_of_tick(w.clock.tick);
@@ -62,7 +66,7 @@ void EconomySystem::refuse(World& w, const Command& c, EventId cause, EconRefusa
 }
 
 void EconomySystem::apply_command(World& w, const Command& c, EventId cause) {
-  if (c.type < EconVisit || c.type > ProjectCancel) return;
+  if (c.type < EconVisit || c.type > BiotaTake) return;
   const auto subject = static_cast<OwnerId>(c.subject);
   const std::int64_t tick = w.clock.tick;
   catch_up(w, cause);  // establishments run up to now before anything changes under them
@@ -159,6 +163,13 @@ void EconomySystem::apply_command(World& w, const Command& c, EventId cause) {
       }
       return;
     }
+    case BiotaTake: {
+      if (c.a < 0 || static_cast<std::size_t>(c.a) >= populations_.size()) return refuse(w, c, cause, EconRefusal::NoPopulation);
+      const std::int64_t moved = populations_.take(w.ledger, goods_, tick, static_cast<std::size_t>(c.a), static_cast<std::uint64_t>(c.b), subject, cause, w.rng.seed());
+      if (moved < 0) return refuse(w, c, cause, EconRefusal::NotOnRoster);
+      w.emit(EventType::BiotaTaken, subject, cause, c.a, moved);
+      return;
+    }
     case ProjectCancel: {
       const std::int64_t returned = projects_.cancel(w.ledger, money_, estabs_, tick, subject, cause);
       if (returned < 0) return refuse(w, c, cause, EconRefusal::NoProject);
@@ -176,6 +187,7 @@ void EconomySystem::update(World& w) {
   if (moved > 0) w.emit(EventType::EconSpoiled, 0, 0, moved);
   read_staff(w);  // the roster may have changed since the last hour
   catch_up(w, 0);
+  populations_.advance(w.ledger, goods_, w.clock.tick, 0);  // growth is a cold rule too
 }
 
 void EconomySystem::save(ArchiveWriter& w) const {
@@ -196,6 +208,7 @@ void EconomySystem::save(ArchiveWriter& w) const {
     w.u32(e.owner); w.u16(e.recipe); w.u64(e.roster); w.i64(e.staff); w.i64(e.power_w); w.i64(e.labour_bank); w.i64(e.caught_up); w.i64(e.produced); w.i64(e.batch_cap);
   }
   projects_.save(w);
+  populations_.save(w);
 }
 
 void EconomySystem::load(ArchiveReader& r) {
@@ -223,6 +236,7 @@ void EconomySystem::load(ArchiveReader& r) {
   }
   estabs_.restore(std::move(es));
   projects_.load(r);
+  populations_.load(r);
 }
 
 }  // namespace zs

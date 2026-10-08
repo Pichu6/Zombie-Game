@@ -76,6 +76,8 @@ enum class EventType : std::uint16_t {
   // Spec 35: networks above building scale.
   GridChanged = 56,      // subject = network id, a = served W, b = unserved W (after a solve that changed them)
   GridRefused = 57,      // subject = what it was aimed at, a = the command type, b = GridRefusal
+  // Spec 37: flora and fauna.
+  BiotaTaken = 58,       // subject = the taker, a = population index, b = mass moved (the serial is in the Intent)
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,
