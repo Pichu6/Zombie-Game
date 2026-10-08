@@ -18,7 +18,8 @@ A work list for a **local session on Windows** (MSVC), built from six research n
 
 ## 1. Window: WASD and readability
 
-- [ ] **Spec first** (written 2026-10-08: spec 16 rules 4-13, spec 40 rule 10): [spec 16](specs/16-view-2d.md): add the follow camera, the state column, map key, shapes and palette, WASD wall rule and cancel, and the walking cap (0055 §2). [spec 40](specs/40-time.md): the window uses the `Pacer`; the alerts list (0055 §2.7).
+- [x] **Implemented 2026-10-08** (`apps/zs/window.cpp`; the walker-arrived line reworded in `tier0.cpp` and `headless.cpp`). Validated: release and debug `ctest` on MSVC with every golden unchanged; `--shot` frames before and after at ticks 600, 28800, 57600 and 100800 with the overlays. Not yet validated by the user playing it. Two estimates: need bands at 0.33/0.6/0.85, and 30 % blood lost as severe bleeding. Not done: cold or heat in the state column (bodies do not read the weather yet).
+- **Spec first** (written 2026-10-08: spec 16 rules 4-13, spec 40 rule 10): [spec 16](specs/16-view-2d.md): add the follow camera, the state column, map key, shapes and palette, WASD wall rule and cancel, and the walking cap (0055 §2). [spec 40](specs/40-time.md): the window uses the `Pacer`; the alerts list (0055 §2.7).
 - **Code:** `apps/zs/window.cpp`. All fixes are view-side: the window keeps no game state and only sends intents (spec 16 rule 1). Full table with reasons: [view-readability](../research/view-readability.md) "What this means for us".
 
 | Fix | Where | Change | Findings |

@@ -401,7 +401,7 @@ int stage6(std::uint64_t seed, const std::string& trace_path = "", bool with_dea
         case EventType::Death:
           std::printf("%s  %s\n", at.c_str(), zs::tier0::death_sentence(t, e).c_str());
           break;
-        case EventType::WalkerArrived: std::printf("%s  %s arrived, dead\n", at.c_str(), t.census->name_of(e.subject).c_str()); break;
+        case EventType::WalkerArrived: std::printf("%s  A walker (%s) arrived\n", at.c_str(), t.census->name_of(e.subject).c_str()); break;
         case EventType::Grabbed: std::printf("%s  %s grabbed %s\n", at.c_str(), t.census->name_of(e.subject).c_str(), t.census->name_of(static_cast<EntityId>(e.a)).c_str()); break;
         case EventType::Bite: std::printf("%s  %s bit %s (%s)\n", at.c_str(), t.census->name_of(e.subject).c_str(), t.census->name_of(static_cast<EntityId>(e.a)).c_str(), to_string(static_cast<Region>(e.b))); break;
         case EventType::EdgeBreached: std::printf("%s  BREACHED: %s at (%d,%d,%d)\n", at.c_str(), t.items->def(t.items->get(e.subject).def).id.c_str(), t.actors->edges().at(e.subject).z, t.actors->edges().at(e.subject).x, t.actors->edges().at(e.subject).y); break;
@@ -421,7 +421,7 @@ int stage6(std::uint64_t seed, const std::string& trace_path = "", bool with_dea
           case EventType::FellAsleep: trace.event(e.tick, "body", "Fell asleep"); break;
           case EventType::WokeUp: trace.event(e.tick, "body", "Woke up"); break;
           case EventType::Death: trace.event(e.tick, "dead", tier0::death_sentence(t, e)); break;
-          case EventType::WalkerArrived: trace.event(e.tick, "dead", t.census->name_of(e.subject) + " arrived, dead"); break;
+          case EventType::WalkerArrived: trace.event(e.tick, "dead", "A walker (" + t.census->name_of(e.subject) + ") arrived"); break;
           case EventType::Grabbed: trace.event(e.tick, "dead", t.census->name_of(e.subject) + " grabbed " + t.census->name_of(static_cast<EntityId>(e.a))); break;
           case EventType::Bite: trace.event(e.tick, "alert", t.census->name_of(e.subject) + " bit " + t.census->name_of(static_cast<EntityId>(e.a)) + " (" + to_string(static_cast<Region>(e.b)) + ")"); break;
           case EventType::Reanimated: trace.event(e.tick, "alert", t.census->name_of(e.subject) + " rose as a walker"); break;

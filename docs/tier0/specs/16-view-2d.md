@@ -1,6 +1,6 @@
 # 16 · 2D view
 
-**Status:** Implemented (stage 5 base; not yet run on the user's PC). **Stage:** 5 (base), then grows each stage. **Needs:** [09](09-site-map.md), [13](13-capabilities.md), [14](14-action-executor.md).
+**Status:** Implemented (stage 5 base; rules 4-13 on 2026-10-08, checked by screenshots only, not yet played by the user). **Stage:** 5 (base), then grows each stage. **Needs:** [09](09-site-map.md), [13](13-capabilities.md), [14](14-action-executor.md).
 
 ## Purpose
 
@@ -33,7 +33,7 @@ The Tier 0 window: SDL3 + Dear ImGui, top-down 2D, no Vulkan ([0010](../../decis
 2. A headless runner app runs the same simulation with no window (batch runs, AI-only runs, tests).
 3. Placeholder art: coloured shapes and text; placeholders are marked as such.
 
-Rules from the readability research (added 2026-10-08, [0055](../../decisions/0055-defaults-for-fixes-from-engineering-research.md) §2, [view-readability](../../research/view-readability.md); not built yet, [research fixes](../research-fixes.md) package 1). They answer the user's two complaints: the window is hard to read and WASD feels poor. All are view-side; rule 1 holds.
+Rules from the readability research (added 2026-10-08, [0055](../../decisions/0055-defaults-for-fixes-from-engineering-research.md) §2, [view-readability](../../research/view-readability.md); built the same day, [research fixes](../research-fixes.md) package 1). They answer the user's two complaints: the window is hard to read and WASD feels poor. All are view-side; rule 1 holds.
 
 4. **Time from the pacer.** The window drives time with spec 40's `Pacer`: the ladder from `Pace::Real`, labels from `pace_name`, "1x" means real time. While a WASD key is held or the controlled pop walks to a target, a cap named `walking` holds speed at 3x; while a walker is within reach of the controlled pop, a cap `fight` holds it at Real. The time bar names the cap that limits ([VR-1..3](../../research/view-readability.md)).
 5. **WASD refuses walls.** A press moves only if the edge to the neighbour cell is walkable; a diagonal only if both orthogonal edges are, else along the one passable axis, else nothing, and the blocking edge flashes. It is a `MoveTo` to the neighbour; the next move is sent only after the clock passes the tick the last one was sent at ([VR-4..6, VR-8](../../research/view-readability.md)).
@@ -56,13 +56,16 @@ Rules from the readability research (added 2026-10-08, [0055](../../decisions/00
 
 `apps/zs` (`zs`), built when `ZS_BUILD_WINDOW` is on (default on Windows). SDL3 3.4.8 and Dear ImGui 1.92.9 are fetched by CMake at pinned commits; the map is drawn with ImGui's draw lists over the SDL renderer. It starts the run (spec 26) for `--seed N` with the controlled pop possessed.
 
-- Map: floors darkened by the light falling on them (night outdoors is near black), walls, doors, windows, fences, barricades, map objects as lettered squares, items as dots, walkers (bright when not idle), the group in member colours with initials and a ring on the controlled pop. Hovering a cell lists what is there in words. Levels with PgUp/PgDn.
-- Overlays: noise margin over background, light (refreshed every 5 game minutes).
-- Time bar: pause, 1× (one real hour = one game day), 3×, 10×, 60×, 360×, rest until an alert or eight hours; grid, generator and fuel.
-- Controls: WASD steps the controlled pop when it is free; right click lists every target in the cell (objects, items, bodies, edges on its sides, the floor) with its offers, greyed with the reason; "walk here"; C cancels; left click selects; wheel zooms; middle drag pans; Space and 1-6 set speed; F5/F9 save and load a file per seed.
-- Inspector: name, current action, the AI's intent, needs, blood lost, fear, morale, wounds (infection only when visible, or with the debug truth toggle, which also shows a turning), carried items.
-- Group panel: each member's state; "Control" possesses one; "Let the AI drive everyone" releases.
-- Event log: the chronicle lines (`tier0::event_line`, shared with the headless app), coloured by kind, with a text filter.
+- Map: fills the space below the time bar, left of the panels and above the log, at 32 px per cell to start; floors darkened by the light falling on them (night outdoors is near black), walls, doors, windows, fences, barricades. Pops are discs in Tol "bright" colours with centred initials (one letter under 24 px), the controlled pop with a thick ring, an arrow and its path dotted, the selection with a yellow ring; walkers are red diamonds, bright with a line to their goal when not idle; bodies are drawn along their path between cells and spread apart when they share a cell. Objects are outlined squares with two- or three-letter labels (item spawn markers are not drawn), explained in a collapsible "Map key" panel. The hovered cell and the menu's cell are outlined; hovering lists what is there in words.
+- Camera: follows the controlled pop (or the run's pop while the AI drives) with `k = 1 - exp(-dt / 0.1 s)` and a 20 % dead zone, clamped to the map, and the drawn level follows it; a middle-drag pan or PgUp/PgDn breaks the follow, F, Home or any WASD press resumes it.
+- Overlays: noise margin over background, light only where brighter than outdoors (refreshed every 5 game minutes), each with a legend line that says so when nothing shows.
+- Time bar: Pause, 1:1, 3x, 10x, 1 hour = 1 day (the start), 60x, 360x through the `Pacer`, with the speed actually run and the cap that holds it (`walking` 3x, `fight` 1:1), or the alert that paused it; rest until an alert or eight hours; place, grid, generator and fuel.
+- Alerts: a walker coming into sight of a group member (again after five unseen game minutes), a bite on a member, a member down: they pause until Space and stay for a game hour in a column at the map's top right, with distance and direction.
+- Controls: WASD steps to a neighbour only across a walkable edge (a diagonal needs both orthogonal edges, else the passable axis, else the wall flashes), one move per applied tick; a fresh press while busy cancels and steps; while paused a press shows "Paused: Space to run". Right click lists every target in the cell with its offers, greyed with the reason; "walk here"; C cancels; left click selects; wheel zooms to the cursor; Space pauses, continues or acknowledges an alert; 1-6 set speed; F5/F9 save (through `zs::write_file`) and load a file per seed.
+- Inspector: name, current action, the AI's intent; need bars coloured by band with the word (fine, mild, bad, severe; "higher is worse" for every bar, morale shown as low morale); wounds grouped by region with a count (infection only when visible, or with the debug truth toggle, which also shows a turning), carried items.
+- State column: the three to five worst states (thirst, hunger, fatigue, pain, bleeding, fear, sickness from visible symptoms) by the controlled pop on the map and under each member in the Group panel. Bands at 0.33, 0.6 and 0.85 are an estimate until the body names its own.
+- Group panel: each member's state and worst states; "Control" possesses one; "Let the AI drive everyone" releases.
+- Event log: the chronicle lines (`tier0::event_line`, shared with the headless app), coloured by kind, identical lines within a game minute coalesced as "x N", with a text filter.
 - `--shot file.bmp [--ticks N] [--watch] [--menu x,y] [--overlay noise|light]` renders one frame offscreen, for checks without a screen.
 
 **Known gaps:** no perception fog (everything is shown); no body silhouette (wounds are a list); no job board or orders (command mode); log lines do not link to cause chains; the A1 hash check between the window and the headless app is not automated (the window only uses `World::submit`, like the tests).

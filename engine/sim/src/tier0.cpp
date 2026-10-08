@@ -494,7 +494,7 @@ std::optional<EventLine> event_line(const Tier0& t, const Event& e) {
     case EventType::RunEnded: line = std::string("The run ends: ") + to_string(static_cast<RunOutcome>(e.a)); break;
     case EventType::FoodSpoiled: line = "The fridge food spoiled"; break;
     case EventType::Death: line = death_sentence(t, e); kind = "dead"; break;
-    case EventType::WalkerArrived: line = name(e.subject) + " arrived, dead"; kind = "dead"; break;
+    case EventType::WalkerArrived: line = "A walker (" + name(e.subject) + ") arrived"; kind = "dead"; break;
     case EventType::Bite:
       line = name(e.subject) + " bit " + name(static_cast<EntityId>(e.a)) + " (" + to_string(static_cast<Region>(e.b)) + ")";
       break;

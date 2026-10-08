@@ -1,5 +1,7 @@
 // The Tier 0 window (spec 16): the run seen from above, a sandbox to play and inspect it.
 // It reads the simulation and only sends it intents (World::submit); it keeps no game state.
+// Time runs through the spec 40 pacer; WASD, the follow camera, shapes, the state column and alerts follow
+// spec 16 rules 4-13 (decision 0055, research note view-readability).
 //
 // usage: zs [--seed N] [--watch] [--shot out.bmp [--ticks N] [--menu x,y] [--overlay noise|light]]
 //   --watch starts with the AI driving everyone (nobody possessed).
@@ -13,15 +15,18 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cctype>
 #include <cstring>
 #include <filesystem>
-#include <fstream>
 #include <iterator>
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
 
+#include "zs/archive.h"
 #include "zs/noise.h"
+#include "zs/pacer.h"
 #include "zs/run.h"
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
@@ -32,15 +37,28 @@ using namespace zs::tier0;
 
 namespace {
 
-constexpr double kTicksPerRealSecond = 48;  // 1x: one real hour is one game day (0.5 game s per tick)
-const int kSpeeds[] = {0, 1, 3, 10, 60, 360};
+// The speeds offered (spec 40 ladder); keys 1-6 pick the ones after Pause.
+const Pace kSpeeds[] = {Pace::Pause, Pace::Real, Pace::X3, Pace::X10, Pace::DayPerHour, Pace::X60, Pace::X360};
+constexpr std::int64_t kGameMinute = 120;           // ticks
+constexpr double kFollowTau = 0.1;                  // s, camera smoothing (spec 16 rule 7)
+constexpr double kDeadZone = 0.2;                   // of the half view
+constexpr float kStartCellPx = 32;
+// Need bands for colours and words (estimate: the body has no named bands yet; spec 16 rule 10).
+constexpr double kMild = 0.33, kBad = 0.6, kSevere = 0.85;
 
 enum class Overlay { None, Noise, Light };
 
 struct LogLine {
-  std::int64_t tick;
+  std::int64_t tick;       // first occurrence
+  std::int64_t last_tick;  // last repeat, for coalescing within a game minute
   std::string text;
   const char* kind;
+  int count = 1;
+};
+
+struct AlertLine {
+  std::int64_t tick;
+  std::string text;
 };
 
 struct Target {
@@ -48,37 +66,73 @@ struct Target {
   std::string label;
 };
 
+struct V2 {
+  double x = 0, y = 0;
+};
+
 struct App {
   std::uint64_t seed = 1;
   Tier0 t;
-  int speed = 1;            // index into kSpeeds
-  double tick_debt = 0;     // fractional ticks owed to real time
-  bool resting = false;     // rest until something happens
+  Pacer pacer;
+  Pace resume = kStartPace;  // what Space resumes to
+  bool resting = false;      // rest until something happens
   std::int64_t rest_until = 0;
   int level = 0;
-  float cell = 26;          // pixels per cell
-  ImVec2 origin{16, 60};    // screen position of cell (0, 0)
+  // Camera: the cell under the view's centre, pixels per cell, and the map's screen rectangle.
+  V2 cam;
+  float cell = kStartCellPx;
+  bool follow = true;
+  ImVec2 view_min{8, 90}, view_max{1000, 600};
+  ImVec2 origin{16, 60};  // screen position of cell (0, 0), derived from cam each frame
+  float time_bar_bottom = 90;
   Overlay overlay = Overlay::None;
-  bool truth = false;       // debug: hidden infection and the like
+  bool truth = false;  // debug: hidden infection and the like
   EntityId selected = 0;
   std::vector<LogLine> log;
-  std::size_t seen = 0;     // events already turned into log lines
+  std::size_t seen = 0;  // events already turned into log lines
   char filter[64] = "";
+  std::vector<AlertLine> alerts;
+  std::map<EntityId, std::int64_t> sighted;  // walker -> last tick a group member saw it
+  std::int64_t sight_tick = -1;
   // Cached fields, refreshed every few game minutes.
   std::int64_t field_tick = -1000000;
   int field_level = -999;
   std::vector<double> noise, lux;
   double background = 0;
-  // Context menu.
+  bool noise_any = false, light_any = false;
+  // Input.
   std::optional<Cell> menu_cell;
-  std::string status;       // last save/load message
+  std::optional<Cell> hover_cell;
+  std::int64_t last_move_tick = -1;  // the tick the last WASD move was sent at
+  int face_dx = 0, face_dy = 1;      // the controlled pop's arrow
+  std::vector<EdgeRef> flash;        // edges that refused a WASD step
+  double flash_until = 0, hint_until = 0, real_s = 0;
+  std::string status;  // last save/load message
 
   // The pop the player drives: the possessed one, or nobody while the AI drives everyone.
   EntityId me() const { return t.ai ? t.ai->possessed() : 0; }
   // Whom the view follows when nobody is possessed.
   EntityId followed() const { return me() ? me() : t.run->controlled(); }
   std::string name(EntityId b) const { return t.census ? t.census->name_of(b) : std::string("You"); }
+  bool in_group(EntityId b) const { return std::find(t.group.begin(), t.group.end(), b) != t.group.end(); }
 };
+
+// Where a body is drawn, in cells: its cell centre plus its progress toward the next cell of its path (read-only,
+// spec 16 rule 8). Cells are 1 m and paths step one cell, so the progress in metres is the fraction.
+V2 body_at(const Cell& pos, const std::vector<Cell>& path, std::size_t next, double step_m, bool moving) {
+  V2 p{pos.x + 0.5, pos.y + 0.5};
+  if (moving && next < path.size() && path[next].z == pos.z) {
+    const double f = std::clamp(step_m, 0.0, 1.0);
+    p.x += (path[next].x - pos.x) * f;
+    p.y += (path[next].y - pos.y) * f;
+  }
+  return p;
+}
+
+V2 actor_at(const App& a, EntityId id) {
+  const Actor& act = a.t.actors->actor(id);
+  return body_at(act.pos, act.action.path, act.action.path_next, act.action.step_m, act.action.phase == Phase::Approach);
+}
 
 void start(App& a, std::uint64_t seed) {
   a.seed = seed;
@@ -87,29 +141,38 @@ void start(App& a, std::uint64_t seed) {
   a.t.ai->possess(a.t.run->controlled());
   a.selected = a.me();
   a.log.clear();
+  a.alerts.clear();
+  a.sighted.clear();
+  a.sight_tick = -1;
   a.seen = 0;
   a.field_tick = -1000000;
   a.resting = false;
-  a.tick_debt = 0;
+  a.pacer = Pacer{};
+  a.last_move_tick = -1;
   a.level = a.t.actors->actor(a.followed()).pos.z;
+  a.follow = true;
+  a.cam = actor_at(a, a.followed());
 }
 
 std::string save_path(const App& a) { return "sandbox_seed" + std::to_string(a.seed) + ".sav"; }
 
 void save_game(App& a) {
-  const auto bytes = a.t.world->save();
-  std::ofstream f(save_path(a), std::ios::binary);
-  f.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
-  a.status = f ? "Saved " + save_path(a) : "Could not write " + save_path(a);
+  try {
+    zs::write_file(save_path(a), a.t.world->save());  // temp file, read back, rename (spec 06 rules 5, 13, 15)
+    a.status = "Saved " + save_path(a);
+  } catch (const std::exception& ex) {
+    a.status = "Could not save " + save_path(a) + ": " + ex.what();
+  }
 }
 
 void load_game(App& a) {
-  std::ifstream f(save_path(a), std::ios::binary);
-  if (!f) {
+  std::vector<std::uint8_t> bytes;
+  try {
+    bytes = zs::read_file(save_path(a));
+  } catch (const std::exception&) {
     a.status = "No save for this seed yet (F5 saves)";
     return;
   }
-  const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
   try {
     start(a, a.seed);  // the same setup, then the saved state over it
     a.t.world->load(bytes);
@@ -120,6 +183,7 @@ void load_game(App& a) {
   }
   a.selected = a.followed();
   a.level = a.t.actors->actor(a.followed()).pos.z;
+  a.cam = actor_at(a, a.followed());
   a.seen = a.t.world->log.all().size();  // the log restarts at the loaded moment
 }
 
@@ -133,38 +197,118 @@ void submit(App& a, CommandType type, std::int64_t x, std::int64_t y = 0) {
   a.t.world->submit(c);
 }
 
-// ---- Simulation pacing ----
+// ---- Alerts (spec 16 rule 11, spec 40 rule 10) ----
+
+const char* compass(double dx, double dy) {
+  static const char* names[] = {"E", "SE", "S", "SW", "W", "NW", "N", "NE"};  // y grows southwards
+  const double turn = std::atan2(dy, dx) / (2 * 3.14159265358979) * 8;
+  return names[((static_cast<int>(std::lround(turn)) % 8) + 8) % 8];
+}
+
+void raise_alert(App& a, const std::string& text) {
+  const std::int64_t now = a.t.world->clock.tick;
+  a.pacer.alert(text, now);
+  a.alerts.push_back({now, text});
+  if (a.alerts.size() > 20) a.alerts.erase(a.alerts.begin());
+  a.resting = false;
+}
+
+// A walker coming into sight of a group member. Re-alerts only for a walker unseen for five game minutes.
+void check_sight(App& a) {
+  const World& w = *a.t.world;
+  if (!a.t.walkers || w.clock.tick == a.sight_tick) return;
+  a.sight_tick = w.clock.tick;
+  for (EntityId m : a.t.group) {
+    const Body& b = a.t.bodies->get(m);
+    if (!b.alive || b.away || b.spec.walker || !a.t.actors->actors().contains(m)) continue;
+    const Cell p = a.t.actors->actor(m).pos;
+    int fresh = 0;
+    std::optional<Cell> first;
+    for (EntityId z : a.t.walkers->visible_to(w, m)) {
+      const auto it = a.sighted.find(z);
+      if (it == a.sighted.end() || w.clock.tick - it->second > 5 * kGameMinute) {
+        ++fresh;
+        if (!first) first = a.t.walkers->walkers().at(z).pos;
+      }
+      a.sighted[z] = w.clock.tick;
+    }
+    if (fresh) {
+      const double dx = first->x - p.x, dy = first->y - p.y;
+      char buf[160];
+      std::snprintf(buf, sizeof buf, "%s sees %s, %.0f m %s", a.name(m).c_str(),
+                    fresh == 1 ? "a walker" : (std::to_string(fresh) + " walkers").c_str(), std::hypot(dx, dy), compass(dx, dy));
+      raise_alert(a, buf);
+    }
+  }
+}
 
 void read_events(App& a) {
   const auto& all = a.t.world->log.all();
   for (; a.seen < all.size(); ++a.seen) {
     const Event& e = all[a.seen];
+    // Alerts that pause: a bite on a group member, a group member down.
+    if (e.type == EventType::Bite && a.in_group(static_cast<EntityId>(e.a)))
+      raise_alert(a, a.name(e.subject) + " bit " + a.name(static_cast<EntityId>(e.a)));
+    else if (e.type == EventType::Death && a.in_group(e.subject))
+      raise_alert(a, a.name(e.subject) + " is down");
     if (auto l = event_line(a.t, e)) {
       if (a.resting && (std::strcmp(l->kind, "alert") == 0 || std::strcmp(l->kind, "dead") == 0)) a.resting = false;
-      a.log.push_back({e.tick, l->text, l->kind});
+      // Identical lines within a game minute coalesce as "x N" (spec 16 rule 12).
+      if (!a.log.empty() && a.log.back().text == l->text && e.tick - a.log.back().last_tick <= kGameMinute) {
+        ++a.log.back().count;
+        a.log.back().last_tick = e.tick;
+      } else {
+        a.log.push_back({e.tick, e.tick, l->text, l->kind});
+      }
     }
   }
 }
 
+// ---- Simulation pacing ----
+
+// Caps from what the controlled pop is doing (spec 40 rule 10): walking holds 3x, a walker within reach holds 1:1.
+void set_caps(App& a, bool wasd_held) {
+  const std::int64_t now = a.t.world->clock.tick;
+  const EntityId me = a.me();
+  bool walking = false, fight = false;
+  if (me && a.t.bodies->get(me).alive) {
+    const Actor& act = a.t.actors->actor(me);
+    walking = wasd_held || act.action.phase == Phase::Approach;
+    if (a.t.walkers)
+      for (const auto& [id, z] : a.t.walkers->walkers()) {
+        if (!a.t.bodies->get(id).alive || z.pos.z != act.pos.z) continue;
+        const bool near = std::max(std::abs(z.pos.x - act.pos.x), std::abs(z.pos.y - act.pos.y)) <= 1;
+        if (a.t.walkers->in_reach(z.pos, act.pos) || (near && z.target == me)) fight = true;
+      }
+  }
+  if (walking) a.pacer.cap("walking", Pace::X3, now);
+  else a.pacer.release("walking", now);
+  if (fight) a.pacer.cap("fight", Pace::Real, now);
+  else a.pacer.release("fight", now);
+}
+
 void advance(App& a, double real_dt) {
+  World& w = *a.t.world;
   const bool over = a.t.run->outcome() != RunOutcome::Running;
   if (over) a.resting = false;
   if (a.resting) {
     // As fast as the frame allows, until an alert or eight game hours.
     for (int i = 0; i < 20000 && a.resting; ++i) {
-      a.t.world->step();
-      if (a.t.world->clock.tick >= a.rest_until) a.resting = false;
-      if ((i & 63) == 0) read_events(a);
+      w.step();
+      if (w.clock.tick >= a.rest_until) a.resting = false;
+      if ((i & 63) == 0) {
+        read_events(a);
+        check_sight(a);
+      }
     }
     read_events(a);
     return;
   }
-  if (over || kSpeeds[a.speed] == 0) return;
-  a.tick_debt += real_dt * kTicksPerRealSecond * kSpeeds[a.speed];
-  int n = static_cast<int>(std::min(a.tick_debt, 20000.0));
-  a.tick_debt = std::min(a.tick_debt - n, 1.0);
-  while (n-- > 0) a.t.world->step();
+  if (over) return;
+  const std::int64_t n = std::min<std::int64_t>(a.pacer.ticks_for(real_dt, w.clock.tick), 20000);
+  if (n > 0) w.jump(w.clock.tick + n);
   read_events(a);
+  check_sight(a);
 }
 
 // ---- Drawing ----
@@ -187,7 +331,28 @@ ImU32 dim(ImU32 c, double k) {
   return IM_COL32(ch(IM_COL32_R_SHIFT), ch(IM_COL32_G_SHIFT), ch(IM_COL32_B_SHIFT), 255);
 }
 
-const ImU32 kPopColours[] = {rgb(232, 163, 61), rgb(111, 179, 217), rgb(156, 204, 101), rgb(217, 138, 201)};
+// Paul Tol's "bright" palette: blue, cyan, yellow, purple (spec 16 rule 9). Red stays for the dead.
+const ImU32 kPopColours[] = {rgb(68, 119, 170), rgb(102, 204, 238), rgb(204, 187, 68), rgb(170, 51, 119)};
+const ImU32 kWalkerIdle = rgb(150, 50, 50), kWalkerActive = rgb(238, 102, 119);
+
+// Two- or three-letter labels for map objects, explained in the Map key.
+struct ObjectLabel {
+  const char* kind;
+  const char* label;
+};
+const ObjectLabel kObjectLabels[] = {{"fridge", "Fr"},   {"generator", "Gen"}, {"home", "Hm"},     {"hot_plate", "HP"},
+                                     {"lamp", "Lmp"},    {"pantry", "Pan"},    {"power_panel", "PP"}, {"radio", "Rad"},
+                                     {"saw", "Saw"},     {"sink", "Snk"},      {"stockpile", "Stk"}, {"stove", "Stv"}};
+
+std::string object_label(const std::string& kind) {
+  for (const ObjectLabel& l : kObjectLabels)
+    if (kind == l.kind) return l.label;
+  std::string s = kind.substr(0, 3);
+  if (!s.empty()) s[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(s[0])));
+  return s;
+}
+
+bool drawn_object(const MapObject& o) { return o.kind != "pop_start" && o.kind != "found" && o.kind != "item"; }
 
 std::string initials(const std::string& n) {
   std::string out;
@@ -199,6 +364,39 @@ std::string initials(const std::string& n) {
   return out.substr(0, 2);
 }
 
+// The worst states of a living pop, worst first (spec 16 rule 10). Sickness only from visible symptoms.
+struct State {
+  const char* name;
+  double v;
+};
+
+std::vector<State> worst_states(const App& a, EntityId id) {
+  std::vector<State> s;
+  const Body& b = a.t.bodies->get(id);
+  if (!b.alive || b.spec.walker) return s;
+  const Needs n = a.t.bodies->needs(b);
+  const std::int64_t now = a.t.world->clock.tick;
+  bool sick = false;
+  for (const Wound& wd : b.wounds) sick = sick || wd.infection_visible;
+  const State all[] = {{"thirst", n.thirst},
+                       {"hunger", n.hunger},
+                       {"fatigue", std::max(n.tiredness, n.exhaustion)},
+                       {"pain", a.t.bodies->pain(b, now)},
+                       {"bleeding", std::min(1.0, a.t.bodies->blood_loss_fraction(b) / 0.3)},  // 30 % lost = severe (estimate)
+                       {"fear", b.fear},
+                       {"sick", sick ? kBad : 0.0}};
+  for (const State& st : all)
+    if (st.v >= kMild) s.push_back(st);
+  std::stable_sort(s.begin(), s.end(), [](const State& x, const State& y) { return x.v > y.v; });
+  if (s.size() > 5) s.resize(5);
+  return s;
+}
+
+const char* band_word(double v) { return v >= kSevere ? "severe" : v >= kBad ? "bad" : v >= kMild ? "mild" : "fine"; }
+ImU32 band_colour(double v) {
+  return v >= kSevere ? rgb(238, 102, 119) : v >= kBad ? rgb(238, 153, 51) : v >= kMild ? rgb(204, 187, 68) : rgb(120, 190, 120);
+}
+
 void refresh_fields(App& a) {
   const World& w = *a.t.world;
   if (w.clock.tick - a.field_tick < 600 && a.field_level == a.level) return;  // every 5 game minutes
@@ -208,10 +406,16 @@ void refresh_fields(App& a) {
   a.noise = noise_field(*a.t.map, *a.t.items, noise_sources(w, *a.t.actors, *a.t.power));
   const SiteMap& m = *a.t.map;
   a.lux.assign(static_cast<std::size_t>(m.width() * m.height()), 0);
+  const double outdoor = Power::ambient_lux(w.clock.hour());
+  a.noise_any = a.light_any = false;
   for (int y = 0; y < m.height(); ++y)
     for (int x = 0; x < m.width(); ++x) {
       const Cell c{a.level, x, y};
-      if (m.walkable(c)) a.lux[static_cast<std::size_t>(y * m.width() + x)] = a.t.power->lux_at(w, c);
+      if (!m.walkable(c)) continue;
+      const double lux = a.t.power->lux_at(w, c);
+      a.lux[static_cast<std::size_t>(y * m.width() + x)] = lux;
+      if (noise_at(m, a.noise, c) > a.background) a.noise_any = true;
+      if (lux > outdoor * 1.05 + 1) a.light_any = true;
     }
 }
 
@@ -219,10 +423,25 @@ ImVec2 at(const App& a, double x, double y) {
   return {a.origin.x + static_cast<float>(x) * a.cell, a.origin.y + static_cast<float>(y) * a.cell};
 }
 
+ImVec2 centred(ImVec2 c, const char* text) {
+  const ImVec2 sz = ImGui::CalcTextSize(text);
+  return {c.x - sz.x / 2, c.y - sz.y / 2};
+}
+
+struct DrawnBody {
+  EntityId id;
+  V2 p;
+  Cell cell;
+  bool walker;
+  std::size_t index;  // into the group, for pops
+};
+
 void draw_map(App& a, ImDrawList* d) {
   const SiteMap& m = *a.t.map;
   const World& w = *a.t.world;
   refresh_fields(a);
+  d->PushClipRect(a.view_min, a.view_max, true);
+  const double outdoor = Power::ambient_lux(w.clock.hour());
   // Floors, darkened by how little light falls on them (outdoors at night is near black).
   for (int y = 0; y < m.height(); ++y)
     for (int x = 0; x < m.width(); ++x) {
@@ -235,20 +454,26 @@ void draw_map(App& a, ImDrawList* d) {
       if (a.overlay == Overlay::Noise) {
         const double margin = noise_at(m, a.noise, c) - a.background;
         if (margin > 0) d->AddRectFilled(at(a, x, y), at(a, x + 1, y + 1), rgb(230, 60, 40, static_cast<int>(std::min(200.0, margin * 6))));
-      } else if (a.overlay == Overlay::Light && lux > 1) {
+      } else if (a.overlay == Overlay::Light && lux > outdoor * 1.05 + 1) {
+        // Only cells brighter than outdoors, so the light that leaks at night shows (spec 16 rule 12).
         d->AddRectFilled(at(a, x, y), at(a, x + 1, y + 1), rgb(250, 230, 120, static_cast<int>(std::min(180.0, 40 * std::log10(lux)))));
       }
     }
-  // Map objects (placeholder squares with a letter).
+  // Map objects: outlined squares with a short label (spec 16 rule 9); item spawn markers are not drawn.
   for (const MapObject& o : m.objects()) {
-    if (o.at.z != a.level || o.kind == "pop_start" || o.kind == "found") continue;
-    d->AddRectFilled(at(a, o.at.x + 0.2, o.at.y + 0.2), at(a, o.at.x + 0.8, o.at.y + 0.8), rgb(60, 60, 70));
-    d->AddText(at(a, o.at.x + 0.32, o.at.y + 0.22), rgb(230, 230, 230), o.kind.substr(0, 1).c_str());
+    if (o.at.z != a.level || !drawn_object(o)) continue;
+    const ImVec2 p0 = at(a, o.at.x + 0.12, o.at.y + 0.12), p1 = at(a, o.at.x + 0.88, o.at.y + 0.88);
+    d->AddRectFilled(p0, p1, rgb(50, 50, 60));
+    d->AddRect(p0, p1, rgb(200, 200, 210), 0.0f, 0, 1.5f);
+    if (a.cell >= 22) {
+      const std::string l = object_label(o.kind);
+      d->AddText(centred(at(a, o.at.x + 0.5, o.at.y + 0.5), l.c_str()), rgb(235, 235, 235), l.c_str());
+    }
   }
   // Items on the floor.
   for (const auto& [id, inst] : a.t.items->all()) {
     const auto c = a.t.actors->floor_cell(w.locations.parent_of(id));
-    if (c && c->z == a.level) d->AddCircleFilled(at(a, c->x + 0.78, c->y + 0.78), a.cell * 0.1f, rgb(240, 220, 120));
+    if (c && c->z == a.level) d->AddCircleFilled(at(a, c->x + 0.8, c->y + 0.8), std::max(2.5f, a.cell * 0.1f), rgb(240, 220, 120));
   }
   // Edges: walls, doors, windows, fences; barricades in orange.
   for (int v = 0; v < 2; ++v)
@@ -271,36 +496,172 @@ void draw_map(App& a, ImDrawList* d) {
         d->AddLine(p0, p1, col, thick);
         if (e.barricade) d->AddLine(p0, p1, rgb(240, 140, 40), 1.5f);
       }
-  // Walkers.
+  // Edges that refused a WASD step flash (spec 16 rule 5).
+  if (a.real_s < a.flash_until && std::fmod(a.flash_until - a.real_s, 0.2) < 0.12)
+    for (const EdgeRef& e : a.flash)
+      if (e.z == a.level)
+        d->AddLine(at(a, e.x, e.y), e.vertical ? at(a, e.x, e.y + 1) : at(a, e.x + 1, e.y), rgb(255, 80, 80), 6);
+  // The controlled pop's path, dotted (spec 16 rule 12).
+  if (const EntityId me = a.me(); me && a.t.actors->actors().contains(me)) {
+    const Action& act = a.t.actors->actor(me).action;
+    if (act.phase == Phase::Approach)
+      for (std::size_t i = act.path_next; i < act.path.size(); ++i)
+        if (act.path[i].z == a.level) d->AddCircleFilled(at(a, act.path[i].x + 0.5, act.path[i].y + 0.5), 2.5f, rgb(255, 255, 255, 170));
+  }
+  // Bodies: walkers as diamonds, pops as discs (spec 16 rule 9). Bodies sharing a cell are drawn apart.
+  std::vector<DrawnBody> bodies;
   if (a.t.walkers)
     for (const auto& [id, z] : a.t.walkers->walkers()) {
       if (!a.t.bodies->get(id).alive || z.pos.z != a.level) continue;
-      const ImVec2 c = at(a, z.pos.x + 0.5, z.pos.y + 0.5);
-      d->AddCircleFilled(c, a.cell * 0.33f, z.mode == Mode::Idle ? rgb(150, 50, 50) : rgb(220, 40, 40));
-      if (id == a.selected) d->AddCircle(c, a.cell * 0.45f, rgb(255, 255, 255), 0, 2);
+      bodies.push_back({id, body_at(z.pos, z.path, z.next, z.step_m, z.mode != Mode::Idle), z.pos, true, 0});
     }
-  // The group: coloured by member, grey when dead; a ring on the controlled pop. Pops sharing a cell
-  // are drawn side by side so none hides another.
-  std::vector<Cell> drawn;
   for (std::size_t i = 0; i < a.t.group.size(); ++i) {
     const EntityId id = a.t.group[i];
     const Body& b = a.t.bodies->get(id);
+    if (b.away || b.spec.walker || !a.t.actors->actors().contains(id)) continue;
     const Cell p = a.t.actors->actor(id).pos;
-    if (p.z != a.level || b.away || b.spec.walker) continue;
-    const auto shared = std::count(drawn.begin(), drawn.end(), p);
-    drawn.push_back(p);
-    const ImVec2 c = at(a, p.x + 0.5 + 0.45 * static_cast<double>(shared % 2), p.y + 0.5 + 0.45 * static_cast<double>(shared / 2));
-    d->AddCircleFilled(c, a.cell * 0.36f, b.alive ? kPopColours[i % 4] : rgb(110, 110, 110));
-    const std::string ini = initials(a.name(id));
-    d->AddText({c.x - 6, c.y - 7}, rgb(20, 20, 20), ini.c_str());
-    if (id == a.me()) d->AddCircle(c, a.cell * 0.46f, rgb(255, 255, 255), 0, 2.5f);
-    else if (id == a.selected) d->AddCircle(c, a.cell * 0.46f, rgb(200, 200, 200), 0, 1.5f);
+    if (p.z != a.level) continue;
+    bodies.push_back({id, actor_at(a, id), p, false, i});
   }
+  static const V2 kSpread[] = {{-0.2, -0.2}, {0.2, -0.2}, {-0.2, 0.2}, {0.2, 0.2}};
+  const float r = a.cell * 0.42f;
+  for (std::size_t k = 0; k < bodies.size(); ++k) {
+    DrawnBody& db = bodies[k];
+    std::size_t same = 0, before = 0;
+    for (std::size_t j = 0; j < bodies.size(); ++j)
+      if (bodies[j].cell == db.cell) {
+        ++same;
+        if (j < k) ++before;
+      }
+    const float rr = same > 1 ? r * 0.62f : r;
+    const V2 off = same > 1 ? kSpread[before % 4] : V2{};
+    const ImVec2 c = at(a, db.p.x + off.x, db.p.y + off.y);
+    if (same > 4 && before == 4) {
+      const std::string more = "+" + std::to_string(same - 4);
+      d->AddText(centred(at(a, db.cell.x + 0.5, db.cell.y + 0.5), more.c_str()), rgb(255, 255, 255), more.c_str());
+    }
+    if (same > 4 && before >= 4) continue;
+    if (db.walker) {
+      const WalkerState& z = a.t.walkers->walkers().at(db.id);
+      const bool active = z.mode != Mode::Idle;
+      if (active && z.goal.z == a.level)
+        d->AddLine(c, at(a, z.goal.x + 0.5, z.goal.y + 0.5), rgb(238, 102, 119, 140), 1.5f);
+      d->AddQuadFilled({c.x, c.y - rr}, {c.x + rr, c.y}, {c.x, c.y + rr}, {c.x - rr, c.y}, active ? kWalkerActive : kWalkerIdle);
+      d->AddQuad({c.x, c.y - rr}, {c.x + rr, c.y}, {c.x, c.y + rr}, {c.x - rr, c.y}, rgb(30, 10, 10), 1.5f);
+      if (db.id == a.selected) d->AddCircle(c, rr + 5, rgb(255, 230, 120), 0, 2);
+      continue;
+    }
+    const Body& b = a.t.bodies->get(db.id);
+    d->AddCircleFilled(c, rr, b.alive ? kPopColours[db.index % 4] : rgb(110, 110, 110));
+    d->AddCircle(c, rr, rgb(20, 20, 20), 0, 1.5f);
+    std::string ini = initials(a.name(db.id));
+    if (2 * rr < 24) ini = ini.substr(0, 1);
+    d->AddText(centred(c, ini.c_str()), rgb(15, 15, 15), ini.c_str());
+    if (db.id == a.me()) {
+      d->AddCircle(c, rr + 2, rgb(255, 255, 255), 0, 3.5f);
+      // The arrow: where it walks, or where WASD last pointed.
+      const float len = std::hypot(static_cast<float>(a.face_dx), static_cast<float>(a.face_dy));
+      if (len > 0) {
+        const float ux = a.face_dx / len, uy = a.face_dy / len;
+        const ImVec2 tip{c.x + ux * (rr + 10), c.y + uy * (rr + 10)};
+        d->AddTriangleFilled(tip, {c.x + ux * (rr + 3) - uy * 5, c.y + uy * (rr + 3) + ux * 5},
+                             {c.x + ux * (rr + 3) + uy * 5, c.y + uy * (rr + 3) - ux * 5}, rgb(255, 255, 255));
+      }
+    }
+    if (db.id == a.selected && db.id != a.me()) d->AddCircle(c, rr + 5, rgb(255, 230, 120), 0, 2);
+    else if (db.id == a.selected) d->AddCircle(c, rr + 7, rgb(255, 230, 120), 0, 1.5f);
+  }
+  // The state column by the controlled pop (spec 16 rule 10).
+  if (const EntityId me = a.me(); me && a.t.bodies->get(me).alive && a.t.actors->actor(me).pos.z == a.level) {
+    const V2 p = actor_at(a, me);
+    ImVec2 q = at(a, p.x + 0.75, p.y - 0.5);
+    for (const State& s : worst_states(a, me)) {
+      const std::string txt = std::string(s.name) + " (" + band_word(s.v) + ")";
+      const ImVec2 sz = ImGui::CalcTextSize(txt.c_str());
+      d->AddRectFilled({q.x - 2, q.y}, {q.x + sz.x + 2, q.y + sz.y}, rgb(15, 15, 18, 200));
+      d->AddText(q, band_colour(s.v), txt.c_str());
+      q.y += sz.y + 1;
+    }
+  }
+  // The hovered cell and the menu's cell, outlined (spec 16 rule 12).
+  if (a.hover_cell) d->AddRect(at(a, a.hover_cell->x, a.hover_cell->y), at(a, a.hover_cell->x + 1, a.hover_cell->y + 1), rgb(255, 255, 255, 160), 0.0f, 0, 1.0f);
+  if (a.menu_cell) d->AddRect(at(a, a.menu_cell->x, a.menu_cell->y), at(a, a.menu_cell->x + 1, a.menu_cell->y + 1), rgb(255, 230, 120), 0.0f, 0, 2.0f);
+  d->PopClipRect();
+}
+
+// Overlay legend and the alert column, over the map's edges (spec 16 rules 11, 12).
+void map_notes(App& a, ImDrawList* d) {
+  const World& w = *a.t.world;
+  ImVec2 q{a.view_min.x + 6, a.view_max.y - 22};
+  auto note = [&](ImVec2 p, ImU32 col, const std::string& s) {
+    const ImVec2 sz = ImGui::CalcTextSize(s.c_str());
+    d->AddRectFilled({p.x - 3, p.y - 2}, {p.x + sz.x + 3, p.y + sz.y + 2}, rgb(15, 15, 18, 210));
+    d->AddText(p, col, s.c_str());
+    return sz;
+  };
+  char buf[200];
+  if (a.overlay == Overlay::Noise) {
+    std::snprintf(buf, sizeof buf, a.noise_any ? "Noise: red = louder than the background (%.0f dB); full red = 30 dB above"
+                                               : "Noise: nothing above the background (%.0f dB)", a.background);
+    note(q, rgb(240, 160, 150), buf);
+  } else if (a.overlay == Overlay::Light) {
+    std::snprintf(buf, sizeof buf, a.light_any ? "Light: yellow = brighter than outdoors (%.0f lux); this light leaks"
+                                               : "Light: nothing brighter than outdoors (%.0f lux)", Power::ambient_lux(w.clock.hour()));
+    note(q, rgb(250, 230, 140), buf);
+  }
+  if (a.real_s < a.hint_until) {
+    const char* hint = "Paused: Space to run";
+    note({(a.view_min.x + a.view_max.x) / 2 - ImGui::CalcTextSize(hint).x / 2, a.view_min.y + 8}, rgb(255, 230, 120), hint);
+  }
+  // Alerts of the last game hour, newest first.
+  float y = a.view_min.y + 8;
+  int shown = 0;
+  for (auto it = a.alerts.rbegin(); it != a.alerts.rend() && shown < 5; ++it, ++shown) {
+    if (w.clock.tick - it->tick > 60 * kGameMinute) break;
+    const std::string s = time_text(it->tick).substr(time_text(it->tick).size() - 5) + "  " + it->text;
+    const float wdt = ImGui::CalcTextSize(s.c_str()).x;
+    note({a.view_max.x - wdt - 10, y}, shown == 0 && a.pacer.alerted() ? rgb(255, 120, 120) : rgb(230, 200, 160), s);
+    y += 20;
+  }
+}
+
+// ---- Camera (spec 16 rule 7) ----
+
+void clamp_cam(App& a) {
+  const double hw = (a.view_max.x - a.view_min.x) / 2.0 / a.cell, hh = (a.view_max.y - a.view_min.y) / 2.0 / a.cell;
+  const double mw = a.t.map->width(), mh = a.t.map->height();
+  a.cam.x = mw <= 2 * hw ? mw / 2 : std::clamp(a.cam.x, hw, mw - hw);
+  a.cam.y = mh <= 2 * hh ? mh / 2 : std::clamp(a.cam.y, hh, mh - hh);
+}
+
+void update_camera(App& a, double dt) {
+  if (a.follow && a.t.actors->actors().contains(a.followed())) {
+    const V2 p = actor_at(a, a.followed());
+    a.level = a.t.actors->actor(a.followed()).pos.z;  // the drawn floor follows the pop
+    const double hw = (a.view_max.x - a.view_min.x) / 2.0 / a.cell, hh = (a.view_max.y - a.view_min.y) / 2.0 / a.cell;
+    const double k = 1 - std::exp(-dt / kFollowTau);
+    const auto pull = [&](double off, double half) {
+      const double dz = kDeadZone * half;
+      return off > dz ? off - dz : off < -dz ? off + dz : 0.0;
+    };
+    a.cam.x += pull(p.x - a.cam.x, hw) * k;
+    a.cam.y += pull(p.y - a.cam.y, hh) * k;
+  }
+  clamp_cam(a);
+  const ImVec2 mid{(a.view_min.x + a.view_max.x) / 2, (a.view_min.y + a.view_max.y) / 2};
+  a.origin = {mid.x - static_cast<float>(a.cam.x) * a.cell, mid.y - static_cast<float>(a.cam.y) * a.cell};
+}
+
+void recentre(App& a) {
+  a.follow = true;
+  a.cam = actor_at(a, a.followed());
+  a.level = a.t.actors->actor(a.followed()).pos.z;
 }
 
 // ---- Input on the map ----
 
 std::optional<Cell> cell_under(const App& a, ImVec2 mouse) {
+  if (mouse.x < a.view_min.x || mouse.y < a.view_min.y || mouse.x >= a.view_max.x || mouse.y >= a.view_max.y) return std::nullopt;
   const int x = static_cast<int>(std::floor((mouse.x - a.origin.x) / a.cell));
   const int y = static_cast<int>(std::floor((mouse.y - a.origin.y) / a.cell));
   if (x < 0 || y < 0 || x >= a.t.map->width() || y >= a.t.map->height()) return std::nullopt;
@@ -321,7 +682,7 @@ std::vector<Target> targets_at(const App& a, const Cell& c) {
     if (act.pos == c && !a.t.bodies->get(id).away) out.push_back({id, id == a.me() ? "yourself" : a.name(id)});
   if (a.t.walkers)
     for (const auto& [id, z] : a.t.walkers->walkers())
-      if (z.pos == c && a.t.bodies->get(id).alive) out.push_back({id, a.name(id) + " (dead)"});
+      if (z.pos == c && a.t.bodies->get(id).alive) out.push_back({id, "a walker (" + a.name(id) + ")"});
   for (const auto& [id, e] : a.t.actors->edges()) {
     const bool side = e.z == c.z && ((!e.vertical && e.x == c.x && (e.y == c.y || e.y == c.y + 1)) ||
                                      (e.vertical && e.y == c.y && (e.x == c.x || e.x == c.x + 1)));
@@ -365,22 +726,57 @@ void context_menu(App& a) {
   }
 }
 
+// A step to a 4-neighbour: the cell is floor and the edge between can be crossed.
+bool can_step(const App& a, const Cell& from, const Cell& to) {
+  return a.t.map->in_bounds(to) && a.t.map->walkable(to) && a.t.map->can_walk(SiteMap::edge_between(from, to));
+}
+
+// WASD (spec 16 rules 5, 6): walls refuse the step; a diagonal needs both orthogonal edges, else the passable axis.
+std::optional<Cell> wasd_target(App& a, const Cell& p, int dx, int dy) {
+  const Cell ox{p.z, p.x + dx, p.y}, oy{p.z, p.x, p.y + dy};
+  if (dx && dy) {
+    const bool okx = can_step(a, p, ox), oky = can_step(a, p, oy);
+    const Cell diag{p.z, p.x + dx, p.y + dy};
+    if (okx && oky && (can_step(a, ox, diag) || can_step(a, oy, diag))) return diag;
+    if (okx) return ox;
+    if (oky) return oy;
+    a.flash = {SiteMap::edge_between(p, ox), SiteMap::edge_between(p, oy)};
+  } else {
+    const Cell to = dx ? ox : oy;
+    if (can_step(a, p, to)) return to;
+    a.flash = {SiteMap::edge_between(p, to)};
+  }
+  a.flash_until = a.real_s + 0.6;
+  return std::nullopt;
+}
+
+void set_speed(App& a, Pace p) {
+  a.pacer.set_requested(p);
+  if (p != Pace::Pause) a.resume = p;
+  a.resting = false;
+}
+
 void map_input(App& a) {
   const ImGuiIO& io = ImGui::GetIO();
+  World& w = *a.t.world;
+  a.hover_cell.reset();
   if (!io.WantCaptureMouse) {
+    const ImVec2 mid{(a.view_min.x + a.view_max.x) / 2, (a.view_min.y + a.view_max.y) / 2};
     if (io.MouseWheel != 0) {
-      const float old = a.cell;
-      a.cell = std::clamp(a.cell * (io.MouseWheel > 0 ? 1.15f : 1 / 1.15f), 8.0f, 80.0f);
-      a.origin.x = io.MousePos.x - (io.MousePos.x - a.origin.x) * a.cell / old;
-      a.origin.y = io.MousePos.y - (io.MousePos.y - a.origin.y) * a.cell / old;
+      // Zoom to the cursor: the cell under it stays under it.
+      const double px = a.cam.x + (io.MousePos.x - mid.x) / a.cell, py = a.cam.y + (io.MousePos.y - mid.y) / a.cell;
+      a.cell = std::clamp(a.cell * (io.MouseWheel > 0 ? 1.15f : 1 / 1.15f), 8.0f, 96.0f);
+      a.cam = {px - (io.MousePos.x - mid.x) / a.cell, py - (io.MousePos.y - mid.y) / a.cell};
     }
     if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
-      a.origin.x += io.MouseDelta.x;
-      a.origin.y += io.MouseDelta.y;
+      a.cam.x -= io.MouseDelta.x / a.cell;
+      a.cam.y -= io.MouseDelta.y / a.cell;
+      a.follow = false;  // a pan breaks the follow; F, Home or WASD resume it
     }
     if (const auto c = cell_under(a, io.MousePos)) {
+      a.hover_cell = c;
       if (!ImGui::IsPopupOpen("offers")) {
-        // What is here, in words: the map uses placeholder shapes.
+        // What is here, in words.
         std::string tip;
         for (const Target& tg : targets_at(a, *c)) tip += tg.label + "\n";
         ImGui::SetTooltip("%s", tip.c_str());
@@ -397,42 +793,74 @@ void map_input(App& a) {
       }
     }
   }
-  if (io.WantCaptureKeyboard) return;
-  // WASD: one cell at a time while held, whenever the pop is free.
-  int dx = 0, dy = 0;
-  if (ImGui::IsKeyDown(ImGuiKey_W)) dy = -1;
-  if (ImGui::IsKeyDown(ImGuiKey_S)) dy = 1;
-  if (ImGui::IsKeyDown(ImGuiKey_A)) dx = -1;
-  if (ImGui::IsKeyDown(ImGuiKey_D)) dx = 1;
-  const EntityId me = a.me();
-  const bool moving_time = kSpeeds[a.speed] != 0 || a.resting;
-  if ((dx || dy) && me && moving_time && a.t.bodies->get(me).alive && a.t.actors->idle(me)) {
-    const Cell p = a.t.actors->actor(me).pos;
-    const Cell to{p.z, p.x + dx, p.y + dy};
-    if (a.t.map->walkable(to)) submit(a, CommandType::MoveTo, pack_cell(to));
+  if (io.WantCaptureKeyboard) {
+    set_caps(a, false);
+    return;
   }
-  if (ImGui::IsKeyPressed(ImGuiKey_Space)) {
-    a.speed = a.speed ? 0 : 1;
+  int dx = 0, dy = 0;
+  if (ImGui::IsKeyDown(ImGuiKey_W)) dy -= 1;
+  if (ImGui::IsKeyDown(ImGuiKey_S)) dy += 1;
+  if (ImGui::IsKeyDown(ImGuiKey_A)) dx -= 1;
+  if (ImGui::IsKeyDown(ImGuiKey_D)) dx += 1;
+  const bool pressed = ImGui::IsKeyPressed(ImGuiKey_W, false) || ImGui::IsKeyPressed(ImGuiKey_A, false) ||
+                       ImGui::IsKeyPressed(ImGuiKey_S, false) || ImGui::IsKeyPressed(ImGuiKey_D, false);
+  const EntityId me = a.me();
+  const bool held = (dx || dy) && me && a.t.bodies->get(me).alive;
+  set_caps(a, held);
+  if (held) {
+    if (!a.follow) recentre(a);  // any WASD press resumes the follow
+    a.face_dx = dx;
+    a.face_dy = dy;
+    const bool paused = !a.resting && a.pacer.effective(w.clock.tick) == Pace::Pause;
+    if (paused) {
+      if (pressed) a.hint_until = a.real_s + 2.5;
+    } else {
+      const Actor& act = a.t.actors->actor(me);
+      const Cell p = act.pos;
+      const bool idle = a.t.actors->idle(me);
+      // A fresh press while busy takes over: cancel, then the step (spec 16 rule 6).
+      const bool take_over = pressed && !idle;
+      // One move per applied tick: never a second before the first has run (spec 16 rule 5).
+      if ((idle || take_over) && w.clock.tick > a.last_move_tick) {
+        if (const auto to = wasd_target(a, p, dx, dy)) {
+          if (take_over) submit(a, CommandType::Cancel, 0);
+          submit(a, CommandType::MoveTo, pack_cell(*to));
+          a.last_move_tick = w.clock.tick;
+        }
+      }
+    }
+  } else if (me && a.t.actors->actors().contains(me)) {
+    const Action& act = a.t.actors->actor(me).action;
+    if (act.phase == Phase::Approach && act.path_next < act.path.size()) {
+      const Cell n = act.path[act.path_next], p = a.t.actors->actor(me).pos;
+      if (n.z == p.z && (n.x != p.x || n.y != p.y)) {
+        a.face_dx = n.x - p.x;
+        a.face_dy = n.y - p.y;
+      }
+    }
+  }
+  if (ImGui::IsKeyPressed(ImGuiKey_Space, false)) {
+    if (a.pacer.alerted()) a.pacer.acknowledge();  // an alert waits for Space
+    else set_speed(a, a.pacer.requested() == Pace::Pause ? a.resume : Pace::Pause);
     a.resting = false;
   }
   for (int i = 0; i < 6; ++i)
-    if (ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_1 + i))) {
-      a.speed = i;
-      a.resting = false;
-    }
+    if (ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_1 + i), false)) set_speed(a, kSpeeds[i + 1]);
+  if (ImGui::IsKeyPressed(ImGuiKey_F, false) || ImGui::IsKeyPressed(ImGuiKey_Home, false)) recentre(a);
+  const auto& lv = a.t.map->levels();
   if (ImGui::IsKeyPressed(ImGuiKey_PageUp) || ImGui::IsKeyPressed(ImGuiKey_RightBracket)) {
-    const auto& lv = a.t.map->levels();
     auto it = std::find(lv.begin(), lv.end(), a.level);
     if (it != lv.end() && std::next(it) != lv.end()) a.level = *std::next(it);
+    a.follow = false;
   }
   if (ImGui::IsKeyPressed(ImGuiKey_PageDown) || ImGui::IsKeyPressed(ImGuiKey_LeftBracket)) {
-    const auto& lv = a.t.map->levels();
     auto it = std::find(lv.begin(), lv.end(), a.level);
     if (it != lv.end() && it != lv.begin()) a.level = *std::prev(it);
+    a.follow = false;
   }
-  if (ImGui::IsKeyPressed(ImGuiKey_C)) submit(a, CommandType::Cancel, 0);
-  if (ImGui::IsKeyPressed(ImGuiKey_F5)) save_game(a);
-  if (ImGui::IsKeyPressed(ImGuiKey_F9)) load_game(a);
+  if (ImGui::IsKeyPressed(ImGuiKey_C, false)) submit(a, CommandType::Cancel, 0);
+  if (ImGui::IsKeyPressed(ImGuiKey_F5, false)) save_game(a);
+  if (ImGui::IsKeyPressed(ImGuiKey_F9, false)) load_game(a);
 }
 
 // ---- Panels ----
@@ -443,19 +871,28 @@ void time_bar(App& a) {
   ImGui::SetNextWindowPos({8, 8}, ImGuiCond_FirstUseEver);
   ImGui::Begin("Time", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
   ImGui::Text("%s", time_text(w.clock.tick).c_str());
-  ImGui::SameLine();
-  const char* names[] = {"Pause", "1x", "3x", "10x", "60x", "360x"};
-  for (int i = 0; i < 6; ++i) {
+  for (int i = 0; i < 7; ++i) {
     ImGui::SameLine();
-    if (ImGui::RadioButton(names[i], a.speed == i && !a.resting)) {
-      a.speed = i;
-      a.resting = false;
-    }
+    const std::string label = (i == 0 ? std::string("Pause") : std::string(pace_name(kSpeeds[i]))) + "##s" + std::to_string(i);
+    if (ImGui::RadioButton(label.c_str(), a.pacer.requested() == kSpeeds[i] && !a.resting)) set_speed(a, kSpeeds[i]);
   }
   ImGui::SameLine();
   if (ImGui::Button(a.resting ? "Resting..." : "Rest until something happens")) {
     a.resting = !a.resting;
     a.rest_until = w.clock.tick + 8 * kTicksPerGameHour;
+    if (a.resting) a.pacer.acknowledge();
+  }
+  // What actually runs, and why if it is slower than asked (spec 16 rule 4).
+  if (a.pacer.alerted()) {
+    ImGui::TextColored({1, 0.45f, 0.45f, 1}, "ALERT: %s  (Space to continue)", a.pacer.alert_text().c_str());
+  } else if (a.resting) {
+    ImGui::TextDisabled("Resting: as fast as the machine allows, until an alert or %s", time_text(a.rest_until).c_str());
+  } else if (const std::string* who = a.pacer.limiting(w.clock.tick)) {
+    ImGui::TextColored({1, 0.85f, 0.4f, 1}, "Running at %s: held by \"%s\"", pace_name(a.pacer.effective(w.clock.tick)), who->c_str());
+  } else if (a.pacer.effective(w.clock.tick) == Pace::Pause) {
+    ImGui::TextDisabled("Paused: Space to run");
+  } else {
+    ImGui::TextDisabled("Running at %s", pace_name(a.pacer.effective(w.clock.tick)));
   }
   const double fuel_l = static_cast<double>(p.fuel_ul(w)) / 1e6;
   if (const PlaceSystem* place = a.t.place) {  // spec 42 rule 7
@@ -466,8 +903,8 @@ void time_bar(App& a) {
                 at.biome.c_str(), std::abs(at.lat_deg), at.lat_deg < 0 ? "S" : "N", std::abs(at.lon_deg), at.lon_deg < 0 ? "W" : "E",
                 at.elevation_m, place->outdoor_c(w), place->today_rain_mm(w));
   }
-  ImGui::Text("Grid %s | generator %s, %.1f L | level %d (PgUp/PgDn) | overlay:", p.mains_alive() ? "on" : "DEAD",
-              p.generator_running() ? "running" : "off", fuel_l, a.level);
+  ImGui::Text("Grid %s | generator %s, %.1f L | level %d (PgUp/PgDn)%s | overlay:", p.mains_alive() ? "on" : "DEAD",
+              p.generator_running() ? "running" : "off", fuel_l, a.level, a.follow ? "" : " | F: follow again");
   ImGui::SameLine();
   int ov = static_cast<int>(a.overlay);
   ImGui::RadioButton("none", &ov, 0);
@@ -479,11 +916,15 @@ void time_bar(App& a) {
   if (a.t.run->outcome() != RunOutcome::Running)
     ImGui::TextColored({1, 0.8f, 0.3f, 1}, "The run is over: %s", to_string(a.t.run->outcome()));
   if (!a.status.empty()) ImGui::TextDisabled("%s", a.status.c_str());
+  a.time_bar_bottom = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y;
   ImGui::End();
 }
 
+// A need bar coloured by its band, with the word (spec 16 rule 10). `v` is always "higher is worse".
 void bar(const char* label, double v) {
-  ImGui::ProgressBar(static_cast<float>(std::clamp(v, 0.0, 1.0)), {120, 0});
+  ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImGui::ColorConvertU32ToFloat4(band_colour(v)));
+  ImGui::ProgressBar(static_cast<float>(std::clamp(v, 0.0, 1.0)), {120, 0}, band_word(v));
+  ImGui::PopStyleColor();
   ImGui::SameLine();
   ImGui::TextUnformatted(label);
 }
@@ -520,16 +961,28 @@ void inspector(App& a) {
     bar("hunger", n.hunger);
     bar("tiredness", n.tiredness);
     bar("exhaustion", n.exhaustion);
-    bar("blood lost", a.t.bodies->blood_loss_fraction(b));
+    bar("blood lost", std::min(1.0, a.t.bodies->blood_loss_fraction(b) / 0.3));
+    bar("pain", a.t.bodies->pain(b, w.clock.tick));
     bar("fear", b.fear);
-    bar("morale", b.morale);
+    bar("low morale", 1 - b.morale);
   }
+  // Wounds grouped by region, with a count (spec 16 rule 12).
   ImGui::SeparatorText("Wounds");
   if (b.wounds.empty()) ImGui::TextDisabled("none");
-  for (const Wound& wd : b.wounds) {
-    ImGui::BulletText("%s: %s, %.0f mm%s%s%s", to_string(wd.region), to_string(wd.type), wd.length_mm,
-                      wd.cleaned != Cleaned::No ? ", cleaned" : "", wd.dressed ? ", dressed" : "",
-                      wd.infection_visible || (a.truth && wd.infection != Infection::None) ? ", INFECTED" : "");
+  std::map<int, std::vector<const Wound*>> by_region;
+  for (const Wound& wd : b.wounds) by_region[static_cast<int>(wd.region)].push_back(&wd);
+  for (const auto& [region, list] : by_region) {
+    bool infected = false;
+    for (const Wound* wd : list) infected = infected || wd->infection_visible || (a.truth && wd->infection != Infection::None);
+    const std::string head = std::string(to_string(static_cast<Region>(region))) + ": " + std::to_string(list.size()) +
+                             (list.size() == 1 ? " wound" : " wounds") + (infected ? ", INFECTED" : "") + "##w" + std::to_string(region);
+    if (ImGui::TreeNode(head.c_str())) {
+      for (const Wound* wd : list)
+        ImGui::BulletText("%s, %.0f mm%s%s%s", to_string(wd->type), wd->length_mm, wd->cleaned != Cleaned::No ? ", cleaned" : "",
+                          wd->dressed ? ", dressed" : "",
+                          wd->infection_visible || (a.truth && wd->infection != Infection::None) ? ", INFECTED" : "");
+      ImGui::TreePop();
+    }
   }
   if (a.truth && a.t.walkers && a.t.walkers->turning_of(id)) ImGui::TextColored({1, 0.3f, 0.3f, 1}, "Truth: turning (walker pathogen)");
   if (a.t.actors->actors().contains(id)) {
@@ -562,7 +1015,19 @@ void group_panel(App& a) {
       if (ImGui::SmallButton("Control")) {
         a.t.ai->possess(id);
         a.selected = id;
+        recentre(a);
       }
+    }
+    // The state column: the worst states, in words and their band's colour.
+    if (b.alive && !b.away && !b.spec.walker) {
+      bool first = true;
+      for (const State& s : worst_states(a, id)) {
+        if (first) ImGui::Indent(18);
+        else ImGui::SameLine();
+        ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(band_colour(s.v)), "%s (%s)", s.name, band_word(s.v));
+        first = false;
+      }
+      if (!first) ImGui::Unindent(18);
     }
     ImGui::PopID();
   }
@@ -570,14 +1035,39 @@ void group_panel(App& a) {
     if (ImGui::Button("Let the AI drive everyone")) a.t.ai->release();
   } else if (ImGui::Button("Take control again")) {
     a.t.ai->possess(a.t.run->controlled());
+    recentre(a);
   }
+  ImGui::End();
+}
+
+void map_key(App& a) {
+  const ImGuiIO& io = ImGui::GetIO();
+  ImGui::SetNextWindowPos({io.DisplaySize.x - 340, 694}, ImGuiCond_FirstUseEver);
+  ImGui::SetNextWindowSize({330, 0}, ImGuiCond_FirstUseEver);
+  ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
+  ImGui::Begin("Map key");
+  ImGui::TextWrapped("Disc: a person (ring: you; arrow: where you head). Diamond: a walker (bright with a line: it is after "
+                     "something). Square: an object. Yellow dot: an item on the floor. Orange line: boards on a door or window. "
+                     "Blue line: a window. Brown: a door. Red flash: a wall that stopped a step.");
+  ImGui::SeparatorText("Objects");
+  std::vector<std::string> kinds;
+  for (const MapObject& o : a.t.map->objects())
+    if (drawn_object(o) && std::find(kinds.begin(), kinds.end(), o.kind) == kinds.end()) kinds.push_back(o.kind);
+  std::sort(kinds.begin(), kinds.end());
+  for (const std::string& k : kinds) ImGui::BulletText("%s  %s", object_label(k).c_str(), k.c_str());
+  ImGui::SeparatorText("States");
+  ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(band_colour(kMild)), "mild");
+  ImGui::SameLine();
+  ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(band_colour(kBad)), "bad");
+  ImGui::SameLine();
+  ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(band_colour(kSevere)), "severe");
   ImGui::End();
 }
 
 void log_panel(App& a) {
   const ImGuiIO& io = ImGui::GetIO();
   ImGui::SetNextWindowPos({8, io.DisplaySize.y - 236}, ImGuiCond_FirstUseEver);
-  ImGui::SetNextWindowSize({io.DisplaySize.x - 360, 220}, ImGuiCond_FirstUseEver);
+  ImGui::SetNextWindowSize({io.DisplaySize.x - 360, 210}, ImGuiCond_FirstUseEver);
   ImGui::Begin("Events");
   ImGui::SetNextItemWidth(200);
   ImGui::InputTextWithHint("##filter", "filter", a.filter, sizeof a.filter);
@@ -588,7 +1078,8 @@ void log_panel(App& a) {
                        : std::strcmp(l.kind, "body") == 0 ? ImVec4{0.7f, 0.7f, 0.7f, 1}
                        : std::strcmp(l.kind, "done") == 0 ? ImVec4{0.6f, 0.85f, 0.6f, 1}
                                                           : ImVec4{1, 0.85f, 0.4f, 1};
-    ImGui::TextColored(col, "%s  %s", time_text(l.tick).c_str(), l.text.c_str());
+    if (l.count > 1) ImGui::TextColored(col, "%s  %s  x%d", time_text(l.tick).c_str(), l.text.c_str(), l.count);
+    else ImGui::TextColored(col, "%s  %s", time_text(l.tick).c_str(), l.text.c_str());
   }
   if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY() - 20) ImGui::SetScrollHereY(1.0f);
   ImGui::EndChild();
@@ -598,8 +1089,16 @@ void log_panel(App& a) {
 void help_line() {
   const ImGuiIO& io = ImGui::GetIO();
   ImGui::GetForegroundDrawList()->AddText({8, io.DisplaySize.y - 18}, IM_COL32(200, 200, 200, 160),
-                                          "WASD move | right click: actions | left click: select | wheel: zoom | middle drag: pan | "
-                                          "Space pause, 1-6 speed | C cancel | F5 save, F9 load | placeholder art");
+                                          "WASD walk (a press takes over) | right click: actions | left click: select | wheel: zoom | "
+                                          "middle drag: pan, F/Home: follow | Space pause or continue, 1-6 speed | C cancel | "
+                                          "F5 save, F9 load | placeholder art");
+}
+
+// The map fills the space below the time bar, left of the side panels and above the log (spec 16 rule 13).
+void layout_view(App& a) {
+  const ImVec2 ds = ImGui::GetIO().DisplaySize;
+  a.view_min = {8, a.time_bar_bottom + 6};
+  a.view_max = {std::max(a.view_min.x + 100, ds.x - 348), std::max(a.view_min.y + 100, ds.y - 240)};
 }
 
 }  // namespace
@@ -663,9 +1162,10 @@ int window_main(int argc, char** argv) {
   if (shot_ticks > 0) {
     for (std::int64_t i = 0; i < shot_ticks; ++i) a.t.world->step();
     read_events(a);
-    a.speed = 0;
-    a.level = a.t.actors->actor(a.followed()).pos.z;
+    a.pacer.set_requested(Pace::Pause);
+    recentre(a);
   }
+  check_sight(a);
 
   bool running = true;
   int frame = 0;
@@ -679,19 +1179,17 @@ int window_main(int argc, char** argv) {
     const std::uint64_t now = SDL_GetTicksNS();
     const double dt = std::min(0.1, static_cast<double>(now - last) / 1e9);
     last = now;
+    a.real_s += dt;
     if (shot.empty()) advance(a, dt);
 
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
-    if (frame == 0) {
-      // Fit the map between the time bar, the side panels and the log.
-      const ImVec2 ds = ImGui::GetIO().DisplaySize;
-      a.cell = std::clamp(std::min((ds.x - 380) / static_cast<float>(a.t.map->width()),
-                                   (ds.y - 330) / static_cast<float>(a.t.map->height())), 8.0f, 80.0f);
-      a.origin = {12, 84};
-    }
-    draw_map(a, ImGui::GetBackgroundDrawList());
+    layout_view(a);
+    update_camera(a, frame == 0 ? 1.0 : dt);
+    ImDrawList* bg = ImGui::GetBackgroundDrawList();
+    draw_map(a, bg);
+    map_notes(a, bg);
     map_input(a);
     if (shot_menu && frame == 1) {
       a.menu_cell = shot_menu;
@@ -702,6 +1200,7 @@ int window_main(int argc, char** argv) {
     time_bar(a);
     inspector(a);
     group_panel(a);
+    map_key(a);
     log_panel(a);
     help_line();
     ImGui::Render();
