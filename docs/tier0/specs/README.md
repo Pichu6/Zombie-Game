@@ -49,3 +49,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 29 | [Embodied pops](29-embodied-pops.md) | Agent (embodied level), Body | after Tier 0; first layer jump |
 | 30 | [World grid](30-world-grid.md) | Cell grid (planet) | after Tier 0; generator step 1 |
 | 31 | [Terrain and climate fields](31-terrain-climate.md) | Fields (elevation, climate, biome) | after Tier 0; generator steps 1-2 (implemented through biome) |
+| 32 | [Stocks, goods and money across levels](32-stocks-goods-and-money.md) | Ledger (owner tree, goods, spoilage, money), panels | after Tier 0; layer jumps rows 5 and 6 |
