@@ -173,6 +173,18 @@ Proposal (research). One block with 3–4 buildings, one with a pump room in the
 - How many days does the network take to degrade on its own without players?
 - Do we model voltage and amperage, or only power in W per connected component?
 
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- National-grid load factor, substations per 100,000 people, reservoir and pipe sizing rules: not found, so grid and water sizing has no anchor. ([world-systems-resources-networks](../research/world-systems-resources-networks.md))
+- Pipeline logic and cost are unsourced (the rule is a proposal). ([world-systems-resources-networks](../research/world-systems-resources-networks.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [concept-v2](../research/concept-v2.md): Juego Zombie · Concept v2
+- [world-systems-resources-networks](../research/world-systems-resources-networks.md): World systems: where resources are, and how grids and networks are laid out
+
 ## Prototype sources
 
 - redes-infraestructura-servicios.md

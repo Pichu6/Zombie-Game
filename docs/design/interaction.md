@@ -171,6 +171,14 @@ Proposal:
 
 Proposal: inhabitant state → objects and inventories → action executor → selection and controls → navigation and orders → autonomy and co-op.
 
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [reference-games-by-layer](../research/reference-games-by-layer.md): Reference games by layer: which mechanic, from which game, for which layer
+- [the-sims](../research/the-sims.md): The Sims, as a reference for the Individual layer
+- [world-in-conflict](../research/world-in-conflict.md): World in Conflict, as a reference for command
+
 ## Prototype sources
 
 - interaccion-control-inventario.md
@@ -179,3 +187,13 @@ Proposal: inhabitant state → objects and inventories → action executor → s
 - aprendizaje-especializacion.md
 - fundamentos-mundo-personajes-produccion-aprendizaje-escala.md
 - fundamentos-mundo-personajes-produccion-habitantes-objetos.md
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Is there a "how hunted am I" readout in the Individual layer, and does it show what the police believe or only what the player could know (0044)? ([gta](../research/gta.md))
+- Is the phone the Individual layer's menu, and what does it fall back to when the networks are down? ([gta](../research/gta.md))
+- Should spec 24's utility choice move to advertisements carried by objects and places before the pop AI grows further? ([the-sims](../research/the-sims.md))
+- Are relationships between pops a score per pair, as in The Sims, or beliefs about each other (spec 39)? ([the-sims](../research/the-sims.md))
+- When commanding a group, can the player hand a role (scouts, guards, builders) to another pop as a sub-commander? ([world-in-conflict](../research/world-in-conflict.md))

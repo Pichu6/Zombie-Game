@@ -193,3 +193,25 @@ This waits for the world-sim order ([world simulation](world-simulation.md) §14
 - **Director games.** WorldBox: a god sandbox with no nation to play; civilisations grow, ally and fight on their own ([Wikipedia](https://en.wikipedia.org/wiki/WorldBox)).
 - **Real anchors.** The UN Security Council called the Ebola outbreak a threat to international peace and security in resolution 2177 (18 September 2014). The WHO declared COVID-19 a public health emergency of international concern on 30 January 2020. General knowledge, not re-checked in this pass.
 - **Earlier project research:** `research/global-sim/loop/16d` (edicts, Director role, chronicle, auto-pause classes, transitions), `22a` (Plague Inc and the virus editor), `22b` (world generation and cultures), `22c` (map-targeted orders, inspectors, possession); summary in [research/global-sim.md](../research/global-sim.md).
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Is the 0028 tech tree a weighted draw of a few options per field, weighted by the researchers actually working on it? ([stellaris](../research/stellaris.md))
+- Do factions form automatically from shared beliefs, or are they founded by a leader pop? ([stellaris](../research/stellaris.md))
+- Does the player get a goal at all in Macro, or only the AI factions, with the player free? ([teg](../research/teg.md))
+- Are pacts explicit agreement records with terms, or only beliefs each side holds about the other? ([teg](../research/teg.md))
+- Is drawing fronts and arrows, carried out by commander pops, the Macro layer's main war verb? ([hearts-of-iron](../research/hearts-of-iron.md))
+- What limits how often a country can change its laws: time, legitimacy as a belief, or the cost of unrest? ([hearts-of-iron](../research/hearts-of-iron.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [global-sim](../research/global-sim.md): Global outbreak simulation research
+- [hearts-of-iron](../research/hearts-of-iron.md): Hearts of Iron IV, as a reference for the Macro layer
+- [reference-games-by-layer](../research/reference-games-by-layer.md): Reference games by layer: which mechanic, from which game, for which layer
+- [stellaris](../research/stellaris.md): Stellaris, as a reference for the Macro layer
+- [teg](../research/teg.md): TEG, as a reference for the Macro layer
+- [world-systems-factions](../research/world-systems-factions.md): World systems for factions: territory, subjects, expansion, conquest, collapse

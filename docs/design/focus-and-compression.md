@@ -118,3 +118,20 @@ Every long thing is the same kind of record, a **Process**: a plan (inputs, labo
 3. **Fast-forward is safe for a body inside a Process.** The rule from [spec 27](../tier0/specs/27-detail-levels.md) and [layer jumps](layer-jumps.md) row 17 is that an attended body forces the speed its rules allow. A body in a progress-bar activity runs only needs, metabolism and the Process, which all have jump forms, so its speed cap lifts; **any event** (hunger threshold, noise, a stranger, an injury) drops it to the speed the new situation needs and can pause. Combat, walking through a door and other hot-only rules keep their caps.
 4. **Several Processes at once** (Haven and Hearth style): a body or a place can run many; the player queues and switches while bars fill.
 5. **Open:** whether time passes while the game is closed (0049 open point); a Process model makes either answer cheap, because catch-up is the same `advance`.
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Do Roaring-style compressed id sets beat plain sorted arrays at our roster sizes? Needs a measurement. ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
+- How do Songs of Syx and Dwarf Fortress actually lay out their data? Not readable yet. ([low-resource-city-simulation](../research/low-resource-city-simulation.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
+- [haven-and-hearth](../research/haven-and-hearth.md): Haven and Hearth: a reference game for long real-time play
+- [layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md): Layer jumps: what multi-resolution simulation research and games say
+- [low-resource-city-simulation](../research/low-resource-city-simulation.md): Low-resource city simulation: "ASCII City" and the games that fake or tame big populations
+- [pop-storage-and-lenses](../research/pop-storage-and-lenses.md): Pop simulation, saving data, and "lenses" across zoom

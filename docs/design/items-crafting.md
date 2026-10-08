@@ -203,6 +203,18 @@ Intent Decided ([0017](../decisions/0017-slow-endgame-and-generation-on-the-go.m
 - Rules for renewable production (crops, births) in a world without respawn.
 - How to keep inspecting many similar objects from becoming tedious.
 
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Should our quality number be a geometric mean of the body attribute and the skill, like Haven and Hearth's sqrt(attribute × skill) with softcaps? ([haven-and-hearth](../research/haven-and-hearth.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [haven-and-hearth](../research/haven-and-hearth.md): Haven and Hearth: a reference game for long real-time play
+- [prototype-sim-code](../research/prototype-sim-code.md): Prototype simulation code: what to keep, what to avoid
+- [second-life](../research/second-life.md): Second Life, as a reference for ownership
+
 ## Prototype sources
 
 - catalogo-items.md

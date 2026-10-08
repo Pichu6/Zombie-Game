@@ -144,6 +144,18 @@ Lightweight three-state AI: feed → alert → flee to the burrow. Proposal.
 - Do seasons last a fixed or configurable number of game days?
 - Does wildlife use the same density promotion as hordes at the cold level?
 
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Wildlife regrowth by body size and herbivore or carnivore biomass by biome: not found (only sandbox bands). ([world-systems-ecology](../research/world-systems-ecology.md))
+- No livestock stocking rates by biome, no milk or draught output, no livestock per person by era. ([world-systems-ecology](../research/world-systems-ecology.md))
+- The yearly soil-fertility regrowth rate (0.05-0.2) is a design choice from fallow durations alone. ([world-systems-ecology](../research/world-systems-ecology.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [world-systems-ecology](../research/world-systems-ecology.md): World systems: flora, fauna, soils and fisheries in numbers
+
 ## Prototype sources
 
 - quimica-combustibles-balistica-clima.md

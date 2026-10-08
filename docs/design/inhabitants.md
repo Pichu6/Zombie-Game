@@ -167,6 +167,14 @@ Proposal. One identity passes through three levels of detail; the research calls
 
 Proposal (user intent, figures not confirmed): large map, journeys of hours on foot, Arma/GTA as references. The research leaves size open (town, district or city). Open: size, simultaneous population, hardware and time acceleration.
 
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [gta](../research/gta.md): GTA, as a reference for the Individual layer
+- [inzoi](../research/inzoi.md): inZOI, as a reference for the Individual layer
+- [pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md): Pop simulation, lenses per zoom, and saving the world
+
 ## Prototype sources
 
 - aprendizaje-especializacion.md
@@ -178,3 +186,10 @@ Proposal (user intent, figures not confirmed): large map, journeys of hours on f
 - fundamentos-mundo-personajes-produccion-aprendizaje-escala.md
 - arquitectura-sistemas.md
 - engine-research.txt (engine research)
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Should the selected pop show a "why" line (current goal, the need behind it, what it believes) to make the window readable? ([inzoi](../research/inzoi.md))
+- Off-screen life changes must be legible and consentable (Sims 3 lesson); records browsable by filters with additive breakdowns. Confirm? ([pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md))

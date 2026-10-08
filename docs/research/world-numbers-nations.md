@@ -1,9 +1,45 @@
 # World numbers for nations: how they arise, how big they are, what they can do
 
-**Date:** 2026-10-06
-**Status:** research note, not a decision. Feeds the "world numbers" design doc that [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md) asks for. Nothing here is Decided, Implemented or Validated.
+**Date:** 2026-10-06. **Status:** research note, not a decision; nothing here is Decided, Implemented or Validated. **Feeds:** [world numbers](../design/world-numbers.md), [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md). **Evidence:** WebFetch was blocked by the network proxy for every domain tried (en.wikipedia.org, pnas.org, ourworldindata.org, arxiv.org), so no source page was read in full; every number comes from WebSearch result summaries, each tied to the URL the search returned. Where a summary quoted a secondary source (a blog, a forum, an aggregator), the table marks confidence L and names the primary source to check. Equations in section 2 are our own proposals built on these anchors; none is copied from a paper unless said so. **IDs:** WNN.
 
-**Method and limits.** WebFetch was blocked by the network proxy for every domain tried (en.wikipedia.org, pnas.org, ourworldindata.org, arxiv.org), so no source page was read in full. **Every number below comes from WebSearch result summaries**, each tied to the URL the search returned. Where a summary quoted a secondary source (a blog, a forum, an aggregator), confidence is marked low and the primary source is named so it can be checked. Equations in section 2 are **our own proposals** built on these anchors; none is copied from a paper unless said so.
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| WNN-1 | Diamond's scale: band under about 100 people, tribe hundreds, chiefdom thousands, state over about 50,000 with bureaucracy and written law (study-guide summary; check the book) | reported | https://litcharts.com/lit/guns-germs-and-steel/chapter-14-from-egalitarianism-to-kleptocracy |
+| WNN-2 | Carneiro circumscription: states arise where farmland is bounded so the losers of war cannot flee; qualitative, no formula | reported | https://en.wikipedia.org/wiki/Circumscription_theory |
+| WNN-3 | Scott: cereal grains are the tax base of early states because they are visible, divisible, storable and assessable | reported | https://en.wikipedia.org/wiki/Against_the_Grain:_A_Deep_History_of_the_Earliest_States |
+| WNN-4 | Turchin et al. 2013: a spatial model of war, diffusing military technology and rugged terrain explains 65% of the variance in where large states arose 1500 BCE-1500 CE (16% without technology diffusion) | reported | https://pmc.ncbi.nlm.nih.gov/articles/PMC3799307 |
+| WNN-5 | Seshat: one principal component captures about 75% of the variation in social complexity across 414 societies, 30 regions, 51 variables | reported | https://csh.ac.at/publication/quantitative-historical-analysis-uncovers-a-single-dimension-of-complexity-that-structures-global-variation-in-human-social-organization/ |
+| WNN-6 | Secular cycles (expansion, stagflation, crisis, depression) last 100-300 years; more than 40 detected in Eurasia and North Africa (the count is low confidence) | reported | https://wiki.p2pfoundation.net/Secular_Cycles |
+| WNN-7 | Country populations follow a power law with exponent about 0.97 (cities 1.94); area exponent near 1 | reported | https://arxiv.org/pdf/1006.5269 |
+| WNN-8 | Mean country population grows with area as N ~ A^0.82, so density falls as A^-0.18 | reported | https://arxiv.org/pdf/1006.5269 |
+| WNN-9 | Taagepera: after 600 BCE some empire always held at least 2.5 million km2, after 1600 CE at least 10 million km2; empire durations did not grow in 5000 years (his lists are criticised) | reported | https://lrb.co.uk/the-paper/v45/n09/tom-stevenson/empires-in-disguise |
+| WNN-10 | Largest empires at peak: British 35.5 million km2 (1920), Mongol 24.0 (c. 1270-1309), Russian 22.8 (1895), Qing 14.7 (1790) | reported | https://en.wikipedia.org/wiki/List_of_largest_empires |
+| WNN-11 | Count of states: 27 in 1800 and about 50 in 1900 (aggregator, low confidence); UN 51 founding members in 1945, 193 members in 2026 | reported | https://en.wikipedia.org/wiki/Enlargement_of_the_United_Nations |
+| WNN-12 | Roman couriers covered about 50 Roman miles (about 46 modern miles) a day, urgent relays about 170 miles a day, on about 47,000 miles of post roads (low confidence) | reported | https://www.historyskills.com/classroom/ancient-history/roman-mail-system/ |
+| WNN-13 | Tax revenue by income group: low 14%, lower-middle 18%, upper-middle 22%, high 33% of GDP (2023: low 13%, high 31%) | reported | https://www.oecd.org/en/publications/tax-policy-reforms-2026_43d18a55-en/full-report/tax-revenue-context_6e7b3dab.html |
+| WNN-14 | Tax-to-GDP tipping point about 12.75% (rule of thumb 15%); above it GDP per capita is about 7.5% higher after 10 years | reported | https://www.imf.org/en/Publications/WP/Issues/2016/12/31/Tax-Capacity-and-Growth-Is-there-a-Tipping-Point-44436 |
+| WNN-15 | Preindustrial taxation: Rome about 5% of gross product, medieval states at most about 5% of GDP | reported | https://knowablemagazine.org/article/society/2017/taxes-through-ages |
+| WNN-16 | 18th-century taxes: China 5%, Russia 12-15%, France 9-13%, Britain 16-24% (the last two of commodity production; low confidence) | reported | https://academic.oup.com/book/11024/chapter/159355022 |
+| WNN-17 | Standing armies: preindustrial rule of thumb about 0.5% of population (forum); Rome under Augustus about 350,000 men in about 50 million, 0.7% | reported | https://mythicscribes.com/community/threads/troop-to-population-ratio.14993/latest |
+| WNN-18 | Peacetime armies c. 1900: France about 2%, Germany about 1%, Russia 0.8%, Austria-Hungary 0.7% of population | reported | https://www.Strategypage.Com/cic/docs/cic440b.asp |
+| WNN-19 | WWII armed forces at peak: USSR 7%, USA 9%, Japan about 8%, UK 10% of population | reported | https://warwick.ac.uk/fac/soc/economics/staff/mharrison/war_and_economy/08_ww2_mobilization.pdf |
+| WNN-20 | An industrial economy can divert about 10% of its population to the military before production suffers; WWI peak about 15% (France 21%) (forum) | reported | https://www.alternatehistory.com/forum/threads/max-us-mobilization.321219/page-3 |
+| WNN-21 | Roman legionary pay 225 denarii a year (Augustus to Domitian); labourer about 1 denarius a day (disputed); army 50-75% of the imperial budget (some say 80%) | reported | https://en.wikipedia.org/wiki/Pay_(Roman_army) |
+| WNN-22 | A Roman soldier's pay was roughly 0.75 of a labourer's annual earnings (225 against about 300 days at 1 denarius), before food, kit and housing (from WNN-21) | derived | this note |
+| WNN-23 | Rome had 35,000 or more central salaried officials for about 45 million people, about 8 per 10,000 (low confidence) | reported | https://www.johndcook.com/blog/2012/08/09/roman-bureaucracy/ |
+| WNN-24 | Qing held about 13,000 officials in formal appointments at any time, 1830-1911; Han about 130,000 trained professionals (weak) | reported | https://www.cqh.hku.hk/research/organizational-demography-of-the-qing-civil-service-1830-1911/ |
+| WNN-25 | General government employment, OECD average 2023: 18.4% of total employment; Norway 30.1%, Sweden 28.2%; Chile, Japan, Korea below 10% | reported | https://www.oecd.org/en/publications/government-at-a-glance-2025_0efd0bcd-en/full-report/employment-in-general-government_dafcfac5 |
+| WNN-26 | Span of control: 5-6 direct reports suggested (Graicunas, Urwick), typical range 3-15 | reported | https://en.wikipedia.org/wiki/Span_of_control |
+| WNN-27 | Maximum hierarchy height grows logarithmically with the number of agents | reported | https://arxiv.org/pdf/1707.01744 |
+| WNN-28 | Fragile States Index: 12 indicators, each 0-10, total 0-120 (120 most unstable); its data is CC BY-NC-SA, so not usable | reported | https://en.wikipedia.org/wiki/Fragile_States_Index |
+| WNN-29 | Proposal E1-E3: a tax ceiling rising with income (3-5% preindustrial to 30-40%), revenue scaled by capacity c and legitimacy, and army size = min(share of population, affordable from revenue) | estimate | this note (§2) |
+| WNN-30 | Proposal E5: administrative levels = ceil(log(P / P_local) / log(span)); reach radius = message speed x tolerated delay (15-60 days, design); territory beyond reach needs a delegated tier | estimate | this note (§2) |
+| WNN-31 | Proposal E7: stability stress = immiseration x elite overproduction x fiscal distress (Turchin's structural-demographic drivers; his exact formula not retrieved) drives legitimacy | estimate | this note (§2) |
+| WNN-32 | Proposal E9: a region becomes a state when population exceeds about 50,000, a storable surplus exists, it is circumscribed and under war or trade pressure; collapse falls to the tier below, not to zero | estimate | this note (§2) |
+| WNN-33 | Loop rule: pops are the only source of revenue, army and officials, so a nation never has a stat that is not a head count; soldiers and officials leave the labour pool | estimate | this note (§3) |
+| WNN-34 | Usable open data: Maddison Project 2023 (CC BY 4.0) and UN WPP (CC BY 3.0 IGO); do not ingest Seshat or the Fragile States Index (non-commercial) | reported | https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2023 |
 
 ## 1. Numbers
 

@@ -1,8 +1,25 @@
 # World in Conflict, as a reference for command
 
-**Date:** 2026-10-08. **Status:** research note, not a decision. **Why:** the user listed it among the City-layer references. It fits the commander layer that opens as the player finds others ([vision](../vision.md)). Part of [reference games by layer](reference-games-by-layer.md). Related: [war in other games](war-in-other-games.md), [Foxhole](foxhole.md).
+**Date:** 2026-10-08. **Status:** research note, not a decision. **Feeds:** [cameras and modes](../design/cameras-modes.md), [interaction](../design/interaction.md), [spec 39](../tier0/specs/39-orders-and-belief.md), [spec 32](../tier0/specs/32-stocks-goods-and-money.md). **Evidence:** checked by web search (Wikipedia, Giant Bomb, reviews); the mechanics are as reported there, not verified in play. **IDs:** WIC.
 
-**Evidence caveat:** checked by web search (Wikipedia, Giant Bomb, reviews).
+The user listed it among the City-layer references. It fits the commander layer that opens as the player finds others ([vision](../vision.md)). Part of [reference games by layer](reference-games-by-layer.md). Related: [war in other games](war-in-other-games.md), [Foxhole](foxhole.md).
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| WIC-1 | World in Conflict (Massive Entertainment, 2007) is a real-time tactics game with no base building and no resource gathering | reported | https://en.wikipedia.org/wiki/World_in_Conflict |
+| WIC-2 | Each player spends a budget of reinforcement points on units, which arrive by air about 20 seconds later | reported | https://en.wikipedia.org/wiki/World_in_Conflict |
+| WIC-3 | A lost unit's reinforcement points come back, so a replacement can be bought | reported | https://en.wikipedia.org/wiki/World_in_Conflict |
+| WIC-4 | Tactical aid points are earned mostly by destroying enemies and holding command points, and spent on off-map support (artillery, airstrikes, paratroops, up to a tactical nuke) | reported | https://en.wikipedia.org/wiki/World_in_Conflict |
+| WIC-5 | Capturing and fortifying command points on the map, and holding them, wins the match | reported | https://en.wikipedia.org/wiki/World_in_Conflict |
+| WIC-6 | Each player takes one role (infantry, armour, air or support) and needs the others | reported | https://giantbomb.com/wiki/Games/World_in_Conflict |
+| WIC-7 | Unit abilities (smoke, target marking, repair) each have a recharge | reported | https://en.wikipedia.org/wiki/World_in_Conflict |
+| WIC-8 | Take: no base building in battle; the fight is about using what you have | estimate | this note |
+| WIC-9 | Take: "call support" as a command verb, from real assets (a battery, an aircraft with fuel and crew, called by radio) | estimate | this note |
+| WIC-10 | Take: roles, splitting command between pops by speciality (delegating a squad or sector to another pop) | estimate | this note |
+| WIC-11 | Do not take: points that refund losses; a lost unit is lost people, so nothing comes back | estimate | this note |
+| WIC-12 | Do not take: points earned by killing; units come from a levy and stocks, and objectives are places that matter for real reasons (bridge, depot, hospital) | estimate | this note |
 
 ## What it is
 

@@ -74,6 +74,20 @@ Corpses, human or zombie, do not disappear. All **Proposal**.
 - Pyre with firewood and fuel: destroys pathogens; black smoke visible for kilometers. **Proposal**.
 - Decay advances layer by layer down to the visible anatomical skeleton. **Decided**.
 
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [clothing-wrap](../research/clothing-wrap.md): Clothing that follows the body, in our own engine
+- [project-zomboid](../research/project-zomboid.md): Project Zomboid, as a reference for the Individual layer
+- [prototype-sim-code](../research/prototype-sim-code.md): Prototype simulation code: what to keep, what to avoid
+
 ## Prototype sources
 
 cirugia-trauma-descomposicion.md, evaluacion-humano-costo-realismo.md, decisiones-generador-anatomia.md, conocimiento-produccion-personajes-superficie-evidencia.md. Also: engine research and research/clothing-wrap.md.
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Does the player see "sick" while a pop is incubating, given that spec 21 hides infection from the UI? (Project Zomboid shows "queasy", with the same symptoms as food poisoning.) ([project-zomboid](../research/project-zomboid.md))

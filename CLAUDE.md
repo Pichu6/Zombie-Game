@@ -22,7 +22,7 @@ A realistic zombie survival simulation for PC, on our own C++ engine with a Vulk
 | Design per system | `docs/design/<system>.md` | One source of truth per system. |
 | Tier 0 plan and unit specs | `docs/tier0/` | A unit's spec is written before its code. |
 | Decisions | `docs/decisions/NNNN-topic.md` | One per file, dated. Never rewritten; a new decision supersedes an old one and says so. |
-| Research | `docs/research/` | Dated notes; not decisions. |
+| Research | `docs/research/` | Dated notes; not decisions. Findings with IDs and confidence, checked by `python3 tools/docs/check_research.py` ([0054](docs/decisions/0054-research-notes-findings-and-links.md)). |
 | Prototype lessons | `docs/lessons/` | What failed and why. |
 | Terms | `docs/glossary.md` | |
 

@@ -171,6 +171,12 @@ Acceptance criteria (Proposal):
 
 First visual sequence (Proposal): same underground facility, same inhabitant, same lighting in four shots. Floor plan with the roof cut, selected inhabitant with a route, follow shot next to a door, third person in the corridor. A fifth view opens the body analysis.
 
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [second-order-dynamics](../research/second-order-dynamics.md): Second-order dynamics for procedural motion
+
 ## Prototype sources
 
 - wiki/guia-de-arte.md

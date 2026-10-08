@@ -169,6 +169,45 @@ The model earns trust by hitting real targets, not by feel. A **realism report**
 4. **Fathers, marriage and households** are not yet in the pop model; household formation interacts with fertility and wealth transmission. Recommendation: after the nation actor.
 5. **War between nations** and Foxhole-style logistics stay secondary for now ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md) and the war research note), but the army law above already prices it in pops, wages and revenue.
 
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Golden test: a town that fills a new district all at once must not show a death wave in its age pyramid later. ([cities-skylines](../research/cities-skylines.md))
+- Persons per km² by biome and era (k_biome) for carrying capacity: not found; what to use? ([world-numbers-settlement](../research/world-numbers-settlement.md))
+- Numeric weights for the suitability factors and site catchment radii: not found; set by calibration only? ([world-numbers-settlement](../research/world-numbers-settlement.md))
+- Urbanisation-vs-income slope and midpoint (E5): not found; fit to the 1800 and 2018 anchors? ([world-numbers-settlement](../research/world-numbers-settlement.md))
+- Sigma of Gibrat growth (E4, 0.1-0.3 per year) is an unsourced design value; tune or source it. ([world-numbers-settlement](../research/world-numbers-settlement.md))
+- Rail, steam and cart cost per tonne-km in one unit for post-Roman eras: not found. ([world-numbers-settlement](../research/world-numbers-settlement.md))
+- Licences for GHSL, UN WUP 2018, CIESIN/SEDAC and ORBIS are unconfirmed; confirm before shipping data from them. ([world-numbers-settlement](../research/world-numbers-settlement.md))
+- No hunter-gatherer density medians per biome, and few pre-industrial agrarian densities. Open HYDE to calibrate K per era? ([world-numbers-capacity](../research/world-numbers-capacity.md))
+- No quantitative Malthus or Boserup parameters (r, elasticities, famine mortality); the 0.8 pressure threshold that advances the era is our own choice. ([world-numbers-capacity](../research/world-numbers-capacity.md))
+- Unconfirmed values from memory: grain kcal per gram, seed share, pre-industrial r, pasture ratio, pre-industrial GJ per person. ([world-numbers-capacity](../research/world-numbers-capacity.md))
+- Reserves and production for iron, bauxite, coal, oil, gas, lithium and phosphate are missing (the USGS PDF was unreachable). ([world-numbers-capacity](../research/world-numbers-capacity.md))
+- Sector employment shares as a function of income per head (only two country points and the qualitative law were found). ([world-numbers-demography](../research/world-numbers-demography.md))
+- Gini by income level and era, and intergenerational income elasticities outside the US. ([world-numbers-demography](../research/world-numbers-demography.md))
+- TFP growth by era and the Penn World Table capital share; PWT's licence is unconfirmed, so not to be used yet. ([world-numbers-demography](../research/world-numbers-demography.md))
+- The female labour-force U-shape in income, and the health-spending to life-expectancy coefficient. ([world-numbers-demography](../research/world-numbers-demography.md))
+- Licences for Eurostat, US federal data (BEA, BLS, Census), worldsteel, IEA and GCCA are unchecked; confirm before shipping that data. ([world-systems-economy](../research/world-systems-economy.md))
+- How many levels of government does a state need for its population size? No source; P_local and span are uncalibrated. ([world-numbers-nations](../research/world-numbers-nations.md))
+- Bureaucrat-to-population ratios beyond Rome (Han and Qing are missing). ([world-numbers-nations](../research/world-numbers-nations.md))
+- Turchin's published Political Stress Index formula; E7 (stress = M×E×F) is our stand-in. ([world-numbers-nations](../research/world-numbers-nations.md))
+- An area-per-state rule, and mean and median country population and area, for seeding world generation. ([world-numbers-nations](../research/world-numbers-nations.md))
+- How long a delay can a centre tolerate before reach fails? 15-60 days is a design guess. ([world-numbers-nations](../research/world-numbers-nations.md))
+
 ## 12. Order of work (dependencies only)
 
 World fields and K per region → settlement generator and the road and trade graph → the yearly region step (demography and structure laws on `NationDemographics`) → the nation actor (revenue, army, officials, stability, reach) → nation formation, split and collapse → the realism report on generated worlds → the data tool and real tables. Each unit gets a spec first ([CLAUDE.md](../../CLAUDE.md)).
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [human-generator-data](../research/human-generator-data.md): The human generator: data, licences and the generation pipeline
+- [war-in-other-games](../research/war-in-other-games.md): War in other games, as a reference
+- [world-numbers-capacity](../research/world-numbers-capacity.md): World numbers: how many people can a world hold?
+- [world-numbers-demography](../research/world-numbers-demography.md): World numbers: demography, structure, education, labour, inequality, production
+- [world-numbers-nations](../research/world-numbers-nations.md): World numbers for nations: how they arise, how big they are, what they can do
+- [world-numbers-settlement](../research/world-numbers-settlement.md): World numbers: how people spread over land, and how towns and cities arise
+- [world-systems-ecology](../research/world-systems-ecology.md): World systems: flora, fauna, soils and fisheries in numbers
+- [world-systems-economy](../research/world-systems-economy.md): World systems: how a real economy works in numbers
+- [world-systems-factions](../research/world-systems-factions.md): World systems for factions: territory, subjects, expansion, conquest, collapse
+- [world-systems-resources-networks](../research/world-systems-resources-networks.md): World systems: where resources are, and how grids and networks are laid out

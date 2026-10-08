@@ -159,6 +159,19 @@ See [body-trauma.md](body-trauma.md).
 - Formulas and calibration for metabolism, capabilities and tissue.
 - Zombie infection rules, and whether the zombie keeps the inhabitant's identity.
 
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Should the window show a moodle-style column for the selected pop? Which states get an icon, from which body fields? (First list: hunger, thirst, fatigue, cold or heat, pain, bleeding, fear, sickness.) ([project-zomboid](../research/project-zomboid.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [clothing-wrap](../research/clothing-wrap.md): Clothing that follows the body, in our own engine
+- [concept-pichu-original-vision](../research/concept-pichu-original-vision.md): Pichu's original vision (2026-10-05, verbatim, lightly cleaned)
+- [project-zomboid](../research/project-zomboid.md): Project Zomboid, as a reference for the Individual layer
+- [prototype-sim-code](../research/prototype-sim-code.md): Prototype simulation code: what to keep, what to avoid
+
 ## Prototype sources
 
 bases-simulador-corporal.md, bases-simulador-corporal-arquitectura-regional.md, bases-simulador-corporal-base-femenina.md, bases-simulador-corporal-contratos-masas.md, bases-simulador-corporal-tejidos-esqueleto.md, decisiones-tejidos-esqueletos.md, decisiones-generador-anatomia.md, evaluacion-humano-costo-realismo.md, conocimiento-produccion-personajes-reposo-movimiento.md, conocimiento-produccion-personajes-superficie-evidencia.md, movimiento-capas-rendimiento.md. Also: engine research and research/clothing-wrap.md.

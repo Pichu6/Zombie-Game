@@ -100,3 +100,18 @@ If hot work goes over budget, warm and macro slices wait (they have deadlines, n
 3. **Sim/render split:** snapshot and render thread, when the Vulkan renderer starts.
 4. **Streaming:** I/O thread for chunk wake/sleep and assets, with the Tier 1 chunk split.
 5. **Layer budgets:** warm round-robin and macro deadlines, when warm and macro systems exist.
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- ECS storage as archetypes or sparse sets? Stable ids favour sparse sets. ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [clothing-wrap](../research/clothing-wrap.md): Clothing that follows the body, in our own engine
+- [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
+- [second-order-dynamics](../research/second-order-dynamics.md): Second-order dynamics for procedural motion
+- [threading-and-partition](../research/threading-and-partition.md): Threading and partition model

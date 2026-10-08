@@ -42,3 +42,17 @@ Body care, medicine, cooking and food preservation, repair and mechanics, electr
 2. Automatic by default; hands-on the first time as a tutorial, then optional. Proposal for how a hands-on moment pays off without breaking parity: it can land in the upper part of the character's own window (for example a press-to-build-faster rhythm, War Dogs style), a part a skilled pop also reaches; it never raises the ceiling.
 3. Simple, easy and varied (GTA, Shenmue, War Dogs building), in both cameras.
 4. Items carry their owners' lives: a zombie's pockets come from its census record, and its house key opens its real house (the building ledger in [world simulation](world-simulation.md) section 12).
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Is "ask a pop what they know" an Individual-layer action from the start, reading spec 39 beliefs? ([shenmue](../research/shenmue.md))
+- Should a town's establishments show opening hours from their staff rosters? ([shenmue](../research/shenmue.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [gta](../research/gta.md): GTA, as a reference for the Individual layer
+- [shenmue](../research/shenmue.md): Shenmue, as a reference for the Individual layer

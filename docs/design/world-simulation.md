@@ -150,3 +150,28 @@ Tier 0 stays as decided ([0010](../decisions/0010-concept-v2.md)): contract, bod
 ## Answered
 
 The nine open questions (speed by path, hidden odds, narrow arrival, hidden-bite default, civilian start, pause while ordering, instant build in sandbox only, orders need comms, realism-breaking presets tagged in Sandbox) were decided as recommended in [0014](../decisions/0014-open-questions-answered.md).
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Adopt the record field groups and generate the population by iterative proportional fitting from census marginals? ([pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md))
+- Save container from Tier 1: one SQLite file per world, or region files? Decide at the Tier 1 chunk split. ([pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md))
+- Name tables have no clean licensed source for China, India, the Arab world and Africa (Wikidata is biased to notable people). What fills those gaps? ([human-generator-data](../research/human-generator-data.md))
+- Health rates come only from NHANES (US), scaled by national mortality. Check national open health surveys (Health Survey for England teaching data, Eurostat aggregates) as additions? ([human-generator-data](../research/human-generator-data.md))
+- ShareAlike sources (UNESCO UIS, INDEC): ship them as separable CC BY-SA files, or use CC BY mirrors (World Bank EdStats)? ([human-generator-data](../research/human-generator-data.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [concept-pichu-original-vision](../research/concept-pichu-original-vision.md): Pichu's original vision (2026-10-05, verbatim, lightly cleaned)
+- [concept-v2](../research/concept-v2.md): Juego Zombie · Concept v2
+- [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
+- [global-sim](../research/global-sim.md): Global outbreak simulation research
+- [human-generator-data](../research/human-generator-data.md): The human generator: data, licences and the generation pipeline
+- [layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md): Layer jumps: what multi-resolution simulation research and games say
+- [pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md): Pop simulation, lenses per zoom, and saving the world
+- [simcity](../research/simcity.md): SimCity, as a reference for the City layer
+- [world-numbers-capacity](../research/world-numbers-capacity.md): World numbers: how many people can a world hold?
+- [world-numbers-settlement](../research/world-numbers-settlement.md): World numbers: how people spread over land, and how towns and cities arise

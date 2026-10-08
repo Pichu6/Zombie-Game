@@ -1,8 +1,41 @@
 # Juego Zombie · Concept v2
 
-- **Date:** 2026-10-05
-- **What this is:** the result of a proposer/critic refinement loop (working files kept outside the repo, in the project files under `research/concept/loop/`), built on Pichu's own words ([concept-pichu-original-vision.md](concept-pichu-original-vision.md)). Section 9 records Pichu's answers and overrides earlier sections where they differ.
-- **Status:** direction decided by Pichu on 2026-10-05 (section 8 and section 9). Where section 9 differs from sections 1–7, section 9 wins. Details inside the tiers are still proposals.
+**Date:** 2026-10-05. **Status:** research note, not a decision; its direction was decided by Pichu on 2026-10-05 (sections 8 and 9, recorded in [0010](../decisions/0010-concept-v2.md)), and where section 9 differs from sections 1-7, section 9 wins; details inside the tiers are still proposals. **Feeds:** [0010 concept v2](../decisions/0010-concept-v2.md), [0012 world simulation layers](../decisions/0012-world-simulation-layers.md), [world simulation](../design/world-simulation.md), [infrastructure](../design/infrastructure.md), [threats](../design/threats.md), [cameras and modes](../design/cameras-modes.md), [spec 24](../tier0/specs/24-pop-ai.md), [spec 25](../tier0/specs/25-chronicle.md), [spec 26](../tier0/specs/26-run.md). **Evidence:** the result of a proposer/critic refinement loop (working files kept outside the repo, in the project files under `research/concept/loop/`), built on Pichu's own words ([concept-pichu-original-vision.md](concept-pichu-original-vision.md)); no outside sources were read. Findings marked sourced are Pichu's own answers; the rest are the loop's proposals. **IDs:** CV.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| CV-1 | The hero is the player's own survivor, as in Project Zomboid; the game asks "how long can you really survive?" and its content is the realistic ways to die that movies and games ignore | sourced | Pichu, 2026-10-05 (§8.1, §9) |
+| CV-2 | Start alone; an XCOM-like commander layer unlocks when you find or recruit other survivors, and you can drop into any of them to play directly | sourced | Pichu, 2026-10-05 (§8.2, §9) |
+| CV-3 | Real time, no turns | sourced | Pichu, 2026-10-05 (§8.2) |
+| CV-4 | Default time scale: 1 real hour per game day at 1x (1 game hour = 2.5 real minutes), with 3x (20 min/day), 10x (6 min/day) and rest-until-event (about 1-2 min/day); also a sandbox setting | sourced | Pichu, 2026-10-05 (§8.3); speeds from §3 |
+| CV-5 | Map: small and hand-made, every building enterable, breachable walls; Tier 0 is one building plus 2 houses; seeded variants wait for Tier 3 | sourced | Pichu, 2026-10-05 (§8.4) |
+| CV-6 | Tier 0 is a 2D simulation (SDL3 + ImGui, no Vulkan) that must answer the fun questions before any renderer work | sourced | Pichu, 2026-10-05 (§8.5) |
+| CV-7 | Zombie speed is a sandbox setting (always slow, body-driven, fast); default body-driven: mostly slow, fresh lean bodies faster, fat or broken ones slower | sourced | Pichu, 2026-10-05 (§8.6) |
+| CV-8 | Parity rule: every pop can survive exactly like the player and the player can do everything any pop can; one body model, one action set, one set of survival rules; the AI only chooses actions | sourced | Pichu, 2026-10-05 (§9) |
+| CV-9 | Sandbox settings change numbers, never rules, so player-pop parity always holds | sourced | Pichu, 2026-10-05 (§9) |
+| CV-10 | Everything built (walls, floors, houses, pipes, power lines, engines, vehicles, tools, items) can be scavenged into real parts and crafted, tied by one quality system; crafting and repair depend on job knowledge and skill | sourced | Pichu, 2026-10-05 (§9) |
+| CV-11 | Consequence of CV-10: one assembly data model for every built thing, from a screw to a building; structures are assemblies, not static level geometry | estimate | this note (§9) |
+| CV-12 | Consequence of CV-8: every pop runs the full survival sim, so simulation LOD is essential (full detail near the player, cheaper scheduled updates far away, same rules and conserved quantities) | estimate | this note (§9) |
+| CV-13 | The core choice, repeated every few minutes: comfort and progress versus being noticed, paid for with fragile bodies; every system feeds it | estimate | this note (§2) |
+| CV-14 | Every light, engine and hammer blow leaks signals (noise, light, smell) that draw the dead; example: a generator makes 70 dB | estimate | this note (§2) |
+| CV-15 | Each zombie is a specific former person who keeps their body record, wounds and clothes (a broken leg makes a crawler); a body that dies infected comes back | estimate | this note (§1, §4) |
+| CV-16 | Pressure arc so "survive N days" is not flat: fuel runs short around day 10, waves grow with the noise made, hidden infection breaks out inside the group, and a goal (repair the radio) needs power, which means noise | estimate | this note (§2) |
+| CV-17 | Possession gives control, not power: the player brings timing, aim and judgement; the body still sets speed, strength and stamina | estimate | this note (§3) |
+| CV-18 | The AI is cautious and average on purpose and panics or refuses in specific situations (dark basement, open yard with dead in sight, cutting a live wire); possessing is how you get through them | estimate | this note (§3) |
+| CV-19 | Unpossessing never resets anything: the pop keeps its pain, fear, load and job and the AI takes over | estimate | this note (§3) |
+| CV-20 | One global clock; possession does not lock the game to 1x, combat does; slow down on events (alarm, attack, injury, breakdown, new symptom), not on perception (the RimWorld rule) | estimate | this note (§3) |
+| CV-21 | Haven & Hearth slowness is felt in game hours compressed by delegation, not in real minutes of waiting; a 6-hour repair is 15 min at 1x, 5 min at 3x, 45 s at 10x | derived | this note (from CV-4) |
+| CV-22 | Tier 0 contents: 4 pops (body in kg of fat, muscle and structure, fitness, about 17 body regions with wounds and bleeding), 6 jobs (haul, refuel, repair, cook, guard, barricade), squad orders, power with about 10 receivers, noise and light, a cold census of about 60 neighbours, hidden incubation; goal: survive 14 days | estimate | this note (§5) |
+| CV-23 | After Pichu's answers, Tier 0 starts with 1 survivor and the other 3 pops are found during the run (a neighbour, a stranger who may be infected) | sourced | Pichu, 2026-10-05 (§9) |
+| CV-24 | New Tier 0 fun question: dying must feel fair and taught; after a death the player should know which ignored thing killed them | sourced | Pichu, 2026-10-05 (§9) |
+| CV-25 | Test of realism: run the sim with no player; if AI pops die of the same ignored things a careless player does, the realism works; the AI must survive alone for 14 days with player actions only | estimate | this note (§9) |
+| CV-26 | Catalogue per tier: Tier 0 about 20 items, Tier 1 about 30 item families plus pipes and wiring, Tier 2 about 150 items, Tier 3 vehicles and engines | estimate | this note (§4, §9) |
+| CV-27 | "Fluids" in Tiers 0-2 means a water level per room with simple visuals, not visibly flowing water; off-screen physics is frozen | estimate | this note (§4) |
+| CV-28 | Biggest hidden costs of Tier 1 are pop AI (job bugs), command UI and integration/tuning, about 25% of the total | estimate | this note (§5) |
+| CV-29 | Every simulated value needs a visible tell (overlay, status icon or log line), or the sim feels random | estimate | this note (§6) |
+| CV-30 | Inspirations named by Pichu: Haven & Hearth, Project Zomboid, Infection Free Zone, Cities: Skylines, The Sims, Thunder Tier One, Spark in the Dark, Ghost Recon Breakpoint, GTA, The Last of Us, XCOM, Plague Inc. | sourced | Pichu, 2026-10-05 (§9) |
 
 ## 1. The game in one paragraph
 

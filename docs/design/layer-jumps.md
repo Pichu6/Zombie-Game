@@ -91,3 +91,23 @@ Dependencies only; the first two block the most.
 1. **Priority.** The order above follows dependency. Is there a jump you feel most as a gap (for example, going from a nation's order to one person's day)? That would move it up.
 2. **How exact must a jump be for the player?** Recommendation: exact for anything conserved or countable (A1), same distribution for noisy processes (A2), within a band for fields (A3), as in the contract.
 3. **Where the switch is visible.** The GTA-style switch hides promotions ([world simulation](world-simulation.md) §8). Do plain zooms between Macro and City also hide loading, or may they stream? Recommendation: zooms stream art only and never change what is true.
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Does row 19 (ownership) take a Second Life-style split: owner, holder, and rights to use, lend and sell? ([second-life](../research/second-life.md))
+- How do rights survive the end of the state that enforced them, when an outbreak brings everything down to "who holds it"? ([second-life](../research/second-life.md))
+- Should spec 27 get a hysteresis margin or minimum dwell time so a pop at the hot-ring edge doesn't flicker between levels? ([layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md))
+- What is the wake budget K (entities promoted per tick) that guards against chain disaggregation? ([layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md))
+- Should every rule declare itself jumpable or hot-only, with a test that fails when a hot-only rule runs inside advance? ([layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md))
+- What is the long-run record-count budget against pop fragmentation, and how many forced shortcuts (teleport, despawn, auto-resolve) are allowed per run? ([layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [catch-up-jump-forms](../research/catch-up-jump-forms.md): Catch-up: jump forms for drawn and competing rules
+- [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
+- [layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md): Layer jumps: what multi-resolution simulation research and games say
+- [pop-storage-and-lenses](../research/pop-storage-and-lenses.md): Pop simulation, saving data, and "lenses" across zoom
+- [reference-games-by-layer](../research/reference-games-by-layer.md): Reference games by layer: which mechanic, from which game, for which layer
+- [second-life](../research/second-life.md): Second Life, as a reference for ownership

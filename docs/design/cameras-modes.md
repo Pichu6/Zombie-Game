@@ -142,6 +142,15 @@ From the GDD. Proposal.
 - The simulation clock does not depend on UI or camera. Proposal.
 - Does isometric allow acceleration? Open.
 
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [concept-pichu-original-vision](../research/concept-pichu-original-vision.md): Pichu's original vision (2026-10-05, verbatim, lightly cleaned)
+- [concept-v2](../research/concept-v2.md): Juego Zombie · Concept v2
+- [second-order-dynamics](../research/second-order-dynamics.md): Second-order dynamics for procedural motion
+- [world-in-conflict](../research/world-in-conflict.md): World in Conflict, as a reference for command
+
 ## Prototype sources
 
 - GDD_Survival_3D.md (sections 2, 16, 19, 20, 21)
@@ -151,3 +160,9 @@ From the GDD. Proposal.
 - wiki/bases-produccion-visual.md
 - art-direction/multi-team-blockout/README.md
 - engine-research.txt
+
+## Open
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Is "call support" a commander-layer verb that shows the asset, its travel time and its ammunition? ([world-in-conflict](../research/world-in-conflict.md))

@@ -75,3 +75,16 @@ A person, a car and a door are real size ([world simulation](world-simulation.md
 3. Is the GTA-style switch still wanted for taking a *different* body far away, with plain zoom for everything else ([world simulation](world-simulation.md) §8)? Recommendation: yes.
 4. Camera tilt: should the city view be a tilted, miniature-style perspective (as in city builders) that straightens to top-down at the Region height, or always top-down? Recommendation: tilted in City, so buildings read as buildings.
 5. The height bands and the 6 px minimum are starting values to tune by looking, once there is a renderer.
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Should ids encode their grid level so parent and child are bit operations, as H3 does? ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
+- [low-resource-city-simulation](../research/low-resource-city-simulation.md): Low-resource city simulation: "ASCII City" and the games that fake or tame big populations
+- [pop-storage-and-lenses](../research/pop-storage-and-lenses.md): Pop simulation, saving data, and "lenses" across zoom
+- [world-generation-prior-art](../research/world-generation-prior-art.md): World generation: prior art

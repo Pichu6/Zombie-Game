@@ -209,3 +209,9 @@ alive → (unconscious) → dying (infection stage, hidden) → dead → walker 
 - Whether "worn down" is a real state or just morale over days.
 
 Answered in [0045](../decisions/0045-open-questions-answered-2.md): bladder and bowel are automatic for pops and orderable by the player in Individual (Tier 2 with water as a Proposal); fear also widens aim spread and raises work-error odds (nerves, no new number); temperature is suffered by the body in Individual from Tier 1.
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [clothing-wrap](../research/clothing-wrap.md): Clothing that follows the body, in our own engine

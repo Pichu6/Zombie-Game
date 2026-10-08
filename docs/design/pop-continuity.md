@@ -84,3 +84,17 @@ Generated cohorts never change (their aggregate events use the permutation rank)
 2. **Selection rules for layoffs and similar aggregate events** per system (seniority, skill, random draw): each system's spec states its ranking.
 3. **Numbers for the restoring cost** (§5.1): per capability, which parts, which skills, how many person-hours, which partners. Each comes from its own spec.
 4. **Age gate:** a pop younger than the playable age is a record the player can follow but not possess ([0031](../decisions/0031-restoring-capabilities-real-time-playable-age.md)).
+
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- When does a record collapse back to lazy (seed only), and what is kept after death? ([sim-scale-in-other-games](../research/sim-scale-in-other-games.md))
+- Measure the record tier: first guesses are 50-300 embodied, 10,000-100,000 records, a few hundred bytes to 1 KB each. ([sim-scale-in-other-games](../research/sim-scale-in-other-games.md))
+- How often do record-level pops update: on events, or a few times per game day? ([sim-scale-in-other-games](../research/sim-scale-in-other-games.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
+- [layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md): Layer jumps: what multi-resolution simulation research and games say
+- [sim-scale-in-other-games](../research/sim-scale-in-other-games.md): Simulation scale in other games

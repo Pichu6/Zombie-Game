@@ -178,6 +178,30 @@ A first playable slice for the loop: a **single continent of a dozen or so of th
 1. **Research honesty.** The notes are second-hand search summaries; a real data pipeline ([world numbers](world-numbers.md) §10) is the way to firm numbers up.
 2. **The first generator spec** (global grid, terrain and climate fields, sectors, zones) is the next unit to write; see section 8.
 
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Is reputation per community (what this town believes about you) also a Macro or City readout? ([inzoi](../research/inzoi.md))
+- Does the City layer draw transport lines, or only build roads and leave the lines to establishments? ([cities-skylines](../research/cities-skylines.md))
+- Deposit density per km² by geological setting, lognormal sigma per deposit type and the Lasky constants: not found. What calibrates deposit counts against world totals? ([world-systems-resources-networks](../research/world-systems-resources-networks.md))
+- OpenStreetMap is ODbL share-alike and needs a decision before use; the Energy Institute review is not to be ingested until its licence is confirmed. ([world-systems-resources-networks](../research/world-systems-resources-networks.md))
+- The biome NPP and standing-biomass table is from memory; read Lieth and Whittaker 1975 or the ORNL files before use. ([world-systems-ecology](../research/world-systems-ecology.md))
+- Fishery yield per km² and collapse thresholds have no general source. ([world-systems-ecology](../research/world-systems-ecology.md))
+- Does the City layer zone land, with projects following, or only place projects? (world-systems §4 leans towards zoning; not a recorded decision.) ([simcity](../research/simcity.md))
+- Which shortages make up a demand readout, and is it shown in Macro too? ([simcity](../research/simcity.md))
+- Are moving plates (Cortial et al.) worth their cost over the current static boundary rules? ([world-generation-prior-art](../research/world-generation-prior-art.md))
+- Replace the hand-tuned biome thresholds by Holdridge or Köppen tables (Köppen needs monthly data)? ([world-generation-prior-art](../research/world-generation-prior-art.md))
+- Check the stream-power and Priority-Flood equations and parameter ranges against the papers once they can be read. ([world-generation-prior-art](../research/world-generation-prior-art.md))
+- Input-output coefficients for agriculture, mining, energy, construction and services: take them from the WIOD or OECD ICIO tables. ([world-systems-economy](../research/world-systems-economy.md))
+- Labour-hours per tonne for smelting, refining and milling: derive from the labour share instead of authoring them? ([world-systems-economy](../research/world-systems-economy.md))
+- Construction labour-hours per m² by building type: BLS Bulletins 1755, 1892 and 2102 hold them and were not read. ([world-systems-economy](../research/world-systems-economy.md))
+- Tradable share of each sector's output: the default (goods tradable, services mostly not) is a design choice, not sourced. ([world-systems-economy](../research/world-systems-economy.md))
+- The price-adjustment speed k (0.05-0.3 per month) has no source. ([world-systems-economy](../research/world-systems-economy.md))
+- Decay length L for the loss-of-strength gradient: no constant found; proposal is half power at 1-2 weeks of march. ([world-systems-factions](../research/world-systems-factions.md))
+- Battle exponent k between 1 and 2: 1.5 is a guess, and Lanchester fits history poorly. ([world-systems-factions](../research/world-systems-factions.md))
+- Realistic tribute and levy share bands for subjects: only one Ottoman figure was found. ([world-systems-factions](../research/world-systems-factions.md))
+- Rates of subject rebellion, and of conscription, taxation, migration and assimilation among occupied pops: none found. ([world-systems-factions](../research/world-systems-factions.md))
+- Constants for war exhaustion and war score: none found, so they are design draws. ([world-systems-factions](../research/world-systems-factions.md))
+
 ## 10. Laws and anchors for the new systems
 
 Each is a **Proposal** with a realistic band and a wider sandbox band; the research notes hold the full equations, sources and confidence. "Design" means we chose it.
@@ -252,3 +276,18 @@ Reported, from search summaries; confirm on each publisher's page before shippin
 - **Not usable:** Seshat (CC BY-NC-SA), Sea Around Us (CC BY-NC-SA, use FAO capture data instead), Correlates of War (custom terms), Fragile States Index (CC BY-NC-SA).
 - **Needs a decision:** OpenStreetMap (ODbL, share-alike; the repo already restricts it to the home region as a separate database, [world simulation](world-simulation.md) §3).
 - **Unchecked or restricted:** IEA, Energy Institute, worldsteel, Eurostat, HYDE's licence (reported CC BY 4.0, not confirmed in the factions note).
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [cities-skylines](../research/cities-skylines.md): Cities: Skylines, as a reference for the City layer
+- [foxhole](../research/foxhole.md): Foxhole, as a reference for war and logistics
+- [hearts-of-iron](../research/hearts-of-iron.md): Hearts of Iron IV, as a reference for the Macro layer
+- [simcity](../research/simcity.md): SimCity, as a reference for the City layer
+- [war-in-other-games](../research/war-in-other-games.md): War in other games, as a reference
+- [world-generation-prior-art](../research/world-generation-prior-art.md): World generation: prior art
+- [world-systems-ecology](../research/world-systems-ecology.md): World systems: flora, fauna, soils and fisheries in numbers
+- [world-systems-economy](../research/world-systems-economy.md): World systems: how a real economy works in numbers
+- [world-systems-factions](../research/world-systems-factions.md): World systems for factions: territory, subjects, expansion, conquest, collapse
+- [world-systems-resources-networks](../research/world-systems-resources-networks.md): World systems: where resources are, and how grids and networks are laid out

@@ -1,5 +1,13 @@
 # Pichu's original vision (2026-10-05, verbatim, lightly cleaned)
 
+**Date:** 2026-10-05. **Status:** research note, not a decision; a verbatim record of the user's words. **Feeds:** [0010 concept v2](../decisions/0010-concept-v2.md), [cameras and modes](../design/cameras-modes.md), [body](../design/body.md), [world simulation](../design/world-simulation.md). **Evidence:** the user's own message, lightly cleaned; no outside sources. **IDs:** PV.
+
+## Findings
+
+None: this is a verbatim record of the user's original vision, not research; [concept v2](concept-v2.md) refines it.
+
+## The vision
+
 My original idea was based on Project Zomboid, touching the things their game lacks, or any other game I know. But they don't do it for a reason, hahaha.
 
 - In RTS I can command "troops" and give them orders, and then, like in Dungeon Keeper, I can "select" a unit and play it in a localized or immersive way: isometric like Zomboid, Diablo, Thunder Tier One, or 3rd person like The Last of Us, Ghost Recon, GTA.

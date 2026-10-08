@@ -402,6 +402,26 @@ Whole-world presets, each a set of nation, culture, government and corporation p
 4. **Tech tree contents:** which capabilities and how many tiers.
 5. **Starting speed of a new game:** Decided: 1 hour = 1 day, 1:1 one key away ([0033](../decisions/0033-restoring-cost-and-two-way-projects.md)).
 
+### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
+
+- Does the played fight resolve a slice of the campaign (one front, one night) or the whole engagement, and what ends it? ([war-in-other-games](../research/war-in-other-games.md))
+- How are casualties assigned when a fight is resolved in aggregate: draws over pops, weighted by role and armour? ([war-in-other-games](../research/war-in-other-games.md))
+- May aggregate results be better or worse than expected play, or must their expected values match? ([war-in-other-games](../research/war-in-other-games.md))
+- How much logistics does the player touch directly (hauling) versus set as policy? ([war-in-other-games](../research/war-in-other-games.md))
+- What does a watching player see: a front on the map, a feed of events, a unit list, or all three? ([war-in-other-games](../research/war-in-other-games.md))
+- What ends a war: exhaustion, objectives, collapse of loyalty or supply? ([war-in-other-games](../research/war-in-other-games.md))
+- What does a commander see at each scale, and how do large numbers stay readable beyond a map of towns and regions? ([foxhole](../research/foxhole.md))
+- What rule makes a front hold or move (Foxhole's capture rule was not found)? ([foxhole](../research/foxhole.md))
+
 ## 16. Order of work (dependencies only)
 
 Nothing here blocks Tier 0. After the world-sim order ([world simulation](world-simulation.md) §14): the validator and the setup file format (small, needed by everything) → household, group and ideology record → business on the ledger (jobs, stock, wages) → nation actor with budget and edicts → life events and aspirations → corporations and ownership → long time steps → scenario objectives and presets → setup screens. Each unit gets a spec first ([CLAUDE.md](../../CLAUDE.md) rules).
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [foxhole](../research/foxhole.md): Foxhole, as a reference for war and logistics
+- [project-zomboid](../research/project-zomboid.md): Project Zomboid, as a reference for the Individual layer
+- [war-in-other-games](../research/war-in-other-games.md): War in other games, as a reference
+- [world-systems-economy](../research/world-systems-economy.md): World systems: how a real economy works in numbers
