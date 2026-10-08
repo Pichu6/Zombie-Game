@@ -1,6 +1,35 @@
 # Clothing that follows the body, in our own engine
 
+**Date:** 2026-10-05. **Status:** research note, not a decision; the wrap itself was adopted in [0003](../decisions/0003-clothing-wrap.md). **Feeds:** [body](../design/body.md), [body trauma](../design/body-trauma.md), [pop states and actions](../design/pop-states-actions.md), [engine architecture](../design/engine-architecture.md), [0003](../decisions/0003-clothing-wrap.md). **Evidence:** how other games do it comes from their public docs, modding guides and forum threads (linked under Sources), not from their code; the binding exporter and the numpy wrap reference were written and run by us on a synthetic body in headless Blender 5.0; nothing was tested on a real human body or on the GPU, and the GPU cost is an unmeasured estimate. **IDs:** CW.
+
 Research and proposal for Juego Zombie. Version 2, 2026-10-05: rewritten for a new engine built from scratch (Vulkan). The Godot/Mixamo/Tripo project is used only as a reference for what failed.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| CW-1 | Each garment vertex is bound once to a point on the body surface, and every frame the GPU places it again on the already deformed body; clothing then follows fat, muscle, swelling and pose with no shape keys or per-garment correctives. | estimate | this note |
+| CW-2 | In the prototype each T-shirt was a whole project: nine composition variants, 18 chest correctives and rounds of armpit fixes; garment-by-garment fitting does not scale. | sourced | the Godot prototype |
+| CW-3 | The Sims 4 stores body sliders as deformer maps (displacement textures in a UV space shared with the body); each garment reads them through a second UV projected from the body, so one map per slider serves every garment. | reported | https://modthesims.info/showthread.php?t=613057 |
+| CW-4 | Roblox layered clothing gives the body an outer cage and each garment inner and outer cages; a runtime wrap places a garment on any avatar, and a jacket stacks over a T-shirt by using the T-shirt's outer cage as its body. | reported | https://create.roblox.com/docs/art/modeling/cage-meshes |
+| CW-5 | MakeHuman/MPFB `.mhclo` binds each garment vertex to three body vertices with barycentrics and an offset: the same binding, done offline. | reported | https://static.makehumancommunity.org/assets/assetpacks/shirts01.html |
+| CW-6 | Unreal Mutable's Mesh Reshape deforms the garment from the base body to the current one and removes body parts not visible under clothing; MetaHuman ships clothing that adapts on its own. | reported | https://work.anticto.com/w/mutable/unreal-engine-4/user-documentation/remove-unseen-parts/ |
+| CW-7 | The common pattern across these games: bind once, transfer the shape, push outward, hide covered skin, fix only rare extreme cases by hand. | estimate | this note (from CW-3 to CW-6) |
+| CW-8 | Per-character GPU pipeline: morph (sparse deltas from body sim weights), skinning (≤ 4 bones per vertex), normals, wrap one pass per layer (each layer can use the previous one as its body), then render with covered regions hidden. | estimate | this note |
+| CW-9 | Because wrap runs after morph and skinning, clothing inherits the body's pose correctives; the prototype's armpit crossings came largely from clothing lacking them. | estimate | this note |
+| CW-10 | The binding is about 60 bytes per garment vertex (tri id, barycentrics, TBN offset, follow, island, 4 bone indices and weights, body UV), and can be halved with f16 and 16-bit barycentrics. | estimate | this note |
+| CW-11 | The wrap shader costs 6 reads and about 40 operations per vertex; 50 characters × 20,000 clothing vertices = one million vertices, estimated at a fraction of a millisecond on an RTX 3060-class GPU (unmeasured). | estimate | this note |
+| CW-12 | One code path serves soft garments (full wrap), mixed ones (straps wrap, hard parts are rigid islands sharing one anchor) and rigid ones (a single rivet anchor or a bone). | estimate | this note |
+| CW-13 | Safety net: a minimum gap above the skin in the shader, hiding covered body regions by a per-character bit mask (off at wounds and in the anatomical view), and a few capsules per character for body-part contact. | estimate | this note |
+| CW-14 | The prototype's swappable-texture base garment failed on relief because a texture does not change the silhouette, the cylindrical UV gave no stable places, and details were not bound to the garment. | sourced | the Godot prototype |
+| CW-15 | Proposal: a few base garments with sewing-pattern UV by panel, plus detail modules (pocket, flap, zipper, strap, knee pad, hood) bound to the garment surface; a garment is a list of pieces with material and quality, read by both rendering and crafting. | estimate | this note |
+| CW-16 | With no shape keys on clothing, body composition can change continuously (hunger, swelling, muscle) and clothing always fits; size comes almost free (small looks tight, large hangs loose). | estimate | this note |
+| CW-17 | For distant or isometric characters, skip the wrap: bake worn clothing into the body texture when gear changes and draw one mesh. | estimate | this note |
+| CW-18 | Dirt, grease, blood and wetness live in small masks (e.g. 256 × 256 RGBA) in a common body UV space; garments read the same masks through their body UV, and each item keeps its own copy so stains travel with it. | estimate | this note |
+| CW-19 | All of this requires every body to share one topology, one UV and one skeleton, changing through morphs only. | estimate | this note |
+| CW-20 | Test of our exporter and numpy wrap on a synthetic body in headless Blender 5.0: round trip at rest max error 0.00002 mm; cloth always outside the skin on fat and thin bodies (minimum gap 9.8 mm); rigid pocket 0 mm distortion; bone weights sum to exactly 1. | sourced | [wrap_reference.py](../../tools/garment/wrap_reference.py), [export_garment_binding.py](../../tools/garment/export_garment_binding.py) |
+| CW-21 | The CC0 MakeHuman/MPFB base body is legally reusable as a starting point. | reported | https://static.makehumancommunity.org/assets/assetpacks/shirts01.html |
+| CW-22 | Recommendation: tight clothing hides the skin it covers, per region, except at wounds and in the anatomical view. | estimate | this note |
 
 ## Short answer
 
