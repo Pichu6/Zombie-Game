@@ -1,8 +1,24 @@
 # Stellaris, as a reference for the Macro layer
 
-**Date:** 2026-10-08. **Status:** research note, not a decision. **Why:** [0022](../decisions/0022-macro-layer-intent.md), [0026](../decisions/0026-country-creation-inheritance.md) and [0028](../decisions/0028-births-military-mystery-tech-leaders.md) already take its feel, its empire creation, its leaders and a tech tree whose shape is still open. Part of [reference games by layer](reference-games-by-layer.md). Its pop grouping since 4.0 is in [sim-scale](sim-scale-in-other-games.md).
+**Date:** 2026-10-08. **Status:** research note, not a decision. **Feeds:** [macro layer](../design/macro-layer.md), [0022](../decisions/0022-macro-layer-intent.md), [0026](../decisions/0026-country-creation-inheritance.md), [0028](../decisions/0028-births-military-mystery-tech-leaders.md). **Evidence:** the tech draw is checked by web search (fan wikis, forum threads); faction and strata details came back thin and partly from older versions, so they are kept general; the game's script files were not read. **IDs:** ST.
 
-**Evidence caveat:** the tech draw is checked by web search (fan wikis, forum threads); faction and strata details came back thin and partly from older versions, so they are kept general.
+**Why:** [0022](../decisions/0022-macro-layer-intent.md), [0026](../decisions/0026-country-creation-inheritance.md) and [0028](../decisions/0028-births-military-mystery-tech-leaders.md) already take its feel, its empire creation, its leaders and a tech tree whose shape is still open. Part of [reference games by layer](reference-games-by-layer.md). Its pop grouping since 4.0 is in [sim-scale](sim-scale-in-other-games.md).
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| ST-1 | Stellaris (Paradox, 2016) ships its scripts and data as readable text files for modders, the legal way to study its numbers. | reported | this note |
+| ST-2 | Empire creation: a species, ethics, civics, an origin and a government shape what is easy or hard later. | reported | this note |
+| ST-3 | Tech has no visible tree: each research slot offers about three options drawn at random, weighted by ethics, civics, traditions, past choices, scientists and a random part. | reported | https://guildorder.com/es/games/stellaris/wiki/tech-tree-progression |
+| ST-4 | Prerequisites raise the draw weight of the techs they lead to. | reported | https://steamcommunity.com/app/281990/discussions/0/4203492762822384259 |
+| ST-5 | Factions form from pops by their ethics; a content faction gives influence, an unhappy one makes trouble and may push for independence. | reported | https://www.keengamer.com/articles/news/stellaris-announces-ethics-and-pop-changes/ |
+| ST-6 | Planets offer jobs, pops fill them, and jobs produce resources. | reported | this note |
+| ST-7 | Leaders (scientists, governors, admirals, generals) age, gain traits and die. | reported | this note |
+| ST-8 | The player can hand a group of planets (a sector) to the AI under a governor. | reported | this note |
+| ST-9 | Story comes from anomalies, event chains and an end-game crisis. | reported | this note |
+| ST-10 | Take: tech as a few weighted options, factions that form from people and make demands, handing regions to governors. | estimate | this note |
+| ST-11 | Do not take: resources from abstract jobs (ours come from real chains), pops as counts with no one inside, authored event chains as the main story source. | estimate | this note |
 
 ## What it is
 

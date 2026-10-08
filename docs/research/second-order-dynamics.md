@@ -1,7 +1,25 @@
 # Second-order dynamics for procedural motion
 
-**Status:** Research (2026-10-06). Not a decision. Pichu asked to keep it so it is easy to find when renderer or animation work starts.
-**Source:** t3ssel8r, "Giving Personality to Procedural Animations using Math" (https://www.youtube.com/watch?v=KPoeNZZ6H4s). Pichu's full review, in Spanish: `D:/Proyectos/juego zombie/reference/video transcripts/TECH-REVIEW-second-order-dynamics.md`.
+**Date:** 2026-10-06. **Status:** research note, not a decision. **Feeds:** [cameras and modes](../design/cameras-modes.md), [engine architecture](../design/engine-architecture.md), [art direction](../design/art-direction.md). **Evidence:** one source, t3ssel8r, "Giving Personality to Procedural Animations using Math" (https://www.youtube.com/watch?v=KPoeNZZ6H4s), through Pichu's full review of it, in Spanish, kept outside the repo at `D:/Proyectos/juego zombie/reference/video transcripts/TECH-REVIEW-second-order-dynamics.md`; the model and tips are the video's, the placement rules are ours; nothing was tested in our code. **IDs:** SO.
+
+Pichu asked to keep it so it is easy to find when renderer or animation work starts.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| SO-1 | Follow motion can be modelled as y + k1 y' + k2 y'' = x + k3 x', with x the target and y the shown value. | reported | https://www.youtube.com/watch?v=KPoeNZZ6H4s |
+| SO-2 | Three artist knobs set it: f (Hz) is response speed and does not change the shape; zeta is damping (0 rings forever, below 1 overshoots and settles, 1 is critical like Unity SmoothDamp, above 1 creeps); r is initial response (0 eases in, above 1 overshoots, below 0 anticipates). | reported | https://www.youtube.com/watch?v=KPoeNZZ6H4s |
+| SO-3 | The coefficients are k1 = zeta / (pi f), k2 = 1 / (2 pi f)^2, k3 = r zeta / (2 pi f). | reported | https://www.youtube.com/watch?v=KPoeNZZ6H4s |
+| SO-4 | It integrates per frame with semi-implicit Euler from y = x0, yd = 0, estimating xd as (x - x_prev) / T when unknown. | reported | https://www.youtube.com/watch?v=KPoeNZZ6H4s |
+| SO-5 | It explodes when the step T reaches T_crit = sqrt(4 k2 + k1^2) - k1 (high f or a lag spike). | reported | https://www.youtube.com/watch?v=KPoeNZZ6H4s |
+| SO-6 | Two stability fixes: sub-step ceil(T / (0.8 T_crit)) times, capped; or clamp k2 >= T^2/4 + T k1 / 2, which is O(1) and slightly slows motion on spikes. | reported | https://www.youtube.com/watch?v=KPoeNZZ6H4s |
+| SO-7 | Use the k2 clamp for crowds (hordes), with k1..k3 precomputed per archetype. | estimate | this note |
+| SO-8 | It is view-side only (render, animation, camera, UI): it smooths the snapshot, runs on the real frame dt outside replays and golden hashes, and never writes back to the sim. | estimate | this note |
+| SO-9 | Zombie speed, gait and a hit's real displacement come from the body model; the spring only shapes how it looks, with parameters chosen from sim state (wounded, stunned, exhausted). | estimate | this note |
+| SO-10 | Pitfalls: feed angles as the shortest-path difference wrapped to [-pi, pi]; reset y = x, yd = 0 on teleport; finite-difference xd is noisy on jumps and not needed with r = 0; f, zeta and r can change at runtime; chained systems settle slower. | reported | https://www.youtube.com/watch?v=KPoeNZZ6H4s |
+| SO-11 | Starting values to tune by eye: smooth f=1, zeta=1, r=0; bouncy f=2, zeta=0.4, r=2; anticipation f=1.5, zeta=0.5, r=-2; the head uses body values with lower f so it lags. | estimate | this note |
+| SO-12 | Pick it up the first time a view needs smooth follow motion (the third-person follow camera first), not before a vertical-slice scenario needs it. | estimate | this note |
 
 ## When to pick this up
 

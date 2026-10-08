@@ -1,6 +1,38 @@
 # World numbers: demography, structure, education, labour, inequality, production
 
-**Date:** 2026-10-06. **Status: research note, not a decision.** Feeds [0034](../decisions/0034-nation-demographics.md) and [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md); nothing here is *Decided*, *Implemented* or *Validated*.
+**Date:** 2026-10-06. **Status:** research note, not a decision; nothing here is *Decided*, *Implemented* or *Validated*. **Feeds:** [world-numbers](../design/world-numbers.md), [0034](../decisions/0034-nation-demographics.md), [0035](../decisions/0035-realistic-world-numbers-and-the-pop-nation-loop.md). **Evidence:** WebFetch was blocked by the egress proxy, so every number comes from WebSearch result summaries, not from reading the source page (no row is `sourced`); numbers with no URL are left out; internally inconsistent summaries are flagged, not used; licences are from search summaries too. **IDs:** WND.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| WND-1 | Global total fertility rate was 4.84 births per woman in 1950 and 2.23 in 2021. | reported | https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11122687/ |
+| WND-2 | Global life expectancy at birth was about 30 years around 1800, with no world region above 40. | reported | https://ourworldindata.org/life-expectancy |
+| WND-3 | Global life expectancy at birth was 72.6 years in 2019 and just over 70 in 2021. | reported | https://ourworldindata.org/life-expectancy |
+| WND-4 | Early fertility transitions (Bangladesh, Brazil, Indonesia) fell about 1 child per woman per decade; fast ones (Iran, China) went from above 6 to below 3 in 10 to 11 years; later transitions are faster. | reported | https://www.un.org/en/development/desa/population/events/pdf/expert/4/bongaarts.pdf |
+| WND-5 | Median age in 2024: world 31.6 years, Africa 20.2, Europe 43.5. | reported | https://www.un.org/development/desa/pd/node/4324 |
+| WND-6 | Children under 15 per 100 working-age people in 2024: Africa 68.3, Europe 23.8. | reported | https://www.un.org/development/desa/pd/node/4324 |
+| WND-7 | Urban share of population: 81.76 % in high-income countries (2020); 21 % (1990) and 28 % (2012) in low-income countries. | reported | https://www.indexmundi.com/facts/high-income/urban-population |
+| WND-8 | Agriculture is 69 % of employment in DR Congo vs 1 % in the USA; agricultural employment falls strongly as income rises. | reported | https://blogs.worldbank.org/en/opendata/incomes-rise-farm-employment-drops |
+| WND-9 | The private return to one year of schooling averages 9 % of wage worldwide (1,120 estimates, 139 countries, 1950-2014), stable across decades. | reported | https://documents1.worldbank.org/curated/zh/442521523465644318/pdf/WPS8402.pdf |
+| WND-10 | Penn World Table piecewise Mincer returns: 13.4 % per year of schooling for years 0-4, 10.1 % for 4-8, 6.8 % above 8. | reported | https://cran.r-project.org/web/packages/pwt10/refman/pwt10.html |
+| WND-11 | Barro-Lee attainment covers 146 countries in 5-year steps 1950-2010 (later 2015), by sex, 7 schooling levels, ages 15+ and 25+. | reported | https://splash-db.eu/dataresource/barro-lee-educational-attainment-data/ |
+| WND-12 | World labour force participation in 2023: men about 72 %, women about 47 % of people 15+; global unemployment 5.1 %. | reported | https://migration.ucdavis.edu/rmn/blog/post/?id=2856 |
+| WND-13 | Average Gini across 126 World Bank countries is 40.8 (mixes income and consumption surveys). | reported | https://ourworldindata.org/grapher/gini-coefficient-world-bank-marimekko |
+| WND-14 | The global top 10 % hold 52 % of income and 76 % of wealth; the bottom 50 % hold 8.5 % of income and 2 % of wealth. | reported | https://wir2022.wid.world/www-site/uploads/2022/03/0098-21_WIL_RIM_EXECUTIVE_SUMMARY.pdf |
+| WND-15 | The wealth Gini is roughly twice the income Gini. | reported | https://arxiv.org/pdf/1406.7115 |
+| WND-16 | US father-son intergenerational income elasticity is plausibly 0.4 to 0.6; higher Gini goes with higher persistence (Great Gatsby curve). | reported | https://www.nber.org/papers/w34144 |
+| WND-17 | Elasticity of earnings to city size is 0.04 short run and 0.08 long run; doubling density raises productivity 2 to 4 %; urban costs rise with elasticity about 0.03 (100k people) to 0.08 (Paris size). | reported | https://arxiv.org/pdf/2404.13178 |
+| WND-18 | Gravity-model migration has a distance elasticity of -2 to -1, decaying with distance. | reported | https://ideas.repec.org/a/eee/ecolet/v204y2021ics0165176521001506.html |
+| WND-19 | The Preston curve (life expectancy vs income) is concave and shifts up over time. | reported | https://hdr.undp.org/content/has-preston-curve-broken-down |
+| WND-20 | World GDP per head rose 1,271 % (about 13.7x) over 1820-2020 (Maddison 2023). | reported | https://www.rug.nl/ggdc/blog/the-maddison-project-new-2023-update-illuminates-origins-of-modern-economic-growth |
+| WND-21 | That is about 1.3 % per year compound growth (from WND-20). | derived | this note |
+| WND-22 | The Malthusian regime ended about 1750 in developed and about 1900 in less developed regions (Galor). | reported | https://www.nber.org/papers/w6811 |
+| WND-23 | The labour share has fallen globally since the early 1980s; the decline in investment-goods prices explains about half. | reported | https://www.nber.org/papers/w19136.pdf |
+| WND-24 | UN World Population Prospects 2024 (CC BY 3.0 IGO), Maddison 2023 (CC BY 4.0) and ILOSTAT (CC BY 4.0, via a mirror) are usable; PWT, Barro-Lee, WDI, Our World in Data and WID licences were not found; GBD and the UBS wealth report are not usable. | reported | https://www.un.org/development/desa/pd/node/4327 |
+| WND-25 | A rejected search summary gave two inconsistent Preston slopes (4.125 years per log-income unit vs 0.731 per doubling); neither is used. | estimate | https://metricgate.com/blogs/preston-curve-plateau-that-is-not-there/ |
+| WND-26 | Proposed laws: life expectancy, fertility, schooling and sector shares are functions of log income per head and era; age structure by cohort-component projection; output by human-capital-augmented Cobb-Douglas; income lognormal with sigma from the Gini. | estimate | this note |
+| WND-27 | The pop-nation loop: income and era set life expectancy, fertility and schooling; those set the pop table; the pop table sets effective labour and output; output feeds back as income; schooling pays off with a lag of a generation. | estimate | this note |
 
 ## Method and limits (read first)
 

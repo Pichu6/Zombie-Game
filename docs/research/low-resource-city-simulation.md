@@ -1,8 +1,27 @@
 # Low-resource city simulation: "ASCII City" and the games that fake or tame big populations
 
-**Date:** 2026-10-07. **Status:** research note, not a decision. **Why:** the user asked how "ASCII City" managed a city on low resources, in the context of the [zoom continuum](../design/zoom-continuum.md) (a city of millions seen from above, one pop's home up close).
+**Date:** 2026-10-07. **Status:** research note, not a decision. **Feeds:** [zoom continuum](../design/zoom-continuum.md), [focus and compression](../design/focus-and-compression.md), [spec 27](../tier0/specs/27-detail-levels.md), [spec 28](../tier0/specs/28-pop-levels.md). **Evidence:** web-search summaries and one fetched page (the CyberCity GitHub README, read directly). Most news and blog pages (TechSpot, Gizmodo, PC Gamer, Stack Overflow blog, Gamasutra, yewknee, runtimewire) were **blocked by the proxy**, so those are the search engine's summaries of them. Numbers from forums and wikis are player-reported. **IDs:** LC.
 
-**Evidence caveat (as in the other notes):** from web-search summaries and one fetched page (a GitHub README). Most news and blog pages (TechSpot, Gizmodo, PC Gamer, Stack Overflow blog, Gamasutra, yewknee, runtimewire) were **blocked by the proxy**, so those are the search engine's summaries of them. Numbers from forums and wikis are player-reported.
+The user asked how "ASCII City" managed a city on low resources, in the context of the [zoom continuum](../design/zoom-continuum.md) (a city of millions seen from above, one pop's home up close).
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| LC-1 | "ASCII City" (Grow Now! Games) is a walkable 3D city drawn in text characters in one HTML file: a rendering trick, not a city simulation. | reported | https://www.notebookcheck.net/Solo-dev-builds-ASCII-Cyberpunk-city-in-one-HTML-file.1379160.0.html |
+| LC-2 | CyberCity's raycaster marches one screen column at a time through a height-map grid with a running silhouette, so occlusion and sky come free; cost is columns x march steps, and a bigger city adds nothing. | sourced | https://github.com/MiguelCarino/CyberCity |
+| LC-3 | CyberCity's world is a pure function of a seed (streets, districts, blocks, plazas), byte-identical in the browser and offline; no city is stored. | sourced | https://github.com/MiguelCarino/CyberCity |
+| LC-4 | CyberCity's people are decoration: about 70 modules with init, update and draw; 23 crowd silhouettes share one base shape; people stand outside lit shops and shelter in rain, but nobody has a job, home or body. | sourced | https://github.com/MiguelCarino/CyberCity |
+| LC-5 | In Dwarf Fortress, units taking turns are over 60% of a large fort's time. | reported | https://dwarffortresswiki.org/index.php/23a:Maximizing_framerate |
+| LC-6 | In a Dwarf Fortress profile, pathfinding is about 6% of a tick while line-of-sight and proximity checks between units are the biggest single piece, about 20%; the standard advice is fewer active units. | reported | https://dwarffortresswiki.org/index.php/DF2014:Path |
+| LC-7 | Songs of Syx is reported as one developer in Java simulating 10 to 30 thousand citizens, each with their own life, religion, fears and desires; its techniques were not found. | reported | https://store.steampowered.com/app/1162750 |
+| LC-8 | Cities: Skylines 2 has agents with no hard cap and multi-threaded pathfinding weighing time, comfort, money and behaviour; population growth is still the performance wall because path requests grow with it. | reported | https://paradoxinteractive.com/games/cities-skylines-ii/features/traffic-ai |
+| LC-9 | Simulation LOD research cuts out-of-view agent cost by lowering update rate, reducing or skipping path planning, jumping to the destination and, far away, turning off collision avoidance. | reported | https://www.springerprofessional.de/en/simulation-level-of-detail-for-virtual-humans/2882154 |
+| LC-10 | The renderer's drawing budget (dots, building meshes) should be capped by the screen, never by the city's size. | estimate | this note (from LC-2) |
+| LC-11 | If a lazy pop's position at time t is a pure function of (pop, time) from its schedule, home and job, sampled dots in a city of millions can be drawn from records without simulating them and still match when you drop in. | estimate | this note |
+| LC-12 | Cheap believable crowd rules are acceptable as T1 impostors only if they read the real state and never write it. | estimate | this note |
+| LC-13 | No per-tick rule may scan all entities; it uses the chunk's neighbours (the Dwarf Fortress all-pairs lesson). | estimate | this note (from LC-6) |
+| LC-14 | Simulation LOD technique names (update rate, skip pathing, jump to destination, drop far collision) match spec 27's jump forms and should be our vocabulary. | estimate | this note (from LC-9) |
 
 ## The main finding: ASCII City is a rendering trick, not a city simulation
 
@@ -27,7 +46,7 @@ So the answer to "how did it simulate a city on low resources" is: **it did not 
 ## What this means for us (Proposal, nothing decided)
 
 1. **The "cost follows the screen" idea is what [spec 27](../tier0/specs/27-detail-levels.md) and the zoom note already say**, stated for rendering: the drawing budget (how many dots, how many building meshes) is a cap set by the screen, never by the city's size. Worth stating as a rule of the renderer, separate from the simulation.
-2. **Where is this pop at time t?** ASCII City's pedestrians are decoration, so they can be anywhere. Ours must be real pops. If a lazy pop's **position at a given time is a pure function** of (pop, time) from its schedule, home and job, then the sampled dots in the million-pop city can be *drawn from records without simulating them*, and they will line up with the truth when you drop in. [Spec 28](28-pop-levels.md)'s random-access lives are the base; the position function is a new, small unit to specify.
+2. **Where is this pop at time t?** ASCII City's pedestrians are decoration, so they can be anywhere. Ours must be real pops. If a lazy pop's **position at a given time is a pure function** of (pop, time) from its schedule, home and job, then the sampled dots in the million-pop city can be *drawn from records without simulating them*, and they will line up with the truth when you drop in. [Spec 28](../tier0/specs/28-pop-levels.md)'s random-access lives are the base; the position function is a new, small unit to specify.
 3. **Cheap believable rules are fine as T1 impostors** (people gathering near lit shops, sheltering in rain) as long as they read the real state (the shop is open, it is raining) and never write it.
 4. **Dwarf Fortress's lesson is the all-pairs check.** Per-unit visibility and proximity tests against everything are the cost, not walking. Our hot set, chunking and spatial wake rules (spec 27 rule 3) already avoid it; the rule to add is that **no per-tick rule may scan all entities**; it uses the chunk's neighbours.
 5. **Simulation LOD technique names** (update rate, skip pathing, jump to destination, drop collision far away) match spec 27's jump forms; keep them as the vocabulary.

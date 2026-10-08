@@ -1,6 +1,25 @@
 # Foxhole, as a reference for war and logistics
 
-- **Date:** 2026-10-06. **Status:** research note, not a decision. First written from general knowledge; see "Checked on 2026-10-06" below for what was verified. Check results come from web-search summaries of the pages cited (the wiki itself could not be fetched directly from the research environment), so treat numbers as secondary until read on the wiki.
+**Date:** 2026-10-06. **Status:** research note, not a decision. **Feeds:** [sandbox parameters](../design/sandbox-parameters.md) §5.1 and §8, [world systems](../design/world-systems.md), [0029](../decisions/0029-leader-records-foxhole-tech-readout.md). **Evidence:** first written from general knowledge; see "Checked on 2026-10-06" below for what was verified. Check results come from web-search summaries of the pages cited (the wiki itself could not be fetched directly from the research environment), so treat numbers as secondary until read on the wiki. **IDs:** FH.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| FH-1 | Foxhole is a persistent online war between two factions where every bullet, weapon, vehicle and drop of fuel is produced and supplied by real players. | reported | https://www.pcgamer.com/foxholes-latest-update-adds-mass-production-to-fuel-the-mmo-war/ |
+| FH-2 | A war ends when a side holds enough victory towns (32 on the full map by default), then a 15-minute celebration, then a Resistance Phase of usually 1 or 2 days before a new war. | reported | https://foxhole.wiki.gg/wiki/World_Conquest |
+| FH-3 | Long wars are reported at about 55.8 days (War 100) and 71 days (Charlie 9); typical length was not found. | reported | https://www.pcgamesn.com/foxhole/longest-deadliest-war |
+| FH-4 | The production chain is raw resources, then materials at a Refinery, then supply crates (weapons, ammo, tools, medical, base supplies) at a Factory. | reported | https://foxhole.wiki.gg/wiki/Community_Guides/Logistics |
+| FH-5 | Mass Production Factories, in the largest industrial towns far from the front, make bigger batches at a discount and can make vehicles in bulk. | reported | https://www.pcgamer.com/foxholes-latest-update-adds-mass-production-to-fuel-the-mmo-war/ |
+| FH-6 | Storage Depots and Seaports hold crates; a Seaport's public stockpile holds 1000 of each crate type, 100 of them shippable. | reported | https://foxhole.wiki.gg/wiki/Seaport |
+| FH-7 | A Relic Base is the very durable home base where players spawn and rearm; owning it owns its region. | reported | https://foxhole.wiki.gg/wiki/Relic_Base |
+| FH-8 | Supply cutting and sabotage can win battles; a rule for how a front "holds" was not found. | reported | https://foxhole.wiki.gg/wiki/Community_Guides/Logistics |
+| FH-9 | The front moves as both sides capture enemy town halls while frontline builders extend trenches and bases behind the infantry; a precise capture rule was not found. | reported | https://en.wikipedia.org/wiki/Foxhole_(video_game) |
+| FH-10 | Regiments persist between wars with up to 2000 members (update 1.61); creating one needs a minimum rank; squads are separate, max 40. | reported | https://foxhole.wiki.gg/wiki/Regiment |
+| FH-11 | Foxhole is reported to support up to about 4000 players in one world; the per-side split was not found. | reported | https://foxhole.wiki.gg/wiki/Regiment |
+| FH-12 | Players are divided on whether logistics is fun: a repetitive time sink (macros and autoclickers) for some, enjoyable for others who run public logistics groups. | reported | https://steamcommunity.com/app/505460/discussions/0/3164335241626298436/ |
+| FH-13 | Logistics as the war (armies limited by the scarcest input), fronts as places with depots, roads and staff, and resources made into items through real stages all fit our ledger and production ladder. | estimate | this note |
+| FH-14 | Foxhole's end-and-reset does not fit our one continuous world; take only the pressure it creates. | estimate | this note |
 
 ## Why it is relevant
 

@@ -1,8 +1,39 @@
 # The human generator: data, licences and the generation pipeline
 
-**Status:** Research note, 2026-10-07. Not a decision. Follows [pop-simulation-and-persistence.md](pop-simulation-and-persistence.md) §4, which found the method research epidemic models use to build synthetic populations (iterative proportional fitting over census marginals, then sampling whole households from microdata) but not the data side. This note answers: which datasets can a commercial game legally ship, how to turn them into a pure function (seed, cell, slot) → household that hits the cell's integer totals exactly, and how lifepaths get real rates. It extends the licence list in [world-simulation §3](../design/world-simulation.md#3-population-proposal).
+**Date:** 2026-10-07. **Status:** research note, not a decision. **Feeds:** [world-simulation](../design/world-simulation.md), [world-numbers](../design/world-numbers.md), [spec 22](../tier0/specs/22-census.md), [spec 02](../tier0/specs/02-draw.md), [0045](../decisions/0045-open-questions-answered-2.md), [0046](../decisions/0046-realistic-numbers-from-free-data.md). **Evidence:** licence quotes are from the licence pages fetched on 2026-10-07; "verify" marks a page that could not be read directly; sources marked (S) are secondary and (W) weak; no lawyer has reviewed any of it. **IDs:** HG.
 
-Quotes are from the licence pages fetched on 2026-10-07. "Verify" marks a page that could not be read directly.
+Follows [pop-simulation-and-persistence.md](pop-simulation-and-persistence.md) §4, which found the method research epidemic models use to build synthetic populations (iterative proportional fitting over census marginals, then sampling whole households from microdata) but not the data side. This note answers: which datasets can a commercial game legally ship, how to turn them into a pure function (seed, cell, slot) → household that hits the cell's integer totals exactly, and how lifepaths get real rates. It extends the licence list in [world-simulation §3](../design/world-simulation.md#3-population-proposal).
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| HG-1 | IPUMS International forbids commercial use and redistribution to third parties; fitting our tables from it would itself be commercial use. | sourced | https://international.ipums.org/international/terms.shtml |
+| HG-2 | US ACS PUMS household and person microdata is US federal public domain (attribution requested): shippable raw, areas of about 100k people. | sourced | https://www.census.gov/programs-surveys/acs/microdata.html |
+| HG-3 | Statistics Canada's Open Licence allows selling the information and names public use microdata files: the 2021 PUMF is shippable raw. | sourced | https://www.statcan.gc.ca/en/reference/licence |
+| HG-4 | Mexico's INEGI allows commercial exploitation and redistribution with credit "Fuente: INEGI": Censo 2020 microdata is shippable raw. | sourced | https://www.inegi.org.mx/inegi/terminos.html |
+| HG-5 | The UK ONS 1 % teaching sample is under the Open Government Licence (shippable); the safeguarded 5 % and 1 % files are not-for-profit only. | sourced | https://www.ons.gov.uk/census/aboutcensus/censusproducts/microdatasamples |
+| HG-6 | Argentina INDEC is CC BY-SA 4.0 (derived tables only, ShareAlike may attach); Brazil IBGE Censo 2022 microdata has no explicit licence. | sourced | https://www.indec.gob.ar/indec/web/Institucional-Indec-Normativa |
+| HG-7 | WorldPop age and sex rasters, GHSL settlement layers, ILOSTAT, O*NET 31.0 and UN migrant stock 2024 are CC BY (shippable raw); OECD data is CC BY 4.0 from July 2024. | sourced | https://hub.worldpop.org/project/categories?id=8 |
+| HG-8 | UN DESA household size and marriage data: reports say CC BY 3.0 IGO but the data pages link generic non-commercial UN terms; needs confirmation. | sourced | https://www.un.org/development/desa/pd/data/household-size-and-composition |
+| HG-9 | Prem et al. 2021 contact matrices (177 countries): paper CC BY 4.0, repository GPL-3.0, so numbers must be re-derived from the paper's data; Mistry et al. 2021 (35 countries, per setting) is Apache 2.0. | sourced | https://pmc.ncbi.nlm.nih.gov/articles/PMC8354454/ |
+| HG-10 | Health is the gap: IHME Global Burden of Disease and WHO Global Health Observatory are non-commercial; NHANES (no restrictions) is the only clean source of condition rates by age and sex. | sourced | https://www.cdc.gov/nchs/data/nhanes/nhanes_release_policy.pdf |
+| HG-11 | DHS surveys, Global Data Lab, RTI SynthPop and FRED populations are non-commercial or non-redistributable: not shippable. | sourced | https://dhsprogram.com/data/terms-of-use.cfm |
+| HG-12 | Name sources: SSA baby names (CC0) and Wikidata (CC0, biased to notable people) are clean; INSEE is expected open (verify); names-dataset on PyPI has leaked Facebook provenance and is excluded. | sourced | https://www.wikidata.org/wiki/Wikidata:Licensing |
+| HG-13 | MakeHuman/MPFB core assets are CC0 (usable); its code is GPL/AGPL and must never be linked. | sourced | https://static.makehumancommunity.org/about/license.html |
+| HG-14 | SynthPops and Covasim are MIT: their household-building algorithms can be ported freely; eqasim and MATSim are GPL and must be reimplemented. | sourced | https://github.com/InstituteforDiseaseModeling/synthpops |
+| HG-15 | Where no microdata ships, the "hybrid" route builds households from shippable marginals: size from a UN distribution, reference person's age given size, other members from the home contact-matrix row, relationships labelled by age gaps. | sourced | https://docs.idmod.org/projects/synthpops/en/v1.5.2/households.html |
+| HG-16 | Iterative proportional fitting matches household or person marginals, not both; iterative proportional updating (Ye, Konduri, Pendyala 2009, PopGen) matches both by reweighting household records. | sourced | https://scag.ca.gov/sites/main/files/file-attachments/populationsynthesizerpaper_trb.pdf |
+| HG-17 | Integerise fitted weights per cell with the largest-remainder (Hamilton) rule, not Lovelace and Ballas's random tail, so the build reproduces. | estimate | this note |
+| HG-18 | Ship per cell the household and person totals and the integer count per archetype; slot k maps to its archetype by binary search on cumulative counts, so totals are exact without generating anyone. | estimate | this note |
+| HG-19 | Per-slot attributes are keyed Philox draws (key = hash(seed, cell), counter = (slot, member, attribute)), so any slot can be generated in any order on any thread. | sourced | https://users.cs.utah.edu/~hari/teaching/bigdata/random123sc11.pdf |
+| HG-20 | A census cell is a group of WorldPop/GHSL grid cells of roughly 500 to 5,000 people nested in a GeoNames administrative unit, rescaled to UN national totals. | estimate | this note |
+| HG-21 | Face genes as a fixed-length vector of MakeHuman target weights, each child gene taken from either parent plus a small mutation (the Crusader Kings 3 pattern), makes families resemble each other. | reported | https://primagames.com/?p=313090 |
+| HG-22 | Lifepaths: each domain is a time-inhomogeneous Markov chain in age (as in MicSim), sampled backwards from the known present; a Traveller-style term is a four-year step. | estimate | https://rdrr.io/cran/MicSim/man/MicSim-package.html |
+| HG-23 | Lifepath constraints: no job before school-leaving age, attainment consistent with cohort, union age near the singulate mean age at marriage, a service term only where the CIA Factbook says conscription applies. | estimate | this note |
+| HG-24 | Health rates must be labelled as calibrated on US data (NHANES), scaled by each country's mortality. | estimate | this note |
+| HG-25 | No shippable microdata exists for most of Africa, Asia, the Middle East, Eastern Europe and most of Latin America: lower fidelity on multi-family households and relationships there. | estimate | this note |
+| HG-26 | Name tables have large gaps for China, India, the Arab world and Africa. | estimate | this note |
 
 ## 1. Answer in one page
 

@@ -1,7 +1,39 @@
 # War in other games, as a reference
 
-- **Date:** 2026-10-06. **Status:** research note, **not a decision**. War is secondary for now ([sandbox parameters](../design/sandbox-parameters.md) §5.1); this gathers what other games do.
-- **Method and limits:** web search only. Direct page fetches were blocked in the research environment, so every claim is from a search summary of the cited page and was not read first-hand. Several points come from player discussions, which are opinion, not documentation. "Not found" means the searches did not return it.
+**Date:** 2026-10-06. **Status:** research note, **not a decision**. **Feeds:** [sandbox parameters](../design/sandbox-parameters.md) §5.1, [world systems](../design/world-systems.md), [world numbers](../design/world-numbers.md), [0033](../decisions/0033-restoring-cost-and-two-way-projects.md). **Evidence:** web search only. Direct page fetches were blocked in the research environment, so every claim is from a search summary of the cited page and was not read first-hand. Several points come from player discussions, which are opinion, not documentation. "Not found" means the searches did not return it. Gladius was not searched. **IDs:** WAR.
+
+War is secondary for now ([sandbox parameters](../design/sandbox-parameters.md) §5.1); this gathers what other games do.
+
+## Findings
+
+| ID | Finding | Confidence | Source |
+| --- | --- | --- | --- |
+| WAR-1 | Foxhole supports up to about 4000 players per world, regiments of up to 2000, and wars of weeks (outliers 55 to 71 days) that then reset; it has no aggregate layer, the war is the sum of players' acts. | reported | https://foxhole.wiki.gg/wiki/Regiment |
+| WAR-2 | Hearts of Iron IV combat width is about 80 per fight, 50 in mountain and marsh; divisions come from player-designed templates. | reported | https://www.pcgamesn.com/hearts-of-iron-iv/meta-division-templates |
+| WAR-3 | Hearts of Iron IV supply runs from the capital by rail to supply hubs, extended by trucks; bigger divisions need more supply, so players favour many smaller fully supplied divisions. | reported | https://eip.gg/hoi4/guides/heres-how-supply-works-in-hearts-of-iron-iv/ |
+| WAR-4 | Victoria 3 battalions are 1000 workers; armies are assigned to fronts along borders through a general; barracks are standing, conscription centers temporary; mobilization raises military buildings' consumption. | reported | https://vic3.paradoxwikis.com/Warfare_overview |
+| WAR-5 | Stellaris base naval capacity is 20, ship cost runs from 5 (corvette) to 80 (titan); going over the cap raises upkeep by the same percentage. | reported | https://stellaris.paradoxwikis.com/Ship |
+| WAR-6 | Stellaris compresses fleet strength into one fleet-power number that misleads matchups, and its war score confuses players; wars end by war score or exhaustion. | reported | https://guildorder.com/games/stellaris/guides/fleet-design-and-counters |
+| WAR-7 | Crusader Kings 3 armies are mostly levies (peasant conscripts) plus hired men-at-arms with upfront price and monthly upkeep; battles resolve automatically over days until one side breaks. | reported | https://ck3.paradoxwikis.com/Army |
+| WAR-8 | Total War lets a battle be played or auto-resolved from unit strength, general, army size and balance; losses carry back, and replenishment (base 8% a turn) happens only on the campaign map. | reported | https://steamcommunity.com/app/1142710/discussions/0/601916800388894711/ |
+| WAR-9 | Bannerlord battle size is 200 to 1000 troops (engine limit about 2048 actors, mounts count); auto-resolve uses troop priority and tactics, and the medic skill turns some deaths into wounds. | reported | https://steamcommunity.com/app/261550/discussions/0/844004758333188365/ |
+| WAR-10 | Players of Total War and Bannerlord report that auto-resolve costs more losses than playing, which pushes them to play every fight. | reported | https://steamcommunity.com/app/1142710/discussions/0/6171701201027183765/ |
+| WAR-11 | PlanetSide 2 launched with up to 2000 players per 64 km2 continent, reduced to 1200 for performance; a lattice of connected regions drives a persistent campaign with no aggregate layer. | reported | https://cmdrcyrious.com/planetside2/beginner-guides/continents/ |
+| WAR-12 | Hell Let Loose (50v50) has commander and squad leaders manage fuel and munitions; Arma Reforger has players truck supplies to bases (Everon island 51 km2); matches carry nothing back. | reported | https://nerdburglars.net/arma-reforger-hell-let-loose-or-squad-which-game-is-right-for-you/ |
+| WAR-13 | Supreme Commander allows up to about 1000 units per player on maps to 80 x 80 km, with one camera zooming from a unit to the whole map and icons at distance. | reported | https://en.wikipedia.org/wiki/Supreme_Commander_(video_game) |
+| WAR-14 | Dwarf Fortress siege squads (16, later close to 100 mounted goblins plus trolls) are drawn from real world populations, so each dead attacker is one fewer, and sieges escalate with those survived. | reported | https://dwarffortresswiki.org/index.php/23a:Siege |
+| WAR-15 | Battle Brothers switches from worldmap contact to a turn-based tactical battle; logistics is money, rations, armor parts, ammo and medical supplies. HighFleet constrains fleets by fuel and crew morale. | reported | https://battlebrothersgame.com/strategic-worldmap/ |
+| WAR-16 | Played fights in these games stay in the hundreds to low thousands of bodies; campaign layers abstract to divisions, battalions, fleets and levies. | derived | this note (from WAR-2, WAR-4, WAR-9) |
+| WAR-17 | Whether logistics is fun is divided in Foxhole's community: a repetitive time sink with macros for some, rewarding for others. | reported | https://steamcommunity.com/app/505460/discussions/0/3164335241626298436/ |
+| WAR-18 | Hearts of Iron IV frontline AI constantly redeploys divisions and leaves gaps. | reported | https://steamcommunity.com/app/394360/discussions/0/2961670087544364807/ |
+| WAR-19 | Auto-resolve and played fights must use the same inputs, or players learn that one is a trap. | estimate | this note |
+| WAR-20 | Carry real losses and wounds back to the same pop records, and let treatment turn some deaths into wounds. | estimate | this note |
+| WAR-21 | Draw enemy forces from the other side's real pops, so attrition is finite. | estimate | this note |
+| WAR-22 | Supply should bind decisions (width, range, size) rather than add chores; hauling stays optional or batched. | estimate | this note |
+| WAR-23 | Show strength as a breakdown (men, equipment, fuel, supply, morale), not one number. | estimate | this note |
+| WAR-24 | Cap the played fight at a few hundred bodies; everything else stays aggregate. | estimate | this note |
+| WAR-25 | Make fronts and supply lines visible on the map, since a watcher reads places, not stats. | estimate | this note |
+| WAR-26 | A war needs an end condition that is not annihilation (such as exhaustion), without a hard reset. | estimate | this note |
 
 ## Comparison
 
