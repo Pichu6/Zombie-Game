@@ -150,6 +150,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [concept-v2](../research/concept-v2.md): Juego Zombie · Concept v2
 - [second-order-dynamics](../research/second-order-dynamics.md): Second-order dynamics for procedural motion
 - [world-in-conflict](../research/world-in-conflict.md): World in Conflict, as a reference for command
+- [renderer](../research/renderer.md): The renderer, at engineering level
 
 ## Prototype sources
 

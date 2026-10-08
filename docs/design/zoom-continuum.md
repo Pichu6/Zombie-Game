@@ -79,6 +79,7 @@ A person, a car and a door are real size ([world simulation](world-simulation.md
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
 - Should ids encode their grid level so parent and child are bit operations, as H3 does? ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
+- Which crowd tier does each height band use, and over what distance does the cross-fade run? ([renderer](../research/renderer.md))
 
 ## Research
 
@@ -88,3 +89,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [low-resource-city-simulation](../research/low-resource-city-simulation.md): Low-resource city simulation: "ASCII City" and the games that fake or tame big populations
 - [pop-storage-and-lenses](../research/pop-storage-and-lenses.md): Pop simulation, saving data, and "lenses" across zoom
 - [world-generation-prior-art](../research/world-generation-prior-art.md): World generation: prior art
+- [renderer](../research/renderer.md): The renderer, at engineering level

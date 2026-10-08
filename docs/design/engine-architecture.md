@@ -106,6 +106,8 @@ If hot work goes over budget, warm and macro slices wait (they have deadlines, n
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
 - ECS storage as archetypes or sparse sets? Stable ids favour sparse sets. ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
+- Two frames in flight (as niagara and Sascha Willems' examples use) or "2-3"? The research recommends 2. ([renderer](../research/renderer.md))
+- Minimum GPU: Vulkan 1.3 with buffer device address, descriptor indexing, dynamic rendering and synchronization2; mesh shaders optional? ([renderer](../research/renderer.md))
 
 ## Research
 
@@ -115,3 +117,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
 - [second-order-dynamics](../research/second-order-dynamics.md): Second-order dynamics for procedural motion
 - [threading-and-partition](../research/threading-and-partition.md): Threading and partition model
+- [renderer](../research/renderer.md): The renderer, at engineering level

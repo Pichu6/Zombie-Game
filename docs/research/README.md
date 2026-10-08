@@ -106,6 +106,12 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [hearts-of-iron.md](hearts-of-iron.md) | Hearts of Iron IV, as a reference for the Macro layer | 2026-10-08 |
 | [teg.md](teg.md) | TEG, as a reference for the Macro layer | 2026-10-08 |
 
+### Engine and rendering
+
+| Note | Title | Date |
+| --- | --- | --- |
+| [renderer.md](renderer.md) | The renderer, at engineering level | 2026-10-08 |
+
 ### The old prototype
 
 | Note | Title | Date |
