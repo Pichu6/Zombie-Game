@@ -52,3 +52,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 32 | [Stocks, goods and money across levels](32-stocks-goods-and-money.md) | Ledger (owner tree, goods, spoilage, money), panels | after Tier 0; layer jumps rows 5 and 6 |
 | 33 | [Establishments and chains](33-establishments-and-chains.md) | Recipe, Establishment (staff, power, production jump) | after Tier 0; layer jumps rows 7 and 8 |
 | 34 | [Projects](34-projects.md) | Plan, Project (escrow, stages, stalls, finish) | after Tier 0; layer jumps row 9 |
+| 35 | [Networks above building scale](35-networks.md) | Grid tree (sources, switches, loads, child grids) | after Tier 0; layer jumps row 10 |

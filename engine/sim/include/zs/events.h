@@ -73,6 +73,9 @@ enum class EventType : std::uint16_t {
   ProjectStalled = 53,   // subject = site, a = StallReason
   ProjectResumed = 54,   // subject = site
   ProjectCancelled = 55, // subject = site, a = cents returned to the orderer
+  // Spec 35: networks above building scale.
+  GridChanged = 56,      // subject = network id, a = served W, b = unserved W (after a solve that changed them)
+  GridRefused = 57,      // subject = what it was aimed at, a = the command type, b = GridRefusal
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

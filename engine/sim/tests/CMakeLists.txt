@@ -30,6 +30,7 @@ add_executable(zs_sim_tests
   test_establishment.cpp
   test_establishment_system.cpp
   test_project.cpp
+  test_grid.cpp
 )
 target_include_directories(zs_sim_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest)
 target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck)
