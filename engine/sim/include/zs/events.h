@@ -78,6 +78,13 @@ enum class EventType : std::uint16_t {
   GridRefused = 57,      // subject = what it was aimed at, a = the command type, b = GridRefusal
   // Spec 37: flora and fauna.
   BiotaTaken = 58,       // subject = the taker, a = population index, b = mass moved (the serial is in the Intent)
+  // Spec 39: orders and belief.
+  EdictSigned = 59,      // subject = edict index, a = def, b = signer; the root cause of everything the edict does
+  EdictApplied = 60,     // subject = edict index; cause = its signing; the transfers of this application descend from it
+  EdictRepealed = 61,    // subject = edict index
+  OrderRefused = 62,     // subject = what it was aimed at, a = the command type, b = OrderRefusal
+  Broadcast = 63,        // subject = the thing told (an edict entity), a = how many heard
+  Told = 64,             // subject = the listener pop, a = the teller, b = the thing
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

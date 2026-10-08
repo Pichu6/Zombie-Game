@@ -44,6 +44,8 @@ class Owners {
   std::size_t size() const { return info_.size(); }
   // True if `o` is `root` or lies under it in the tree.
   bool under(OwnerId o, OwnerId root) const;
+  // Every owner under `root` (not `root` itself), depth first in id order.
+  std::vector<OwnerId> descendants(OwnerId root) const;
 
   // Enumeration (layer jumps §5 harness property 2): an owner's own account plus every descendant's, so a
   // region's stock is what its buildings and people hold plus what lies loose, and a country's is its regions'.

@@ -56,3 +56,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 36 | [Fields and weather](36-fields-and-weather.md) | Coarsen and refine; weather from climate; ambient noise | after Tier 0; layer jumps rows 11 and 12 |
 | 37 | [Flora and fauna](37-flora-and-fauna.md) | Population (logistic stock, roster of individuals, take) | after Tier 0; layer jumps row 13 |
 | 38 | [Outbreak across levels](38-outbreak.md) | Encounter rule, measured rates, compartments, entities | after Tier 0; layer jumps row 14 |
+| 39 | [Orders and belief](39-orders-and-belief.md) | Edict (levy, tax, staffing), cause trace, Beliefs (message, retell, lens) | after Tier 0; layer jumps rows 15 and 16 |

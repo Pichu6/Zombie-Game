@@ -31,6 +31,16 @@ bool Owners::under(OwnerId o, OwnerId root) const {
   return false;
 }
 
+std::vector<OwnerId> Owners::descendants(OwnerId root) const {
+  std::vector<OwnerId> out;
+  for (OwnerId c : children(root)) {
+    out.push_back(c);
+    const std::vector<OwnerId> below = descendants(c);
+    out.insert(out.end(), below.begin(), below.end());
+  }
+  return out;
+}
+
 std::int64_t Owners::aggregate(const Ledger& l, OwnerId o, ResourceId r) const {
   std::int64_t sum = l.balance(o, r);
   for (OwnerId c : children(o)) sum += aggregate(l, c, r);

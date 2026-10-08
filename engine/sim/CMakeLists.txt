@@ -39,6 +39,9 @@ add_library(zs_sim
   src/fields.cpp
   src/biota.cpp
   src/outbreak.cpp
+  src/edicts.cpp
+  src/beliefs.cpp
+  src/orders_system.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)
