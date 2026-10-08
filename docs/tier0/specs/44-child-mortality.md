@@ -1,6 +1,6 @@
 # 44 · Child mortality
 
-**Status:** Implemented and tested, 2026-10-08 (`Mortality::child_hazard`, `child_decline`; `tools/data/wpp2024.py`; `test_global_tables.cpp`; MSVC). **Stage:** [0052](../../decisions/0052-one-executable-one-simulation.md) item 4, second slice after [43](43-global-tables.md). **Needs:** [28](28-pop-levels.md), [43](43-global-tables.md).
+**Status:** Implemented and tested, 2026-10-08 (`Mortality::child_hazard`, `child_decline`; `tools/data/global_tables.py`; `test_global_tables.cpp`; MSVC). **Stage:** [0052](../../decisions/0052-one-executable-one-simulation.md) item 4, second slice after [43](43-global-tables.md). **Needs:** [28](28-pop-levels.md), [43](43-global-tables.md).
 
 ## Purpose
 

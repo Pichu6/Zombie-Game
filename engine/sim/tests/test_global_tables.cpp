@@ -51,6 +51,23 @@ TEST_CASE("global tables: every base country and its preset load, with the sourc
   }
 }
 
+TEST_CASE("global tables (spec 45): base countries carry the sourced households and sectors of their group") {
+  const toml::table w = world_tables();
+  double last_mean = 0;
+  for (const char* level : kLevels) {  // richest first: households grow as income falls
+    const NationDemographics n = load_nation(data() + "/setup/nations/base_" + std::string(level) + ".toml");
+    CHECK(n.household_source.text.find("Household Size and Composition 2022") != std::string::npos);
+    CHECK(n.sector_source.text.find("ILO modelled estimates") != std::string::npos);
+    const double mean = *w[level]["household_mean_size"].value<double>();
+    CHECK(mean_household_size(n) == doctest::Approx(mean).epsilon(1e-3));
+    CHECK(mean > last_mean);
+    last_mean = mean;
+    const std::vector<double> sectors = numbers(*w[level].as_table(), "employment_by_sector");
+    for (std::size_t k = 0; k < 3; ++k) CHECK(n.sectors[k] == doctest::Approx(sectors[k]).epsilon(1e-5));
+    CHECK(*w[level]["household_coverage"].value<double>() > 0.9);
+  }
+}
+
 TEST_CASE("global tables: the mortality draws give WPP's life expectancy at 15 (within half a year)"
           * doctest::skip(World::kDebugBuild)) {
   for (const char* level : kLevels) {

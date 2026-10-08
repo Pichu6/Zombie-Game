@@ -63,7 +63,7 @@ TEST_CASE("the placeholder nation loads, every table adds up, and it says it is 
 TEST_CASE("a profile with a bad table is refused with a plain message (A1)") {
   CHECK_THROWS_WITH_AS(load_nation(edited("unknown.toml", "[settlement]", "[settlement]\nbogus = 1")), doctest::Contains("unknown key 'bogus'"), std::runtime_error);
   CHECK_THROWS_WITH_AS(load_nation(edited("sum.toml", "shares = [0.04, 0.22, 0.74]", "shares = [0.10, 0.22, 0.74]")), doctest::Contains("add up to 1"), std::runtime_error);
-  CHECK_THROWS_WITH_AS(load_nation(edited("count.toml", "sizes = [0.28, 0.33, 0.16, 0.14, 0.09]", "sizes = [0.28, 0.33, 0.16, 0.23]")), doctest::Contains("needs 5 numbers"), std::runtime_error);
+  CHECK_THROWS_WITH_AS(load_nation(edited("count.toml", "sizes = [0.28, 0.49, 0.21, 0.02]", "sizes = [0.28, 0.49, 0.23]")), doctest::Contains("needs 4 numbers"), std::runtime_error);
   CHECK_THROWS_WITH_AS(load_nation(edited("negative.toml", "age_25_34 = [0.02, 0.06, 0.52, 0.40]", "age_25_34 = [-0.02, 0.10, 0.52, 0.40]")), doctest::Contains("negative"), std::runtime_error);
   CHECK_THROWS_WITH_AS(load_nation(edited("rate.toml", "unemployment_rate = 0.06", "unemployment_rate = 1.4")), doctest::Contains("between 0 and 1"), std::runtime_error);
   CHECK_THROWS_WITH_AS(load_nation(edited("retire.toml", "retirement_age = 65", "retirement_age = 30")), doctest::Contains("retirement_age"), std::runtime_error);

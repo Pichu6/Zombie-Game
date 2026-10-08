@@ -19,7 +19,7 @@ inline constexpr int kOccupationGroups = 10;   // ISCO-08 major groups: armed fo
                                                // clerks, services and sales, skilled agriculture, craft trades, plant and
                                                // machine operators, elementary occupations
 inline constexpr int kSectors = 3;             // agriculture, industry, services
-inline constexpr int kHouseholdSizes = 5;      // 1, 2, 3, 4, 5 or more people
+inline constexpr int kHouseholdSizes = 4;      // 1, 2-3, 4-5, 6 or more people (the UN household database's groups, spec 45)
 inline constexpr int kLabourAgeGroups = 4;     // 15-24, 25-54, 55-64, 65 and over
 
 struct DataSource {
@@ -45,6 +45,7 @@ struct NationDemographics {
   std::array<double, kSectors> sectors{};               // shares of the employed
   DataSource sector_source;
   std::array<double, kHouseholdSizes> household_sizes{};  // shares of households
+  double household_mean_size = 0;  // members per household as published (0 = not given: estimated from the groups)
   DataSource household_source;
   double urban_share = 0;  // share of people living in towns and cities
   DataSource settlement_source;

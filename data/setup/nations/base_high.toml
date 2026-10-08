@@ -1,7 +1,7 @@
 # Base country, high income: a fictional country built from the High-income countries aggregate of UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO).
-# Written by tools/data/wpp2024.py. The age pyramid and the pop parameters (mortality, fertility, sex ratio at
-# birth) are sourced; education, labour, occupations, sectors, households and settlement are still the
-# placeholder shapes, so the profile's status stays "placeholder" until those tables are sourced too.
+# Written by tools/data/global_tables.py. Sourced: the age pyramid, the pop parameters (mortality, fertility, sex
+# ratio at birth), sectors and households. Still placeholder shapes: education, labour, occupations and
+# settlement, so the profile's status stays "placeholder" until those tables are sourced too.
 
 id = "base_high"
 name = "Base country, high income"
@@ -36,14 +36,15 @@ source = "shape only, not data"
 year = 0
 
 [sectors]            # of the employed: agriculture, industry, services
-shares = [0.04, 0.22, 0.74]
-source = "shape only, not data"
-year = 0
+shares = [0.031224, 0.225501, 0.743275]
+source = "ILO modelled estimates (ILOEST), employment by economic activity, via World Bank WDI (CC BY 4.0), High income"
+year = 2023
 
-[households]         # shares of households of 1, 2, 3, 4, 5 or more people
-sizes = [0.28, 0.33, 0.16, 0.14, 0.09]
-source = "shape only, not data"
-year = 0
+[households]         # shares of households of 1, 2-3, 4-5, 6 or more people
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), latest survey per country (median year 2011), weighted by households"
+year = 2011
 
 [settlement]
 urban_share = 0.78

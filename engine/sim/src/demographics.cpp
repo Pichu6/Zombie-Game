@@ -127,7 +127,8 @@ NationDemographics load_nation(const std::string& path) {
   n.sector_source = source(sec, "[sectors]");
 
   const toml::table& hh = table(t, "households");
-  only_keys(hh, {"sizes", "source", "year"}, "[households]");
+  only_keys(hh, {"sizes", "mean_size", "source", "year"}, "[households]");
+  n.household_mean_size = hh["mean_size"].value_or(0.0);
   std::vector<double> hv = numbers(hh, "sizes", kHouseholdSizes, "[households]");
   shares(hv, "household sizes");
   for (int i = 0; i < kHouseholdSizes; ++i) n.household_sizes[static_cast<std::size_t>(i)] = hv[static_cast<std::size_t>(i)];
@@ -156,8 +157,9 @@ PopParams make_pop_params(const NationDemographics& nation, const std::string& d
 }
 
 double mean_household_size(const NationDemographics& n) {
-  // The last bucket is "5 or more"; counted as 5.5, a stated approximation.
-  static constexpr double sizes[kHouseholdSizes] = {1, 2, 3, 4, 5.5};
+  // The published mean when given; otherwise the groups at 1, 2.5, 4.5 and 7 members (a stated approximation).
+  if (n.household_mean_size > 0) return n.household_mean_size;
+  static constexpr double sizes[kHouseholdSizes] = {1, 2.5, 4.5, 7};
   double m = 0;
   for (int i = 0; i < kHouseholdSizes; ++i) m += sizes[i] * n.household_sizes[static_cast<std::size_t>(i)];
   return m;

@@ -1,5 +1,6 @@
-# Global tables, UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), data year 2023. Written by tools/data/wpp2024.py from the WPP CSV files;
-# do not edit by hand. Groups are the World Bank income groups as WPP aggregates them.
+# Global tables, data year 2023. Written by tools/data/global_tables.py; do not edit by hand.
+# Demography: UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO). Households: UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO). Sectors: ILO modelled estimates (ILOEST), employment by economic activity, via World Bank WDI (CC BY 4.0).
+# Groups are the World Bank income groups.
 
 [world]
 wpp_location = "World"
@@ -18,6 +19,11 @@ life_expectancy_female = 75.886
 infant_mortality_per_1000 = 27.271
 under5_mortality_per_1000 = 36.326
 median_age = 30.364
+household_size_shares = [0.138552, 0.392195, 0.313344, 0.155908]  # 1, 2-3, 4-5, 6+ members
+household_mean_size = 3.659
+household_coverage = 0.983  # share of the group's people in countries with data
+household_median_year = 2015
+employment_by_sector = [0.265560, 0.235141, 0.499300]  # agriculture, industry, services
 
 [high]
 wpp_location = "High-income countries"
@@ -36,6 +42,11 @@ life_expectancy_female = 84.052
 infant_mortality_per_1000 = 4.041
 under5_mortality_per_1000 = 4.812
 median_age = 40.918
+household_size_shares = [0.295481, 0.483089, 0.190714, 0.030716]  # 1, 2-3, 4-5, 6+ members
+household_mean_size = 2.458
+household_coverage = 0.950  # share of the group's people in countries with data
+household_median_year = 2011
+employment_by_sector = [0.031224, 0.225501, 0.743275]  # agriculture, industry, services
 
 [upper_middle]
 wpp_location = "Upper-middle-income countries"
@@ -54,6 +65,11 @@ life_expectancy_female = 79.013
 infant_mortality_per_1000 = 10.984
 under5_mortality_per_1000 = 13.828
 median_age = 35.504
+household_size_shares = [0.104461, 0.440665, 0.347451, 0.107423]  # 1, 2-3, 4-5, 6+ members
+household_mean_size = 3.503
+household_coverage = 0.990  # share of the group's people in countries with data
+household_median_year = 2016
+employment_by_sector = [0.209183, 0.275030, 0.515787]  # agriculture, industry, services
 
 [lower_middle]
 wpp_location = "Lower-middle-income countries"
@@ -72,6 +88,11 @@ life_expectancy_female = 71.613
 infant_mortality_per_1000 = 32.312
 under5_mortality_per_1000 = 42.407
 median_age = 25.455
+household_size_shares = [0.068540, 0.282720, 0.372592, 0.276148]  # 1, 2-3, 4-5, 6+ members
+household_mean_size = 4.561
+household_coverage = 0.998  # share of the group's people in countries with data
+household_median_year = 2017
+employment_by_sector = [0.411316, 0.218948, 0.369736]  # agriculture, industry, services
 
 [low]
 wpp_location = "Low-income countries"
@@ -90,3 +111,8 @@ life_expectancy_female = 67.320
 infant_mortality_per_1000 = 43.319
 under5_mortality_per_1000 = 62.182
 median_age = 17.860
+household_size_shares = [0.058602, 0.230788, 0.308357, 0.402253]  # 1, 2-3, 4-5, 6+ members
+household_mean_size = 5.228
+household_coverage = 0.995  # share of the group's people in countries with data
+household_median_year = 2018
+employment_by_sector = [0.606948, 0.099954, 0.293098]  # agriculture, industry, services

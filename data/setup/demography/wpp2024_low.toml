@@ -1,5 +1,5 @@
 # Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Low-income countries, 2023.
-# Written by tools/data/wpp2024.py; do not edit by hand. Spec: docs/tier0/specs/43-global-tables.md
+# Written by tools/data/global_tables.py; do not edit by hand. Spec: docs/tier0/specs/43-global-tables.md
 # Fit: life expectancy at 15 model 53.40 / 57.39 (m/f) vs WPP 53.16 / 57.32;
 #      at birth model 62.47 / 67.24 vs WPP 62.58 / 67.32;
 #      TFR model 4.516 vs 4.532; mean age at childbearing model 29.29 vs 29.20

@@ -34,7 +34,7 @@ struct Fertility {
   double end_age = 45.0;
   // Spec 43: when set, the age-specific model replaces the one above: a birth hazard per year, constant within each
   // five-year band from kFertilityStartAge (15-19, 20-24 ... 45-49), none for gap_min years after a birth. Fitted
-  // to real age-specific fertility rates (tools/data/wpp2024.py). Empty = the model above.
+  // to real age-specific fertility rates (tools/data/global_tables.py). Empty = the model above.
   std::vector<double> hazard_by_band;
   bool operator==(const Fertility&) const = default;
 };

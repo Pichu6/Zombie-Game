@@ -62,3 +62,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 42 | [The block's place](42-place.md) | Place, PlaceSystem (weather at the cell, indoor temperature), choose_place, gen::make_world | decision 0052 |
 | 43 | [Global tables and base countries](43-global-tables.md) | WPP 2024 tables, fitted mortality, age-specific fertility, base countries | decision 0052 |
 | 44 | [Child mortality](44-child-mortality.md) | Siler hazard (early childhood), fitted on qx weighted by deaths | decision 0052 |
+| 45 | [Households and sectors](45-households-and-sectors.md) | UN household sizes and ILO employment by sector per income group; four household groups | decision 0052 |
