@@ -21,11 +21,7 @@ TEST_CASE("place: a temperate land cell, the same for the same seed; the one wor
     CHECK(p.climate.temp_mean_c == f.temp_mean_c[c]);
     CHECK(p.climate.south == (grid.centre(c).z < 0));
   }
-  WorldParams wp;
-  wp.seed = 1;
-  const WorldFields f = generate_fields(grid, wp);
-  const auto t = make_world(1);
+  const auto t = make_world(1);  // spec 48: the cell is now its town's (test_world_people.cpp)
   REQUIRE(t.place);
-  CHECK(t.place->place().cell == choose_place(grid, f, 1));
   CHECK(t.place->place().frequency == kOneWorldFrequency);
 }

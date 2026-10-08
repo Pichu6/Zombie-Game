@@ -65,3 +65,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 45 | [Households and sectors](45-households-and-sectors.md) | UN household sizes and ILO employment by sector per income group; four household groups | decision 0052 |
 | 46 | [Education, labour, occupations and settlement](46-education-labour-occupations-settlement.md) | WIC2023 education, ILO participation, unemployment and occupations, urban share; base countries fully sourced | decision 0052 |
 | 47 | [Towns generated for a country](47-country-towns.md) | the town generator draws households, schooling, work and occupations from a base country | decision 0052 |
+| 48 | [People, sectors, countries and towns](48-people-sectors-countries.md) | suitability, population, sectors, countries with income groups, rank-size towns; the block's town and country | decision 0052 |

@@ -16,6 +16,11 @@ struct Place {
   double lat_deg = 40, lon_deg = 0, elevation_m = 100;
   std::string biome = "temperate forest";
   fields::Climate climate{12.0, 20.0, 800.0, false};
+  // Spec 48: the town the block is in, its sector and country, and the country's income group (the base country of
+  // the one world: data/setup/nations/base_<income>.toml). The default place has no planet: an upper-middle town.
+  double town_people = 50'000;
+  int sector = -1, country = -1;
+  std::string income = "upper_middle";
 };
 
 // Rule 3: the placeholder place used when no planet was generated.

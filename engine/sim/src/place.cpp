@@ -23,6 +23,10 @@ void PlaceSystem::save(ArchiveWriter& a) const {
   a.f64(place_.climate.temp_range_c);
   a.f64(place_.climate.rain_mm);
   a.boolean(place_.climate.south);
+  a.f64(place_.town_people);  // spec 48
+  a.i64(place_.sector);
+  a.i64(place_.country);
+  a.str(place_.income);
 }
 
 void PlaceSystem::load(ArchiveReader& r) {
@@ -37,6 +41,10 @@ void PlaceSystem::load(ArchiveReader& r) {
   place_.climate.temp_range_c = r.f64();
   place_.climate.rain_mm = r.f64();
   place_.climate.south = r.boolean();
+  place_.town_people = r.f64();
+  place_.sector = static_cast<int>(r.i64());
+  place_.country = static_cast<int>(r.i64());
+  place_.income = r.str();
   cached_day_ = -1;
 }
 

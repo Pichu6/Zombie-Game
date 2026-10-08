@@ -52,12 +52,39 @@ zs::Place place_of(const WorldGrid& grid, const WorldFields& f, CellId cell, std
   return p;
 }
 
+int choose_town(const WorldFields& f, const WorldPeople& people, std::uint64_t seed) {
+  int best = -1;
+  for (std::size_t i = 0; i < people.towns.size(); ++i) {
+    const Settlement& t = people.towns[i];
+    if (t.people < 10'000 || t.people > 200'000 || !temperate(f.biome[t.cell])) continue;
+    if (best < 0) { best = static_cast<int>(i); continue; }
+    const Settlement& b = people.towns[static_cast<std::size_t>(best)];
+    const double dt = std::abs(f.temp_mean_c[t.cell] - kTargetMeanC), db = std::abs(f.temp_mean_c[b.cell] - kTargetMeanC);
+    if (dt < db || (dt == db && fields::keyed_unit(seed, i, kPlaceTieField, 1) < fields::keyed_unit(seed, static_cast<std::uint64_t>(best), kPlaceTieField, 1)))
+      best = static_cast<int>(i);
+  }
+  return best;
+}
+
+zs::Place place_of_town(const WorldGrid& grid, const WorldFields& f, const WorldPeople& people, int town, std::uint64_t seed) {
+  const Settlement& t = people.towns.at(static_cast<std::size_t>(town));
+  zs::Place p = place_of(grid, f, t.cell, seed);
+  p.town_people = t.people;
+  p.sector = people.sector_of[t.cell];
+  p.country = t.country;
+  p.income = kIncomeGroupIds[static_cast<std::size_t>(people.countries[static_cast<std::size_t>(t.country)].income)];
+  return p;
+}
+
 zs::tier0::Tier0 make_world(std::uint64_t seed) {
   const WorldGrid grid(kOneWorldFrequency, 6371.0);
   WorldParams wp;
   wp.seed = seed;
   const WorldFields f = generate_fields(grid, wp);
-  return zs::tier0::make_run(seed, place_of(grid, f, choose_place(grid, f, seed), seed));
+  const WorldPeople people = populate_world(grid, f, seed, load_group_tables(zs::tier0::data_dir()));
+  const int town = choose_town(f, people, seed);
+  const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
+  return zs::tier0::make_run(seed, place);
 }
 
 }  // namespace zs::gen

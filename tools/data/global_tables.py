@@ -406,6 +406,7 @@ def main():
                   f"life_expectancy_male = {e0[1]:.3f}", f"life_expectancy_female = {e0[2]:.3f}",
                   f"infant_mortality_per_1000 = {float(ind['IMR']):.3f}", f"under5_mortality_per_1000 = {float(ind['Q5']):.3f}",
                   f"median_age = {float(ind['MedianAgePop']):.3f}",
+                  f"population = {float(ind['TPopulation1July']) * 1000:.0f}  # 1 July",
                   f"household_size_shares = {fmt_list(households[level]['shares'])}  # 1, 2-3, 4-5, 6+ members",
                   f"household_mean_size = {households[level]['mean']:.3f}",
                   f"household_coverage = {households[level]['coverage']:.3f}  # share of the group's people in countries with data",
