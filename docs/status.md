@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-10-07.
+Updated: 2026-10-08.
 
 ## What we're building
 
@@ -22,6 +22,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 | Terrain and climate ([spec 31](tier0/specs/31-terrain-climate.md)) | plates, elevation, sea level, temperature, rain, biome on the grid, from sliders (land share, temperature, relief, moisture) and a seed | `zs_gen world --seed 1` (text map) |
 | Stocks, goods and money ([spec 32](tier0/specs/32-stocks-goods-and-money.md)) | owners by scope (country, region, building, pop), goods as bulk at a distance and units up close, spoilage that jumps exactly, money as a ledger resource with purchases, wages and taxes, panels per [0051](decisions/0051-money-and-resources-shown-follow-the-selection.md); a world system with visit, leave, purchase, pay and ship commands, saved and replayable | `ctest` (`zs_sim_tests`, headless only) |
 | Establishments and chains ([spec 33](tier0/specs/33-establishments-and-chains.md)) | recipes as declared conversions with labour and power, establishments whose staff is the workplace roster, production that jumps exactly, the same recipe by hand, chains by shipment, Macro output as the sum under an owner | `ctest` (`zs_sim_tests`, headless only) |
+| Projects ([spec 34](tier0/specs/34-projects.md)) | a build order escrows its budget on a site, stages are built by a recipe as materials arrive, a contractor is paid per stage, stalls say why (staff, power, money, materials), the finished building is one unit the Macro stock sums, cancel returns the escrow | `ctest` (`zs_sim_tests`, headless only) |
 | Nation demographics ([0034](decisions/0034-nation-demographics.md)) | a country's own age, education, work, households as data (placeholder profile only) | `data/setup/nations/` |
 
 **Stage 5, the sandbox window:** built; the user's on-screen check is pending (`play/zs_sandbox.exe` on the PC). **Windows/MSVC:** CI builds `main` and uploads a zip; on 2026-10-07 the user's PC built this `main` (28c5a7e) with MSVC 2022 from a clean tree, release and debug, and `ctest --preset debug` passed with the Linux-pinned golden hashes (Validated: cross-compiler A1).
@@ -44,7 +45,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 ## Next step
 
-1. **Fill the layer jumps** ([layer jumps](design/layer-jumps.md) §5): embodied pops, the jump test harness (`engine/sim/tests/jumps.h`) and body time while demoted (spec 29 rule 6, `advance_demoted`) are done (2026-10-07); stocks and money are built ([spec 32](tier0/specs/32-stocks-goods-and-money.md), tested: owner tree, goods as bulk and units, exact spoilage jump, purchases and payments, the panel rule of [0051](decisions/0051-money-and-resources-shown-follow-the-selection.md), and the world system with commands, saves and replay); establishments and chains too ([spec 33](tier0/specs/33-establishments-and-chains.md): recipes, staff from rosters, an exact production jump, Macro output as a sum); next construction and projects (row 9).
+1. **Fill the layer jumps** ([layer jumps](design/layer-jumps.md) §5): embodied pops, the jump test harness (`engine/sim/tests/jumps.h`) and body time while demoted (spec 29 rule 6, `advance_demoted`) are done (2026-10-07); stocks and money are built ([spec 32](tier0/specs/32-stocks-goods-and-money.md), tested: owner tree, goods as bulk and units, exact spoilage jump, purchases and payments, the panel rule of [0051](decisions/0051-money-and-resources-shown-follow-the-selection.md), and the world system with commands, saves and replay); establishments and chains too ([spec 33](tier0/specs/33-establishments-and-chains.md): recipes, staff from rosters, an exact production jump, Macro output as a sum); projects too ([spec 34](tier0/specs/34-projects.md): order, escrow, stages, stalls with reasons, finish, cancel); next networks above building scale (row 10), then fields and weather.
 2. **Continue the generator**: the world grid ([spec 30](tier0/specs/30-world-grid.md)) and terrain and climate ([spec 31](tier0/specs/31-terrain-climate.md)) are built and tested; next the spec for sectors and zones on the grid (tests with agreement levels), then build it.
 3. Then, in order ([world systems](design/world-systems.md) section 8): geology and deposits, capacity and settlements, routes, sectors and faction territory, economy core and chains, networks, building stock, the audit and realism report.
 4. Tier 0: play the sandbox from the Windows zip; then stage 10 (kill or keep: real player runs). Relabel the sandbox time bar to the speed ladder of [0050](decisions/0050-start-speed-and-time-while-closed.md) when it is next touched.

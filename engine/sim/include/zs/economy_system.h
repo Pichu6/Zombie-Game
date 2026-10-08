@@ -6,6 +6,7 @@
 #include "zs/economy.h"
 #include "zs/establishment.h"
 #include "zs/pop_system.h"
+#include "zs/project.h"
 #include "zs/world.h"
 
 namespace zs {
@@ -20,6 +21,8 @@ enum EconCommand : std::uint16_t {
   EstabSetStaff = 0x2006, // subject = establishment owner, a = workers (refused if its staff comes from a roster)
   EstabSetPower = 0x2007, // subject = establishment owner, a = watts available
   EconRunByHand = 0x2008, // subject = a pop's owner, a = recipe, b = max batches: the same recipe as a plant, labour supplied by the action
+  ProjectOrder = 0x2009,  // subject = site owner, a = plan, b = orderer owner (pays the budget into the site's escrow)
+  ProjectCancel = 0x200a, // subject = site owner: the escrow left goes back to the orderer; materials stay on site
 };
 
 // Packing of the `b` field. A purchase: good in the low 16 bits, units wanted in the next 16, price in cents in the
@@ -44,6 +47,10 @@ enum class EconRefusal : std::int64_t {
   NoEstablishment = 4,
   UnknownRecipe = 5,
   StaffFromRoster = 6,  // the roster decides its staff; lay people off there
+  UnknownPlan = 7,
+  SiteBusy = 8,         // the site already has a project
+  NoProject = 9,
+  NoBudget = 10,        // the orderer cannot escrow the whole budget
 };
 
 class EconomySystem : public System {
@@ -57,9 +64,11 @@ class EconomySystem : public System {
   Goods& goods() { return goods_; }
   Recipes& recipes() { return recipes_; }
   Establishments& establishments() { return estabs_; }
+  Projects& projects() { return projects_; }
   const Owners& owners() const { return owners_; }
   const Recipes& recipes() const { return recipes_; }
   const Establishments& establishments() const { return estabs_; }
+  const Projects& projects() const { return projects_; }
   const Goods& goods() const { return goods_; }
   const Money& money() const { return money_; }
   const Spoilage& spoilage() const { return spoilage_; }
@@ -95,6 +104,7 @@ class EconomySystem : public System {
   Spoilage spoilage_;
   Recipes recipes_;
   Establishments estabs_;
+  Projects projects_;
   const PopSystem* pops_ = nullptr;
   OwnerId decayed_;
   OwnerId consumed_;

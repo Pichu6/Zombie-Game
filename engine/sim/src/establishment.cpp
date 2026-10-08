@@ -73,7 +73,8 @@ std::vector<Establishments::Produced> Establishments::advance(Ledger& l, const G
       e.labour_bank += e.staff * dt;
     }
     const std::int64_t by_labour = e.labour_bank / d.labour_per_batch;
-    const std::int64_t n = std::min(by_labour, recipes.affordable(l, goods, e.owner, e.recipe));
+    std::int64_t n = std::min(by_labour, recipes.affordable(l, goods, e.owner, e.recipe));
+    if (e.batch_cap >= 0) n = std::min(n, e.batch_cap);
     if (n > 0) {
       recipes.run(l, goods, to_tick, e.owner, e.recipe, n, consumed_sink, cause);
       e.labour_bank -= n * d.labour_per_batch;

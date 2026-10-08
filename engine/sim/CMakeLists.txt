@@ -33,6 +33,7 @@ add_library(zs_sim
   src/economy.cpp
   src/economy_system.cpp
   src/establishment.cpp
+  src/project.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

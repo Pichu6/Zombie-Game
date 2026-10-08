@@ -30,8 +30,16 @@ void EconomySystem::read_staff(const World& w) {
 }
 
 void EconomySystem::catch_up(World& w, CauseId cause) {
+  projects_.before_advance(w.ledger, goods_, money_, estabs_);
   for (const auto& [i, n] : estabs_.advance(w.ledger, goods_, recipes_, w.clock.tick, consumed_, cause))
     w.emit(EventType::EconProduced, estabs_.at(i).owner, cause, estabs_.at(i).recipe, n);
+  for (const Projects::Change& ch : projects_.after_advance(w.ledger, goods_, recipes_, money_, estabs_, w.clock.tick, cause)) {
+    switch (ch.what) {
+      case Projects::Change::Finished: w.emit(EventType::ProjectFinished, ch.site, cause, ch.plan, ch.tick); break;
+      case Projects::Change::Stalled: w.emit(EventType::ProjectStalled, ch.site, cause, static_cast<std::int64_t>(ch.stall)); break;
+      case Projects::Change::Resumed: w.emit(EventType::ProjectResumed, ch.site, cause); break;
+    }
+  }
 }
 
 void EconomySystem::start_lots(const World& w) {
@@ -54,7 +62,7 @@ void EconomySystem::refuse(World& w, const Command& c, EventId cause, EconRefusa
 }
 
 void EconomySystem::apply_command(World& w, const Command& c, EventId cause) {
-  if (c.type < EconVisit || c.type > EconRunByHand) return;
+  if (c.type < EconVisit || c.type > ProjectCancel) return;
   const auto subject = static_cast<OwnerId>(c.subject);
   const std::int64_t tick = w.clock.tick;
   catch_up(w, cause);  // establishments run up to now before anything changes under them
@@ -139,6 +147,24 @@ void EconomySystem::apply_command(World& w, const Command& c, EventId cause) {
       w.emit(EventType::EconProduced, subject, cause, c.a, n);
       return;
     }
+    case ProjectOrder: {
+      if (c.a < 0 || static_cast<std::size_t>(c.a) >= projects_.plans()) return refuse(w, c, cause, EconRefusal::UnknownPlan);
+      const auto orderer = static_cast<OwnerId>(c.b);
+      if (!owners_.known(orderer) || owners_.scope(orderer) == Scope::Sink) return refuse(w, c, cause, EconRefusal::UnknownOwner);
+      switch (projects_.order(w.ledger, goods_, money_, estabs_, tick, subject, static_cast<PlanId>(c.a), orderer, cause)) {
+        case Projects::OrderResult::Ok: w.emit(EventType::ProjectOrdered, subject, cause, c.a, c.b); return;
+        case Projects::OrderResult::SiteBusy: return refuse(w, c, cause, EconRefusal::SiteBusy);
+        case Projects::OrderResult::NoBudget: return refuse(w, c, cause, EconRefusal::NoBudget);
+        case Projects::OrderResult::NoSite: return refuse(w, c, cause, EconRefusal::NoEstablishment);
+      }
+      return;
+    }
+    case ProjectCancel: {
+      const std::int64_t returned = projects_.cancel(w.ledger, money_, estabs_, tick, subject, cause);
+      if (returned < 0) return refuse(w, c, cause, EconRefusal::NoProject);
+      w.emit(EventType::ProjectCancelled, subject, cause, returned);
+      return;
+    }
     default: return;
   }
 }
@@ -167,8 +193,9 @@ void EconomySystem::save(ArchiveWriter& w) const {
   const auto& es = estabs_.all();
   w.u64(es.size());
   for (const Establishment& e : es) {
-    w.u32(e.owner); w.u16(e.recipe); w.u64(e.roster); w.i64(e.staff); w.i64(e.power_w); w.i64(e.labour_bank); w.i64(e.caught_up); w.i64(e.produced);
+    w.u32(e.owner); w.u16(e.recipe); w.u64(e.roster); w.i64(e.staff); w.i64(e.power_w); w.i64(e.labour_bank); w.i64(e.caught_up); w.i64(e.produced); w.i64(e.batch_cap);
   }
+  projects_.save(w);
 }
 
 void EconomySystem::load(ArchiveReader& r) {
@@ -192,9 +219,10 @@ void EconomySystem::load(ArchiveReader& r) {
   money_.restore(std::move(in), std::move(out));
   std::vector<Establishment> es(r.u64());
   for (Establishment& e : es) {
-    e.owner = r.u32(); e.recipe = r.u16(); e.roster = r.u64(); e.staff = r.i64(); e.power_w = r.i64(); e.labour_bank = r.i64(); e.caught_up = r.i64(); e.produced = r.i64();
+    e.owner = r.u32(); e.recipe = r.u16(); e.roster = r.u64(); e.staff = r.i64(); e.power_w = r.i64(); e.labour_bank = r.i64(); e.caught_up = r.i64(); e.produced = r.i64(); e.batch_cap = r.i64();
   }
   estabs_.restore(std::move(es));
+  projects_.load(r);
 }
 
 }  // namespace zs

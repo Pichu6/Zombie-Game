@@ -55,6 +55,7 @@ struct Establishment {
   std::int64_t labour_bank = 0;  // worker-ticks accrued and not yet spent on a batch
   std::int64_t caught_up = 0;
   std::int64_t produced = 0;  // batches, ever
+  std::int64_t batch_cap = -1;  // most batches the next advance may run (-1 = no cap); set by a layer above, e.g. a project's money
 };
 
 class Establishments {

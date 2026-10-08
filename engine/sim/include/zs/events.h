@@ -67,6 +67,12 @@ enum class EventType : std::uint16_t {
   EconSpoiled = 48,     // subject = 0 (all lots), a = bulk amount moved to the decay sink this jump
   EconRefused = 49,     // subject = what it was aimed at, a = the command type, b = EconRefusal
   EconProduced = 50,    // subject = the establishment's owner (or the pop working by hand), a = recipe, b = batches
+  // Spec 34: projects.
+  ProjectOrdered = 51,   // subject = site, a = plan, b = orderer
+  ProjectFinished = 52,  // subject = site, a = plan, b = the tick
+  ProjectStalled = 53,   // subject = site, a = StallReason
+  ProjectResumed = 54,   // subject = site
+  ProjectCancelled = 55, // subject = site, a = cents returned to the orderer
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,
