@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cameroon, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 61.47/65.88 vs WPP 61.52/65.94; TFR model 4.301 vs 4.322.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cameroon"
+year = 2023
+
+male_share_at_birth = 0.507389
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.154836, 0.139602, 0.123168, 0.107565, 0.089923, 0.077632, 0.068906, 0.058320, 0.047699, 0.037422, 0.029208, 0.021669, 0.016301, 0.011814, 0.007727, 0.004727, 0.002374, 0.000872, 0.000205, 0.000030]
+
+[mortality_female]
+constant_hazard = 1.423247e-03
+gompertz_b = 4.240239e-05
+gompertz_c = 0.097494
+child_hazard = 7.755358e-02
+child_decline = 1.365831
+
+[mortality_male]
+constant_hazard = 1.538534e-03
+gompertz_b = 1.353233e-04
+gompertz_c = 0.084553
+child_hazard = 9.826093e-02
+child_decline = 1.458479
+
+[fertility]
+hazard_by_band = [0.11793360, 0.23974331, 0.25691691, 0.22005267, 0.13641828, 0.04825619, 0.00901331]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 61.4682
+life_expectancy_0_female = 65.8776
+life_expectancy_15_male = 52.3027
+life_expectancy_15_female = 56.1160

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Eritrea, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.39/70.57 vs WPP 66.51/70.66; TFR model 3.708 vs 3.713.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Eritrea"
+year = 2023
+
+male_share_at_birth = 0.507874
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.132871, 0.126467, 0.127437, 0.121129, 0.100240, 0.081970, 0.059355, 0.047733, 0.041083, 0.037849, 0.032925, 0.027572, 0.021860, 0.015592, 0.011376, 0.008229, 0.004391, 0.001578, 0.000324, 0.000019]
+
+[mortality_female]
+constant_hazard = 1.452577e-03
+gompertz_b = 2.290641e-05
+gompertz_c = 0.102411
+child_hazard = 6.423615e-02
+child_decline = 2.696982
+
+[mortality_male]
+constant_hazard = 2.167698e-03
+gompertz_b = 4.136524e-05
+gompertz_c = 0.096857
+child_hazard = 1.203452e-01
+child_decline = 4.090069
+
+[fertility]
+hazard_by_band = [0.06921792, 0.19966196, 0.22132872, 0.19376783, 0.12467846, 0.04797616, 0.00913357]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.3871
+life_expectancy_0_female = 70.5712
+life_expectancy_15_male = 55.4607
+life_expectancy_15_female = 58.7431

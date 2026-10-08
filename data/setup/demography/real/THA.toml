@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Thailand, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 72.13/80.83 vs WPP 72.16/80.86; TFR model 1.211 vs 1.212.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Thailand"
+year = 2023
+
+male_share_at_birth = 0.515504
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.043267, 0.050694, 0.056936, 0.060686, 0.065159, 0.071720, 0.071181, 0.070607, 0.074835, 0.074020, 0.076301, 0.072720, 0.064691, 0.051969, 0.038503, 0.025171, 0.016321, 0.009766, 0.004144, 0.001309]
+
+[mortality_female]
+constant_hazard = 4.208153e-04
+gompertz_b = 2.321901e-05
+gompertz_c = 0.093400
+child_hazard = 1.576078e-01
+child_decline = 31.200171
+
+[mortality_male]
+constant_hazard = 2.576893e-04
+gompertz_b = 2.943192e-04
+gompertz_c = 0.066378
+child_hazard = 1.956345e-01
+child_decline = 30.831333
+
+[fertility]
+hazard_by_band = [0.02677165, 0.05892740, 0.06770455, 0.05848035, 0.03430041, 0.00829376, 0.00025328]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 72.1349
+life_expectancy_0_female = 80.8348
+life_expectancy_15_male = 58.3332
+life_expectancy_15_female = 66.7662

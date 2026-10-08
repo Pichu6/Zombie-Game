@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United States Virgin Islands, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.49/81.29 vs WPP 70.51/81.35; TFR model 2.081 vs 2.090.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United States Virgin Islands"
+year = 2023
+
+male_share_at_birth = 0.509564
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.055598, 0.052786, 0.056800, 0.059507, 0.052145, 0.048329, 0.053113, 0.055108, 0.058725, 0.060662, 0.069297, 0.077826, 0.077639, 0.069192, 0.058877, 0.048142, 0.028458, 0.012263, 0.004387, 0.001143]
+
+[mortality_female]
+constant_hazard = 2.101397e-04
+gompertz_b = 4.812038e-06
+gompertz_c = 0.115481
+child_hazard = 3.729987e-02
+child_decline = 9.139117
+
+[mortality_male]
+constant_hazard = 5.363743e-04
+gompertz_b = 5.445741e-05
+gompertz_c = 0.095415
+child_hazard = 1.724867e-01
+child_decline = 34.483048
+
+[fertility]
+hazard_by_band = [0.03270758, 0.13586981, 0.14298259, 0.09851540, 0.03968200, 0.01078488, 0.00063407]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.4901
+life_expectancy_0_female = 81.2889
+life_expectancy_15_male = 56.4682
+life_expectancy_15_female = 66.8690

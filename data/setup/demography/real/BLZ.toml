@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Belize, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.91/76.52 vs WPP 70.93/76.49; TFR model 2.009 vs 2.007.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Belize"
+year = 2023
+
+male_share_at_birth = 0.512671
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.086931, 0.094048, 0.088945, 0.094922, 0.098069, 0.094194, 0.087464, 0.076087, 0.063944, 0.054319, 0.046499, 0.036961, 0.029199, 0.020158, 0.013320, 0.007738, 0.004395, 0.002034, 0.000657, 0.000117]
+
+[mortality_female]
+constant_hazard = 1.233642e-04
+gompertz_b = 2.468926e-05
+gompertz_c = 0.099646
+child_hazard = 1.846072e-02
+child_decline = 2.141980
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 1.316124e-04
+gompertz_c = 0.081866
+child_hazard = 2.455605e-02
+child_decline = 2.318923
+
+[fertility]
+hazard_by_band = [0.05810628, 0.12818511, 0.11186648, 0.08181018, 0.04372408, 0.01407828, 0.00083384]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.9130
+life_expectancy_0_female = 76.5157
+life_expectancy_15_male = 56.9071
+life_expectancy_15_female = 62.3613

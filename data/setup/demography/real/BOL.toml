@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bolivia (Plurinational State of), 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.10/71.11 vs WPP 66.13/71.15; TFR model 2.544 vs 2.547.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bolivia (Plurinational State of)"
+year = 2023
+
+male_share_at_birth = 0.510284
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.102165, 0.100365, 0.098894, 0.095463, 0.091295, 0.086954, 0.080864, 0.069947, 0.059939, 0.051482, 0.043235, 0.035596, 0.028296, 0.021015, 0.014672, 0.010281, 0.005604, 0.002692, 0.001007, 0.000233]
+
+[mortality_female]
+constant_hazard = 8.065948e-04
+gompertz_b = 4.617915e-05
+gompertz_c = 0.092541
+child_hazard = 5.986442e-02
+child_decline = 1.716077
+
+[mortality_male]
+constant_hazard = 1.281861e-03
+gompertz_b = 1.122741e-04
+gompertz_c = 0.084019
+child_hazard = 8.197259e-02
+child_decline = 2.148374
+
+[fertility]
+hazard_by_band = [0.06884695, 0.13854017, 0.14164746, 0.11300484, 0.07341972, 0.02510788, 0.00361290]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.1000
+life_expectancy_0_female = 71.1069
+life_expectancy_15_male = 55.0463
+life_expectancy_15_female = 59.5136

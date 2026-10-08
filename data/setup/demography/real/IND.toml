@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), India, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.46/73.49 vs WPP 70.52/73.60; TFR model 1.976 vs 1.975.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), India"
+year = 2023
+
+male_share_at_birth = 0.517607
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.079735, 0.083265, 0.087571, 0.089181, 0.090140, 0.085962, 0.081895, 0.076436, 0.067541, 0.058825, 0.050969, 0.043315, 0.035947, 0.028271, 0.019461, 0.011087, 0.006246, 0.002986, 0.000959, 0.000209]
+
+[mortality_female]
+constant_hazard = 2.629660e-04
+gompertz_b = 4.453601e-05
+gompertz_c = 0.092689
+child_hazard = 4.901785e-02
+child_decline = 1.834725
+
+[mortality_male]
+constant_hazard = 1.524025e-04
+gompertz_b = 1.164435e-04
+gompertz_c = 0.082419
+child_hazard = 5.265588e-02
+child_decline = 2.004945
+
+[fertility]
+hazard_by_band = [0.01423921, 0.14743234, 0.15972075, 0.08234764, 0.02826734, 0.00933913, 0.00116635]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.4551
+life_expectancy_0_female = 73.4894
+life_expectancy_15_male = 57.6845
+life_expectancy_15_female = 60.8298

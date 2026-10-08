@@ -1,0 +1,54 @@
+# Malaysa: a country with the real data of Malaysia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MYS"
+name = "Malaysa"
+status = "sourced"
+pop_params = "demography/real/MYS.toml"
+
+[age_pyramid]
+shares = [0.064657, 0.079428, 0.078794, 0.081215, 0.087735, 0.089137, 0.089775, 0.086475, 0.075379, 0.060236, 0.050751, 0.043910, 0.037994, 0.029374, 0.021244, 0.012326, 0.006712, 0.003315, 0.001177, 0.000363]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malaysia"
+year = 2023
+
+[education]
+age_25_34 = [0.029461, 0.017453, 0.650768, 0.302318]
+age_35_64 = [0.091665, 0.069454, 0.642648, 0.196233]
+age_65_plus = [0.347382, 0.213573, 0.379966, 0.059079]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Malaysia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5340, 0.3740]
+participation_25_54 = [0.9597, 0.6938]
+participation_55_64 = [0.7001, 0.2596]
+participation_65_plus = [0.4134, 0.1180]
+unemployment_rate = 0.0386
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malaysia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.047939, 0.113391, 0.102732, 0.092735, 0.235200, 0.108470, 0.120885, 0.178647]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malaysia"
+year = 2023
+
+[sectors]
+shares = [0.097497, 0.259967, 0.642536]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malaysia"
+year = 2023
+
+[households]
+sizes = [0.071093, 0.255174, 0.378762, 0.294971]
+mean_size = 4.570
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Malaysia, latest survey"
+year = 2000
+
+[settlement]
+urban_share = 0.7644
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Malaysia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 35126298

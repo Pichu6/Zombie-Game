@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Equatorial Guinea, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 62.01/65.63 vs WPP 62.04/65.66; TFR model 3.994 vs 4.081.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Equatorial Guinea"
+year = 2023
+
+male_share_at_birth = 0.507874
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.136630, 0.125939, 0.112275, 0.093746, 0.076103, 0.073491, 0.076836, 0.072838, 0.057675, 0.046679, 0.037663, 0.030437, 0.023454, 0.015927, 0.010577, 0.005455, 0.002867, 0.001061, 0.000278, 0.000070]
+
+[mortality_female]
+constant_hazard = 1.204423e-03
+gompertz_b = 6.065731e-05
+gompertz_c = 0.092728
+child_hazard = 9.418746e-02
+child_decline = 1.553109
+
+[mortality_male]
+constant_hazard = 1.352615e-03
+gompertz_b = 1.271670e-04
+gompertz_c = 0.084903
+child_hazard = 1.187639e-01
+child_decline = 1.651068
+
+[fertility]
+hazard_by_band = [0.17389878, 0.23513184, 0.21322384, 0.16607522, 0.09966585, 0.04511679, 0.00661980]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 62.0056
+life_expectancy_0_female = 65.6262
+life_expectancy_15_male = 53.0244
+life_expectancy_15_female = 55.9456

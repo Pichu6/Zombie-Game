@@ -1,0 +1,54 @@
+# Ecuadoor: a country with the real data of Ecuador under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ECU"
+name = "Ecuadoor"
+status = "sourced"
+pop_params = "demography/real/ECU.toml"
+
+[age_pyramid]
+shares = [0.078072, 0.082344, 0.089631, 0.087326, 0.086944, 0.085630, 0.080923, 0.074207, 0.066546, 0.058150, 0.050676, 0.043108, 0.035516, 0.028579, 0.022208, 0.014943, 0.009013, 0.004259, 0.001541, 0.000385]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ecuador"
+year = 2023
+
+[education]
+age_25_34 = [0.103876, 0.171859, 0.477235, 0.247029]
+age_35_64 = [0.177019, 0.253776, 0.374528, 0.194677]
+age_65_plus = [0.427959, 0.257712, 0.187902, 0.126427]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Ecuador"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5231, 0.3407]
+participation_25_54 = [0.9122, 0.6480]
+participation_55_64 = [0.8406, 0.5433]
+participation_65_plus = [0.4561, 0.2897]
+unemployment_rate = 0.0351
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ecuador; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.009803, 0.074258, 0.045641, 0.028831, 0.202284, 0.114291, 0.065114, 0.459778]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ecuador"
+year = 2023
+
+[sectors]
+shares = [0.299978, 0.174667, 0.525355]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ecuador"
+year = 2023
+
+[households]
+sizes = [0.120600, 0.359900, 0.354600, 0.164900]
+mean_size = 3.780
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Ecuador, latest survey"
+year = 2010
+
+[settlement]
+urban_share = 0.6313
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Ecuador"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 17980083

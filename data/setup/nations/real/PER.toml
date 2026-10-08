@@ -1,0 +1,54 @@
+# Peroo: a country with the real data of Peru under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PER"
+name = "Peroo"
+status = "sourced"
+pop_params = "demography/real/PER.toml"
+
+[age_pyramid]
+shares = [0.079534, 0.080380, 0.083668, 0.085327, 0.082071, 0.081666, 0.080303, 0.074742, 0.066496, 0.060715, 0.053560, 0.044554, 0.037060, 0.030144, 0.023655, 0.016568, 0.010708, 0.006037, 0.002250, 0.000563]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Peru"
+year = 2023
+
+[education]
+age_25_34 = [0.048555, 0.086434, 0.529521, 0.335490]
+age_35_64 = [0.149159, 0.130094, 0.440672, 0.280075]
+age_65_plus = [0.352645, 0.203159, 0.264567, 0.179629]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Peru"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5952, 0.5282]
+participation_25_54 = [0.9319, 0.7617]
+participation_55_64 = [0.8767, 0.6730]
+participation_65_plus = [0.5279, 0.3599]
+unemployment_rate = 0.0490
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Peru; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.005614, 0.078478, 0.072467, 0.057835, 0.182144, 0.093136, 0.080344, 0.429981]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Peru"
+year = 2023
+
+[sectors]
+shares = [0.239668, 0.163581, 0.596751]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Peru"
+year = 2023
+
+[households]
+sizes = [0.167700, 0.379600, 0.317400, 0.135300]
+mean_size = 3.460
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Peru, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.8478
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Peru"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 33845617

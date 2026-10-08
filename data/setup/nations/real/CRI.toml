@@ -1,0 +1,54 @@
+# Costa Rika: a country with the real data of Costa Rica under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CRI"
+name = "Costa Rika"
+status = "sourced"
+pop_params = "demography/real/CRI.toml"
+
+[age_pyramid]
+shares = [0.055667, 0.067470, 0.070173, 0.070506, 0.075393, 0.078809, 0.080843, 0.080483, 0.072450, 0.063381, 0.058305, 0.057340, 0.051991, 0.040509, 0.030406, 0.021465, 0.013444, 0.007369, 0.003045, 0.000949]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Costa Rica"
+year = 2023
+
+[education]
+age_25_34 = [0.063131, 0.255133, 0.384339, 0.297396]
+age_35_64 = [0.131584, 0.366642, 0.282926, 0.218847]
+age_65_plus = [0.304143, 0.346224, 0.190158, 0.159475]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Costa Rica"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4280, 0.3284]
+participation_25_54 = [0.8989, 0.6139]
+participation_55_64 = [0.7331, 0.3329]
+participation_65_plus = [0.2434, 0.0748]
+unemployment_rate = 0.0832
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Costa Rica; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.012119, 0.125419, 0.096006, 0.081677, 0.212766, 0.118393, 0.087354, 0.266265]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Costa Rica"
+year = 2023
+
+[sectors]
+shares = [0.134111, 0.202061, 0.663827]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Costa Rica"
+year = 2023
+
+[households]
+sizes = [0.120712, 0.488049, 0.316132, 0.075108]
+mean_size = 3.210
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Costa Rica, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.7888
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Costa Rica"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 5105526

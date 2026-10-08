@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), China, Macao SAR, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 80.79/85.08 vs WPP 80.82/85.25; TFR model 0.669 vs 0.662.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), China, Macao SAR"
+year = 2023
+
+male_share_at_birth = 0.519231
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.041159, 0.053798, 0.045990, 0.039723, 0.058947, 0.074403, 0.098997, 0.099827, 0.077742, 0.070395, 0.071290, 0.065499, 0.067434, 0.058226, 0.037915, 0.020085, 0.009137, 0.005788, 0.002766, 0.000880]
+
+[mortality_female]
+constant_hazard = 6.887099e-05
+gompertz_b = 9.212657e-07
+gompertz_c = 0.132192
+child_hazard = 2.662835e-03
+child_decline = 1.777192
+
+[mortality_male]
+constant_hazard = 7.912773e-05
+gompertz_b = 6.426521e-06
+gompertz_c = 0.113076
+child_hazard = 6.781535e-03
+child_decline = 1.837865
+
+[fertility]
+hazard_by_band = [0.00046519, 0.00698676, 0.04020958, 0.05474860, 0.03002699, 0.00610678, 0.00048852]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 80.7873
+life_expectancy_0_female = 85.0772
+life_expectancy_15_male = 66.1895
+life_expectancy_15_female = 70.2876

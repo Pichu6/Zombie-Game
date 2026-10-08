@@ -1,0 +1,54 @@
+# Dominicana Republic: a country with the real data of Dominican Republic under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "DOM"
+name = "Dominicana Republic"
+status = "sourced"
+pop_params = "demography/real/DOM.toml"
+
+[age_pyramid]
+shares = [0.088599, 0.090080, 0.090461, 0.085605, 0.085400, 0.081767, 0.077851, 0.069409, 0.063083, 0.057225, 0.050588, 0.045112, 0.039012, 0.030260, 0.020190, 0.012112, 0.007039, 0.003958, 0.001636, 0.000614]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Dominican Republic"
+year = 2023
+
+[education]
+age_25_34 = [0.137716, 0.071056, 0.506782, 0.284446]
+age_35_64 = [0.260334, 0.112281, 0.433546, 0.193839]
+age_65_plus = [0.561399, 0.105795, 0.232269, 0.100537]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Dominican Republic"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5653, 0.3836]
+participation_25_54 = [0.9042, 0.6816]
+participation_55_64 = [0.7865, 0.4553]
+participation_65_plus = [0.4159, 0.1400]
+unemployment_rate = 0.0555
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Dominican Republic; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.021881, 0.086795, 0.062120, 0.081104, 0.265703, 0.157537, 0.096723, 0.228137]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Dominican Republic"
+year = 2023
+
+[sectors]
+shares = [0.073857, 0.191778, 0.734365]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Dominican Republic"
+year = 2023
+
+[households]
+sizes = [0.200480, 0.423358, 0.296470, 0.079692]
+mean_size = 3.090
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Dominican Republic, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.7236
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Dominican Republic"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 11331266

@@ -1,0 +1,54 @@
+# Nigeriana: a country with the real data of Nigeria under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "NGA"
+name = "Nigeriana"
+status = "sourced"
+pop_params = "demography/real/NGA.toml"
+
+[age_pyramid]
+shares = [0.147122, 0.139421, 0.128379, 0.110990, 0.092224, 0.075740, 0.063655, 0.054735, 0.047639, 0.038830, 0.029826, 0.023226, 0.017931, 0.013126, 0.008643, 0.005183, 0.002396, 0.000771, 0.000147, 0.000016]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nigeria"
+year = 2023
+
+[education]
+age_25_34 = [0.283488, 0.110096, 0.420383, 0.186033]
+age_35_64 = [0.378401, 0.175263, 0.296977, 0.149359]
+age_65_plus = [0.674883, 0.164230, 0.092602, 0.068286]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Nigeria"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6490, 0.6484]
+participation_25_54 = [0.9640, 0.9189]
+participation_55_64 = [0.9580, 0.8975]
+participation_65_plus = [0.7745, 0.6021]
+unemployment_rate = 0.0307
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nigeria; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.007763, 0.045015, 0.021605, 0.009250, 0.293241, 0.121682, 0.054631, 0.446813]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nigeria"
+year = 2023
+
+[sectors]
+shares = [0.347048, 0.168219, 0.484733]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nigeria"
+year = 2023
+
+[households]
+sizes = [0.147385, 0.258274, 0.276672, 0.317668]
+mean_size = 4.660
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Nigeria, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.6217
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Nigeria"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 227882945

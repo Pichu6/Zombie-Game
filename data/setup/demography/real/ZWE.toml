@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Zimbabwe, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 60.26/65.03 vs WPP 60.23/65.01; TFR model 3.715 vs 3.724.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Zimbabwe"
+year = 2023
+
+male_share_at_birth = 0.506173
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.141179, 0.136350, 0.135703, 0.112479, 0.094759, 0.065700, 0.058133, 0.065284, 0.058450, 0.038926, 0.024551, 0.017197, 0.015105, 0.014739, 0.011126, 0.005732, 0.002908, 0.001173, 0.000416, 0.000090]
+
+[mortality_female]
+constant_hazard = 5.259759e-04
+gompertz_b = 3.362872e-04
+gompertz_c = 0.069382
+child_hazard = 5.433236e-02
+child_decline = 1.396650
+
+[mortality_male]
+constant_hazard = 2.590191e-05
+gompertz_b = 6.273734e-04
+gompertz_c = 0.065181
+child_hazard = 7.292660e-02
+child_decline = 1.578118
+
+[fertility]
+hazard_by_band = [0.10750271, 0.22658553, 0.21070997, 0.16736740, 0.10825139, 0.04031400, 0.00606528]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 60.2585
+life_expectancy_0_female = 65.0325
+life_expectancy_15_male = 48.9760
+life_expectancy_15_female = 53.5889

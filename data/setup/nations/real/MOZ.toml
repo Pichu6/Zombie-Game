@@ -1,0 +1,54 @@
+# Mozambica: a country with the real data of Mozambique under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MOZ"
+name = "Mozambica"
+status = "sourced"
+pop_params = "demography/real/MOZ.toml"
+
+[age_pyramid]
+shares = [0.168532, 0.147930, 0.131087, 0.108023, 0.093475, 0.077945, 0.063908, 0.051434, 0.040898, 0.031443, 0.025661, 0.017951, 0.014047, 0.011981, 0.008481, 0.004550, 0.001944, 0.000574, 0.000120, 0.000017]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mozambique"
+year = 2023
+
+[education]
+age_25_34 = [0.573420, 0.177522, 0.224249, 0.024810]
+age_35_64 = [0.731103, 0.117522, 0.123975, 0.027400]
+age_65_plus = [0.904458, 0.050017, 0.036977, 0.008547]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Mozambique"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6599, 0.6419]
+participation_25_54 = [0.9094, 0.8632]
+participation_55_64 = [0.8653, 0.8245]
+participation_65_plus = [0.7501, 0.6840]
+unemployment_rate = 0.0666
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mozambique; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.003223, 0.027100, 0.014801, 0.004525, 0.107619, 0.046258, 0.025578, 0.770896]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mozambique"
+year = 2023
+
+[sectors]
+shares = [0.730512, 0.064017, 0.205471]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mozambique"
+year = 2023
+
+[households]
+sizes = [0.084092, 0.276772, 0.334767, 0.304370]
+mean_size = 4.520
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Mozambique, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.3571
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Mozambique"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 33635160

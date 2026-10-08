@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Botswana, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.67/71.67 vs WPP 66.67/71.70; TFR model 2.741 vs 2.732.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Botswana"
+year = 2023
+
+male_share_at_birth = 0.507874
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.118399, 0.105413, 0.099001, 0.099741, 0.099526, 0.100725, 0.090054, 0.068658, 0.052543, 0.041776, 0.035810, 0.028436, 0.020222, 0.015444, 0.011604, 0.006549, 0.003705, 0.001744, 0.000533, 0.000119]
+
+[mortality_female]
+constant_hazard = 5.210857e-04
+gompertz_b = 6.805113e-05
+gompertz_c = 0.087165
+child_hazard = 5.035303e-02
+child_decline = 1.551896
+
+[mortality_male]
+constant_hazard = 6.833130e-04
+gompertz_b = 1.278528e-04
+gompertz_c = 0.083378
+child_hazard = 6.476583e-02
+child_decline = 1.751566
+
+[fertility]
+hazard_by_band = [0.05652896, 0.15976236, 0.14923467, 0.12534176, 0.08774767, 0.03012594, 0.00498234]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.6706
+life_expectancy_0_female = 71.6719
+life_expectancy_15_male = 55.0288
+life_expectancy_15_female = 59.6745

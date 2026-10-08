@@ -1,0 +1,54 @@
+# Puerto Rika: a country with the real data of Puerto Rico under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PRI"
+name = "Puerto Rika"
+status = "sourced"
+pop_params = "demography/real/PRI.toml"
+
+[age_pyramid]
+shares = [0.030168, 0.039736, 0.050145, 0.058449, 0.065158, 0.062033, 0.058077, 0.056773, 0.062488, 0.065100, 0.067718, 0.070864, 0.070853, 0.066906, 0.059634, 0.050102, 0.033528, 0.019689, 0.008921, 0.003658]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Puerto Rico"
+year = 2023
+
+[education]
+age_25_34 = [0.012512, 0.028075, 0.516157, 0.443255]
+age_35_64 = [0.041004, 0.049927, 0.507338, 0.401731]
+age_65_plus = [0.144253, 0.122453, 0.490755, 0.242538]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Puerto Rico"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2728, 0.1610]
+participation_25_54 = [0.8189, 0.6617]
+participation_55_64 = [0.4128, 0.3196]
+participation_65_plus = [0.1035, 0.0545]
+unemployment_rate = 0.0572
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Puerto Rico; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.074315, 0.184135, 0.118072, 0.168031, 0.226535, 0.117553, 0.079024, 0.032334]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Puerto Rico"
+year = 2023
+
+[sectors]
+shares = [0.012038, 0.151687, 0.836275]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Puerto Rico"
+year = 2023
+
+[households]
+sizes = [0.230600, 0.503700, 0.231700, 0.034000]
+mean_size = 2.670
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Puerto Rico, latest survey"
+year = 2010
+
+[settlement]
+urban_share = 0.9418
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Puerto Rico"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 3242022

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Libya, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 68.09/70.35 vs WPP 68.27/70.42; TFR model 2.346 vs 2.355.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Libya"
+year = 2023
+
+male_share_at_birth = 0.513855
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.088184, 0.095236, 0.096191, 0.091463, 0.080972, 0.074060, 0.071531, 0.073315, 0.076935, 0.071366, 0.059622, 0.042432, 0.029910, 0.017822, 0.013610, 0.008843, 0.005316, 0.002409, 0.000675, 0.000105]
+
+[mortality_female]
+constant_hazard = 1.975561e-03
+gompertz_b = 2.329817e-05
+gompertz_c = 0.099994
+child_hazard = 1.729651e-02
+child_decline = 0.704574
+
+[mortality_male]
+constant_hazard = 1.231224e-03
+gompertz_b = 4.650007e-05
+gompertz_c = 0.095401
+child_hazard = 1.458963e-02
+child_decline = 0.392925
+
+[fertility]
+hazard_by_band = [0.00595457, 0.05503231, 0.14504898, 0.16661462, 0.10411643, 0.04159935, 0.00677099]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 68.0852
+life_expectancy_0_female = 70.3474
+life_expectancy_15_male = 56.8333
+life_expectancy_15_female = 59.0562

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Republic of Moldova, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.56/75.51 vs WPP 66.57/75.54; TFR model 1.720 vs 1.731.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Republic of Moldova"
+year = 2023
+
+male_share_at_birth = 0.515034
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.058301, 0.073629, 0.067992, 0.058820, 0.048712, 0.055750, 0.073518, 0.082969, 0.069609, 0.064132, 0.059681, 0.059988, 0.070752, 0.061136, 0.049822, 0.019470, 0.015135, 0.007449, 0.002492, 0.000645]
+
+[mortality_female]
+constant_hazard = 5.261214e-05
+gompertz_b = 4.098053e-05
+gompertz_c = 0.093507
+child_hazard = 2.303958e-02
+child_decline = 1.939853
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 1.934323e-04
+gompertz_c = 0.081132
+child_hazard = 3.374108e-02
+child_decline = 2.359862
+
+[fertility]
+hazard_by_band = [0.02352525, 0.10676607, 0.11256605, 0.07983257, 0.04171276, 0.00864849, 0.00028333]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.5564
+life_expectancy_0_female = 75.5068
+life_expectancy_15_male = 52.8415
+life_expectancy_15_female = 61.5477

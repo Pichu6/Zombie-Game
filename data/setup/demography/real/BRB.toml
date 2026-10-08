@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Barbados, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 73.69/78.57 vs WPP 73.63/78.61; TFR model 1.705 vs 1.708.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Barbados"
+year = 2023
+
+male_share_at_birth = 0.508600
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.055940, 0.057353, 0.061568, 0.064086, 0.066849, 0.063059, 0.066966, 0.065496, 0.065995, 0.066466, 0.069137, 0.068726, 0.067419, 0.058401, 0.043568, 0.030063, 0.016852, 0.008741, 0.002802, 0.000514]
+
+[mortality_female]
+constant_hazard = 2.646984e-04
+gompertz_b = 9.414770e-06
+gompertz_c = 0.109724
+child_hazard = 2.514379e-01
+child_decline = 30.461664
+
+[mortality_male]
+constant_hazard = 3.056933e-04
+gompertz_b = 2.753154e-05
+gompertz_c = 0.101402
+child_hazard = 3.151108e-01
+child_decline = 31.577924
+
+[fertility]
+hazard_by_band = [0.04725010, 0.09466137, 0.09123391, 0.07484944, 0.04405884, 0.01305695, 0.00071743]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 73.6882
+life_expectancy_0_female = 78.5718
+life_expectancy_15_male = 59.7981
+life_expectancy_15_female = 64.5333

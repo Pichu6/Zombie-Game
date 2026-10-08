@@ -1,0 +1,54 @@
+# Rwando: a country with the real data of Rwanda under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "RWA"
+name = "Rwando"
+status = "sourced"
+pop_params = "demography/real/RWA.toml"
+
+[age_pyramid]
+shares = [0.134612, 0.126768, 0.115934, 0.113417, 0.092478, 0.076423, 0.070649, 0.064571, 0.054888, 0.037265, 0.029033, 0.023454, 0.022290, 0.016656, 0.011106, 0.005907, 0.003037, 0.001174, 0.000300, 0.000039]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Rwanda"
+year = 2023
+
+[education]
+age_25_34 = [0.553524, 0.211419, 0.201063, 0.033994]
+age_35_64 = [0.765781, 0.132095, 0.080731, 0.021393]
+age_65_plus = [0.955749, 0.022191, 0.017498, 0.004561]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Rwanda"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4823, 0.4247]
+participation_25_54 = [0.8744, 0.7299]
+participation_55_64 = [0.6512, 0.5037]
+participation_65_plus = [0.3476, 0.2464]
+unemployment_rate = 0.1235
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Rwanda; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.008447, 0.052063, 0.007125, 0.007038, 0.151900, 0.066650, 0.022904, 0.683875]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Rwanda"
+year = 2023
+
+[sectors]
+shares = [0.518691, 0.142311, 0.338998]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Rwanda"
+year = 2023
+
+[households]
+sizes = [0.076900, 0.296000, 0.370700, 0.256400]
+mean_size = 4.280
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Rwanda, latest survey"
+year = 2020
+
+[settlement]
+urban_share = 0.2886
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Rwanda"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 13954472

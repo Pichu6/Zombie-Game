@@ -1,0 +1,54 @@
+# Solomun Islands: a country with the real data of Solomon Islands under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SLB"
+name = "Solomun Islands"
+status = "sourced"
+pop_params = "demography/real/SLB.toml"
+
+[age_pyramid]
+shares = [0.129601, 0.127212, 0.116815, 0.102136, 0.092391, 0.077274, 0.066400, 0.064032, 0.054652, 0.047108, 0.038025, 0.027863, 0.020223, 0.014375, 0.010392, 0.005862, 0.003471, 0.001661, 0.000432, 0.000072]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Solomon Islands"
+year = 2023
+
+[education]
+age_25_34 = [0.318646, 0.169440, 0.415280, 0.096634]
+age_35_64 = [0.321376, 0.329890, 0.268816, 0.079918]
+age_65_plus = [0.594553, 0.287938, 0.061479, 0.056031]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Solomon Islands"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7007, 0.7184]
+participation_25_54 = [0.9629, 0.9108]
+participation_55_64 = [0.9302, 0.8435]
+participation_65_plus = [0.6660, 0.5253]
+unemployment_rate = 0.0144
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Solomon Islands; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.013934, 0.106639, 0.036172, 0.018970, 0.256569, 0.080493, 0.031348, 0.455875]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Solomon Islands"
+year = 2023
+
+[sectors]
+shares = [0.430379, 0.077629, 0.491991]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Solomon Islands"
+year = 2023
+
+[households]
+sizes = [0.068540, 0.282720, 0.372592, 0.276148]
+mean_size = 4.561
+source = "Lower middle income group aggregate (no household data for Solomon Islands)"
+year = 2017.0
+
+[settlement]
+urban_share = 0.3001
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Solomon Islands"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 800006

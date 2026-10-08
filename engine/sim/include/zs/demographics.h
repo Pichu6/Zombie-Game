@@ -50,6 +50,9 @@ struct NationDemographics {
   DataSource household_source;
   double urban_share = 0;  // share of people living in towns and cities
   DataSource settlement_source;
+  // Spec 49: a real-data country's income group and population (empty and 0 for the base and placeholder profiles).
+  std::string income;
+  double population = 0;
 };
 
 // Loads and checks a profile. Throws with a plain message on a missing table, an unknown key, shares that do not

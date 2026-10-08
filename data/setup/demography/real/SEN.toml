@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Senegal, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.76/70.65 vs WPP 66.79/70.75; TFR model 3.814 vs 3.818.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Senegal"
+year = 2023
+
+male_share_at_birth = 0.507632
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.135618, 0.127879, 0.122799, 0.111021, 0.097005, 0.083259, 0.068100, 0.057598, 0.047350, 0.038385, 0.030709, 0.025020, 0.019353, 0.015159, 0.010315, 0.005817, 0.003415, 0.001025, 0.000164, 0.000010]
+
+[mortality_female]
+constant_hazard = 1.240516e-03
+gompertz_b = 9.412436e-06
+gompertz_c = 0.116340
+child_hazard = 3.845987e-02
+child_decline = 1.485690
+
+[mortality_male]
+constant_hazard = 1.304825e-03
+gompertz_b = 3.802836e-05
+gompertz_c = 0.100944
+child_hazard = 5.128115e-02
+child_decline = 1.537016
+
+[fertility]
+hazard_by_band = [0.06367781, 0.18460894, 0.22015076, 0.19551164, 0.14356921, 0.06480891, 0.01591569]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.7616
+life_expectancy_0_female = 70.6546
+life_expectancy_15_male = 55.3023
+life_expectancy_15_female = 58.7356

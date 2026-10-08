@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lesotho, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 54.50/60.02 vs WPP 54.62/60.01; TFR model 2.696 vs 2.694.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lesotho"
+year = 2023
+
+male_share_at_birth = 0.506903
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.115224, 0.120091, 0.113921, 0.103035, 0.093999, 0.088149, 0.087946, 0.077756, 0.055860, 0.036430, 0.026381, 0.023003, 0.019935, 0.015337, 0.010091, 0.006158, 0.003968, 0.001987, 0.000603, 0.000124]
+
+[mortality_female]
+constant_hazard = 1.000000e-09
+gompertz_b = 8.611463e-04
+gompertz_c = 0.057881
+child_hazard = 1.056959e-01
+child_decline = 1.661900
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 1.180545e-03
+gompertz_c = 0.058163
+child_hazard = 1.422180e-01
+child_decline = 1.940266
+
+[fertility]
+hazard_by_band = [0.07541412, 0.16727106, 0.14608446, 0.10758692, 0.06926494, 0.02992338, 0.00655713]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 54.5003
+life_expectancy_0_female = 60.0241
+life_expectancy_15_male = 45.0421
+life_expectancy_15_female = 50.0778

@@ -1,0 +1,54 @@
+# Italo: a country with the real data of Italy under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ITA"
+name = "Italo"
+status = "sourced"
+pop_params = "demography/real/ITA.toml"
+
+[age_pyramid]
+shares = [0.034766, 0.040613, 0.046066, 0.048693, 0.050590, 0.052110, 0.056370, 0.056633, 0.063560, 0.074874, 0.080416, 0.081110, 0.072012, 0.061423, 0.055802, 0.047592, 0.037954, 0.024811, 0.011331, 0.003276]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Italy"
+year = 2023
+
+[education]
+age_25_34 = [0.004396, 0.004212, 0.666635, 0.324758]
+age_35_64 = [0.012425, 0.041783, 0.747059, 0.198733]
+age_65_plus = [0.064793, 0.352476, 0.492362, 0.090369]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Italy"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3082, 0.2164]
+participation_25_54 = [0.8943, 0.6995]
+participation_55_64 = [0.7102, 0.4961]
+participation_65_plus = [0.0813, 0.0326]
+unemployment_rate = 0.0763
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Italy; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.037388, 0.156654, 0.177280, 0.126603, 0.174775, 0.131088, 0.066994, 0.129219]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Italy"
+year = 2023
+
+[sectors]
+shares = [0.035944, 0.266375, 0.697681]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Italy"
+year = 2023
+
+[households]
+sizes = [0.311500, 0.469600, 0.204700, 0.014200]
+mean_size = 2.400
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Italy, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.6954
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Italy"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 59499453

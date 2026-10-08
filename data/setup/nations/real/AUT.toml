@@ -1,0 +1,54 @@
+# Ostria: a country with the real data of Austria under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "AUT"
+name = "Ostria"
+status = "sourced"
+pop_params = "demography/real/AUT.toml"
+
+[age_pyramid]
+shares = [0.046640, 0.049159, 0.047228, 0.048139, 0.052121, 0.063066, 0.069561, 0.068476, 0.067153, 0.063968, 0.072923, 0.078784, 0.071142, 0.056618, 0.045936, 0.037577, 0.035225, 0.016113, 0.007853, 0.002317]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Austria"
+year = 2023
+
+[education]
+age_25_34 = [0.000901, 0.019652, 0.552554, 0.426893]
+age_35_64 = [0.000712, 0.019635, 0.650917, 0.328736]
+age_65_plus = [0.000298, 0.139495, 0.670201, 0.190006]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Austria"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6009, 0.5610]
+participation_25_54 = [0.9216, 0.8696]
+participation_55_64 = [0.6889, 0.5095]
+participation_65_plus = [0.0709, 0.0372]
+unemployment_rate = 0.0526
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Austria; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.054413, 0.220182, 0.182324, 0.093310, 0.172343, 0.117217, 0.052024, 0.108187]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Austria"
+year = 2023
+
+[sectors]
+shares = [0.031172, 0.257210, 0.711618]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Austria"
+year = 2023
+
+[households]
+sizes = [0.362900, 0.449300, 0.164900, 0.022900]
+mean_size = 2.270
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Austria, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.6923
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Austria"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 9130429

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uganda, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 65.29/71.16 vs WPP 65.27/71.12; TFR model 4.286 vs 4.283.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uganda"
+year = 2023
+
+male_share_at_birth = 0.507146
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.163151, 0.144517, 0.131713, 0.116951, 0.100892, 0.084542, 0.066841, 0.049727, 0.036770, 0.029265, 0.023720, 0.017757, 0.012647, 0.008865, 0.005988, 0.003193, 0.001824, 0.001049, 0.000444, 0.000143]
+
+[mortality_female]
+constant_hazard = 2.682416e-04
+gompertz_b = 2.153222e-04
+gompertz_c = 0.070412
+child_hazard = 4.779318e-02
+child_decline = 1.447953
+
+[mortality_male]
+constant_hazard = 3.474214e-04
+gompertz_b = 3.320081e-04
+gompertz_c = 0.069733
+child_hazard = 6.396522e-02
+child_decline = 1.596823
+
+[fertility]
+hazard_by_band = [0.11829195, 0.25798626, 0.25675305, 0.19930689, 0.12963039, 0.05418392, 0.00803642]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 65.2885
+life_expectancy_0_female = 71.1612
+life_expectancy_15_male = 53.7725
+life_expectancy_15_female = 59.1663

@@ -1,0 +1,54 @@
+# Bahroon: a country with the real data of Bahrain under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BHR"
+name = "Bahroon"
+status = "sourced"
+pop_params = "demography/real/BHR.toml"
+
+[age_pyramid]
+shares = [0.060332, 0.067020, 0.062566, 0.054335, 0.067851, 0.093545, 0.124323, 0.131771, 0.104771, 0.075903, 0.054314, 0.039669, 0.027220, 0.017129, 0.008279, 0.005220, 0.003259, 0.001642, 0.000651, 0.000201]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bahrain"
+year = 2023
+
+[education]
+age_25_34 = [0.097758, 0.096306, 0.485949, 0.319987]
+age_35_64 = [0.275735, 0.135234, 0.355754, 0.233277]
+age_65_plus = [0.434009, 0.106084, 0.278315, 0.181591]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Bahrain"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5375, 0.2722]
+participation_25_54 = [0.9600, 0.5284]
+participation_55_64 = [0.6950, 0.2164]
+participation_65_plus = [0.3693, 0.0621]
+unemployment_rate = 0.0105
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bahrain; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.131302, 0.072412, 0.082707, 0.036951, 0.124262, 0.234922, 0.182098, 0.135346]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bahrain"
+year = 2023
+
+[sectors]
+shares = [0.008810, 0.351413, 0.639777]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bahrain"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for Bahrain)"
+year = 2011.0
+
+[settlement]
+urban_share = 1.0000
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Bahrain"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 1569666

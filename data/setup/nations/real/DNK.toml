@@ -1,0 +1,54 @@
+# Denmork: a country with the real data of Denmark under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "DNK"
+name = "Denmork"
+status = "sourced"
+pop_params = "demography/real/DNK.toml"
+
+[age_pyramid]
+shares = [0.051929, 0.052008, 0.054733, 0.058627, 0.062582, 0.068733, 0.067138, 0.059088, 0.057650, 0.063897, 0.065871, 0.070556, 0.061187, 0.054939, 0.050130, 0.048372, 0.029419, 0.015427, 0.005956, 0.001761]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Denmark"
+year = 2023
+
+[education]
+age_25_34 = [0.000362, 0.000413, 0.570635, 0.428590]
+age_35_64 = [0.001844, 0.004835, 0.625676, 0.367645]
+age_65_plus = [0.001513, 0.003190, 0.742539, 0.252758]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Denmark"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6341, 0.6556]
+participation_25_54 = [0.9019, 0.8452]
+participation_55_64 = [0.8062, 0.7240]
+participation_65_plus = [0.1627, 0.0707]
+unemployment_rate = 0.0509
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Denmark; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.025651, 0.293264, 0.185231, 0.064194, 0.186176, 0.073434, 0.050546, 0.121504]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Denmark"
+year = 2023
+
+[sectors]
+shares = [0.020203, 0.192576, 0.787222]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Denmark"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for Denmark)"
+year = 2011.0
+
+[settlement]
+urban_share = 0.8855
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Denmark"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 5948136

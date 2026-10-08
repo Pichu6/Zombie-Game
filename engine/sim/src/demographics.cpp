@@ -73,8 +73,13 @@ DataSource source(const toml::table& t, const std::string& where) {
 
 NationDemographics load_nation(const std::string& path) {
   const toml::table t = toml::parse_file(path);
-  only_keys(t, {"id", "name", "status", "pop_params", "age_pyramid", "education", "labour", "occupations", "sectors", "households", "settlement"}, "the file");
+  only_keys(t, {"id", "name", "status", "pop_params", "age_pyramid", "education", "labour", "occupations", "sectors", "households", "settlement", "country"}, "the file");
   NationDemographics n;
+  if (const toml::table* c = t["country"].as_table()) {  // spec 49
+    only_keys(*c, {"income", "population"}, "[country]");
+    n.income = (*c)["income"].value_or(std::string{});
+    n.population = (*c)["population"].value_or(0.0);
+  }
   n.id = t["id"].value_or(std::string{});
   n.name = t["name"].value_or(std::string{});
   if (n.id.empty() || n.name.empty()) fail("needs an id and a name");

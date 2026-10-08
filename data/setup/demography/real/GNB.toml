@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guinea-Bissau, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 61.62/66.32 vs WPP 61.66/66.36; TFR model 3.819 vs 3.836.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guinea-Bissau"
+year = 2023
+
+male_share_at_birth = 0.510044
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.138064, 0.131389, 0.122972, 0.108737, 0.094072, 0.081588, 0.069862, 0.060339, 0.049932, 0.041046, 0.031052, 0.022030, 0.017492, 0.013688, 0.009188, 0.004973, 0.002373, 0.000921, 0.000241, 0.000042]
+
+[mortality_female]
+constant_hazard = 1.323385e-03
+gompertz_b = 5.568040e-05
+gompertz_c = 0.092636
+child_hazard = 7.984315e-02
+child_decline = 1.362642
+
+[mortality_male]
+constant_hazard = 1.462095e-03
+gompertz_b = 1.479296e-04
+gompertz_c = 0.082751
+child_hazard = 1.018185e-01
+child_decline = 1.453053
+
+[fertility]
+hazard_by_band = [0.08847945, 0.19513916, 0.21101488, 0.17901628, 0.12504649, 0.06007011, 0.02493630]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 61.6244
+life_expectancy_0_female = 66.3156
+life_expectancy_15_male = 52.6046
+life_expectancy_15_female = 56.6459

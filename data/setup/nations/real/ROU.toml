@@ -1,0 +1,54 @@
+# Romanio: a country with the real data of Romania under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ROU"
+name = "Romanio"
+status = "sourced"
+pop_params = "demography/real/ROU.toml"
+
+[age_pyramid]
+shares = [0.049854, 0.053627, 0.055283, 0.056717, 0.052353, 0.052723, 0.062087, 0.068172, 0.070586, 0.079044, 0.081197, 0.065188, 0.055637, 0.064101, 0.054892, 0.034310, 0.024319, 0.014425, 0.004686, 0.000799]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Romania"
+year = 2023
+
+[education]
+age_25_34 = [0.011931, 0.017458, 0.586206, 0.384406]
+age_35_64 = [0.013781, 0.032839, 0.698770, 0.254611]
+age_65_plus = [0.019801, 0.155685, 0.665490, 0.159024]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Romania"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2990, 0.1760]
+participation_25_54 = [0.9130, 0.7230]
+participation_55_64 = [0.6540, 0.4190]
+participation_65_plus = [0.0400, 0.0214]
+unemployment_rate = 0.0559
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Romania; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.027167, 0.176660, 0.070351, 0.047117, 0.173567, 0.178429, 0.138737, 0.187972]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Romania"
+year = 2023
+
+[sectors]
+shares = [0.119147, 0.331647, 0.549206]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Romania"
+year = 2023
+
+[households]
+sizes = [0.259800, 0.484100, 0.205800, 0.050300]
+mean_size = 2.670
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Romania, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.5216
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Romania"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 19118479

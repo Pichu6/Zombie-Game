@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cuba, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 75.57/80.48 vs WPP 75.67/80.52; TFR model 1.435 vs 1.439.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cuba"
+year = 2023
+
+male_share_at_birth = 0.517141
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.045741, 0.052910, 0.056489, 0.053276, 0.061394, 0.060582, 0.070299, 0.068007, 0.055707, 0.068812, 0.087922, 0.088552, 0.068355, 0.048721, 0.041446, 0.032334, 0.021616, 0.011226, 0.004874, 0.001738]
+
+[mortality_female]
+constant_hazard = 1.095512e-04
+gompertz_b = 2.330207e-05
+gompertz_c = 0.095385
+child_hazard = 7.537564e-03
+child_decline = 1.891652
+
+[mortality_male]
+constant_hazard = 2.547160e-05
+gompertz_b = 7.299215e-05
+gompertz_c = 0.085307
+child_hazard = 1.067056e-02
+child_decline = 1.732927
+
+[fertility]
+hazard_by_band = [0.05089235, 0.09298533, 0.08142169, 0.05165187, 0.02430916, 0.00497641, 0.00017712]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 75.5719
+life_expectancy_0_female = 80.4776
+life_expectancy_15_male = 61.2102
+life_expectancy_15_female = 65.9731

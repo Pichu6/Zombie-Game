@@ -1,0 +1,54 @@
+# Somalio: a country with the real data of Somalia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SOM"
+name = "Somalio"
+status = "sourced"
+pop_params = "demography/real/SOM.toml"
+
+[age_pyramid]
+shares = [0.185837, 0.156258, 0.124692, 0.109057, 0.091794, 0.075376, 0.054113, 0.048402, 0.039233, 0.030558, 0.024390, 0.019413, 0.015231, 0.011407, 0.007673, 0.003949, 0.001830, 0.000645, 0.000127, 0.000015]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Somalia"
+year = 2023
+
+[education]
+age_25_34 = [0.726122, 0.060354, 0.188148, 0.025376]
+age_35_64 = [0.801083, 0.039938, 0.139363, 0.019616]
+age_65_plus = [0.897857, 0.015073, 0.066145, 0.020925]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Somalia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2006, 0.1160]
+participation_25_54 = [0.6789, 0.2803]
+participation_55_64 = [0.6101, 0.2622]
+participation_65_plus = [0.2767, 0.0666]
+unemployment_rate = 0.1896
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Somalia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.109322, 0.214966, 0.026807, 0.013704, 0.053703, 0.062625, 0.053459, 0.465415]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Somalia"
+year = 2023
+
+[sectors]
+shares = [0.305261, 0.176952, 0.517787]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Somalia"
+year = 2023
+
+[households]
+sizes = [0.015300, 0.161600, 0.275700, 0.547400]
+mean_size = 6.160
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Somalia, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.5407
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Somalia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 18358615

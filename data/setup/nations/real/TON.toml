@@ -1,0 +1,54 @@
+# Tongo: a country with the real data of Tonga under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "TON"
+name = "Tongo"
+status = "sourced"
+pop_params = "demography/real/TON.toml"
+
+[age_pyramid]
+shares = [0.112869, 0.120814, 0.122554, 0.110345, 0.087362, 0.060928, 0.052610, 0.053356, 0.050536, 0.045995, 0.047085, 0.039857, 0.029656, 0.023413, 0.017342, 0.012381, 0.007773, 0.003738, 0.001205, 0.000182]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Tonga"
+year = 2023
+
+[education]
+age_25_34 = [0.000000, 0.042433, 0.734088, 0.223479]
+age_35_64 = [0.000000, 0.134602, 0.711769, 0.153629]
+age_65_plus = [0.000000, 0.467532, 0.425325, 0.107143]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Tonga"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3188, 0.2001]
+participation_25_54 = [0.8042, 0.5903]
+participation_55_64 = [0.7708, 0.4853]
+participation_65_plus = [0.4250, 0.2084]
+unemployment_rate = 0.0165
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tonga; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.057447, 0.159062, 0.084813, 0.054135, 0.129368, 0.199141, 0.033424, 0.282611]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tonga"
+year = 2023
+
+[sectors]
+shares = [0.247807, 0.230379, 0.521814]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tonga"
+year = 2023
+
+[households]
+sizes = [0.069400, 0.212900, 0.299800, 0.417900]
+mean_size = 5.300
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Tonga, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.2115
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Tonga"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 104598

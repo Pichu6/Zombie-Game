@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Suriname, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.46/76.82 vs WPP 70.46/76.84; TFR model 2.242 vs 2.249.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Suriname"
+year = 2023
+
+male_share_at_birth = 0.509804
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.084801, 0.086844, 0.087819, 0.086442, 0.088341, 0.078948, 0.069952, 0.069673, 0.063945, 0.056685, 0.056721, 0.051736, 0.041877, 0.029832, 0.020039, 0.012603, 0.008132, 0.003718, 0.001515, 0.000377]
+
+[mortality_female]
+constant_hazard = 3.993344e-04
+gompertz_b = 5.096301e-05
+gompertz_c = 0.086935
+child_hazard = 6.673557e-02
+child_decline = 5.570955
+
+[mortality_male]
+constant_hazard = 2.107258e-04
+gompertz_b = 1.364827e-04
+gompertz_c = 0.080569
+child_hazard = 5.383018e-02
+child_decline = 3.325761
+
+[fertility]
+hazard_by_band = [0.05019090, 0.11497017, 0.13001846, 0.10754613, 0.06781026, 0.02047326, 0.00129522]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.4578
+life_expectancy_0_female = 76.8168
+life_expectancy_15_male = 57.0561
+life_expectancy_15_female = 63.2712

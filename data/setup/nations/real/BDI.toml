@@ -1,0 +1,54 @@
+# Burundo: a country with the real data of Burundi under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BDI"
+name = "Burundo"
+status = "sourced"
+pop_params = "demography/real/BDI.toml"
+
+[age_pyramid]
+shares = [0.158314, 0.153244, 0.142090, 0.111962, 0.082052, 0.066374, 0.064731, 0.059431, 0.048881, 0.033430, 0.023784, 0.017164, 0.013441, 0.010833, 0.007468, 0.003983, 0.001973, 0.000686, 0.000145, 0.000016]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Burundi"
+year = 2023
+
+[education]
+age_25_34 = [0.602937, 0.245412, 0.115324, 0.036328]
+age_35_64 = [0.691880, 0.217480, 0.063861, 0.026779]
+age_65_plus = [0.893124, 0.083409, 0.016779, 0.006687]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Burundi"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4811, 0.5785]
+participation_25_54 = [0.9616, 0.9551]
+participation_55_64 = [0.9375, 0.8980]
+participation_65_plus = [0.6908, 0.5562]
+unemployment_rate = 0.0091
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Burundi; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.002537, 0.020483, 0.002329, 0.001006, 0.042874, 0.021943, 0.008332, 0.900495]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Burundi"
+year = 2023
+
+[sectors]
+shares = [0.855879, 0.030775, 0.113346]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Burundi"
+year = 2023
+
+[households]
+sizes = [0.060400, 0.251700, 0.317200, 0.370700]
+mean_size = 4.830
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Burundi, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 0.2355
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Burundi"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 13689450

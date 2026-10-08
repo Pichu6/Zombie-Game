@@ -1,0 +1,54 @@
+# Lesothi: a country with the real data of Lesotho under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "LSO"
+name = "Lesothi"
+status = "sourced"
+pop_params = "demography/real/LSO.toml"
+
+[age_pyramid]
+shares = [0.115224, 0.120091, 0.113921, 0.103035, 0.093999, 0.088149, 0.087946, 0.077756, 0.055860, 0.036430, 0.026381, 0.023003, 0.019935, 0.015337, 0.010091, 0.006158, 0.003968, 0.001987, 0.000603, 0.000124]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lesotho"
+year = 2023
+
+[education]
+age_25_34 = [0.244208, 0.308740, 0.309494, 0.137558]
+age_35_64 = [0.369398, 0.334263, 0.208191, 0.088147]
+age_65_plus = [0.720840, 0.157423, 0.080546, 0.041191]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Lesotho"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4599, 0.2428]
+participation_25_54 = [0.8074, 0.6499]
+participation_55_64 = [0.6701, 0.4692]
+participation_65_plus = [0.4238, 0.1837]
+unemployment_rate = 0.1635
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lesotho; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.016926, 0.041354, 0.035074, 0.010350, 0.119980, 0.093978, 0.076011, 0.606327]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lesotho"
+year = 2023
+
+[sectors]
+shares = [0.315399, 0.329751, 0.354850]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lesotho"
+year = 2023
+
+[households]
+sizes = [0.179900, 0.334700, 0.303500, 0.181900]
+mean_size = 3.730
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Lesotho, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.4268
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Lesotho"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 2311472

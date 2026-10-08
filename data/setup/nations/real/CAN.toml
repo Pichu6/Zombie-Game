@@ -1,0 +1,54 @@
+# Canadoo: a country with the real data of Canada under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CAN"
+name = "Canadoo"
+status = "sourced"
+pop_params = "demography/real/CAN.toml"
+
+[age_pyramid]
+shares = [0.047818, 0.051509, 0.053718, 0.054360, 0.062615, 0.069635, 0.071909, 0.069961, 0.067135, 0.062295, 0.061931, 0.065586, 0.067946, 0.060334, 0.048863, 0.037240, 0.023521, 0.014068, 0.007083, 0.002472]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Canada"
+year = 2023
+
+[education]
+age_25_34 = [0.004340, 0.005086, 0.272201, 0.718374]
+age_35_64 = [0.008581, 0.022992, 0.287962, 0.680466]
+age_65_plus = [0.026524, 0.075261, 0.370845, 0.527370]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Canada"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6484, 0.6509]
+participation_25_54 = [0.9209, 0.8550]
+participation_55_64 = [0.7330, 0.6283]
+participation_65_plus = [0.1935, 0.1118]
+unemployment_rate = 0.0542
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Canada; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.083343, 0.213258, 0.177716, 0.117530, 0.149808, 0.092284, 0.078512, 0.087548]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Canada"
+year = 2023
+
+[sectors]
+shares = [0.012715, 0.192139, 0.795146]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Canada"
+year = 2023
+
+[households]
+sizes = [0.281972, 0.495850, 0.191981, 0.030197]
+mean_size = 2.450
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Canada, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 0.8253
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Canada"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 39299104

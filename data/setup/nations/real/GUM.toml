@@ -1,0 +1,54 @@
+# Guum: a country with the real data of Guam under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GUM"
+name = "Guum"
+status = "sourced"
+pop_params = "demography/real/GUM.toml"
+
+[age_pyramid]
+shares = [0.088777, 0.089731, 0.081696, 0.071528, 0.069528, 0.070069, 0.064946, 0.057715, 0.054898, 0.056087, 0.060363, 0.059318, 0.054160, 0.043644, 0.034161, 0.021885, 0.011501, 0.006666, 0.002198, 0.001129]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guam"
+year = 2023
+
+[education]
+age_25_34 = [0.014363, 0.109515, 0.540395, 0.335727]
+age_35_64 = [0.037961, 0.220738, 0.553603, 0.187698]
+age_65_plus = [0.233981, 0.412621, 0.265049, 0.088350]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Guam"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4499, 0.4599]
+participation_25_54 = [0.8586, 0.7897]
+participation_55_64 = [0.7067, 0.4809]
+participation_65_plus = [0.3550, 0.1313]
+unemployment_rate = 0.0526
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Guam; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.060761, 0.167454, 0.139517, 0.126712, 0.159564, 0.117295, 0.072478, 0.156219]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Guam"
+year = 2023
+
+[sectors]
+shares = [0.016646, 0.194702, 0.788652]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Guam"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for Guam)"
+year = 2011.0
+
+[settlement]
+urban_share = 0.9413
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Guam"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 166506

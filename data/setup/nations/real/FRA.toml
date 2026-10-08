@@ -1,0 +1,54 @@
+# Frants: a country with the real data of France under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "FRA"
+name = "Frants"
+status = "sourced"
+pop_params = "demography/real/FRA.toml"
+
+[age_pyramid]
+shares = [0.051128, 0.055994, 0.060725, 0.061772, 0.060561, 0.056806, 0.058040, 0.059938, 0.062415, 0.062126, 0.066060, 0.064542, 0.062399, 0.058376, 0.054980, 0.042421, 0.026968, 0.020226, 0.010868, 0.003651]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), France"
+year = 2023
+
+[education]
+age_25_34 = [0.005674, 0.043186, 0.432001, 0.519139]
+age_35_64 = [0.012565, 0.088427, 0.520797, 0.378211]
+age_65_plus = [0.025414, 0.321297, 0.472492, 0.180797]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), France"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4324, 0.3799]
+participation_25_54 = [0.9207, 0.8457]
+participation_55_64 = [0.6642, 0.6355]
+participation_65_plus = [0.0580, 0.0386]
+unemployment_rate = 0.0733
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), France; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.071645, 0.242731, 0.183721, 0.081782, 0.145406, 0.096393, 0.065186, 0.113136]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), France"
+year = 2023
+
+[sectors]
+shares = [0.025055, 0.192458, 0.782487]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), France"
+year = 2023
+
+[households]
+sizes = [0.354600, 0.468400, 0.160800, 0.016200]
+mean_size = 2.220
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), France, latest survey"
+year = 2015
+
+[settlement]
+urban_share = 0.7878
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), France"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 66438822

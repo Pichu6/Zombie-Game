@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Central African Republic, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 55.23/59.26 vs WPP 55.26/59.29; TFR model 5.972 vs 6.012.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Central African Republic"
+year = 2023
+
+male_share_at_birth = 0.507874
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.182614, 0.159246, 0.149804, 0.124157, 0.100874, 0.072735, 0.050217, 0.035874, 0.026928, 0.021273, 0.021287, 0.018822, 0.015216, 0.010747, 0.006151, 0.002707, 0.001078, 0.000250, 0.000022, 0.000000]
+
+[mortality_female]
+constant_hazard = 1.323320e-03
+gompertz_b = 4.214106e-04
+gompertz_c = 0.067158
+child_hazard = 1.186111e-01
+child_decline = 1.433150
+
+[mortality_male]
+constant_hazard = 1.315202e-03
+gompertz_b = 5.983824e-04
+gompertz_c = 0.065554
+child_hazard = 1.459776e-01
+child_decline = 1.508764
+
+[fertility]
+hazard_by_band = [0.19103175, 0.33949244, 0.33704874, 0.28605067, 0.21752845, 0.11039950, 0.02605713]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 55.2255
+life_expectancy_0_female = 59.2595
+life_expectancy_15_male = 47.6505
+life_expectancy_15_female = 51.0758

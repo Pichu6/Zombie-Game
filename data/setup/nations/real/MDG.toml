@@ -1,0 +1,54 @@
+# Madagaskor: a country with the real data of Madagascar under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MDG"
+name = "Madagaskor"
+status = "sourced"
+pop_params = "demography/real/MDG.toml"
+
+[age_pyramid]
+shares = [0.147075, 0.129532, 0.119115, 0.106765, 0.096136, 0.083341, 0.066908, 0.054839, 0.047202, 0.039737, 0.031878, 0.024559, 0.019561, 0.014815, 0.010032, 0.004806, 0.002452, 0.000982, 0.000235, 0.000029]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Madagascar"
+year = 2023
+
+[education]
+age_25_34 = [0.519276, 0.240199, 0.203908, 0.036616]
+age_35_64 = [0.629171, 0.220248, 0.127855, 0.022727]
+age_65_plus = [0.735987, 0.142528, 0.093625, 0.027861]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Madagascar"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7394, 0.7113]
+participation_25_54 = [0.9816, 0.9240]
+participation_55_64 = [0.9292, 0.8718]
+participation_65_plus = [0.6926, 0.5708]
+unemployment_rate = 0.0304
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Madagascar; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.004797, 0.025293, 0.012632, 0.008686, 0.065368, 0.089780, 0.013496, 0.779947]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Madagascar"
+year = 2023
+
+[sectors]
+shares = [0.698915, 0.098359, 0.202725]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Madagascar"
+year = 2023
+
+[households]
+sizes = [0.071100, 0.299700, 0.346400, 0.282800]
+mean_size = 4.500
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Madagascar, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.3198
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Madagascar"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 31195932

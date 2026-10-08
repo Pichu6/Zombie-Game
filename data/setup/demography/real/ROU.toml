@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Romania, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 72.31/79.61 vs WPP 72.40/79.56; TFR model 1.701 vs 1.713.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Romania"
+year = 2023
+
+male_share_at_birth = 0.513382
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.049854, 0.053627, 0.055283, 0.056717, 0.052353, 0.052723, 0.062087, 0.068172, 0.070586, 0.079044, 0.081197, 0.065188, 0.055637, 0.064101, 0.054892, 0.034310, 0.024319, 0.014425, 0.004686, 0.000799]
+
+[mortality_female]
+constant_hazard = 1.356467e-04
+gompertz_b = 8.761597e-06
+gompertz_c = 0.110194
+child_hazard = 1.183343e-02
+child_decline = 2.522320
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 1.082695e-04
+gompertz_c = 0.083624
+child_hazard = 1.298071e-02
+child_decline = 2.269808
+
+[fertility]
+hazard_by_band = [0.03480166, 0.07773767, 0.11567732, 0.08917570, 0.04227678, 0.00748037, 0.00053668]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 72.3109
+life_expectancy_0_female = 79.6140
+life_expectancy_15_male = 57.9300
+life_expectancy_15_female = 65.1579

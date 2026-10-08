@@ -1,0 +1,54 @@
+# Morokko: a country with the real data of Morocco under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MAR"
+name = "Morokko"
+status = "sourced"
+pop_params = "demography/real/MAR.toml"
+
+[age_pyramid]
+shares = [0.084311, 0.086719, 0.089322, 0.082987, 0.077481, 0.076194, 0.077399, 0.074999, 0.068727, 0.061201, 0.053388, 0.047362, 0.041654, 0.033094, 0.021996, 0.012858, 0.006850, 0.002685, 0.000686, 0.000090]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Morocco"
+year = 2023
+
+[education]
+age_25_34 = [0.271344, 0.187664, 0.375534, 0.165458]
+age_35_64 = [0.528453, 0.170703, 0.217277, 0.083567]
+age_65_plus = [0.733335, 0.128240, 0.100744, 0.037680]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Morocco"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4208, 0.1291]
+participation_25_54 = [0.8842, 0.2488]
+participation_55_64 = [0.6298, 0.2020]
+participation_65_plus = [0.2303, 0.0616]
+unemployment_rate = 0.0890
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Morocco; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.015468, 0.065459, 0.031756, 0.029142, 0.199451, 0.226536, 0.043022, 0.389167]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Morocco"
+year = 2023
+
+[sectors]
+shares = [0.290972, 0.232573, 0.476456]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Morocco"
+year = 2023
+
+[households]
+sizes = [0.072000, 0.261800, 0.379400, 0.286800]
+mean_size = 4.580
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Morocco, latest survey"
+year = 2014
+
+[settlement]
+urban_share = 0.6267
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Morocco"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 37712505

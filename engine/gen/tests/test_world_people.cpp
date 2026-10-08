@@ -1,6 +1,7 @@
 // Spec 48: people, sectors, countries and towns on the world grid.
 #include <doctest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <set>
 #include <string>
@@ -113,4 +114,27 @@ TEST_CASE("world people: the one world stands in a temperate town of 10,000 to 2
   CHECK(t.place->place().cell == place.cell);
   CHECK(t.place->place().income == place.income);
   MESSAGE("the block's town: " << place.town_people << " people, " << place.biome << ", " << place.income << " income");
+}
+
+TEST_CASE("real profiles (spec 49): each country takes a distinct real profile of its own income group") {
+  const auto profiles = load_real_profiles(ZS_DATA_DIR);
+  REQUIRE(profiles.size() > 150);
+  Planet p{WorldGrid(kOneWorldFrequency, 6371.0), {}, {}, load_group_tables(ZS_DATA_DIR)};
+  WorldParams wp;
+  wp.seed = 1;
+  p.fields = generate_fields(p.grid, wp);
+  p.people = populate_world(p.grid, p.fields, 1, p.tables, profiles);
+  std::set<std::string> taken;
+  for (const Country& c : p.people.countries) {
+    REQUIRE_FALSE(c.profile.empty());
+    CHECK(taken.insert(c.profile).second);
+    const auto it = std::find_if(profiles.begin(), profiles.end(), [&](const RealProfile& r) { return r.iso == c.profile; });
+    REQUIRE(it != profiles.end());
+    CHECK(it->income == c.income);
+    CHECK(it->name == c.name);
+    MESSAGE(c.name << " (" << c.profile << "), " << kIncomeGroupIds[static_cast<std::size_t>(c.income)] << ", " << c.people / 1e6 << " million");
+  }
+  const auto t = make_world(1);
+  CHECK_FALSE(t.place->place().country_name.empty());
+  CHECK_FALSE(t.place->place().profile.empty());
 }

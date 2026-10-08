@@ -1,0 +1,54 @@
+# Turkoya: a country with the real data of Türkiye under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "TUR"
+name = "Turkoya"
+status = "sourced"
+pop_params = "demography/real/TUR.toml"
+
+[age_pyramid]
+shares = [0.065845, 0.076243, 0.076309, 0.072057, 0.078070, 0.078452, 0.075157, 0.074284, 0.076857, 0.069904, 0.056926, 0.054982, 0.044903, 0.037056, 0.027738, 0.017239, 0.010315, 0.005306, 0.001926, 0.000430]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Türkiye"
+year = 2023
+
+[education]
+age_25_34 = [0.058093, 0.016002, 0.560699, 0.365206]
+age_35_64 = [0.055797, 0.281206, 0.461308, 0.201689]
+age_65_plus = [0.268016, 0.473543, 0.179581, 0.078860]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Türkiye"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5745, 0.3308]
+participation_25_54 = [0.8966, 0.4792]
+participation_55_64 = [0.5608, 0.2129]
+participation_65_plus = [0.1976, 0.0602]
+unemployment_rate = 0.0939
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Türkiye; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.056968, 0.125113, 0.068279, 0.070256, 0.196602, 0.130980, 0.095461, 0.256342]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Türkiye"
+year = 2023
+
+[sectors]
+shares = [0.146427, 0.275933, 0.577640]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Türkiye"
+year = 2023
+
+[households]
+sizes = [0.063706, 0.362336, 0.390339, 0.183618]
+mean_size = 4.070
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Türkiye, latest survey"
+year = 2004
+
+[settlement]
+urban_share = 0.8902
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Türkiye"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 87270502

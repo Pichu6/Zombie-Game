@@ -1,0 +1,54 @@
+# Indonasia: a country with the real data of Indonesia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "IDN"
+name = "Indonasia"
+status = "sourced"
+pop_params = "demography/real/IDN.toml"
+
+[age_pyramid]
+shares = [0.079479, 0.083358, 0.086510, 0.082069, 0.078058, 0.078012, 0.074840, 0.074197, 0.073161, 0.066899, 0.060376, 0.051651, 0.040905, 0.029421, 0.018654, 0.012046, 0.006854, 0.002765, 0.000659, 0.000087]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Indonesia"
+year = 2023
+
+[education]
+age_25_34 = [0.045920, 0.182859, 0.602786, 0.168435]
+age_35_64 = [0.098741, 0.335114, 0.461631, 0.104514]
+age_65_plus = [0.352693, 0.416603, 0.186828, 0.043875]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Indonesia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5375, 0.3827]
+participation_25_54 = [0.9505, 0.6140]
+participation_55_64 = [0.8621, 0.5781]
+participation_65_plus = [0.6369, 0.3640]
+unemployment_rate = 0.0331
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Indonesia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.021583, 0.060426, 0.029747, 0.041696, 0.251214, 0.116363, 0.067166, 0.411806]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Indonesia"
+year = 2023
+
+[sectors]
+shares = [0.287792, 0.219516, 0.492692]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Indonesia"
+year = 2023
+
+[households]
+sizes = [0.071000, 0.366200, 0.415000, 0.147800]
+mean_size = 3.860
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Indonesia, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.5812
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Indonesia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 281190067

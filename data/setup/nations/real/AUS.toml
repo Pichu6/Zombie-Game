@@ -1,0 +1,54 @@
+# Ostralia: a country with the real data of Australia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "AUS"
+name = "Ostralia"
+status = "sourced"
+pop_params = "demography/real/AUS.toml"
+
+[age_pyramid]
+shares = [0.057707, 0.060404, 0.062192, 0.059764, 0.061151, 0.069905, 0.073947, 0.073007, 0.067256, 0.061559, 0.063762, 0.058182, 0.057324, 0.050698, 0.044064, 0.035301, 0.022297, 0.013274, 0.006238, 0.001968]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Australia"
+year = 2023
+
+[education]
+age_25_34 = [0.002242, 0.007481, 0.435920, 0.554358]
+age_35_64 = [0.005573, 0.015956, 0.519644, 0.458826]
+age_65_plus = [0.014340, 0.105004, 0.589732, 0.290924]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Australia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7076, 0.7088]
+participation_25_54 = [0.9150, 0.8265]
+participation_55_64 = [0.7523, 0.6422]
+participation_65_plus = [0.1978, 0.1176]
+unemployment_rate = 0.0367
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Australia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.117092, 0.242973, 0.132805, 0.088484, 0.166190, 0.098046, 0.061075, 0.093335]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Australia"
+year = 2023
+
+[sectors]
+shares = [0.021497, 0.196802, 0.781700]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Australia"
+year = 2023
+
+[households]
+sizes = [0.243400, 0.499500, 0.224400, 0.032700]
+mean_size = 2.500
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Australia, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.8749
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Australia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 26451124

@@ -1,0 +1,54 @@
+# Indus: a country with the real data of India under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "IND"
+name = "Indus"
+status = "sourced"
+pop_params = "demography/real/IND.toml"
+
+[age_pyramid]
+shares = [0.079735, 0.083265, 0.087571, 0.089181, 0.090140, 0.085962, 0.081895, 0.076436, 0.067541, 0.058825, 0.050969, 0.043315, 0.035947, 0.028271, 0.019461, 0.011087, 0.006246, 0.002986, 0.000959, 0.000209]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), India"
+year = 2023
+
+[education]
+age_25_34 = [0.193565, 0.126261, 0.466695, 0.213479]
+age_35_64 = [0.407194, 0.145210, 0.327160, 0.120435]
+age_65_plus = [0.622929, 0.124857, 0.185439, 0.066776]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), India"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4455, 0.1492]
+participation_25_54 = [0.9665, 0.4107]
+participation_55_64 = [0.8035, 0.3246]
+participation_65_plus = [0.3652, 0.1073]
+unemployment_rate = 0.0417
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), India; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.036313, 0.056973, 0.023897, 0.021653, 0.124943, 0.112290, 0.055531, 0.568400]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), India"
+year = 2023
+
+[sectors]
+shares = [0.435136, 0.250292, 0.314572]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), India"
+year = 2023
+
+[households]
+sizes = [0.051100, 0.303100, 0.403700, 0.242100]
+mean_size = 4.380
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), India, latest survey"
+year = 2020
+
+[settlement]
+urban_share = 0.3507
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), India"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 1438069596

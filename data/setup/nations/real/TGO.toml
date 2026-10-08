@@ -1,0 +1,54 @@
+# Togolo: a country with the real data of Togo under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "TGO"
+name = "Togolo"
+status = "sourced"
+pop_params = "demography/real/TGO.toml"
+
+[age_pyramid]
+shares = [0.144257, 0.132400, 0.122168, 0.104655, 0.088710, 0.076167, 0.067326, 0.058629, 0.050704, 0.042674, 0.034133, 0.026543, 0.019995, 0.014433, 0.009485, 0.005104, 0.002013, 0.000527, 0.000070, 0.000004]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Togo"
+year = 2023
+
+[education]
+age_25_34 = [0.315092, 0.320298, 0.276865, 0.087745]
+age_35_64 = [0.526770, 0.260888, 0.161314, 0.051028]
+age_65_plus = [0.738925, 0.143411, 0.090152, 0.027511]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Togo"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2111, 0.2822]
+participation_25_54 = [0.8223, 0.7433]
+participation_55_64 = [0.6748, 0.6231]
+participation_65_plus = [0.4228, 0.3557]
+unemployment_rate = 0.0194
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Togo; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.008131, 0.043872, 0.016922, 0.012795, 0.311867, 0.131238, 0.035281, 0.439894]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Togo"
+year = 2023
+
+[sectors]
+shares = [0.388057, 0.181832, 0.430111]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Togo"
+year = 2023
+
+[households]
+sizes = [0.156584, 0.263874, 0.299470, 0.280072]
+mean_size = 4.350
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Togo, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.4325
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Togo"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 9304338

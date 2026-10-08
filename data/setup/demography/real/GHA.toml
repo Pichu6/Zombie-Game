@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ghana, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 63.00/67.85 vs WPP 63.13/67.94; TFR model 3.386 vs 3.397.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ghana"
+year = 2023
+
+male_share_at_birth = 0.509323
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.125067, 0.122643, 0.114078, 0.101844, 0.090023, 0.078202, 0.072948, 0.065960, 0.056432, 0.045898, 0.037322, 0.030435, 0.022829, 0.015079, 0.009996, 0.006093, 0.003454, 0.001355, 0.000306, 0.000035]
+
+[mortality_female]
+constant_hazard = 2.087618e-03
+gompertz_b = 2.851595e-05
+gompertz_c = 0.100655
+child_hazard = 8.486405e-02
+child_decline = 3.202997
+
+[mortality_male]
+constant_hazard = 3.014437e-03
+gompertz_b = 5.716299e-05
+gompertz_c = 0.094049
+child_hazard = 1.031614e+00
+child_decline = 32.623998
+
+[fertility]
+hazard_by_band = [0.06144286, 0.16069061, 0.19873746, 0.18223636, 0.11809566, 0.04494274, 0.01153949]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 63.0036
+life_expectancy_0_female = 67.8484
+life_expectancy_15_male = 52.8006
+life_expectancy_15_female = 56.7026

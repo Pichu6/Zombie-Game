@@ -1,0 +1,54 @@
+# Armenoa: a country with the real data of Armenia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ARM"
+name = "Armenoa"
+status = "sourced"
+pop_params = "demography/real/ARM.toml"
+
+[age_pyramid]
+shares = [0.060235, 0.066634, 0.068584, 0.061886, 0.060179, 0.067025, 0.084339, 0.081999, 0.072600, 0.060078, 0.055306, 0.060020, 0.069005, 0.053932, 0.035800, 0.017332, 0.013906, 0.008334, 0.002366, 0.000442]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Armenia"
+year = 2023
+
+[education]
+age_25_34 = [0.003382, 0.005907, 0.631944, 0.358766]
+age_35_64 = [0.003189, 0.006926, 0.721122, 0.268763]
+age_65_plus = [0.007373, 0.035761, 0.733818, 0.223047]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Armenia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4591, 0.3045]
+participation_25_54 = [0.9031, 0.7059]
+participation_55_64 = [0.7909, 0.6334]
+participation_65_plus = [0.0964, 0.0535]
+unemployment_rate = 0.1240
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Armenia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.065406, 0.153864, 0.082577, 0.036562, 0.148163, 0.098385, 0.059599, 0.355444]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Armenia"
+year = 2023
+
+[sectors]
+shares = [0.280666, 0.204688, 0.514646]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Armenia"
+year = 2023
+
+[households]
+sizes = [0.151900, 0.361700, 0.323000, 0.163400]
+mean_size = 3.540
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Armenia, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 0.6570
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Armenia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 2943393

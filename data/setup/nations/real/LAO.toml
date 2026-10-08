@@ -1,0 +1,54 @@
+# Laosia: a country with the real data of Lao People's Democratic Republic under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "LAO"
+name = "Laosia"
+status = "sourced"
+pop_params = "demography/real/LAO.toml"
+
+[age_pyramid]
+shares = [0.103809, 0.103360, 0.098407, 0.095432, 0.093754, 0.089166, 0.083424, 0.073678, 0.060470, 0.049604, 0.041227, 0.034649, 0.027666, 0.019679, 0.012624, 0.007330, 0.003778, 0.001482, 0.000392, 0.000071]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lao People's Democratic Republic"
+year = 2023
+
+[education]
+age_25_34 = [0.193878, 0.375389, 0.280443, 0.150290]
+age_35_64 = [0.323049, 0.416193, 0.160296, 0.100461]
+age_65_plus = [0.584045, 0.308762, 0.056280, 0.050912]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Lao People's Democratic Republic"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5523, 0.5334]
+participation_25_54 = [0.8110, 0.7175]
+participation_55_64 = [0.7080, 0.5104]
+participation_65_plus = [0.3995, 0.2256]
+unemployment_rate = 0.0119
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lao People's Democratic Republic; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.007333, 0.019261, 0.063887, 0.002882, 0.124414, 0.031282, 0.017034, 0.733907]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lao People's Democratic Republic"
+year = 2023
+
+[sectors]
+shares = [0.693877, 0.072489, 0.233634]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lao People's Democratic Republic"
+year = 2023
+
+[households]
+sizes = [0.031800, 0.248000, 0.425900, 0.294300]
+mean_size = 4.700
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Lao People's Democratic Republic, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.3881
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Lao People's Democratic Republic"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 7664992

@@ -1,0 +1,54 @@
+# Chyna: a country with the real data of China under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CHN"
+name = "Chyna"
+status = "sourced"
+pop_params = "demography/real/CHN.toml"
+
+[age_pyramid]
+shares = [0.040801, 0.062297, 0.062798, 0.057278, 0.056210, 0.061091, 0.078991, 0.079588, 0.069317, 0.069479, 0.086283, 0.080188, 0.052519, 0.053671, 0.041255, 0.023691, 0.014169, 0.007479, 0.002462, 0.000433]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), China"
+year = 2023
+
+[education]
+age_25_34 = [0.019204, 0.035118, 0.527155, 0.418524]
+age_35_64 = [0.062315, 0.124658, 0.671076, 0.141950]
+age_65_plus = [0.248434, 0.322872, 0.389754, 0.038941]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), China"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5155, 0.4788]
+participation_25_54 = [0.9020, 0.8180]
+participation_55_64 = [0.6887, 0.5175]
+participation_65_plus = [0.2556, 0.1651]
+unemployment_rate = 0.0467
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.019904, 0.106802, 0.020236, 0.044813, 0.096332, 0.127965, 0.067113, 0.516835]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China"
+year = 2023
+
+[sectors]
+shares = [0.228009, 0.314267, 0.457724]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China"
+year = 2023
+
+[households]
+sizes = [0.085900, 0.488200, 0.354700, 0.071200]
+mean_size = 3.380
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), China, latest survey"
+year = 2000
+
+[settlement]
+urban_share = 0.6553
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), China"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 1422584933

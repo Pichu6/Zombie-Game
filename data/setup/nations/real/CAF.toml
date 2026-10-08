@@ -1,0 +1,54 @@
+# Central Afrikan Republic: a country with the real data of Central African Republic under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CAF"
+name = "Central Afrikan Republic"
+status = "sourced"
+pop_params = "demography/real/CAF.toml"
+
+[age_pyramid]
+shares = [0.182614, 0.159246, 0.149804, 0.124157, 0.100874, 0.072735, 0.050217, 0.035874, 0.026928, 0.021273, 0.021287, 0.018822, 0.015216, 0.010747, 0.006151, 0.002707, 0.001078, 0.000250, 0.000022, 0.000000]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Central African Republic"
+year = 2023
+
+[education]
+age_25_34 = [0.592698, 0.242515, 0.134442, 0.030345]
+age_35_64 = [0.694616, 0.179355, 0.100178, 0.025851]
+age_65_plus = [0.745474, 0.164013, 0.071594, 0.018919]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Central African Republic"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6482, 0.5660]
+participation_25_54 = [0.9977, 0.7474]
+participation_55_64 = [0.9754, 0.6665]
+participation_65_plus = [0.9253, 0.5230]
+unemployment_rate = 0.0618
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Central African Republic; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.005711, 0.001595, 0.000943, 0.019093, 0.078881, 0.186565, 0.073575, 0.633636]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Central African Republic"
+year = 2023
+
+[sectors]
+shares = [0.658704, 0.135120, 0.206176]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Central African Republic"
+year = 2023
+
+[households]
+sizes = [0.062000, 0.194500, 0.290900, 0.452600]
+mean_size = 5.590
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Central African Republic, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.4370
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Central African Republic"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 5152420

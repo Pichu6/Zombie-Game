@@ -1,0 +1,54 @@
+# Montenegra: a country with the real data of Montenegro under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MNE"
+name = "Montenegra"
+status = "sourced"
+pop_params = "demography/real/MNE.toml"
+
+[age_pyramid]
+shares = [0.058066, 0.061337, 0.063925, 0.060945, 0.061794, 0.061136, 0.060637, 0.067963, 0.070550, 0.066970, 0.063355, 0.064089, 0.064571, 0.060042, 0.047947, 0.027791, 0.021252, 0.012133, 0.004339, 0.001157]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Montenegro"
+year = 2023
+
+[education]
+age_25_34 = [0.018307, 0.010699, 0.665002, 0.305991]
+age_35_64 = [0.009751, 0.017616, 0.753303, 0.219330]
+age_65_plus = [0.031456, 0.147862, 0.644566, 0.176116]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Montenegro"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4837, 0.3923]
+participation_25_54 = [0.8691, 0.7697]
+participation_55_64 = [0.7286, 0.5547]
+participation_65_plus = [0.1956, 0.0857]
+unemployment_rate = 0.1315
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Montenegro; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.037932, 0.217865, 0.125761, 0.096261, 0.244334, 0.085052, 0.076453, 0.116342]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Montenegro"
+year = 2023
+
+[sectors]
+shares = [0.044593, 0.184342, 0.771065]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Montenegro"
+year = 2023
+
+[households]
+sizes = [0.153900, 0.413500, 0.341100, 0.091500]
+mean_size = 3.290
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Montenegro, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.6547
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Montenegro"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 633552

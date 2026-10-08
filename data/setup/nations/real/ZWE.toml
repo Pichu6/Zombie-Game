@@ -1,0 +1,54 @@
+# Zimbabwo: a country with the real data of Zimbabwe under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ZWE"
+name = "Zimbabwo"
+status = "sourced"
+pop_params = "demography/real/ZWE.toml"
+
+[age_pyramid]
+shares = [0.141179, 0.136350, 0.135703, 0.112479, 0.094759, 0.065700, 0.058133, 0.065284, 0.058450, 0.038926, 0.024551, 0.017197, 0.015105, 0.014739, 0.011126, 0.005732, 0.002908, 0.001173, 0.000416, 0.000090]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Zimbabwe"
+year = 2023
+
+[education]
+age_25_34 = [0.141417, 0.138889, 0.612250, 0.107443]
+age_35_64 = [0.139178, 0.156042, 0.590802, 0.113978]
+age_65_plus = [0.504478, 0.157576, 0.267545, 0.070401]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Zimbabwe"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5368, 0.4322]
+participation_25_54 = [0.9058, 0.7430]
+participation_55_64 = [0.8260, 0.6810]
+participation_65_plus = [0.6055, 0.5167]
+unemployment_rate = 0.0935
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Zimbabwe; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.020517, 0.050861, 0.018877, 0.009433, 0.140303, 0.069485, 0.035388, 0.655136]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Zimbabwe"
+year = 2023
+
+[sectors]
+shares = [0.554494, 0.113922, 0.331584]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Zimbabwe"
+year = 2023
+
+[households]
+sizes = [0.128600, 0.305700, 0.344000, 0.221700]
+mean_size = 4.020
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Zimbabwe, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.3929
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Zimbabwe"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 16340822

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Argentina, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 74.70/79.90 vs WPP 74.80/79.88; TFR model 1.498 vs 1.500.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Argentina"
+year = 2023
+
+male_share_at_birth = 0.512433
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.060402, 0.080544, 0.080960, 0.077206, 0.076255, 0.076967, 0.075475, 0.071048, 0.069502, 0.063990, 0.054080, 0.047537, 0.044003, 0.038424, 0.031581, 0.023616, 0.015197, 0.008390, 0.003605, 0.001218]
+
+[mortality_female]
+constant_hazard = 2.045598e-04
+gompertz_b = 2.172303e-05
+gompertz_c = 0.096232
+child_hazard = 2.525457e-02
+child_decline = 2.970609
+
+[mortality_male]
+constant_hazard = 3.385542e-04
+gompertz_b = 4.629445e-05
+gompertz_c = 0.091865
+child_hazard = 3.268627e-01
+child_decline = 35.045556
+
+[fertility]
+hazard_by_band = [0.02705377, 0.06934013, 0.07937609, 0.07620074, 0.05046302, 0.01507359, 0.00091718]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 74.7037
+life_expectancy_0_female = 79.9023
+life_expectancy_15_male = 60.8488
+life_expectancy_15_female = 65.8586

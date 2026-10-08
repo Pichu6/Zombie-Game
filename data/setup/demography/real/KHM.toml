@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cambodia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 67.83/73.11 vs WPP 68.01/73.19; TFR model 2.574 vs 2.579.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cambodia"
+year = 2023
+
+male_share_at_birth = 0.512671
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.104241, 0.101050, 0.095814, 0.092155, 0.079062, 0.077221, 0.082243, 0.076905, 0.068859, 0.045054, 0.043722, 0.040238, 0.033823, 0.024668, 0.017200, 0.009962, 0.005175, 0.002043, 0.000506, 0.000057]
+
+[mortality_female]
+constant_hazard = 9.849077e-04
+gompertz_b = 1.912237e-05
+gompertz_c = 0.103940
+child_hazard = 5.310778e-01
+child_decline = 33.446366
+
+[mortality_male]
+constant_hazard = 1.841104e-03
+gompertz_b = 4.459345e-05
+gompertz_c = 0.095685
+child_hazard = 6.913370e-01
+child_decline = 34.810383
+
+[fertility]
+hazard_by_band = [0.04894524, 0.16741587, 0.16606227, 0.11434004, 0.05796382, 0.02194433, 0.00264520]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 67.8331
+life_expectancy_0_female = 73.1078
+life_expectancy_15_male = 56.0138
+life_expectancy_15_female = 60.3172

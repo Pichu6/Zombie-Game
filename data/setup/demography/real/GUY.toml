@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guyana, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.49/73.90 vs WPP 66.51/73.94; TFR model 2.411 vs 2.413.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guyana"
+year = 2023
+
+male_share_at_birth = 0.509082
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.100339, 0.098793, 0.094099, 0.086343, 0.090071, 0.091253, 0.074064, 0.057838, 0.055013, 0.054563, 0.050620, 0.044946, 0.037261, 0.026719, 0.017445, 0.010860, 0.005740, 0.002806, 0.000909, 0.000319]
+
+[mortality_female]
+constant_hazard = 5.691814e-05
+gompertz_b = 1.070370e-04
+gompertz_c = 0.079900
+child_hazard = 4.092094e-02
+child_decline = 1.876765
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 2.814104e-04
+gompertz_c = 0.073301
+child_hazard = 5.775000e-02
+child_decline = 2.100540
+
+[fertility]
+hazard_by_band = [0.07459976, 0.15743397, 0.13997091, 0.09961552, 0.04597504, 0.01676395, 0.00217297]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.4851
+life_expectancy_0_female = 73.9022
+life_expectancy_15_male = 53.7843
+life_expectancy_15_female = 60.7846

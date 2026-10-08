@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Gabon, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 65.91/71.05 vs WPP 65.90/71.05; TFR model 3.629 vs 3.647.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Gabon"
+year = 2023
+
+male_share_at_birth = 0.505195
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.133305, 0.123517, 0.109801, 0.091907, 0.080843, 0.076704, 0.076751, 0.071151, 0.060390, 0.047949, 0.037173, 0.028491, 0.021601, 0.015775, 0.011134, 0.007095, 0.003969, 0.001777, 0.000543, 0.000125]
+
+[mortality_female]
+constant_hazard = 6.295548e-04
+gompertz_b = 5.346757e-05
+gompertz_c = 0.091582
+child_hazard = 4.608292e-02
+child_decline = 1.497447
+
+[mortality_male]
+constant_hazard = 6.261160e-04
+gompertz_b = 1.865557e-04
+gompertz_c = 0.078242
+child_hazard = 6.142311e-02
+child_decline = 1.632318
+
+[fertility]
+hazard_by_band = [0.09991706, 0.18957189, 0.20372910, 0.17399067, 0.12333902, 0.04401834, 0.00514423]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 65.9094
+life_expectancy_0_female = 71.0477
+life_expectancy_15_male = 54.3092
+life_expectancy_15_female = 58.9829

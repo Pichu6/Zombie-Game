@@ -1,0 +1,54 @@
+# North Makedonia: a country with the real data of North Macedonia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MKD"
+name = "North Makedonia"
+status = "sourced"
+pop_params = "demography/real/MKD.toml"
+
+[age_pyramid]
+shares = [0.051951, 0.059175, 0.059553, 0.055953, 0.058560, 0.061968, 0.066387, 0.068636, 0.070664, 0.069205, 0.067334, 0.069007, 0.066590, 0.062007, 0.050104, 0.031151, 0.019028, 0.009372, 0.002846, 0.000510]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), North Macedonia"
+year = 2023
+
+[education]
+age_25_34 = [0.025366, 0.015417, 0.767954, 0.191264]
+age_35_64 = [0.053404, 0.039318, 0.770513, 0.136765]
+age_65_plus = [0.209307, 0.149558, 0.507860, 0.133275]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), North Macedonia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3436, 0.1890]
+participation_25_54 = [0.8952, 0.6944]
+participation_55_64 = [0.6920, 0.3989]
+participation_65_plus = [0.0372, 0.0152]
+unemployment_rate = 0.1317
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), North Macedonia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.031258, 0.209537, 0.120920, 0.063163, 0.175490, 0.119535, 0.135703, 0.144394]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), North Macedonia"
+year = 2023
+
+[sectors]
+shares = [0.077708, 0.310402, 0.611890]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), North Macedonia"
+year = 2023
+
+[households]
+sizes = [0.118488, 0.427157, 0.319368, 0.134987]
+mean_size = 3.450
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), North Macedonia, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.6225
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), North Macedonia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 1831802

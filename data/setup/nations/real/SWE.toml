@@ -1,0 +1,54 @@
+# Swedonia: a country with the real data of Sweden under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SWE"
+name = "Swedonia"
+status = "sourced"
+pop_params = "demography/real/SWE.toml"
+
+[age_pyramid]
+shares = [0.053678, 0.058837, 0.059983, 0.057621, 0.055578, 0.061929, 0.074008, 0.066941, 0.061866, 0.061596, 0.062736, 0.064656, 0.055207, 0.051605, 0.049349, 0.047638, 0.030299, 0.016713, 0.007492, 0.002268]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Sweden"
+year = 2023
+
+[education]
+age_25_34 = [0.000800, 0.009575, 0.466650, 0.522974]
+age_35_64 = [0.000705, 0.026125, 0.523867, 0.449302]
+age_65_plus = [0.000380, 0.160645, 0.541822, 0.297153]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Sweden"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5777, 0.5714]
+participation_25_54 = [0.9405, 0.9025]
+participation_55_64 = [0.8550, 0.7923]
+participation_65_plus = [0.1001, 0.0472]
+unemployment_rate = 0.0761
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Sweden; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.063627, 0.334582, 0.183510, 0.060727, 0.164959, 0.081627, 0.053759, 0.057209]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Sweden"
+year = 2023
+
+[sectors]
+shares = [0.017688, 0.172817, 0.809495]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Sweden"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for Sweden)"
+year = 2011.0
+
+[settlement]
+urban_share = 0.8863
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Sweden"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 10551494

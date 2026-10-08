@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uzbekistan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.44/75.43 vs WPP 69.45/75.40; TFR model 3.494 vs 3.500.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uzbekistan"
+year = 2023
+
+male_share_at_birth = 0.519000
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.120932, 0.100514, 0.087265, 0.074844, 0.070098, 0.081820, 0.086199, 0.079424, 0.063327, 0.054123, 0.046611, 0.042190, 0.035704, 0.024693, 0.015725, 0.007792, 0.005134, 0.002717, 0.000766, 0.000123]
+
+[mortality_female]
+constant_hazard = 3.648971e-04
+gompertz_b = 1.920820e-05
+gompertz_c = 0.103657
+child_hazard = 2.487032e-02
+child_decline = 2.299921
+
+[mortality_male]
+constant_hazard = 2.656723e-04
+gompertz_b = 8.203038e-05
+gompertz_c = 0.090649
+child_hazard = 3.445370e-02
+child_decline = 2.713938
+
+[fertility]
+hazard_by_band = [0.03515372, 0.33554163, 0.27004460, 0.15078193, 0.06142862, 0.00865774, 0.00018019]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.4388
+life_expectancy_0_female = 75.4271
+life_expectancy_15_male = 55.7333
+life_expectancy_15_female = 61.6664

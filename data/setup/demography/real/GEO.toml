@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Georgia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.59/79.03 vs WPP 69.57/79.11; TFR model 1.804 vs 1.810.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Georgia"
+year = 2023
+
+male_share_at_birth = 0.516207
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.063588, 0.075998, 0.070822, 0.058409, 0.055725, 0.060232, 0.073272, 0.074350, 0.067263, 0.062768, 0.060031, 0.060400, 0.063967, 0.052778, 0.041481, 0.023599, 0.019241, 0.011478, 0.003672, 0.000927]
+
+[mortality_female]
+constant_hazard = 1.381961e-04
+gompertz_b = 1.272478e-05
+gompertz_c = 0.105500
+child_hazard = 2.101553e-02
+child_decline = 2.825369
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 1.241496e-04
+gompertz_c = 0.084841
+child_hazard = 2.792723e-02
+child_decline = 2.935076
+
+[fertility]
+hazard_by_band = [0.02154468, 0.09821710, 0.12713812, 0.08875383, 0.04451959, 0.01178515, 0.00127702]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.5872
+life_expectancy_0_female = 79.0259
+life_expectancy_15_male = 55.4799
+life_expectancy_15_female = 64.7957

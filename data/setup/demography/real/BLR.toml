@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Belarus, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.58/79.11 vs WPP 69.54/79.07; TFR model 1.202 vs 1.208.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Belarus"
+year = 2023
+
+male_share_at_birth = 0.514327
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.043816, 0.061927, 0.061011, 0.050942, 0.047767, 0.052673, 0.073923, 0.083488, 0.075909, 0.069680, 0.066939, 0.067215, 0.074092, 0.062068, 0.047192, 0.025212, 0.019862, 0.012175, 0.003596, 0.000514]
+
+[mortality_female]
+constant_hazard = 8.667949e-05
+gompertz_b = 1.250588e-05
+gompertz_c = 0.106577
+child_hazard = 4.821752e-03
+child_decline = 2.988988
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 1.541533e-04
+gompertz_c = 0.081909
+child_hazard = 2.035455e+00
+child_decline = 1014.539873
+
+[fertility]
+hazard_by_band = [0.00866164, 0.06352011, 0.08520498, 0.06297362, 0.02871115, 0.00562963, 0.00048049]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.5819
+life_expectancy_0_female = 79.1070
+life_expectancy_15_male = 54.9984
+life_expectancy_15_female = 64.3599

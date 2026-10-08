@@ -1,0 +1,54 @@
+# Irakia: a country with the real data of Iraq under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "IRQ"
+name = "Irakia"
+status = "sourced"
+pop_params = "demography/real/IRQ.toml"
+
+[age_pyramid]
+shares = [0.123360, 0.125375, 0.122179, 0.103359, 0.092943, 0.083393, 0.072557, 0.060190, 0.051979, 0.045194, 0.037579, 0.029124, 0.018800, 0.013574, 0.010247, 0.005855, 0.002990, 0.001060, 0.000217, 0.000023]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Iraq"
+year = 2023
+
+[education]
+age_25_34 = [0.331245, 0.212686, 0.225327, 0.230742]
+age_35_64 = [0.350209, 0.293639, 0.184060, 0.172092]
+age_65_plus = [0.613670, 0.165160, 0.107266, 0.113904]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Iraq"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4813, 0.0566]
+participation_25_54 = [0.9248, 0.1474]
+participation_55_64 = [0.6285, 0.1122]
+participation_65_plus = [0.2087, 0.0216]
+unemployment_rate = 0.1524
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Iraq; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.007669, 0.176042, 0.060134, 0.020497, 0.252844, 0.222223, 0.114145, 0.146445]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Iraq"
+year = 2023
+
+[sectors]
+shares = [0.083606, 0.266213, 0.650181]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Iraq"
+year = 2023
+
+[households]
+sizes = [0.010100, 0.127000, 0.288100, 0.574800]
+mean_size = 6.350
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Iraq, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.6987
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Iraq"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 45074049

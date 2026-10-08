@@ -1,0 +1,54 @@
+# French Polynasia: a country with the real data of French Polynesia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PYF"
+name = "French Polynasia"
+status = "sourced"
+pop_params = "demography/real/PYF.toml"
+
+[age_pyramid]
+shares = [0.053681, 0.067273, 0.076379, 0.076699, 0.074141, 0.064178, 0.074981, 0.079296, 0.073120, 0.068475, 0.068418, 0.064085, 0.052005, 0.040619, 0.027703, 0.019009, 0.011710, 0.005659, 0.002074, 0.000494]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), French Polynesia"
+year = 2023
+
+[education]
+age_25_34 = [0.005345, 0.032517, 0.661024, 0.301114]
+age_35_64 = [0.045728, 0.119159, 0.613652, 0.221462]
+age_65_plus = [0.190150, 0.264963, 0.397756, 0.147132]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), French Polynesia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4281, 0.3313]
+participation_25_54 = [0.8274, 0.6893]
+participation_55_64 = [0.4017, 0.2677]
+participation_65_plus = [0.0847, 0.0415]
+unemployment_rate = 0.1161
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), French Polynesia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.053737, 0.192102, 0.164679, 0.093706, 0.155901, 0.124729, 0.059996, 0.155150]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), French Polynesia"
+year = 2023
+
+[sectors]
+shares = [0.020675, 0.144774, 0.834550]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), French Polynesia"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for French Polynesia)"
+year = 2011.0
+
+[settlement]
+urban_share = 0.6170
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), French Polynesia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 281118

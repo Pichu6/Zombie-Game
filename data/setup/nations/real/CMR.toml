@@ -1,0 +1,54 @@
+# Cameroom: a country with the real data of Cameroon under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CMR"
+name = "Cameroom"
+status = "sourced"
+pop_params = "demography/real/CMR.toml"
+
+[age_pyramid]
+shares = [0.154836, 0.139602, 0.123168, 0.107565, 0.089923, 0.077632, 0.068906, 0.058320, 0.047699, 0.037422, 0.029208, 0.021669, 0.016301, 0.011814, 0.007727, 0.004727, 0.002374, 0.000872, 0.000205, 0.000030]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cameroon"
+year = 2023
+
+[education]
+age_25_34 = [0.220176, 0.241513, 0.375890, 0.162421]
+age_35_64 = [0.321039, 0.332030, 0.257394, 0.089536]
+age_65_plus = [0.515954, 0.339097, 0.120902, 0.024047]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Cameroon"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4034, 0.2939]
+participation_25_54 = [0.9467, 0.7336]
+participation_55_64 = [0.8761, 0.7123]
+participation_65_plus = [0.6247, 0.4678]
+unemployment_rate = 0.0361
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cameroon; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.183254, 0.051693, 0.041985, 0.028459, 0.091441, 0.112518, 0.042550, 0.448100]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cameroon"
+year = 2023
+
+[sectors]
+shares = [0.429033, 0.145710, 0.425257]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cameroon"
+year = 2023
+
+[households]
+sizes = [0.153000, 0.227900, 0.247300, 0.371800]
+mean_size = 4.990
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Cameroon, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.5513
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Cameroon"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 28372687

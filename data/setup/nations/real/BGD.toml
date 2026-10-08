@@ -1,0 +1,54 @@
+# Bangladosh: a country with the real data of Bangladesh under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BGD"
+name = "Bangladosh"
+status = "sourced"
+pop_params = "demography/real/BGD.toml"
+
+[age_pyramid]
+shares = [0.096258, 0.091424, 0.095927, 0.099994, 0.092703, 0.087734, 0.074564, 0.074711, 0.063346, 0.050762, 0.043448, 0.036224, 0.029700, 0.023912, 0.017339, 0.011630, 0.006497, 0.002837, 0.000852, 0.000139]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bangladesh"
+year = 2023
+
+[education]
+age_25_34 = [0.233027, 0.226689, 0.454296, 0.085989]
+age_35_64 = [0.495714, 0.197719, 0.252061, 0.054505]
+age_65_plus = [0.709963, 0.131642, 0.132848, 0.025547]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Bangladesh"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5444, 0.4885]
+participation_25_54 = [0.9714, 0.4595]
+participation_55_64 = [0.8708, 0.2482]
+participation_65_plus = [0.5876, 0.1113]
+unemployment_rate = 0.0335
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bangladesh; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.015450, 0.048977, 0.030276, 0.009625, 0.146727, 0.148756, 0.078713, 0.521476]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bangladesh"
+year = 2023
+
+[sectors]
+shares = [0.453663, 0.176259, 0.370078]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bangladesh"
+year = 2023
+
+[households]
+sizes = [0.028497, 0.312669, 0.469553, 0.189281]
+mean_size = 4.260
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Bangladesh, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.3216
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Bangladesh"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 171466990

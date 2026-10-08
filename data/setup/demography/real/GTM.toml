@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guatemala, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.08/74.90 vs WPP 70.31/74.88; TFR model 2.303 vs 2.311.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guatemala"
+year = 2023
+
+male_share_at_birth = 0.509564
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.103658, 0.110880, 0.106839, 0.104355, 0.101287, 0.092969, 0.081481, 0.067755, 0.055533, 0.043332, 0.033984, 0.027794, 0.022786, 0.018473, 0.013274, 0.008572, 0.004613, 0.001842, 0.000504, 0.000070]
+
+[mortality_female]
+constant_hazard = 4.468711e-04
+gompertz_b = 2.485033e-05
+gompertz_c = 0.099591
+child_hazard = 3.823794e-02
+child_decline = 2.271044
+
+[mortality_male]
+constant_hazard = 1.206470e-03
+gompertz_b = 5.401104e-05
+gompertz_c = 0.091808
+child_hazard = 5.863790e-01
+child_decline = 31.382274
+
+[fertility]
+hazard_by_band = [0.07271567, 0.14014355, 0.12350328, 0.09182944, 0.05723038, 0.01966377, 0.00184879]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.0815
+life_expectancy_0_female = 74.8989
+life_expectancy_15_male = 57.6807
+life_expectancy_15_female = 61.6832

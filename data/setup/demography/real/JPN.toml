@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Japan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 81.74/87.83 vs WPP 81.69/87.74; TFR model 1.203 vs 1.208.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Japan"
+year = 2023
+
+male_share_at_birth = 0.512433
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.033305, 0.039724, 0.043465, 0.045590, 0.048829, 0.048933, 0.049457, 0.055294, 0.061561, 0.074525, 0.077581, 0.065531, 0.060588, 0.059362, 0.070314, 0.062738, 0.049373, 0.031892, 0.016099, 0.005839]
+
+[mortality_female]
+constant_hazard = 1.634173e-04
+gompertz_b = 1.563987e-06
+gompertz_c = 0.120490
+child_hazard = 4.031089e-02
+child_decline = 28.887845
+
+[mortality_male]
+constant_hazard = 1.430060e-04
+gompertz_b = 9.806654e-06
+gompertz_c = 0.105745
+child_hazard = 4.628523e-02
+child_decline = 29.233074
+
+[fertility]
+hazard_by_band = [0.00173970, 0.01817937, 0.07058606, 0.09882898, 0.05544054, 0.01199068, 0.00051488]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 81.7391
+life_expectancy_0_female = 87.8266
+life_expectancy_15_male = 67.0544
+life_expectancy_15_female = 73.1518

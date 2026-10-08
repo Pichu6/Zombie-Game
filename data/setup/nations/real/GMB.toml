@@ -1,0 +1,54 @@
+# Gambiola: a country with the real data of Gambia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GMB"
+name = "Gambiola"
+status = "sourced"
+pop_params = "demography/real/GMB.toml"
+
+[age_pyramid]
+shares = [0.142172, 0.136992, 0.128143, 0.109511, 0.093304, 0.082816, 0.069857, 0.055168, 0.041841, 0.033091, 0.030214, 0.026635, 0.020477, 0.013430, 0.007784, 0.005035, 0.002427, 0.000868, 0.000208, 0.000026]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Gambia"
+year = 2023
+
+[education]
+age_25_34 = [0.355103, 0.118731, 0.440920, 0.085246]
+age_35_64 = [0.612834, 0.078752, 0.251052, 0.057362]
+age_65_plus = [0.876055, 0.022694, 0.075938, 0.025313]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Gambia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3330, 0.2848]
+participation_25_54 = [0.6183, 0.5736]
+participation_55_64 = [0.5520, 0.5115]
+participation_65_plus = [0.3015, 0.2240]
+unemployment_rate = 0.0648
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Gambia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.019533, 0.060935, 0.027853, 0.008938, 0.299843, 0.154376, 0.048381, 0.380140]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Gambia"
+year = 2023
+
+[sectors]
+shares = [0.290675, 0.185958, 0.523367]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Gambia"
+year = 2023
+
+[households]
+sizes = [0.097200, 0.140300, 0.176800, 0.585700]
+mean_size = 8.070
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Gambia, latest survey"
+year = 2020
+
+[settlement]
+urban_share = 0.6380
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Gambia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 2697846

@@ -1,0 +1,54 @@
+# Nepol: a country with the real data of Nepal under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "NPL"
+name = "Nepol"
+status = "sourced"
+pop_params = "demography/real/NPL.toml"
+
+[age_pyramid]
+shares = [0.094026, 0.095589, 0.097521, 0.101101, 0.098956, 0.089822, 0.075499, 0.065866, 0.058182, 0.050054, 0.043878, 0.035452, 0.030448, 0.024947, 0.018703, 0.011735, 0.005806, 0.001954, 0.000415, 0.000046]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nepal"
+year = 2023
+
+[education]
+age_25_34 = [0.208946, 0.129042, 0.582959, 0.079054]
+age_35_64 = [0.506044, 0.133528, 0.314928, 0.045500]
+age_65_plus = [0.819356, 0.065019, 0.095004, 0.020621]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Nepal"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3624, 0.1934]
+participation_25_54 = [0.7038, 0.3578]
+participation_55_64 = [0.4136, 0.1920]
+participation_65_plus = [0.2060, 0.0730]
+unemployment_rate = 0.1044
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nepal; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.009100, 0.083646, 0.041255, 0.037893, 0.228963, 0.187167, 0.056478, 0.355497]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nepal"
+year = 2023
+
+[sectors]
+shares = [0.239507, 0.308488, 0.452005]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nepal"
+year = 2023
+
+[households]
+sizes = [0.045100, 0.336200, 0.398100, 0.220600]
+mean_size = 4.250
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Nepal, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.6654
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Nepal"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 29694614

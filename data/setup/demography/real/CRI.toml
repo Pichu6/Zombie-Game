@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Costa Rica, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 77.95/83.38 vs WPP 78.13/83.42; TFR model 1.327 vs 1.330.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Costa Rica"
+year = 2023
+
+male_share_at_birth = 0.511002
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.055667, 0.067470, 0.070173, 0.070506, 0.075393, 0.078809, 0.080843, 0.080483, 0.072450, 0.063381, 0.058305, 0.057340, 0.051991, 0.040509, 0.030406, 0.021465, 0.013444, 0.007369, 0.003045, 0.000949]
+
+[mortality_female]
+constant_hazard = 2.657928e-04
+gompertz_b = 6.953113e-06
+gompertz_c = 0.106844
+child_hazard = 3.201004e-02
+child_decline = 5.550936
+
+[mortality_male]
+constant_hazard = 7.739021e-04
+gompertz_b = 1.634468e-05
+gompertz_c = 0.100645
+child_hazard = 4.002476e-01
+child_decline = 64.539676
+
+[fertility]
+hazard_by_band = [0.02688281, 0.06913643, 0.07653866, 0.06255199, 0.03577702, 0.00958191, 0.00043160]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 77.9461
+life_expectancy_0_female = 83.3791
+life_expectancy_15_male = 64.2993
+life_expectancy_15_female = 69.1846

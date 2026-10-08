@@ -1,0 +1,54 @@
+# Malee: a country with the real data of Mali under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MLI"
+name = "Malee"
+status = "sourced"
+pop_params = "demography/real/MLI.toml"
+
+[age_pyramid]
+shares = [0.174940, 0.154601, 0.135061, 0.112753, 0.089362, 0.069990, 0.058546, 0.050423, 0.042490, 0.032959, 0.024077, 0.017513, 0.013232, 0.010077, 0.007117, 0.004329, 0.001961, 0.000500, 0.000067, 0.000002]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mali"
+year = 2023
+
+[education]
+age_25_34 = [0.658275, 0.088509, 0.187946, 0.065269]
+age_35_64 = [0.827287, 0.061644, 0.077508, 0.033561]
+age_65_plus = [0.909008, 0.034492, 0.037229, 0.019271]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Mali"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6107, 0.4483]
+participation_25_54 = [0.9693, 0.6197]
+participation_55_64 = [0.9232, 0.5197]
+participation_65_plus = [0.5000, 0.2355]
+unemployment_rate = 0.0295
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mali; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.003411, 0.030426, 0.005504, 0.008013, 0.191839, 0.062995, 0.016704, 0.681109]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mali"
+year = 2023
+
+[sectors]
+shares = [0.638459, 0.086428, 0.275113]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mali"
+year = 2023
+
+[households]
+sizes = [0.031100, 0.202900, 0.303200, 0.462800]
+mean_size = 5.810
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Mali, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.3100
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Mali"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 23769127

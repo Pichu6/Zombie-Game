@@ -1,0 +1,54 @@
+# Pakistun: a country with the real data of Pakistan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PAK"
+name = "Pakistun"
+status = "sourced"
+pop_params = "demography/real/PAK.toml"
+
+[age_pyramid]
+shares = [0.128440, 0.122328, 0.119613, 0.104487, 0.093802, 0.080714, 0.070591, 0.060452, 0.050006, 0.040525, 0.033964, 0.029074, 0.024040, 0.017730, 0.011364, 0.007519, 0.003733, 0.001309, 0.000280, 0.000028]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Pakistan"
+year = 2023
+
+[education]
+age_25_34 = [0.403466, 0.110863, 0.382275, 0.103396]
+age_35_64 = [0.540620, 0.107657, 0.278354, 0.073369]
+age_65_plus = [0.734735, 0.075445, 0.149312, 0.040508]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Pakistan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6395, 0.2181]
+participation_25_54 = [0.9546, 0.2918]
+participation_55_64 = [0.7420, 0.1589]
+participation_65_plus = [0.3722, 0.0500]
+unemployment_rate = 0.0524
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Pakistan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.023681, 0.051818, 0.039336, 0.012727, 0.155938, 0.136908, 0.076944, 0.502649]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Pakistan"
+year = 2023
+
+[sectors]
+shares = [0.367740, 0.251522, 0.380738]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Pakistan"
+year = 2023
+
+[households]
+sizes = [0.010800, 0.128800, 0.251600, 0.608800]
+mean_size = 6.800
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Pakistan, latest survey"
+year = 2013
+
+[settlement]
+urban_share = 0.3882
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Pakistan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 247504495

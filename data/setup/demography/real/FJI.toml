@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Fiji, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 65.19/69.25 vs WPP 65.34/69.36; TFR model 2.279 vs 2.281.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Fiji"
+year = 2023
+
+male_share_at_birth = 0.517141
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.089441, 0.093468, 0.090944, 0.087487, 0.079915, 0.079863, 0.078186, 0.074861, 0.070199, 0.056644, 0.049305, 0.046981, 0.039276, 0.027629, 0.017518, 0.010782, 0.005224, 0.001846, 0.000392, 0.000040]
+
+[mortality_female]
+constant_hazard = 1.034612e-04
+gompertz_b = 9.190186e-05
+gompertz_c = 0.088370
+child_hazard = 4.129432e-02
+child_decline = 1.638409
+
+[mortality_male]
+constant_hazard = 1.135222e-04
+gompertz_b = 1.032212e-04
+gompertz_c = 0.092276
+child_hazard = 5.358853e-02
+child_decline = 1.746053
+
+[fertility]
+hazard_by_band = [0.02157793, 0.13541780, 0.15472221, 0.11251277, 0.06120408, 0.02048131, 0.00173434]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 65.1945
+life_expectancy_0_female = 69.2544
+life_expectancy_15_male = 52.5054
+life_expectancy_15_female = 56.2837

@@ -1,0 +1,54 @@
+# Nicaraga: a country with the real data of Nicaragua under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "NIC"
+name = "Nicaraga"
+status = "sourced"
+pop_params = "demography/real/NIC.toml"
+
+[age_pyramid]
+shares = [0.096314, 0.097849, 0.097876, 0.094679, 0.090607, 0.088444, 0.083226, 0.073300, 0.063459, 0.053961, 0.044393, 0.035138, 0.026961, 0.020365, 0.015474, 0.009332, 0.005656, 0.002325, 0.000561, 0.000080]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nicaragua"
+year = 2023
+
+[education]
+age_25_34 = [0.282536, 0.217888, 0.335670, 0.163906]
+age_35_64 = [0.408244, 0.232301, 0.244120, 0.115335]
+age_65_plus = [0.638791, 0.171477, 0.116235, 0.073498]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Nicaragua"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7202, 0.3215]
+participation_25_54 = [0.9020, 0.6426]
+participation_55_64 = [0.8015, 0.4894]
+participation_65_plus = [0.5284, 0.1725]
+unemployment_rate = 0.0470
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nicaragua; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.017315, 0.065007, 0.065444, 0.031005, 0.183928, 0.108039, 0.060165, 0.469098]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nicaragua"
+year = 2023
+
+[sectors]
+shares = [0.310025, 0.169165, 0.520810]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Nicaragua"
+year = 2023
+
+[households]
+sizes = [0.045900, 0.263700, 0.359600, 0.330800]
+mean_size = 4.920
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Nicaragua, latest survey"
+year = 2005
+
+[settlement]
+urban_share = 0.5913
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Nicaragua"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 6823613

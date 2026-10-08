@@ -1,0 +1,54 @@
+# Philippinas: a country with the real data of Philippines under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PHL"
+name = "Philippinas"
+status = "sourced"
+pop_params = "demography/real/PHL.toml"
+
+[age_pyramid]
+shares = [0.083576, 0.099886, 0.102613, 0.097082, 0.093524, 0.088114, 0.080723, 0.069288, 0.061873, 0.052453, 0.046452, 0.039471, 0.032322, 0.023870, 0.015481, 0.007791, 0.003672, 0.001425, 0.000337, 0.000046]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Philippines"
+year = 2023
+
+[education]
+age_25_34 = [0.104875, 0.135166, 0.443462, 0.316497]
+age_35_64 = [0.128413, 0.191735, 0.440410, 0.239442]
+age_65_plus = [0.251499, 0.295354, 0.292799, 0.160348]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Philippines"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3928, 0.2511]
+participation_25_54 = [0.9083, 0.6485]
+participation_55_64 = [0.7786, 0.5663]
+participation_65_plus = [0.4409, 0.2793]
+unemployment_rate = 0.0220
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Philippines; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.040152, 0.057256, 0.042445, 0.075217, 0.235663, 0.071600, 0.084573, 0.393093]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Philippines"
+year = 2023
+
+[sectors]
+shares = [0.220371, 0.189439, 0.590190]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Philippines"
+year = 2023
+
+[households]
+sizes = [0.091800, 0.300500, 0.368200, 0.239500]
+mean_size = 4.230
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Philippines, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.5512
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Philippines"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 114891199

@@ -1,0 +1,54 @@
+# New Kaledonia: a country with the real data of New Caledonia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "NCL"
+name = "New Kaledonia"
+status = "sourced"
+pop_params = "demography/real/NCL.toml"
+
+[age_pyramid]
+shares = [0.071617, 0.071210, 0.072431, 0.073729, 0.072376, 0.066539, 0.073715, 0.073784, 0.070189, 0.067833, 0.068205, 0.058684, 0.048773, 0.037351, 0.028847, 0.022013, 0.013665, 0.006410, 0.002173, 0.000455]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), New Caledonia"
+year = 2023
+
+[education]
+age_25_34 = [0.015174, 0.008811, 0.576114, 0.399902]
+age_35_64 = [0.043177, 0.067697, 0.581201, 0.307925]
+age_65_plus = [0.218845, 0.246809, 0.341641, 0.192705]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), New Caledonia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3925, 0.3351]
+participation_25_54 = [0.8571, 0.7405]
+participation_55_64 = [0.5536, 0.4347]
+participation_65_plus = [0.1004, 0.0451]
+unemployment_rate = 0.1092
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), New Caledonia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.056449, 0.204072, 0.238004, 0.087355, 0.135752, 0.088070, 0.058027, 0.132270]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), New Caledonia"
+year = 2023
+
+[sectors]
+shares = [0.018095, 0.218814, 0.763091]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), New Caledonia"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for New Caledonia)"
+year = 2011.0
+
+[settlement]
+urban_share = 0.6775
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), New Caledonia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 289870

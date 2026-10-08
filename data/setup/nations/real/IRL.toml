@@ -1,0 +1,54 @@
+# Irelund: a country with the real data of Ireland under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "IRL"
+name = "Irelund"
+status = "sourced"
+pop_params = "demography/real/IRL.toml"
+
+[age_pyramid]
+shares = [0.056478, 0.063294, 0.070399, 0.066630, 0.063780, 0.059332, 0.060270, 0.068430, 0.079820, 0.074464, 0.067288, 0.059998, 0.054400, 0.047281, 0.039748, 0.031312, 0.019604, 0.011222, 0.004826, 0.001424]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ireland"
+year = 2023
+
+[education]
+age_25_34 = [0.004330, 0.010548, 0.292662, 0.692460]
+age_35_64 = [0.005146, 0.051276, 0.348592, 0.594986]
+age_65_plus = [0.005808, 0.319371, 0.375109, 0.299712]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Ireland"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5869, 0.5545]
+participation_25_54 = [0.9202, 0.8153]
+participation_55_64 = [0.8044, 0.6186]
+participation_65_plus = [0.2464, 0.0868]
+unemployment_rate = 0.0424
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ireland; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.097062, 0.282850, 0.120798, 0.085681, 0.170190, 0.082223, 0.047554, 0.113641]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ireland"
+year = 2023
+
+[sectors]
+shares = [0.046323, 0.172769, 0.780908]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ireland"
+year = 2023
+
+[households]
+sizes = [0.220222, 0.453845, 0.273927, 0.052005]
+mean_size = 2.830
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Ireland, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 0.6412
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Ireland"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 5196630

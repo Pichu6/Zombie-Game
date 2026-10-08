@@ -460,8 +460,9 @@ void time_bar(App& a) {
   const double fuel_l = static_cast<double>(p.fuel_ul(w)) / 1e6;
   if (const PlaceSystem* place = a.t.place) {  // spec 42 rule 7
     const Place& at = place->place();
-    ImGui::Text("A town of %.0f, %s-income country (spec 48) | %s, %.0f %s %.0f %s, %.0f m | outside %.1f C | rain today %.1f mm",
-                at.town_people, at.income == "upper_middle" ? "upper-middle" : at.income == "lower_middle" ? "lower-middle" : at.income.c_str(),
+    ImGui::Text("A town of %.0f in %s, %s income | %s, %.0f %s %.0f %s, %.0f m | outside %.1f C | rain today %.1f mm",
+                at.town_people, at.country_name.empty() ? "a base country" : at.country_name.c_str(),
+                at.income == "upper_middle" ? "upper-middle" : at.income == "lower_middle" ? "lower-middle" : at.income.c_str(),
                 at.biome.c_str(), std::abs(at.lat_deg), at.lat_deg < 0 ? "S" : "N", std::abs(at.lon_deg), at.lon_deg < 0 ? "W" : "E",
                 at.elevation_m, place->outdoor_c(w), place->today_rain_mm(w));
   }

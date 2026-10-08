@@ -1,0 +1,54 @@
+# Saint Lucina: a country with the real data of Saint Lucia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "LCA"
+name = "Saint Lucina"
+status = "sourced"
+pop_params = "demography/real/LCA.toml"
+
+[age_pyramid]
+shares = [0.056947, 0.058726, 0.063027, 0.069876, 0.079380, 0.089381, 0.086832, 0.079854, 0.073652, 0.068917, 0.066814, 0.062804, 0.050801, 0.036159, 0.024536, 0.017067, 0.009465, 0.004094, 0.001461, 0.000206]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Saint Lucia"
+year = 2023
+
+[education]
+age_25_34 = [0.034615, 0.134615, 0.542308, 0.288462]
+age_35_64 = [0.033842, 0.351179, 0.412760, 0.202219]
+age_65_plus = [0.136364, 0.580420, 0.162005, 0.121212]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Saint Lucia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6422, 0.5501]
+participation_25_54 = [0.8562, 0.7795]
+participation_55_64 = [0.7768, 0.5462]
+participation_65_plus = [0.3228, 0.1079]
+unemployment_rate = 0.1209
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Saint Lucia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.058920, 0.090843, 0.074403, 0.074560, 0.287694, 0.115114, 0.060239, 0.238228]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Saint Lucia"
+year = 2023
+
+[sectors]
+shares = [0.099292, 0.150730, 0.749977]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Saint Lucia"
+year = 2023
+
+[households]
+sizes = [0.267900, 0.419300, 0.217200, 0.095600]
+mean_size = 2.890
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Saint Lucia, latest survey"
+year = 2012
+
+[settlement]
+urban_share = 0.2910
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Saint Lucia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 179285

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Russian Federation, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 67.22/79.04 vs WPP 67.26/79.04; TFR model 1.441 vs 1.449.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Russian Federation"
+year = 2023
+
+male_share_at_birth = 0.513855
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.049537, 0.063952, 0.061661, 0.053095, 0.048812, 0.052179, 0.074855, 0.088216, 0.077816, 0.070788, 0.063632, 0.060092, 0.069321, 0.060068, 0.046599, 0.022780, 0.019045, 0.011936, 0.004408, 0.001211]
+
+[mortality_female]
+constant_hazard = 6.509673e-05
+gompertz_b = 3.820866e-05
+gompertz_c = 0.090495
+child_hazard = 7.973775e-03
+child_decline = 2.313451
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 4.702364e-04
+gompertz_c = 0.065124
+child_hazard = 1.519403e-01
+child_decline = 44.933973
+
+[fertility]
+hazard_by_band = [0.01312645, 0.07257619, 0.09972988, 0.07273338, 0.04033070, 0.00932786, 0.00073520]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 67.2194
+life_expectancy_0_female = 79.0375
+life_expectancy_15_male = 53.1539
+life_expectancy_15_female = 64.4647

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mongolia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 67.27/76.46 vs WPP 67.24/76.43; TFR model 2.681 vs 2.685.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mongolia"
+year = 2023
+
+male_share_at_birth = 0.510763
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.102855, 0.118699, 0.104820, 0.072906, 0.062959, 0.069627, 0.080846, 0.080993, 0.066857, 0.060124, 0.051532, 0.044015, 0.035130, 0.022192, 0.011650, 0.007456, 0.004438, 0.002047, 0.000716, 0.000138]
+
+[mortality_female]
+constant_hazard = 2.287348e-04
+gompertz_b = 2.377384e-05
+gompertz_c = 0.099633
+child_hazard = 2.241008e-02
+child_decline = 2.209379
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 2.358766e-04
+gompertz_c = 0.076716
+child_hazard = 3.068473e-02
+child_decline = 2.398503
+
+[fertility]
+hazard_by_band = [0.02009408, 0.14492000, 0.18446387, 0.14157859, 0.09044445, 0.02411257, 0.00269715]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 67.2669
+life_expectancy_0_female = 76.4576
+life_expectancy_15_male = 53.5224
+life_expectancy_15_female = 62.5284

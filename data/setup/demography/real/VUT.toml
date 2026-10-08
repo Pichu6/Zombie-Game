@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Vanuatu, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.40/73.92 vs WPP 69.45/73.93; TFR model 3.584 vs 3.596.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Vanuatu"
+year = 2023
+
+male_share_at_birth = 0.516908
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.137322, 0.132016, 0.116789, 0.094774, 0.079425, 0.077652, 0.075043, 0.065153, 0.049567, 0.039352, 0.037155, 0.029552, 0.024006, 0.018173, 0.011916, 0.006495, 0.003202, 0.001482, 0.000690, 0.000234]
+
+[mortality_female]
+constant_hazard = 5.383884e-04
+gompertz_b = 2.939852e-05
+gompertz_c = 0.098553
+child_hazard = 4.598136e-02
+child_decline = 3.357256
+
+[mortality_male]
+constant_hazard = 4.641964e-04
+gompertz_b = 7.665279e-05
+gompertz_c = 0.090664
+child_hazard = 4.840136e-02
+child_decline = 2.996135
+
+[fertility]
+hazard_by_band = [0.07039435, 0.24483157, 0.22537653, 0.16871407, 0.09463998, 0.03443515, 0.00470004]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.3957
+life_expectancy_0_female = 73.9209
+life_expectancy_15_male = 56.1124
+life_expectancy_15_female = 60.5500

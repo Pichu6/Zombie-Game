@@ -1,0 +1,54 @@
+# Kuwaat: a country with the real data of Kuwait under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "KWT"
+name = "Kuwaat"
+status = "sourced"
+pop_params = "demography/real/KWT.toml"
+
+[age_pyramid]
+shares = [0.054990, 0.064926, 0.066112, 0.055971, 0.048551, 0.091539, 0.106056, 0.130402, 0.119387, 0.091937, 0.068692, 0.046002, 0.025905, 0.014265, 0.007516, 0.004188, 0.002227, 0.000967, 0.000302, 0.000064]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kuwait"
+year = 2023
+
+[education]
+age_25_34 = [0.101252, 0.115517, 0.571539, 0.211691]
+age_35_64 = [0.357899, 0.067777, 0.432030, 0.142294]
+age_65_plus = [0.342085, 0.097056, 0.345105, 0.215754]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Kuwait"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3463, 0.1560]
+participation_25_54 = [0.9780, 0.6196]
+participation_55_64 = [0.8560, 0.2541]
+participation_65_plus = [0.5737, 0.0148]
+unemployment_rate = 0.0208
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kuwait; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.047447, 0.126570, 0.079725, 0.034178, 0.084079, 0.231098, 0.102284, 0.294618]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kuwait"
+year = 2023
+
+[sectors]
+shares = [0.019505, 0.252041, 0.728454]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kuwait"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for Kuwait)"
+year = 2011.0
+
+[settlement]
+urban_share = 1.0000
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Kuwait"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 4838782

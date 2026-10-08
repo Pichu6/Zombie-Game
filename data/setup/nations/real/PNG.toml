@@ -1,0 +1,54 @@
+# Papua New Guinoa: a country with the real data of Papua New Guinea under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PNG"
+name = "Papua New Guinoa"
+status = "sourced"
+pop_params = "demography/real/PNG.toml"
+
+[age_pyramid]
+shares = [0.118261, 0.112995, 0.106785, 0.099425, 0.092244, 0.084783, 0.077775, 0.068570, 0.058463, 0.049906, 0.040840, 0.032522, 0.023946, 0.015552, 0.009447, 0.005130, 0.002334, 0.000796, 0.000187, 0.000037]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Papua New Guinea"
+year = 2023
+
+[education]
+age_25_34 = [0.317858, 0.170200, 0.413043, 0.098898]
+age_35_64 = [0.320160, 0.328091, 0.270322, 0.081426]
+age_65_plus = [0.568559, 0.301235, 0.072311, 0.057896]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Papua New Guinea"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2758, 0.2961]
+participation_25_54 = [0.6593, 0.6144]
+participation_55_64 = [0.6661, 0.5465]
+participation_65_plus = [0.3841, 0.3653]
+unemployment_rate = 0.0265
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Papua New Guinea; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.022155, 0.098210, 0.027675, 0.019243, 0.233649, 0.056255, 0.039413, 0.503400]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Papua New Guinea"
+year = 2023
+
+[sectors]
+shares = [0.380782, 0.075307, 0.543911]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Papua New Guinea"
+year = 2023
+
+[households]
+sizes = [0.040800, 0.219700, 0.297300, 0.442200]
+mean_size = 5.430
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Papua New Guinea, latest survey"
+year = 2000
+
+[settlement]
+urban_share = 0.1506
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Papua New Guinea"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 10389635

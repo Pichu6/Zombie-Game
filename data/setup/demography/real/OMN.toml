@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Oman, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 78.39/81.73 vs WPP 78.49/81.88; TFR model 2.546 vs 2.525.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Oman"
+year = 2023
+
+male_share_at_birth = 0.510524
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.084753, 0.092993, 0.074532, 0.055273, 0.077684, 0.108227, 0.126601, 0.123301, 0.091582, 0.059635, 0.037934, 0.024294, 0.016588, 0.010059, 0.007166, 0.004739, 0.002754, 0.001302, 0.000461, 0.000123]
+
+[mortality_female]
+constant_hazard = 2.289872e-04
+gompertz_b = 2.027870e-06
+gompertz_c = 0.125680
+child_hazard = 1.869023e-02
+child_decline = 2.263768
+
+[mortality_male]
+constant_hazard = 3.391932e-04
+gompertz_b = 4.327940e-06
+gompertz_c = 0.120317
+child_hazard = 2.857354e-02
+child_decline = 2.951158
+
+[fertility]
+hazard_by_band = [0.00601824, 0.08077431, 0.16081325, 0.14833629, 0.11549096, 0.05055368, 0.00836202]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 78.3935
+life_expectancy_0_female = 81.7337
+life_expectancy_15_male = 64.5312
+life_expectancy_15_female = 67.6720

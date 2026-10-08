@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), El Salvador, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 67.52/76.30 vs WPP 67.52/76.26; TFR model 1.771 vs 1.775.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), El Salvador"
+year = 2023
+
+male_share_at_birth = 0.511719
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.078601, 0.084576, 0.088927, 0.089145, 0.098975, 0.098889, 0.081367, 0.062716, 0.058248, 0.054231, 0.048329, 0.041842, 0.034151, 0.027431, 0.021726, 0.015454, 0.009653, 0.004283, 0.001266, 0.000191]
+
+[mortality_female]
+constant_hazard = 3.399076e-04
+gompertz_b = 2.680760e-05
+gompertz_c = 0.097776
+child_hazard = 2.642885e-02
+child_decline = 3.096264
+
+[mortality_male]
+constant_hazard = 4.693458e-05
+gompertz_b = 3.882916e-04
+gompertz_c = 0.067526
+child_hazard = 2.957338e-01
+child_decline = 29.289615
+
+[fertility]
+hazard_by_band = [0.05699829, 0.10196232, 0.09570493, 0.07523948, 0.04029052, 0.01069955, 0.00077941]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 67.5202
+life_expectancy_0_female = 76.2994
+life_expectancy_15_male = 53.8510
+life_expectancy_15_female = 62.3680

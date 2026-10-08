@@ -1,0 +1,54 @@
+# Polund: a country with the real data of Poland under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "POL"
+name = "Polund"
+status = "sourced"
+pop_params = "demography/real/POL.toml"
+
+[age_pyramid]
+shares = [0.045720, 0.050767, 0.054481, 0.050005, 0.048567, 0.058817, 0.070212, 0.081861, 0.084019, 0.075860, 0.063396, 0.057323, 0.063363, 0.065509, 0.054986, 0.032718, 0.020345, 0.014393, 0.006029, 0.001628]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Poland"
+year = 2023
+
+[education]
+age_25_34 = [0.000387, 0.009951, 0.530140, 0.459523]
+age_35_64 = [0.000357, 0.004168, 0.678220, 0.317255]
+age_65_plus = [0.000305, 0.013843, 0.825620, 0.160232]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Poland"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3605, 0.2818]
+participation_25_54 = [0.9280, 0.8488]
+participation_55_64 = [0.7257, 0.4832]
+participation_65_plus = [0.0991, 0.0429]
+unemployment_rate = 0.0274
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Poland; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.072714, 0.239963, 0.133970, 0.079641, 0.124505, 0.145057, 0.092306, 0.111846]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Poland"
+year = 2023
+
+[sectors]
+shares = [0.084867, 0.295363, 0.619770]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Poland"
+year = 2023
+
+[households]
+sizes = [0.240376, 0.459154, 0.236776, 0.063694]
+mean_size = 2.820
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Poland, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.5989
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Poland"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 38762844

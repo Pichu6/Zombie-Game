@@ -1,0 +1,54 @@
+# Grand Congoland: a country with the real data of Democratic Republic of the Congo under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "COD"
+name = "Grand Congoland"
+status = "sourced"
+pop_params = "demography/real/COD.toml"
+
+[age_pyramid]
+shares = [0.182209, 0.152135, 0.126539, 0.103730, 0.086785, 0.073776, 0.059730, 0.048648, 0.038275, 0.031163, 0.026818, 0.022169, 0.017340, 0.012742, 0.008647, 0.005509, 0.002661, 0.000911, 0.000191, 0.000022]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Democratic Republic of the Congo"
+year = 2023
+
+[education]
+age_25_34 = [0.267387, 0.139621, 0.511507, 0.081485]
+age_35_64 = [0.371709, 0.151305, 0.411375, 0.065611]
+age_65_plus = [0.613675, 0.114731, 0.238065, 0.033529]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Democratic Republic of the Congo"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4130, 0.4490]
+participation_25_54 = [0.8302, 0.7228]
+participation_55_64 = [0.8244, 0.7306]
+participation_65_plus = [0.6632, 0.5483]
+unemployment_rate = 0.0447
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Democratic Republic of the Congo; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.026182, 0.051412, 0.027761, 0.003479, 0.095025, 0.021051, 0.019680, 0.755411]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Democratic Republic of the Congo"
+year = 2023
+
+[sectors]
+shares = [0.595243, 0.079775, 0.324982]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Democratic Republic of the Congo"
+year = 2023
+
+[households]
+sizes = [0.075500, 0.227700, 0.285000, 0.411800]
+mean_size = 5.170
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Democratic Republic of the Congo, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.4438
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Democratic Republic of the Congo"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 105789731

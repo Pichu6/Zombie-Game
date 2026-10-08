@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), New Caledonia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 75.85/81.10 vs WPP 76.28/81.29; TFR model 1.981 vs 1.980.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), New Caledonia"
+year = 2023
+
+male_share_at_birth = 0.514327
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.071617, 0.071210, 0.072431, 0.073729, 0.072376, 0.066539, 0.073715, 0.073784, 0.070189, 0.067833, 0.068205, 0.058684, 0.048773, 0.037351, 0.028847, 0.022013, 0.013665, 0.006410, 0.002173, 0.000455]
+
+[mortality_female]
+constant_hazard = 4.123006e-04
+gompertz_b = 1.918903e-06
+gompertz_c = 0.126469
+child_hazard = 2.128481e-02
+child_decline = 2.691282
+
+[mortality_male]
+constant_hazard = 1.107230e-03
+gompertz_b = 6.155462e-06
+gompertz_c = 0.115645
+child_hazard = 3.116592e-01
+child_decline = 31.623625
+
+[fertility]
+hazard_by_band = [0.01228973, 0.07582553, 0.11532898, 0.12480748, 0.08013224, 0.02426337, 0.00087787]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 75.8461
+life_expectancy_0_female = 81.1030
+life_expectancy_15_male = 62.7715
+life_expectancy_15_female = 67.2108

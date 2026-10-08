@@ -1,0 +1,54 @@
+# Uzbekistun: a country with the real data of Uzbekistan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "UZB"
+name = "Uzbekistun"
+status = "sourced"
+pop_params = "demography/real/UZB.toml"
+
+[age_pyramid]
+shares = [0.120932, 0.100514, 0.087265, 0.074844, 0.070098, 0.081820, 0.086199, 0.079424, 0.063327, 0.054123, 0.046611, 0.042190, 0.035704, 0.024693, 0.015725, 0.007792, 0.005134, 0.002717, 0.000766, 0.000123]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uzbekistan"
+year = 2023
+
+[education]
+age_25_34 = [0.010468, 0.009747, 0.712442, 0.267343]
+age_35_64 = [0.006055, 0.015409, 0.745027, 0.233508]
+age_65_plus = [0.024450, 0.048361, 0.701875, 0.225314]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Uzbekistan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4730, 0.2680]
+participation_25_54 = [0.9618, 0.5800]
+participation_55_64 = [0.5066, 0.1586]
+participation_65_plus = [0.0369, 0.0095]
+unemployment_rate = 0.0443
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uzbekistan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.032571, 0.098871, 0.068077, 0.059218, 0.135166, 0.160356, 0.083155, 0.362586]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uzbekistan"
+year = 2023
+
+[sectors]
+shares = [0.261279, 0.241342, 0.497379]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uzbekistan"
+year = 2023
+
+[households]
+sizes = [0.047795, 0.159184, 0.381362, 0.411659]
+mean_size = 5.220
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Uzbekistan, latest survey"
+year = 2006
+
+[settlement]
+urban_share = 0.5100
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Uzbekistan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 35652307

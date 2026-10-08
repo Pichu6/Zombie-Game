@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Viet Nam, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.75/79.19 vs WPP 69.88/79.26; TFR model 1.900 vs 1.913.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Viet Nam"
+year = 2023
+
+male_share_at_birth = 0.525842
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.071532, 0.081539, 0.082988, 0.071095, 0.063386, 0.070452, 0.086847, 0.084604, 0.073967, 0.064758, 0.060581, 0.054533, 0.047508, 0.035330, 0.022965, 0.012661, 0.007993, 0.004748, 0.001984, 0.000530]
+
+[mortality_female]
+constant_hazard = 5.224327e-04
+gompertz_b = 7.593367e-06
+gompertz_c = 0.109659
+child_hazard = 2.499971e-02
+child_decline = 1.763979
+
+[mortality_male]
+constant_hazard = 1.539206e-03
+gompertz_b = 3.346671e-05
+gompertz_c = 0.098587
+child_hazard = 5.305887e-01
+child_decline = 32.672493
+
+[fertility]
+hazard_by_band = [0.03536230, 0.12578993, 0.13548872, 0.08031622, 0.03491476, 0.00550235, 0.00067680]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.7547
+life_expectancy_0_female = 79.1931
+life_expectancy_15_male = 57.4503
+life_expectancy_15_female = 65.9090

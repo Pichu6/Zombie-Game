@@ -22,6 +22,14 @@ struct GroupTables {
 };
 GroupTables load_group_tables(const std::string& data_dir);
 
+// Spec 49: a real country's profile (data/setup/nations/real/<iso>.toml): its parody name, income group and people.
+struct RealProfile {
+  std::string iso, name;
+  int income = 0;
+  double population = 0;
+};
+std::vector<RealProfile> load_real_profiles(const std::string& data_dir);  // sorted by iso
+
 struct Sector {
   CellId seed = 0;              // its most populous cell when seeded (rule 3)
   std::vector<CellId> cells;    // land cells, ascending
@@ -34,6 +42,7 @@ struct Country {
   std::vector<int> sectors;
   double people = 0, development = 0;
   int income = 0;               // index into kIncomeGroupIds (rule 5)
+  std::string profile, name;    // spec 49: the real profile it takes (ISO3) and its parody name; empty: the base country
 };
 
 struct Settlement {
@@ -57,6 +66,8 @@ inline constexpr double kRankSizeZeta = 1.11;    // Soo (2005), mean over 73 cou
 inline constexpr double kTownMinPeople = 10'000;
 
 double suitability(const WorldFields& f, CellId c);
-WorldPeople populate_world(const WorldGrid& grid, const WorldFields& fields, std::uint64_t seed, const GroupTables& tables);
+// With `profiles`, each country takes one (spec 49).
+WorldPeople populate_world(const WorldGrid& grid, const WorldFields& fields, std::uint64_t seed, const GroupTables& tables,
+                           const std::vector<RealProfile>& profiles = {});
 
 }  // namespace zs::gen

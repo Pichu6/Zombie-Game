@@ -1,0 +1,54 @@
+# Japanoo: a country with the real data of Japan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "JPN"
+name = "Japanoo"
+status = "sourced"
+pop_params = "demography/real/JPN.toml"
+
+[age_pyramid]
+shares = [0.033305, 0.039724, 0.043465, 0.045590, 0.048829, 0.048933, 0.049457, 0.055294, 0.061561, 0.074525, 0.077581, 0.065531, 0.060588, 0.059362, 0.070314, 0.062738, 0.049373, 0.031892, 0.016099, 0.005839]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Japan"
+year = 2023
+
+[education]
+age_25_34 = [0.001101, 0.001689, 0.373691, 0.623519]
+age_35_64 = [0.000811, 0.000723, 0.475905, 0.522561]
+age_65_plus = [0.001469, 0.041676, 0.719663, 0.237192]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Japan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4870, 0.5115]
+participation_25_54 = [0.9609, 0.8309]
+participation_55_64 = [0.9123, 0.7135]
+participation_65_plus = [0.3499, 0.1875]
+unemployment_rate = 0.0260
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Japan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.018230, 0.112224, 0.089760, 0.208389, 0.308878, 0.089700, 0.071885, 0.100934]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Japan"
+year = 2023
+
+[sectors]
+shares = [0.030051, 0.237088, 0.732860]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Japan"
+year = 2023
+
+[households]
+sizes = [0.345335, 0.454545, 0.177618, 0.022502]
+mean_size = 2.330
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Japan, latest survey"
+year = 2015
+
+[settlement]
+urban_share = 0.9208
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Japan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 124370947

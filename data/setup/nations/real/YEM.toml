@@ -1,0 +1,54 @@
+# Yemon: a country with the real data of Yemen under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "YEM"
+name = "Yemon"
+status = "sourced"
+pop_params = "demography/real/YEM.toml"
+
+[age_pyramid]
+shares = [0.159791, 0.136887, 0.115583, 0.103737, 0.090666, 0.082301, 0.075380, 0.062695, 0.048736, 0.036241, 0.027587, 0.020606, 0.014713, 0.010108, 0.006708, 0.004763, 0.002431, 0.000871, 0.000179, 0.000016]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Yemen"
+year = 2023
+
+[education]
+age_25_34 = [0.476082, 0.014536, 0.458685, 0.050698]
+age_35_64 = [0.804778, 0.007353, 0.181056, 0.006813]
+age_65_plus = [0.987886, 0.006219, 0.005569, 0.000325]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Yemen"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4135, 0.0400]
+participation_25_54 = [0.7548, 0.0559]
+participation_55_64 = [0.5585, 0.0390]
+participation_65_plus = [0.2945, 0.0110]
+unemployment_rate = 0.1694
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Yemen; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.011751, 0.082878, 0.039228, 0.070732, 0.234323, 0.088868, 0.083594, 0.388625]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Yemen"
+year = 2023
+
+[sectors]
+shares = [0.319626, 0.116130, 0.564243]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Yemen"
+year = 2023
+
+[households]
+sizes = [0.018700, 0.146800, 0.236600, 0.597900]
+mean_size = 6.670
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Yemen, latest survey"
+year = 2013
+
+[settlement]
+urban_share = 0.3657
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Yemen"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 39390799

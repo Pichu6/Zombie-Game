@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), South Sudan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 54.48/60.52 vs WPP 54.64/60.63; TFR model 3.795 vs 3.864.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), South Sudan"
+year = 2023
+
+male_share_at_birth = 0.508600
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.129199, 0.126672, 0.142645, 0.125637, 0.097129, 0.062368, 0.051603, 0.048234, 0.054321, 0.048482, 0.038000, 0.027133, 0.019453, 0.013253, 0.008113, 0.004746, 0.002203, 0.000698, 0.000104, 0.000007]
+
+[mortality_female]
+constant_hazard = 3.197286e-03
+gompertz_b = 3.844727e-05
+gompertz_c = 0.098263
+child_hazard = 9.878110e-02
+child_decline = 1.190183
+
+[mortality_male]
+constant_hazard = 4.937001e-03
+gompertz_b = 8.345901e-05
+gompertz_c = 0.091059
+child_hazard = 1.264789e-01
+child_decline = 1.494470
+
+[fertility]
+hazard_by_band = [0.10639182, 0.22276085, 0.19523863, 0.16202205, 0.11566951, 0.05976994, 0.01681944]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 54.4787
+life_expectancy_0_female = 60.5217
+life_expectancy_15_male = 48.3612
+life_expectancy_15_female = 53.6279

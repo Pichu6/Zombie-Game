@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Armenia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 71.36/79.42 vs WPP 71.39/79.45; TFR model 1.708 vs 1.714.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Armenia"
+year = 2023
+
+male_share_at_birth = 0.520843
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.060235, 0.066634, 0.068584, 0.061886, 0.060179, 0.067025, 0.084339, 0.081999, 0.072600, 0.060078, 0.055306, 0.060020, 0.069005, 0.053932, 0.035800, 0.017332, 0.013906, 0.008334, 0.002366, 0.000442]
+
+[mortality_female]
+constant_hazard = 1.281484e-04
+gompertz_b = 5.302155e-06
+gompertz_c = 0.117102
+child_hazard = 2.142723e-02
+child_decline = 2.614903
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 8.208386e-05
+gompertz_c = 0.089033
+child_hazard = 2.666657e-02
+child_decline = 2.593990
+
+[fertility]
+hazard_by_band = [0.01360879, 0.12165063, 0.12396021, 0.07337823, 0.03380378, 0.00708480, 0.00064986]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 71.3591
+life_expectancy_0_female = 79.4218
+life_expectancy_15_male = 57.2554
+life_expectancy_15_female = 65.2271

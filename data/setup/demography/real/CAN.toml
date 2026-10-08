@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Canada, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 80.52/84.93 vs WPP 80.43/84.83; TFR model 1.353 vs 1.349.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Canada"
+year = 2023
+
+male_share_at_birth = 0.513382
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.047818, 0.051509, 0.053718, 0.054360, 0.062615, 0.069635, 0.071909, 0.069961, 0.067135, 0.062295, 0.061931, 0.065586, 0.067946, 0.060334, 0.048863, 0.037240, 0.023521, 0.014068, 0.007083, 0.002472]
+
+[mortality_female]
+constant_hazard = 1.537610e-04
+gompertz_b = 5.628610e-06
+gompertz_c = 0.108237
+child_hazard = 7.448900e-01
+child_decline = 206.790886
+
+[mortality_male]
+constant_hazard = 2.259052e-04
+gompertz_b = 1.884814e-05
+gompertz_c = 0.097713
+child_hazard = 1.447877e-01
+child_decline = 32.088935
+
+[fertility]
+hazard_by_band = [0.00482575, 0.02684420, 0.07825679, 0.11081887, 0.05748505, 0.01178141, 0.00100012]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 80.5152
+life_expectancy_0_female = 84.9266
+life_expectancy_15_male = 66.1744
+life_expectancy_15_female = 70.4286

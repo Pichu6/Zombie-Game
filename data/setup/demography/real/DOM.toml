@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Dominican Republic, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.45/76.95 vs WPP 70.53/76.97; TFR model 2.242 vs 2.243.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Dominican Republic"
+year = 2023
+
+male_share_at_birth = 0.510763
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.088599, 0.090080, 0.090461, 0.085605, 0.085400, 0.081767, 0.077851, 0.069409, 0.063083, 0.057225, 0.050588, 0.045112, 0.039012, 0.030260, 0.020190, 0.012112, 0.007039, 0.003958, 0.001636, 0.000614]
+
+[mortality_female]
+constant_hazard = 1.033954e-04
+gompertz_b = 4.208096e-05
+gompertz_c = 0.089146
+child_hazard = 4.767372e-02
+child_decline = 1.685058
+
+[mortality_male]
+constant_hazard = 5.828494e-04
+gompertz_b = 7.400971e-05
+gompertz_c = 0.087464
+child_hazard = 6.783902e-02
+child_decline = 2.135039
+
+[fertility]
+hazard_by_band = [0.05539200, 0.13606017, 0.14073251, 0.10229383, 0.04892397, 0.01180046, 0.00101918]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.4546
+life_expectancy_0_female = 76.9494
+life_expectancy_15_male = 58.4346
+life_expectancy_15_female = 64.3449

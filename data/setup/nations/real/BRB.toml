@@ -1,0 +1,54 @@
+# Barbadose: a country with the real data of Barbados under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BRB"
+name = "Barbadose"
+status = "sourced"
+pop_params = "demography/real/BRB.toml"
+
+[age_pyramid]
+shares = [0.055940, 0.057353, 0.061568, 0.064086, 0.066849, 0.063059, 0.066966, 0.065496, 0.065995, 0.066466, 0.069137, 0.068726, 0.067419, 0.058401, 0.043568, 0.030063, 0.016852, 0.008741, 0.002802, 0.000514]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Barbados"
+year = 2023
+
+[education]
+age_25_34 = [0.037500, 0.167935, 0.504348, 0.290217]
+age_35_64 = [0.037310, 0.372044, 0.391487, 0.199159]
+age_65_plus = [0.143286, 0.582154, 0.152295, 0.122265]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Barbados"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4849, 0.4710]
+participation_25_54 = [0.9137, 0.8714]
+participation_55_64 = [0.7947, 0.6813]
+participation_65_plus = [0.1801, 0.0811]
+unemployment_rate = 0.0654
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Barbados; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.084103, 0.141341, 0.111666, 0.080903, 0.246261, 0.119076, 0.052096, 0.164553]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Barbados"
+year = 2023
+
+[sectors]
+shares = [0.013697, 0.162315, 0.823988]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Barbados"
+year = 2023
+
+[households]
+sizes = [0.263374, 0.431957, 0.232777, 0.071893]
+mean_size = 2.850
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Barbados, latest survey"
+year = 2012
+
+[settlement]
+urban_share = 0.5942
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Barbados"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 282336

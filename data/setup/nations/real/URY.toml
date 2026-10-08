@@ -1,0 +1,54 @@
+# Uruguoy: a country with the real data of Uruguay under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "URY"
+name = "Uruguoy"
+status = "sourced"
+pop_params = "demography/real/URY.toml"
+
+[age_pyramid]
+shares = [0.051774, 0.066718, 0.068362, 0.069639, 0.072233, 0.074747, 0.072092, 0.066193, 0.063202, 0.067118, 0.059065, 0.057533, 0.053196, 0.045589, 0.036456, 0.029033, 0.021771, 0.014378, 0.007304, 0.003598]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uruguay"
+year = 2023
+
+[education]
+age_25_34 = [0.018763, 0.251705, 0.585240, 0.144292]
+age_35_64 = [0.043973, 0.323069, 0.491961, 0.140997]
+age_65_plus = [0.214708, 0.343939, 0.331227, 0.110126]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Uruguay"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5149, 0.4167]
+participation_25_54 = [0.9525, 0.8529]
+participation_55_64 = [0.7749, 0.5482]
+participation_65_plus = [0.2399, 0.0837]
+unemployment_rate = 0.0835
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uruguay; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.028028, 0.142127, 0.079164, 0.112278, 0.207445, 0.131244, 0.072924, 0.226790]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uruguay"
+year = 2023
+
+[sectors]
+shares = [0.085664, 0.187932, 0.726404]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uruguay"
+year = 2023
+
+[households]
+sizes = [0.175582, 0.477052, 0.271973, 0.075392]
+mean_size = 3.020
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Uruguay, latest survey"
+year = 2012
+
+[settlement]
+urban_share = 0.9554
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Uruguay"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 3388080

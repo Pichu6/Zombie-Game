@@ -1,0 +1,54 @@
+# Bahomas: a country with the real data of Bahamas under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BHS"
+name = "Bahomas"
+status = "sourced"
+pop_params = "demography/real/BHS.toml"
+
+[age_pyramid]
+shares = [0.054621, 0.060123, 0.068537, 0.070798, 0.071955, 0.081863, 0.082875, 0.073787, 0.068840, 0.068174, 0.069058, 0.064031, 0.050352, 0.036658, 0.027581, 0.023605, 0.015316, 0.007606, 0.003052, 0.001167]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bahamas"
+year = 2023
+
+[education]
+age_25_34 = [0.004475, 0.005967, 0.598449, 0.391110]
+age_35_64 = [0.018238, 0.021072, 0.610967, 0.349723]
+age_65_plus = [0.100317, 0.121436, 0.491024, 0.287223]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Bahamas"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6259, 0.5547]
+participation_25_54 = [0.9354, 0.9093]
+participation_55_64 = [0.7884, 0.7411]
+participation_65_plus = [0.2888, 0.1513]
+unemployment_rate = 0.0864
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bahamas; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.078016, 0.100331, 0.107559, 0.093704, 0.287902, 0.120627, 0.050383, 0.161477]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bahamas"
+year = 2023
+
+[sectors]
+shares = [0.008306, 0.148871, 0.842824]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bahamas"
+year = 2023
+
+[households]
+sizes = [0.177300, 0.403300, 0.291500, 0.127900]
+mean_size = 3.400
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Bahamas, latest survey"
+year = 2010
+
+[settlement]
+urban_share = 0.8132
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Bahamas"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 399440

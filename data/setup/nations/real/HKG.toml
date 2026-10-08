@@ -1,0 +1,54 @@
+# Hong Kang: a country with the real data of China, Hong Kong SAR under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "HKG"
+name = "Hong Kang"
+status = "sourced"
+pop_params = "demography/real/HKG.toml"
+
+[age_pyramid]
+shares = [0.030167, 0.036533, 0.040289, 0.037596, 0.039596, 0.057514, 0.069127, 0.075894, 0.080623, 0.076254, 0.077637, 0.078850, 0.083467, 0.073313, 0.055686, 0.033783, 0.021560, 0.017381, 0.009762, 0.004969]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), China, Hong Kong SAR"
+year = 2023
+
+[education]
+age_25_34 = [0.006232, 0.023277, 0.393073, 0.577418]
+age_35_64 = [0.036812, 0.107502, 0.507494, 0.348192]
+age_65_plus = [0.294219, 0.260228, 0.331867, 0.113686]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), China, Hong Kong SAR"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3014, 0.3110]
+participation_25_54 = [0.9220, 0.7649]
+participation_55_64 = [0.7064, 0.4849]
+participation_65_plus = [0.1936, 0.0841]
+unemployment_rate = 0.0295
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China, Hong Kong SAR; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.120097, 0.118367, 0.175537, 0.121067, 0.187542, 0.064606, 0.042053, 0.170730]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China, Hong Kong SAR"
+year = 2023
+
+[sectors]
+shares = [0.001911, 0.140266, 0.857823]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China, Hong Kong SAR"
+year = 2023
+
+[households]
+sizes = [0.182900, 0.508900, 0.275500, 0.032700]
+mean_size = 2.830
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), China, Hong Kong SAR, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 1.0000
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), China, Hong Kong SAR"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 7442734

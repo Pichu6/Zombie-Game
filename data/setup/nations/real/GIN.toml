@@ -1,0 +1,54 @@
+# Guinoa: a country with the real data of Guinea under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GIN"
+name = "Guinoa"
+status = "sourced"
+pop_params = "demography/real/GIN.toml"
+
+[age_pyramid]
+shares = [0.152343, 0.136939, 0.123147, 0.108218, 0.095105, 0.084491, 0.069560, 0.053573, 0.040413, 0.032447, 0.027607, 0.023248, 0.018499, 0.013790, 0.009716, 0.006107, 0.003225, 0.001241, 0.000294, 0.000038]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guinea"
+year = 2023
+
+[education]
+age_25_34 = [0.575817, 0.126441, 0.164963, 0.132779]
+age_35_64 = [0.781176, 0.076476, 0.076491, 0.065857]
+age_65_plus = [0.884450, 0.038842, 0.030173, 0.046534]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Guinea"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2547, 0.2698]
+participation_25_54 = [0.8691, 0.5456]
+participation_55_64 = [0.8986, 0.4692]
+participation_65_plus = [0.5809, 0.2307]
+unemployment_rate = 0.0514
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Guinea; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.004667, 0.061669, 0.009037, 0.012421, 0.317877, 0.107029, 0.032300, 0.454999]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Guinea"
+year = 2023
+
+[sectors]
+shares = [0.490242, 0.139586, 0.370172]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Guinea"
+year = 2023
+
+[households]
+sizes = [0.050700, 0.165800, 0.260300, 0.523200]
+mean_size = 6.390
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Guinea, latest survey"
+year = 2021
+
+[settlement]
+urban_share = 0.3765
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Guinea"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 14405468

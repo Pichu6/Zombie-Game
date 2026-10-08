@@ -27,6 +27,8 @@ void PlaceSystem::save(ArchiveWriter& a) const {
   a.i64(place_.sector);
   a.i64(place_.country);
   a.str(place_.income);
+  a.str(place_.profile);  // spec 49
+  a.str(place_.country_name);
 }
 
 void PlaceSystem::load(ArchiveReader& r) {
@@ -45,6 +47,8 @@ void PlaceSystem::load(ArchiveReader& r) {
   place_.sector = static_cast<int>(r.i64());
   place_.country = static_cast<int>(r.i64());
   place_.income = r.str();
+  place_.profile = r.str();
+  place_.country_name = r.str();
   cached_day_ = -1;
 }
 

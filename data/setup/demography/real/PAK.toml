@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Pakistan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 65.30/70.15 vs WPP 65.33/70.16; TFR model 3.602 vs 3.605.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Pakistan"
+year = 2023
+
+male_share_at_birth = 0.513382
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.128440, 0.122328, 0.119613, 0.104487, 0.093802, 0.080714, 0.070591, 0.060452, 0.050006, 0.040525, 0.033964, 0.029074, 0.024040, 0.017730, 0.011364, 0.007519, 0.003733, 0.001309, 0.000280, 0.000028]
+
+[mortality_female]
+constant_hazard = 5.685451e-04
+gompertz_b = 2.219392e-05
+gompertz_c = 0.104222
+child_hazard = 1.029655e-01
+child_decline = 1.933080
+
+[mortality_male]
+constant_hazard = 9.269732e-04
+gompertz_b = 5.789101e-05
+gompertz_c = 0.095204
+child_hazard = 1.333386e-01
+child_decline = 2.197744
+
+[fertility]
+hazard_by_band = [0.04266501, 0.21028413, 0.27572521, 0.19152712, 0.09350264, 0.03290896, 0.00989056]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 65.3005
+life_expectancy_0_female = 70.1469
+life_expectancy_15_male = 55.3411
+life_expectancy_15_female = 59.5783

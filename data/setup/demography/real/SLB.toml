@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Solomon Islands, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.18/71.95 vs WPP 69.22/71.98; TFR model 3.553 vs 3.557.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Solomon Islands"
+year = 2023
+
+male_share_at_birth = 0.516908
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.129601, 0.127212, 0.116815, 0.102136, 0.092391, 0.077274, 0.066400, 0.064032, 0.054652, 0.047108, 0.038025, 0.027863, 0.020223, 0.014375, 0.010392, 0.005862, 0.003471, 0.001661, 0.000432, 0.000072]
+
+[mortality_female]
+constant_hazard = 7.308891e-04
+gompertz_b = 2.734799e-05
+gompertz_c = 0.102115
+child_hazard = 5.404422e-02
+child_decline = 4.350236
+
+[mortality_male]
+constant_hazard = 7.585996e-04
+gompertz_b = 5.046872e-05
+gompertz_c = 0.096652
+child_hazard = 7.329097e-02
+child_decline = 4.746505
+
+[fertility]
+hazard_by_band = [0.05275166, 0.19851456, 0.23151002, 0.18479945, 0.11065259, 0.04197494, 0.00969502]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.1837
+life_expectancy_0_female = 71.9538
+life_expectancy_15_male = 56.0807
+life_expectancy_15_female = 58.6334

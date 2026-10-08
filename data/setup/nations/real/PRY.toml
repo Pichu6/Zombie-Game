@@ -1,0 +1,54 @@
+# Paragoay: a country with the real data of Paraguay under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PRY"
+name = "Paragoay"
+status = "sourced"
+pop_params = "demography/real/PRY.toml"
+
+[age_pyramid]
+shares = [0.099247, 0.098098, 0.090464, 0.085156, 0.085810, 0.087458, 0.083738, 0.075469, 0.062222, 0.050218, 0.044801, 0.040849, 0.032776, 0.024079, 0.017265, 0.011624, 0.006537, 0.002890, 0.001023, 0.000275]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Paraguay"
+year = 2023
+
+[education]
+age_25_34 = [0.140050, 0.215350, 0.381327, 0.263274]
+age_35_64 = [0.236827, 0.310929, 0.289771, 0.162473]
+age_65_plus = [0.500387, 0.272777, 0.147339, 0.079497]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Paraguay"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6747, 0.4638]
+participation_25_54 = [0.9388, 0.7128]
+participation_55_64 = [0.8228, 0.5395]
+participation_65_plus = [0.4877, 0.2476]
+unemployment_rate = 0.0579
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Paraguay; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.050601, 0.078820, 0.079861, 0.048912, 0.212030, 0.138780, 0.054992, 0.336003]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Paraguay"
+year = 2023
+
+[sectors]
+shares = [0.171714, 0.180098, 0.648188]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Paraguay"
+year = 2023
+
+[households]
+sizes = [0.103900, 0.368200, 0.350100, 0.177800]
+mean_size = 3.870
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Paraguay, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 0.6935
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Paraguay"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 6844146

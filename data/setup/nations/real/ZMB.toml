@@ -1,0 +1,54 @@
+# Zambio: a country with the real data of Zambia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ZMB"
+name = "Zambio"
+status = "sourced"
+pop_params = "demography/real/ZMB.toml"
+
+[age_pyramid]
+shares = [0.152079, 0.138856, 0.128616, 0.112103, 0.093891, 0.080237, 0.068834, 0.059175, 0.048427, 0.038257, 0.027594, 0.019382, 0.013561, 0.008962, 0.005382, 0.002817, 0.001267, 0.000437, 0.000105, 0.000018]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Zambia"
+year = 2023
+
+[education]
+age_25_34 = [0.338949, 0.186747, 0.339484, 0.134820]
+age_35_64 = [0.366447, 0.218713, 0.282044, 0.132795]
+age_65_plus = [0.554763, 0.169897, 0.154219, 0.121121]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Zambia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3958, 0.3459]
+participation_25_54 = [0.8462, 0.6950]
+participation_55_64 = [0.8372, 0.6769]
+participation_65_plus = [0.6032, 0.4938]
+unemployment_rate = 0.0586
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Zambia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.033202, 0.050095, 0.030119, 0.010298, 0.165939, 0.062531, 0.036705, 0.611111]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Zambia"
+year = 2023
+
+[sectors]
+shares = [0.559688, 0.099236, 0.341075]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Zambia"
+year = 2023
+
+[households]
+sizes = [0.079700, 0.227900, 0.306900, 0.385500]
+mean_size = 5.000
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Zambia, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.4503
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Zambia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 20723965

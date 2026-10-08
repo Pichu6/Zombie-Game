@@ -1,0 +1,54 @@
+# Venezuelo: a country with the real data of Venezuela (Bolivarian Republic of) under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "VEN"
+name = "Venezuelo"
+status = "sourced"
+pop_params = "demography/real/VEN.toml"
+
+[age_pyramid]
+shares = [0.075038, 0.089417, 0.097082, 0.095625, 0.078449, 0.064079, 0.063199, 0.064572, 0.064030, 0.061126, 0.056795, 0.052104, 0.045148, 0.036024, 0.025123, 0.017017, 0.009885, 0.004136, 0.001042, 0.000109]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Venezuela (Bolivarian Republic of)"
+year = 2023
+
+[education]
+age_25_34 = [0.067416, 0.057019, 0.562850, 0.312715]
+age_35_64 = [0.111523, 0.142173, 0.529216, 0.217088]
+age_65_plus = [0.264991, 0.259123, 0.347928, 0.127958]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Venezuela (Bolivarian Republic of)"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4191, 0.1836]
+participation_25_54 = [0.8888, 0.5425]
+participation_55_64 = [0.5936, 0.2402]
+participation_65_plus = [0.3469, 0.1149]
+unemployment_rate = 0.0541
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Venezuela (Bolivarian Republic of); retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.030720, 0.047325, 0.064362, 0.060233, 0.380548, 0.066626, 0.253668, 0.096519]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Venezuela (Bolivarian Republic of)"
+year = 2023
+
+[sectors]
+shares = [0.091809, 0.173277, 0.734914]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Venezuela (Bolivarian Republic of)"
+year = 2023
+
+[households]
+sizes = [0.075600, 0.291100, 0.368700, 0.264600]
+mean_size = 4.330
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Venezuela (Bolivarian Republic of), latest survey"
+year = 2001
+
+[settlement]
+urban_share = 0.8925
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Venezuela (Bolivarian Republic of)"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 28300854

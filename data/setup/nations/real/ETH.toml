@@ -1,0 +1,54 @@
+# Ethiopa: a country with the real data of Ethiopia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ETH"
+name = "Ethiopa"
+status = "sourced"
+pop_params = "demography/real/ETH.toml"
+
+[age_pyramid]
+shares = [0.148157, 0.128051, 0.117449, 0.112023, 0.099556, 0.085861, 0.070345, 0.054193, 0.043368, 0.036038, 0.029838, 0.024601, 0.018808, 0.012923, 0.008821, 0.005850, 0.002844, 0.001021, 0.000227, 0.000028]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ethiopia"
+year = 2023
+
+[education]
+age_25_34 = [0.672592, 0.163268, 0.142027, 0.022113]
+age_35_64 = [0.799803, 0.109429, 0.074616, 0.016153]
+age_65_plus = [0.943451, 0.031434, 0.016948, 0.008166]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Ethiopia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5815, 0.4987]
+participation_25_54 = [0.9345, 0.6775]
+participation_55_64 = [0.8677, 0.5129]
+participation_65_plus = [0.6199, 0.2867]
+unemployment_rate = 0.0338
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ethiopia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.005168, 0.028981, 0.012917, 0.005794, 0.124065, 0.026711, 0.018219, 0.778144]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ethiopia"
+year = 2023
+
+[sectors]
+shares = [0.621745, 0.063615, 0.314640]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ethiopia"
+year = 2023
+
+[households]
+sizes = [0.063594, 0.272273, 0.313169, 0.350965]
+mean_size = 4.730
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Ethiopia, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.2306
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Ethiopia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 128691692

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Burundi, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 61.48/65.59 vs WPP 61.60/65.70; TFR model 4.865 vs 4.878.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Burundi"
+year = 2023
+
+male_share_at_birth = 0.506173
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.158314, 0.153244, 0.142090, 0.111962, 0.082052, 0.066374, 0.064731, 0.059431, 0.048881, 0.033430, 0.023784, 0.017164, 0.013441, 0.010833, 0.007468, 0.003983, 0.001973, 0.000686, 0.000145, 0.000016]
+
+[mortality_female]
+constant_hazard = 2.612704e-03
+gompertz_b = 3.303506e-05
+gompertz_c = 0.099466
+child_hazard = 8.468595e-02
+child_decline = 2.628535
+
+[mortality_male]
+constant_hazard = 3.395730e-03
+gompertz_b = 6.182999e-05
+gompertz_c = 0.093471
+child_hazard = 1.331960e-01
+child_decline = 3.596369
+
+[fertility]
+hazard_by_band = [0.05604237, 0.24864217, 0.30936095, 0.29161218, 0.19026572, 0.08754843, 0.01652635]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 61.4758
+life_expectancy_0_female = 65.5942
+life_expectancy_15_male = 51.8464
+life_expectancy_15_female = 55.2085

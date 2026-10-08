@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Congo, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 64.12/67.43 vs WPP 64.12/67.46; TFR model 4.122 vs 4.157.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Congo"
+year = 2023
+
+male_share_at_birth = 0.506417
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.143247, 0.136180, 0.129409, 0.104269, 0.083944, 0.071604, 0.063785, 0.058801, 0.051971, 0.044641, 0.035497, 0.027651, 0.019851, 0.013227, 0.007987, 0.004517, 0.002277, 0.000889, 0.000218, 0.000031]
+
+[mortality_female]
+constant_hazard = 8.994867e-04
+gompertz_b = 9.654605e-05
+gompertz_c = 0.086491
+child_hazard = 4.785318e-02
+child_decline = 1.469408
+
+[mortality_male]
+constant_hazard = 7.052138e-04
+gompertz_b = 2.004314e-04
+gompertz_c = 0.079296
+child_hazard = 6.433396e-02
+child_decline = 1.652421
+
+[fertility]
+hazard_by_band = [0.12188206, 0.22113747, 0.23017393, 0.19363345, 0.13641743, 0.05584125, 0.01110325]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 64.1191
+life_expectancy_0_female = 67.4320
+life_expectancy_15_male = 52.6079
+life_expectancy_15_female = 55.6688

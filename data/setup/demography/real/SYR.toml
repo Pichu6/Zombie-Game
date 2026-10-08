@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Syrian Arab Republic, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.76/74.39 vs WPP 69.83/74.41; TFR model 2.709 vs 2.712.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Syrian Arab Republic"
+year = 2023
+
+male_share_at_birth = 0.512671
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.096330, 0.087131, 0.119894, 0.119951, 0.115201, 0.087422, 0.062761, 0.059273, 0.054734, 0.048783, 0.041452, 0.033980, 0.026220, 0.019387, 0.013121, 0.008137, 0.004086, 0.001629, 0.000451, 0.000057]
+
+[mortality_female]
+constant_hazard = 6.418765e-04
+gompertz_b = 1.307868e-05
+gompertz_c = 0.108782
+child_hazard = 2.866043e-02
+child_decline = 1.590981
+
+[mortality_male]
+constant_hazard = 9.320368e-04
+gompertz_b = 3.423613e-05
+gompertz_c = 0.100498
+child_hazard = 4.123748e-02
+child_decline = 2.020714
+
+[fertility]
+hazard_by_band = [0.04031460, 0.14266678, 0.17969554, 0.14471465, 0.07773854, 0.02382480, 0.00315356]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.7605
+life_expectancy_0_female = 74.3905
+life_expectancy_15_male = 57.1608
+life_expectancy_15_female = 61.4247

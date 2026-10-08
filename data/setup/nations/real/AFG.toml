@@ -1,0 +1,54 @@
+# Afghanistone: a country with the real data of Afghanistan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "AFG"
+name = "Afghanistone"
+status = "sourced"
+pop_params = "demography/real/AFG.toml"
+
+[age_pyramid]
+shares = [0.160565, 0.144054, 0.127643, 0.112899, 0.100365, 0.083538, 0.064952, 0.049634, 0.039819, 0.032862, 0.025949, 0.019580, 0.014364, 0.010232, 0.006770, 0.004166, 0.001869, 0.000610, 0.000116, 0.000012]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Afghanistan"
+year = 2023
+
+[education]
+age_25_34 = [0.526255, 0.224406, 0.172083, 0.077256]
+age_35_64 = [0.778745, 0.113540, 0.072891, 0.034824]
+age_65_plus = [0.884771, 0.052808, 0.042102, 0.020318]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Afghanistan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6860, 0.0601]
+participation_25_54 = [0.7459, 0.0517]
+participation_55_64 = [0.6031, 0.0315]
+participation_65_plus = [0.3454, 0.0093]
+unemployment_rate = 0.1401
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Afghanistan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.018398, 0.059740, 0.013994, 0.001018, 0.100869, 0.097659, 0.045978, 0.662343]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Afghanistan"
+year = 2023
+
+[sectors]
+shares = [0.512913, 0.192102, 0.294985]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Afghanistan"
+year = 2023
+
+[households]
+sizes = [0.001900, 0.064500, 0.168400, 0.765200]
+mean_size = 8.040
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Afghanistan, latest survey"
+year = 2015
+
+[settlement]
+urban_share = 0.2547
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Afghanistan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 41454761

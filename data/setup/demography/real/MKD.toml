@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), North Macedonia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 75.08/79.52 vs WPP 75.11/79.57; TFR model 1.463 vs 1.465.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), North Macedonia"
+year = 2023
+
+male_share_at_birth = 0.518536
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.051951, 0.059175, 0.059553, 0.055953, 0.058560, 0.061968, 0.066387, 0.068636, 0.070664, 0.069205, 0.067334, 0.069007, 0.066590, 0.062007, 0.050104, 0.031151, 0.019028, 0.009372, 0.002846, 0.000510]
+
+[mortality_female]
+constant_hazard = 1.112751e-04
+gompertz_b = 6.617752e-06
+gompertz_c = 0.114469
+child_hazard = 1.567788e-02
+child_decline = 3.806943
+
+[mortality_male]
+constant_hazard = 4.400012e-05
+gompertz_b = 2.344095e-05
+gompertz_c = 0.103270
+child_hazard = 1.105081e-02
+child_decline = 1.756512
+
+[fertility]
+hazard_by_band = [0.01311519, 0.05964180, 0.11146999, 0.08915194, 0.03472022, 0.00680704, 0.00052362]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 75.0796
+life_expectancy_0_female = 79.5203
+life_expectancy_15_male = 60.6506
+life_expectancy_15_female = 64.9869

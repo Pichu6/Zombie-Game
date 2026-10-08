@@ -1,0 +1,54 @@
+# Swisserland: a country with the real data of Switzerland under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CHE"
+name = "Swisserland"
+status = "sourced"
+pop_params = "demography/real/CHE.toml"
+
+[age_pyramid]
+shares = [0.048929, 0.050997, 0.050183, 0.048394, 0.051485, 0.060299, 0.070280, 0.071766, 0.070782, 0.067577, 0.071689, 0.075526, 0.065978, 0.053118, 0.045563, 0.040606, 0.028788, 0.017680, 0.008094, 0.002265]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Switzerland"
+year = 2023
+
+[education]
+age_25_34 = [0.009612, 0.014878, 0.491324, 0.484186]
+age_35_64 = [0.014771, 0.042424, 0.547510, 0.395295]
+age_65_plus = [0.022863, 0.084056, 0.667562, 0.225519]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Switzerland"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6858, 0.6486]
+participation_25_54 = [0.9403, 0.8706]
+participation_55_64 = [0.8375, 0.7157]
+participation_65_plus = [0.1598, 0.0835]
+unemployment_rate = 0.0404
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Switzerland; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.087923, 0.266785, 0.169296, 0.126800, 0.135143, 0.095041, 0.038293, 0.080720]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Switzerland"
+year = 2023
+
+[sectors]
+shares = [0.022419, 0.199141, 0.778440]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Switzerland"
+year = 2023
+
+[households]
+sizes = [0.359800, 0.445900, 0.177700, 0.016600]
+mean_size = 2.240
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Switzerland, latest survey"
+year = 2000
+
+[settlement]
+urban_share = 0.8519
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Switzerland"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 8870561

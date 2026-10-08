@@ -1,0 +1,54 @@
+# Vanuato: a country with the real data of Vanuatu under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "VUT"
+name = "Vanuato"
+status = "sourced"
+pop_params = "demography/real/VUT.toml"
+
+[age_pyramid]
+shares = [0.137322, 0.132016, 0.116789, 0.094774, 0.079425, 0.077652, 0.075043, 0.065153, 0.049567, 0.039352, 0.037155, 0.029552, 0.024006, 0.018173, 0.011916, 0.006495, 0.003202, 0.001482, 0.000690, 0.000234]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Vanuatu"
+year = 2023
+
+[education]
+age_25_34 = [0.306252, 0.198726, 0.438869, 0.056153]
+age_35_64 = [0.334857, 0.315816, 0.301853, 0.047474]
+age_65_plus = [0.586371, 0.229794, 0.152139, 0.031696]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Vanuatu"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4041, 0.3414]
+participation_25_54 = [0.7796, 0.6616]
+participation_55_64 = [0.6263, 0.5484]
+participation_65_plus = [0.4008, 0.2822]
+unemployment_rate = 0.0501
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Vanuatu; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.026588, 0.104759, 0.024334, 0.027276, 0.181591, 0.061581, 0.030053, 0.543819]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Vanuatu"
+year = 2023
+
+[sectors]
+shares = [0.446287, 0.105694, 0.448019]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Vanuatu"
+year = 2023
+
+[households]
+sizes = [0.030100, 0.229500, 0.361500, 0.378900]
+mean_size = 5.080
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Vanuatu, latest survey"
+year = 2007
+
+[settlement]
+urban_share = 0.2227
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Vanuatu"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 320408

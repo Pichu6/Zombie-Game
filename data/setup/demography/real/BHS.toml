@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bahamas, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.76/78.16 vs WPP 70.91/78.19; TFR model 1.375 vs 1.373.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bahamas"
+year = 2023
+
+male_share_at_birth = 0.506903
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.054621, 0.060123, 0.068537, 0.070798, 0.071955, 0.081863, 0.082875, 0.073787, 0.068840, 0.068174, 0.069058, 0.064031, 0.050352, 0.036658, 0.027581, 0.023605, 0.015316, 0.007606, 0.003052, 0.001167]
+
+[mortality_female]
+constant_hazard = 1.862957e-05
+gompertz_b = 9.382391e-05
+gompertz_c = 0.077777
+child_hazard = 2.475619e-02
+child_decline = 2.222985
+
+[mortality_male]
+constant_hazard = 5.157857e-04
+gompertz_b = 1.772701e-04
+gompertz_c = 0.075200
+child_hazard = 3.726990e-01
+child_decline = 33.155120
+
+[fertility]
+hazard_by_band = [0.02511634, 0.06418885, 0.07887413, 0.06765495, 0.04173832, 0.01246330, 0.00111154]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.7582
+life_expectancy_0_female = 78.1613
+life_expectancy_15_male = 57.3674
+life_expectancy_15_female = 64.2389

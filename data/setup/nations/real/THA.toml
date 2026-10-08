@@ -1,0 +1,54 @@
+# Thailund: a country with the real data of Thailand under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "THA"
+name = "Thailund"
+status = "sourced"
+pop_params = "demography/real/THA.toml"
+
+[age_pyramid]
+shares = [0.043267, 0.050694, 0.056936, 0.060686, 0.065159, 0.071720, 0.071181, 0.070607, 0.074835, 0.074020, 0.076301, 0.072720, 0.064691, 0.051969, 0.038503, 0.025171, 0.016321, 0.009766, 0.004144, 0.001309]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Thailand"
+year = 2023
+
+[education]
+age_25_34 = [0.030297, 0.082488, 0.526956, 0.360258]
+age_35_64 = [0.051691, 0.366349, 0.387269, 0.194690]
+age_65_plus = [0.081954, 0.699240, 0.142352, 0.076454]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Thailand"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4645, 0.3447]
+participation_25_54 = [0.9462, 0.8232]
+participation_55_64 = [0.8113, 0.6035]
+participation_65_plus = [0.3669, 0.2057]
+unemployment_rate = 0.0073
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Thailand; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.032885, 0.057121, 0.046894, 0.046911, 0.214563, 0.107101, 0.101943, 0.392581]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Thailand"
+year = 2023
+
+[sectors]
+shares = [0.302204, 0.219242, 0.478554]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Thailand"
+year = 2023
+
+[households]
+sizes = [0.215878, 0.486151, 0.233877, 0.064094]
+mean_size = 2.840
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Thailand, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.6093
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Thailand"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 71702435

@@ -1,0 +1,54 @@
+# Finnmark: a country with the real data of Finland under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "FIN"
+name = "Finnmark"
+status = "sourced"
+pop_params = "demography/real/FIN.toml"
+
+[age_pyramid]
+shares = [0.042247, 0.050342, 0.056761, 0.055561, 0.054346, 0.060435, 0.066126, 0.064850, 0.064568, 0.061227, 0.057862, 0.065408, 0.064488, 0.063066, 0.061509, 0.051507, 0.030649, 0.018611, 0.008264, 0.002173]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Finland"
+year = 2023
+
+[education]
+age_25_34 = [0.000521, 0.004923, 0.562232, 0.432324]
+age_35_64 = [0.000343, 0.007182, 0.537299, 0.455177]
+age_65_plus = [0.000231, 0.281275, 0.417443, 0.301051]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Finland"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5289, 0.5660]
+participation_25_54 = [0.8924, 0.8639]
+participation_55_64 = [0.7675, 0.7788]
+participation_65_plus = [0.1212, 0.0762]
+unemployment_rate = 0.0715
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Finland; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.022244, 0.276790, 0.194487, 0.049751, 0.185505, 0.097898, 0.076150, 0.097175]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Finland"
+year = 2023
+
+[sectors]
+shares = [0.036167, 0.213672, 0.750161]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Finland"
+year = 2023
+
+[households]
+sizes = [0.410059, 0.444556, 0.129687, 0.015698]
+mean_size = 2.070
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Finland, latest survey"
+year = 2010
+
+[settlement]
+urban_share = 0.7401
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Finland"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 5601185

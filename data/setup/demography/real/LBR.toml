@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Liberia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 60.85/63.41 vs WPP 60.88/63.44; TFR model 3.923 vs 3.950.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Liberia"
+year = 2023
+
+male_share_at_birth = 0.509564
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.140711, 0.132553, 0.126704, 0.113322, 0.093256, 0.074980, 0.063257, 0.056806, 0.049178, 0.039744, 0.031381, 0.025564, 0.019770, 0.014196, 0.009215, 0.005608, 0.002712, 0.000869, 0.000163, 0.000011]
+
+[mortality_female]
+constant_hazard = 1.195966e-03
+gompertz_b = 1.004674e-04
+gompertz_c = 0.088250
+child_hazard = 1.089597e-01
+child_decline = 1.785029
+
+[mortality_male]
+constant_hazard = 1.185599e-03
+gompertz_b = 1.831931e-04
+gompertz_c = 0.081041
+child_hazard = 1.359682e-01
+child_decline = 1.864542
+
+[fertility]
+hazard_by_band = [0.14205759, 0.21359827, 0.19467226, 0.16700977, 0.12990608, 0.05230661, 0.01237436]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 60.8532
+life_expectancy_0_female = 63.4098
+life_expectancy_15_male = 51.7657
+life_expectancy_15_female = 53.6370

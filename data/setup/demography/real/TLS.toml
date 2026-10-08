@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Timor-Leste, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.03/69.40 vs WPP 66.07/69.44; TFR model 2.712 vs 2.707.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Timor-Leste"
+year = 2023
+
+male_share_at_birth = 0.517141
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.113367, 0.119262, 0.109667, 0.114712, 0.103250, 0.084888, 0.070719, 0.061572, 0.043648, 0.037978, 0.037221, 0.028280, 0.022092, 0.016103, 0.015924, 0.013362, 0.005946, 0.001669, 0.000310, 0.000028]
+
+[mortality_female]
+constant_hazard = 8.726265e-04
+gompertz_b = 3.090490e-05
+gompertz_c = 0.100803
+child_hazard = 7.569195e-02
+child_decline = 1.957244
+
+[mortality_male]
+constant_hazard = 9.456617e-04
+gompertz_b = 6.052165e-05
+gompertz_c = 0.094689
+child_hazard = 9.867570e-02
+child_decline = 2.102383
+
+[fertility]
+hazard_by_band = [0.02809536, 0.13768287, 0.19152118, 0.13697517, 0.07821141, 0.03369719, 0.00689473]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.0333
+life_expectancy_0_female = 69.3997
+life_expectancy_15_male = 55.1876
+life_expectancy_15_female = 58.0368

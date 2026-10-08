@@ -1,0 +1,54 @@
+# Eritrova: a country with the real data of Eritrea under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ERI"
+name = "Eritrova"
+status = "sourced"
+pop_params = "demography/real/ERI.toml"
+
+[age_pyramid]
+shares = [0.132871, 0.126467, 0.127437, 0.121129, 0.100240, 0.081970, 0.059355, 0.047733, 0.041083, 0.037849, 0.032925, 0.027572, 0.021860, 0.015592, 0.011376, 0.008229, 0.004391, 0.001578, 0.000324, 0.000019]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Eritrea"
+year = 2023
+
+[education]
+age_25_34 = [0.662015, 0.079220, 0.199388, 0.059377]
+age_35_64 = [0.751966, 0.060232, 0.146951, 0.040852]
+age_65_plus = [0.904162, 0.019618, 0.055143, 0.021076]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Eritrea"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7179, 0.6549]
+participation_25_54 = [0.9562, 0.8487]
+participation_55_64 = [0.9029, 0.6986]
+participation_65_plus = [0.5879, 0.3279]
+unemployment_rate = 0.0591
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Eritrea; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.015445, 0.026132, 0.001531, 0.011086, 0.089200, 0.183667, 0.084527, 0.588412]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Eritrea"
+year = 2023
+
+[sectors]
+shares = [0.563554, 0.126054, 0.310392]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Eritrea"
+year = 2023
+
+[households]
+sizes = [0.058602, 0.230788, 0.308357, 0.402253]
+mean_size = 5.228
+source = "Low income group aggregate (no household data for Eritrea)"
+year = 2018.0
+
+[settlement]
+urban_share = 0.3470
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Eritrea"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 3470390

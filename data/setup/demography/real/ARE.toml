@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United Arab Emirates, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 81.91/84.06 vs WPP 81.98/84.20; TFR model 1.215 vs 1.200.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United Arab Emirates"
+year = 2023
+
+male_share_at_birth = 0.511241
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.053859, 0.057644, 0.051887, 0.047541, 0.087091, 0.134997, 0.151150, 0.133379, 0.097815, 0.067131, 0.047590, 0.034927, 0.018032, 0.007668, 0.005192, 0.002249, 0.001252, 0.000462, 0.000114, 0.000019]
+
+[mortality_female]
+constant_hazard = 6.366633e-05
+gompertz_b = 5.405887e-07
+gompertz_c = 0.140356
+child_hazard = 9.144973e-03
+child_decline = 1.810562
+
+[mortality_male]
+constant_hazard = 2.185469e-04
+gompertz_b = 5.938962e-07
+gompertz_c = 0.142065
+child_hazard = 1.657938e-02
+child_decline = 3.021429
+
+[fertility]
+hazard_by_band = [0.00311164, 0.02587819, 0.06820720, 0.08604296, 0.05274374, 0.01901648, 0.00261723]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 81.9085
+life_expectancy_0_female = 84.0586
+life_expectancy_15_male = 67.6055
+life_expectancy_15_female = 69.5571

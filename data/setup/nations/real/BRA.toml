@@ -1,0 +1,54 @@
+# Brazilo: a country with the real data of Brazil under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BRA"
+name = "Brazilo"
+status = "sourced"
+pop_params = "demography/real/BRA.toml"
+
+[age_pyramid]
+shares = [0.063279, 0.067691, 0.068389, 0.071363, 0.075969, 0.077465, 0.076755, 0.079643, 0.077401, 0.068837, 0.061011, 0.056188, 0.049673, 0.039469, 0.029239, 0.018740, 0.011296, 0.005389, 0.001820, 0.000383]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Brazil"
+year = 2023
+
+[education]
+age_25_34 = [0.061996, 0.145770, 0.621398, 0.170836]
+age_35_64 = [0.181068, 0.204253, 0.479410, 0.135269]
+age_65_plus = [0.416799, 0.216452, 0.264255, 0.102493]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Brazil"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6042, 0.4829]
+participation_25_54 = [0.8961, 0.6987]
+participation_55_64 = [0.6716, 0.4047]
+participation_65_plus = [0.2278, 0.0876]
+unemployment_rate = 0.0795
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Brazil; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.034383, 0.128146, 0.086068, 0.085396, 0.225224, 0.134372, 0.092227, 0.214184]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Brazil"
+year = 2023
+
+[sectors]
+shares = [0.082028, 0.201716, 0.716256]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Brazil"
+year = 2023
+
+[households]
+sizes = [0.120000, 0.472700, 0.319100, 0.088200]
+mean_size = 3.310
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Brazil, latest survey"
+year = 2010
+
+[settlement]
+urban_share = 0.8762
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Brazil"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 211140729

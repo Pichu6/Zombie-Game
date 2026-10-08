@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Egypt, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.37/73.78 vs WPP 69.49/73.81; TFR model 2.743 vs 2.750.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Egypt"
+year = 2023
+
+male_share_at_birth = 0.513382
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.102863, 0.115912, 0.105577, 0.091513, 0.083689, 0.076617, 0.075564, 0.071772, 0.061988, 0.052397, 0.044375, 0.037565, 0.030471, 0.022641, 0.014574, 0.007957, 0.003129, 0.001137, 0.000237, 0.000024]
+
+[mortality_female]
+constant_hazard = 2.974455e-04
+gompertz_b = 1.195202e-05
+gompertz_c = 0.113267
+child_hazard = 3.092056e-02
+child_decline = 2.059884
+
+[mortality_male]
+constant_hazard = 4.122293e-04
+gompertz_b = 3.565457e-05
+gompertz_c = 0.103284
+child_hazard = 4.195526e-02
+child_decline = 2.500057
+
+[fertility]
+hazard_by_band = [0.04337577, 0.16812227, 0.21395592, 0.12166466, 0.05671473, 0.02048503, 0.00340046]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.3738
+life_expectancy_0_female = 73.7794
+life_expectancy_15_male = 56.0110
+life_expectancy_15_female = 60.2202

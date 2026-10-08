@@ -1,0 +1,54 @@
+# Comoroos: a country with the real data of Comoros under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "COM"
+name = "Comoroos"
+status = "sourced"
+pop_params = "demography/real/COM.toml"
+
+[age_pyramid]
+shares = [0.134227, 0.125065, 0.114721, 0.100749, 0.091333, 0.072999, 0.067368, 0.062154, 0.055271, 0.044908, 0.035972, 0.028573, 0.021930, 0.016995, 0.012545, 0.008889, 0.004512, 0.001381, 0.000372, 0.000038]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Comoros"
+year = 2023
+
+[education]
+age_25_34 = [0.250668, 0.224422, 0.303788, 0.221122]
+age_35_64 = [0.497628, 0.176418, 0.186499, 0.139454]
+age_65_plus = [0.855775, 0.044507, 0.059155, 0.040563]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Comoros"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2579, 0.1995]
+participation_25_54 = [0.8506, 0.6414]
+participation_55_64 = [0.8291, 0.5428]
+participation_65_plus = [0.4581, 0.2548]
+unemployment_rate = 0.0383
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Comoros; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.009404, 0.081446, 0.031820, 0.076452, 0.155964, 0.065921, 0.033995, 0.544999]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Comoros"
+year = 2023
+
+[sectors]
+shares = [0.346186, 0.147483, 0.506330]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Comoros"
+year = 2023
+
+[households]
+sizes = [0.049100, 0.229200, 0.287100, 0.434600]
+mean_size = 5.370
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Comoros, latest survey"
+year = 2012
+
+[settlement]
+urban_share = 0.3315
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Comoros"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 850387

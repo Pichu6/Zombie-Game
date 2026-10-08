@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), French Polynesia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 81.73/86.34 vs WPP 81.78/86.51; TFR model 1.500 vs 1.501.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), French Polynesia"
+year = 2023
+
+male_share_at_birth = 0.514327
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.053681, 0.067273, 0.076379, 0.076699, 0.074141, 0.064178, 0.074981, 0.079296, 0.073120, 0.068475, 0.068418, 0.064085, 0.052005, 0.040619, 0.027703, 0.019009, 0.011710, 0.005659, 0.002074, 0.000494]
+
+[mortality_female]
+constant_hazard = 1.107453e-04
+gompertz_b = 1.506363e-06
+gompertz_c = 0.123058
+child_hazard = 1.219813e-02
+child_decline = 2.313738
+
+[mortality_male]
+constant_hazard = 1.169006e-04
+gompertz_b = 4.418313e-06
+gompertz_c = 0.116221
+child_hazard = 1.875128e-02
+child_decline = 3.259576
+
+[fertility]
+hazard_by_band = [0.02488638, 0.07331406, 0.07742849, 0.07423045, 0.05009716, 0.01798134, 0.00087029]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 81.7329
+life_expectancy_0_female = 86.3443
+life_expectancy_15_male = 67.3469
+life_expectancy_15_female = 71.9353

@@ -1,0 +1,54 @@
+# Djiboutto: a country with the real data of Djibouti under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "DJI"
+name = "Djiboutto"
+status = "sourced"
+pop_params = "demography/real/DJI.toml"
+
+[age_pyramid]
+shares = [0.099316, 0.098073, 0.098357, 0.100573, 0.096781, 0.085231, 0.077853, 0.068472, 0.062310, 0.056314, 0.046723, 0.035975, 0.026662, 0.018957, 0.013537, 0.008719, 0.004233, 0.001525, 0.000346, 0.000043]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Djibouti"
+year = 2023
+
+[education]
+age_25_34 = [0.663975, 0.079013, 0.197315, 0.059697]
+age_35_64 = [0.747907, 0.061141, 0.148485, 0.042467]
+age_65_plus = [0.899962, 0.019238, 0.057330, 0.023471]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Djibouti"
+year = 2023
+
+[labour]
+participation_15_24 = [0.1560, 0.1142]
+participation_25_54 = [0.6312, 0.2453]
+participation_55_64 = [0.4462, 0.1715]
+participation_65_plus = [0.1641, 0.0641]
+unemployment_rate = 0.2607
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Djibouti; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.043580, 0.148854, 0.140355, 0.144864, 0.282504, 0.096618, 0.015855, 0.127369]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Djibouti"
+year = 2023
+
+[sectors]
+shares = [0.012384, 0.063325, 0.924290]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Djibouti"
+year = 2023
+
+[households]
+sizes = [0.027200, 0.187200, 0.288400, 0.497200]
+mean_size = 5.890
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Djibouti, latest survey"
+year = 2006
+
+[settlement]
+urban_share = 0.7284
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Djibouti"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 1152944

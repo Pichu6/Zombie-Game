@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Morocco, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 73.13/77.56 vs WPP 73.17/77.60; TFR model 2.229 vs 2.230.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Morocco"
+year = 2023
+
+male_share_at_birth = 0.511480
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.084311, 0.086719, 0.089322, 0.082987, 0.077481, 0.076194, 0.077399, 0.074999, 0.068727, 0.061201, 0.053388, 0.047362, 0.041654, 0.033094, 0.021996, 0.012858, 0.006850, 0.002685, 0.000686, 0.000090]
+
+[mortality_female]
+constant_hazard = 3.471926e-04
+gompertz_b = 8.227954e-06
+gompertz_c = 0.112161
+child_hazard = 3.174605e-02
+child_decline = 2.324937
+
+[mortality_male]
+constant_hazard = 3.568006e-04
+gompertz_b = 2.062560e-05
+gompertz_c = 0.105665
+child_hazard = 4.702120e-02
+child_decline = 2.808071
+
+[fertility]
+hazard_by_band = [0.02568014, 0.09841067, 0.13050016, 0.12242875, 0.07649653, 0.03119853, 0.00483107]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 73.1303
+life_expectancy_0_female = 77.5635
+life_expectancy_15_male = 59.7675
+life_expectancy_15_female = 64.0177

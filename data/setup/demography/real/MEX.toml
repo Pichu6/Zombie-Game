@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mexico, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 72.17/77.84 vs WPP 72.24/77.81; TFR model 1.908 vs 1.910.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mexico"
+year = 2023
+
+male_share_at_birth = 0.509564
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.079462, 0.082869, 0.086849, 0.086020, 0.084996, 0.081655, 0.078895, 0.072008, 0.065678, 0.060701, 0.055286, 0.047247, 0.038468, 0.029211, 0.021105, 0.014360, 0.008877, 0.004428, 0.001523, 0.000364]
+
+[mortality_female]
+constant_hazard = 3.001095e-04
+gompertz_b = 2.128701e-05
+gompertz_c = 0.098891
+child_hazard = 2.510348e-02
+child_decline = 2.582745
+
+[mortality_male]
+constant_hazard = 5.408090e-04
+gompertz_b = 1.664983e-04
+gompertz_c = 0.074341
+child_hazard = 3.717768e-01
+child_decline = 34.615625
+
+[fertility]
+hazard_by_band = [0.06351804, 0.11739690, 0.10913180, 0.07649458, 0.03818914, 0.00960257, 0.00063600]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 72.1729
+life_expectancy_0_female = 77.8424
+life_expectancy_15_male = 58.7825
+life_expectancy_15_female = 63.9708

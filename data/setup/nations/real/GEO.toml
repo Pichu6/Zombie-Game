@@ -1,0 +1,54 @@
+# Georgica: a country with the real data of Georgia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GEO"
+name = "Georgica"
+status = "sourced"
+pop_params = "demography/real/GEO.toml"
+
+[age_pyramid]
+shares = [0.063588, 0.075998, 0.070822, 0.058409, 0.055725, 0.060232, 0.073272, 0.074350, 0.067263, 0.062768, 0.060031, 0.060400, 0.063967, 0.052778, 0.041481, 0.023599, 0.019241, 0.011478, 0.003672, 0.000927]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Georgia"
+year = 2023
+
+[education]
+age_25_34 = [0.005497, 0.010009, 0.456168, 0.528326]
+age_35_64 = [0.005761, 0.009087, 0.495470, 0.489681]
+age_65_plus = [0.013073, 0.027518, 0.534650, 0.424759]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Georgia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4679, 0.3085]
+participation_25_54 = [0.8762, 0.7021]
+participation_55_64 = [0.7895, 0.6691]
+participation_65_plus = [0.4673, 0.3379]
+unemployment_rate = 0.1155
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Georgia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.049518, 0.134714, 0.071693, 0.040846, 0.122340, 0.079151, 0.057883, 0.443855]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Georgia"
+year = 2023
+
+[sectors]
+shares = [0.356339, 0.161028, 0.482634]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Georgia"
+year = 2023
+
+[households]
+sizes = [0.149700, 0.407400, 0.300200, 0.142700]
+mean_size = 3.420
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Georgia, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.6075
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Georgia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 3807492

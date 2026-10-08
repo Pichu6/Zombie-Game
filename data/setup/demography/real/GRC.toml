@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Greece, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 79.28/84.27 vs WPP 79.29/84.33; TFR model 1.325 vs 1.334.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Greece"
+year = 2023
+
+male_share_at_birth = 0.515504
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.038834, 0.045505, 0.051529, 0.051300, 0.050923, 0.050807, 0.053175, 0.058165, 0.073319, 0.075843, 0.076533, 0.072559, 0.066678, 0.060832, 0.053947, 0.046232, 0.033941, 0.024999, 0.011579, 0.003300]
+
+[mortality_female]
+constant_hazard = 2.599042e-05
+gompertz_b = 3.839829e-06
+gompertz_c = 0.114943
+child_hazard = 7.407402e-03
+child_decline = 2.177734
+
+[mortality_male]
+constant_hazard = 5.257930e-06
+gompertz_b = 2.202488e-05
+gompertz_c = 0.098336
+child_hazard = 9.389215e-03
+child_decline = 2.388832
+
+[fertility]
+hazard_by_band = [0.00708869, 0.02349498, 0.06457148, 0.10452733, 0.06505822, 0.01614595, 0.00237298]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 79.2847
+life_expectancy_0_female = 84.2695
+life_expectancy_15_male = 64.6540
+life_expectancy_15_female = 69.5967

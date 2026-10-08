@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Saint Lucia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.26/76.30 vs WPP 69.31/76.30; TFR model 1.381 vs 1.379.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Saint Lucia"
+year = 2023
+
+male_share_at_birth = 0.507632
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.056947, 0.058726, 0.063027, 0.069876, 0.079380, 0.089381, 0.086832, 0.079854, 0.073652, 0.068917, 0.066814, 0.062804, 0.050801, 0.036159, 0.024536, 0.017067, 0.009465, 0.004094, 0.001461, 0.000206]
+
+[mortality_female]
+constant_hazard = 2.767630e-04
+gompertz_b = 1.436756e-05
+gompertz_c = 0.106532
+child_hazard = 3.253124e-02
+child_decline = 2.293498
+
+[mortality_male]
+constant_hazard = 4.650220e-04
+gompertz_b = 8.021759e-05
+gompertz_c = 0.090133
+child_hazard = 4.872549e-02
+child_decline = 3.029966
+
+[fertility]
+hazard_by_band = [0.02854009, 0.06591023, 0.07338760, 0.06390040, 0.04751095, 0.01236863, 0.00048583]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.2616
+life_expectancy_0_female = 76.2975
+life_expectancy_15_male = 55.9768
+life_expectancy_15_female = 62.7082

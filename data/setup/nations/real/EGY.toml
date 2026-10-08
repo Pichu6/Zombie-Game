@@ -1,0 +1,54 @@
+# Egypta: a country with the real data of Egypt under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "EGY"
+name = "Egypta"
+status = "sourced"
+pop_params = "demography/real/EGY.toml"
+
+[age_pyramid]
+shares = [0.102863, 0.115912, 0.105577, 0.091513, 0.083689, 0.076617, 0.075564, 0.071772, 0.061988, 0.052397, 0.044375, 0.037565, 0.030471, 0.022641, 0.014574, 0.007957, 0.003129, 0.001137, 0.000237, 0.000024]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Egypt"
+year = 2023
+
+[education]
+age_25_34 = [0.192856, 0.034310, 0.459495, 0.313339]
+age_35_64 = [0.382040, 0.032912, 0.375631, 0.209417]
+age_65_plus = [0.706773, 0.031695, 0.144545, 0.116987]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Egypt"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3641, 0.1006]
+participation_25_54 = [0.9265, 0.2495]
+participation_55_64 = [0.6652, 0.1621]
+participation_65_plus = [0.2088, 0.0377]
+unemployment_rate = 0.0675
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Egypt; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.030282, 0.124546, 0.064594, 0.046411, 0.178980, 0.202282, 0.125326, 0.227579]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Egypt"
+year = 2023
+
+[sectors]
+shares = [0.182880, 0.291994, 0.525126]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Egypt"
+year = 2023
+
+[households]
+sizes = [0.064800, 0.304000, 0.431200, 0.200000]
+mean_size = 4.130
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Egypt, latest survey"
+year = 2014
+
+[settlement]
+urban_share = 0.4271
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Egypt"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 114535772

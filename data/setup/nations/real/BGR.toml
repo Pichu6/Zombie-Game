@@ -1,0 +1,54 @@
+# Bulgoria: a country with the real data of Bulgaria under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BGR"
+name = "Bulgoria"
+status = "sourced"
+pop_params = "demography/real/BGR.toml"
+
+[age_pyramid]
+shares = [0.045340, 0.048768, 0.051274, 0.048902, 0.046735, 0.046800, 0.064005, 0.070757, 0.072594, 0.079564, 0.074604, 0.066018, 0.066315, 0.064551, 0.059948, 0.045622, 0.027573, 0.014923, 0.004906, 0.000802]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bulgaria"
+year = 2023
+
+[education]
+age_25_34 = [0.028797, 0.038562, 0.576103, 0.356537]
+age_35_64 = [0.020060, 0.031482, 0.649295, 0.299163]
+age_65_plus = [0.020551, 0.052241, 0.695951, 0.231257]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Bulgaria"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2436, 0.1819]
+participation_25_54 = [0.8967, 0.8338]
+participation_55_64 = [0.7836, 0.6846]
+participation_65_plus = [0.1036, 0.0475]
+unemployment_rate = 0.0432
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bulgaria; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.066930, 0.202671, 0.104909, 0.062935, 0.193127, 0.119353, 0.125115, 0.124960]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bulgaria"
+year = 2023
+
+[sectors]
+shares = [0.062451, 0.295905, 0.641643]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bulgaria"
+year = 2023
+
+[households]
+sizes = [0.305269, 0.509649, 0.166183, 0.018898]
+mean_size = 2.340
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Bulgaria, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.7373
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Bulgaria"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 6795803

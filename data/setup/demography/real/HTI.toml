@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Haiti, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 61.65/68.26 vs WPP 61.73/68.30; TFR model 2.648 vs 2.656.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Haiti"
+year = 2023
+
+male_share_at_birth = 0.507389
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.106171, 0.105538, 0.104013, 0.099243, 0.093936, 0.087443, 0.080963, 0.069989, 0.058779, 0.049149, 0.040033, 0.032708, 0.025852, 0.019504, 0.013251, 0.007959, 0.003903, 0.001313, 0.000235, 0.000016]
+
+[mortality_female]
+constant_hazard = 1.001312e-03
+gompertz_b = 3.306282e-05
+gompertz_c = 0.100220
+child_hazard = 8.207352e-02
+child_decline = 1.761918
+
+[mortality_male]
+constant_hazard = 1.909845e-03
+gompertz_b = 1.100711e-04
+gompertz_c = 0.087959
+child_hazard = 1.193963e-01
+child_decline = 2.283628
+
+[fertility]
+hazard_by_band = [0.05209727, 0.11806571, 0.13982210, 0.13366727, 0.09735504, 0.03932401, 0.00691075]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 61.6466
+life_expectancy_0_female = 68.2619
+life_expectancy_15_male = 51.8002
+life_expectancy_15_female = 57.5317

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malaysia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 74.22/79.22 vs WPP 74.27/79.37; TFR model 1.554 vs 1.550.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malaysia"
+year = 2023
+
+male_share_at_birth = 0.515738
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.064657, 0.079428, 0.078794, 0.081215, 0.087735, 0.089137, 0.089775, 0.086475, 0.075379, 0.060236, 0.050751, 0.043910, 0.037994, 0.029374, 0.021244, 0.012326, 0.006712, 0.003315, 0.001177, 0.000363]
+
+[mortality_female]
+constant_hazard = 7.758326e-05
+gompertz_b = 3.013845e-05
+gompertz_c = 0.093303
+child_hazard = 1.284491e-02
+child_decline = 1.970395
+
+[mortality_male]
+constant_hazard = 1.008236e-04
+gompertz_b = 9.995809e-05
+gompertz_c = 0.081785
+child_hazard = 1.963500e-02
+child_decline = 2.664889
+
+[fertility]
+hazard_by_band = [0.00599399, 0.03861800, 0.10790825, 0.10312259, 0.06111270, 0.01740030, 0.00159513]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 74.2164
+life_expectancy_0_female = 79.2202
+life_expectancy_15_male = 60.0586
+life_expectancy_15_female = 64.8888

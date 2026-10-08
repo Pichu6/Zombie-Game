@@ -1,0 +1,54 @@
+# Mongolio: a country with the real data of Mongolia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MNG"
+name = "Mongolio"
+status = "sourced"
+pop_params = "demography/real/MNG.toml"
+
+[age_pyramid]
+shares = [0.102855, 0.118699, 0.104820, 0.072906, 0.062959, 0.069627, 0.080846, 0.080993, 0.066857, 0.060124, 0.051532, 0.044015, 0.035130, 0.022192, 0.011650, 0.007456, 0.004438, 0.002047, 0.000716, 0.000138]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mongolia"
+year = 2023
+
+[education]
+age_25_34 = [0.035174, 0.059986, 0.516478, 0.388362]
+age_35_64 = [0.036917, 0.072567, 0.627708, 0.262807]
+age_65_plus = [0.054024, 0.190976, 0.559634, 0.195366]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Mongolia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3778, 0.1931]
+participation_25_54 = [0.8751, 0.7295]
+participation_55_64 = [0.5442, 0.3494]
+participation_65_plus = [0.1909, 0.1095]
+unemployment_rate = 0.0518
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mongolia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.052064, 0.177334, 0.035713, 0.030179, 0.144682, 0.108215, 0.097626, 0.354188]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mongolia"
+year = 2023
+
+[sectors]
+shares = [0.283917, 0.226332, 0.489751]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mongolia"
+year = 2023
+
+[households]
+sizes = [0.089600, 0.398900, 0.390900, 0.120600]
+mean_size = 3.630
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Mongolia, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.7045
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Mongolia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 3431932

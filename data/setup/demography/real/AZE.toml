@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Azerbaijan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 71.53/77.08 vs WPP 71.56/77.13; TFR model 1.654 vs 1.671.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Azerbaijan"
+year = 2023
+
+male_share_at_birth = 0.527856
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.065397, 0.075837, 0.082209, 0.070941, 0.062085, 0.076998, 0.093008, 0.086329, 0.072925, 0.060140, 0.058787, 0.059255, 0.055982, 0.037354, 0.021657, 0.009171, 0.006838, 0.004036, 0.000928, 0.000122]
+
+[mortality_female]
+constant_hazard = 2.579875e-04
+gompertz_b = 6.467273e-06
+gompertz_c = 0.116730
+child_hazard = 3.376377e-02
+child_decline = 2.322088
+
+[mortality_male]
+constant_hazard = 3.157866e-04
+gompertz_b = 3.881420e-05
+gompertz_c = 0.098655
+child_hazard = 4.662453e-02
+child_decline = 2.679532
+
+[fertility]
+hazard_by_band = [0.03588406, 0.14958967, 0.10423071, 0.04893035, 0.01967610, 0.00459105, 0.00030223]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 71.5322
+life_expectancy_0_female = 77.0839
+life_expectancy_15_male = 58.1765
+life_expectancy_15_female = 63.4990

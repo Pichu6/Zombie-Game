@@ -1,0 +1,54 @@
+# New Zeelund: a country with the real data of New Zealand under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "NZL"
+name = "New Zeelund"
+status = "sourced"
+pop_params = "demography/real/NZL.toml"
+
+[age_pyramid]
+shares = [0.057622, 0.061074, 0.065051, 0.062606, 0.063287, 0.068570, 0.075819, 0.068775, 0.062571, 0.059885, 0.064753, 0.061690, 0.060310, 0.051378, 0.043200, 0.033305, 0.021748, 0.011632, 0.005234, 0.001490]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), New Zealand"
+year = 2023
+
+[education]
+age_25_34 = [0.007172, 0.029968, 0.402241, 0.560618]
+age_35_64 = [0.015761, 0.048838, 0.444343, 0.491058]
+age_65_plus = [0.017660, 0.160075, 0.443605, 0.378660]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), New Zealand"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6920, 0.6798]
+participation_25_54 = [0.9318, 0.8430]
+participation_55_64 = [0.8593, 0.7529]
+participation_65_plus = [0.3164, 0.2122]
+unemployment_rate = 0.0373
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), New Zealand; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.140413, 0.212175, 0.140502, 0.109146, 0.148809, 0.079305, 0.071565, 0.098086]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), New Zealand"
+year = 2023
+
+[sectors]
+shares = [0.056113, 0.205377, 0.738510]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), New Zealand"
+year = 2023
+
+[households]
+sizes = [0.228400, 0.505200, 0.220900, 0.045500]
+mean_size = 2.670
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), New Zealand, latest survey"
+year = 2013
+
+[settlement]
+urban_share = 0.8389
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), New Zealand"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 5172836

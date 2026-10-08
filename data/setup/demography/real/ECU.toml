@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ecuador, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 74.37/80.11 vs WPP 74.66/80.14; TFR model 1.811 vs 1.823.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ecuador"
+year = 2023
+
+male_share_at_birth = 0.511480
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.078072, 0.082344, 0.089631, 0.087326, 0.086944, 0.085630, 0.080923, 0.074207, 0.066546, 0.058150, 0.050676, 0.043108, 0.035516, 0.028579, 0.022208, 0.014943, 0.009013, 0.004259, 0.001541, 0.000385]
+
+[mortality_female]
+constant_hazard = 4.321745e-04
+gompertz_b = 1.057502e-05
+gompertz_c = 0.104865
+child_hazard = 2.898121e-02
+child_decline = 3.492704
+
+[mortality_male]
+constant_hazard = 1.159885e-03
+gompertz_b = 1.882062e-05
+gompertz_c = 0.101990
+child_hazard = 3.091333e-01
+child_decline = 31.962982
+
+[fertility]
+hazard_by_band = [0.05843731, 0.09823068, 0.09771054, 0.07630792, 0.04453644, 0.01388065, 0.00099632]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 74.3691
+life_expectancy_0_female = 80.1141
+life_expectancy_15_male = 61.3229
+life_expectancy_15_female = 66.2836

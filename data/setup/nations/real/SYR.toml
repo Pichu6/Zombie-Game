@@ -1,0 +1,54 @@
+# Syriana: a country with the real data of Syrian Arab Republic under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SYR"
+name = "Syriana"
+status = "sourced"
+pop_params = "demography/real/SYR.toml"
+
+[age_pyramid]
+shares = [0.096330, 0.087131, 0.119894, 0.119951, 0.115201, 0.087422, 0.062761, 0.059273, 0.054734, 0.048783, 0.041452, 0.033980, 0.026220, 0.019387, 0.013121, 0.008137, 0.004086, 0.001629, 0.000451, 0.000057]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Syrian Arab Republic"
+year = 2023
+
+[education]
+age_25_34 = [0.333343, 0.188507, 0.294747, 0.183404]
+age_35_64 = [0.454580, 0.197323, 0.214334, 0.133763]
+age_65_plus = [0.698186, 0.096679, 0.116027, 0.089109]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Syrian Arab Republic"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3953, 0.0838]
+participation_25_54 = [0.8285, 0.1872]
+participation_55_64 = [0.5596, 0.0590]
+participation_65_plus = [0.2073, 0.0152]
+unemployment_rate = 0.1327
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Syrian Arab Republic; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.003842, 0.126790, 0.055845, 0.062940, 0.136721, 0.237120, 0.092696, 0.284046]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Syrian Arab Republic"
+year = 2023
+
+[sectors]
+shares = [0.165693, 0.257531, 0.576776]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Syrian Arab Republic"
+year = 2023
+
+[households]
+sizes = [0.023802, 0.177018, 0.319632, 0.479548]
+mean_size = 5.650
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Syrian Arab Republic, latest survey"
+year = 2006
+
+[settlement]
+urban_share = 0.7217
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Syrian Arab Republic"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 23594623

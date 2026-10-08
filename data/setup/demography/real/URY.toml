@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uruguay, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 74.08/81.80 vs WPP 74.19/81.92; TFR model 1.409 vs 1.409.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uruguay"
+year = 2023
+
+male_share_at_birth = 0.513382
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.051774, 0.066718, 0.068362, 0.069639, 0.072233, 0.074747, 0.072092, 0.066193, 0.063202, 0.067118, 0.059065, 0.057533, 0.053196, 0.045589, 0.036456, 0.029033, 0.021771, 0.014378, 0.007304, 0.003598]
+
+[mortality_female]
+constant_hazard = 9.629434e-05
+gompertz_b = 3.271006e-05
+gompertz_c = 0.088779
+child_hazard = 1.478808e-02
+child_decline = 2.675524
+
+[mortality_male]
+constant_hazard = 3.623921e-04
+gompertz_b = 6.760589e-05
+gompertz_c = 0.087247
+child_hazard = 1.837116e-01
+child_decline = 33.396598
+
+[fertility]
+hazard_by_band = [0.02681674, 0.06211487, 0.07101758, 0.07439161, 0.05078454, 0.01256060, 0.00073344]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 74.0787
+life_expectancy_0_female = 81.7992
+life_expectancy_15_male = 59.9902
+life_expectancy_15_female = 67.4338

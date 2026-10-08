@@ -1,0 +1,54 @@
+# Ghanda: a country with the real data of Ghana under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GHA"
+name = "Ghanda"
+status = "sourced"
+pop_params = "demography/real/GHA.toml"
+
+[age_pyramid]
+shares = [0.125067, 0.122643, 0.114078, 0.101844, 0.090023, 0.078202, 0.072948, 0.065960, 0.056432, 0.045898, 0.037322, 0.030435, 0.022829, 0.015079, 0.009996, 0.006093, 0.003454, 0.001355, 0.000306, 0.000035]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ghana"
+year = 2023
+
+[education]
+age_25_34 = [0.254696, 0.120524, 0.543977, 0.080804]
+age_35_64 = [0.360252, 0.089386, 0.485109, 0.065253]
+age_65_plus = [0.505589, 0.068412, 0.359804, 0.066195]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Ghana"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3392, 0.2908]
+participation_25_54 = [0.8019, 0.7166]
+participation_55_64 = [0.6771, 0.6426]
+participation_65_plus = [0.3380, 0.2528]
+unemployment_rate = 0.0283
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ghana; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.017078, 0.058472, 0.016005, 0.016298, 0.263971, 0.159514, 0.047992, 0.420669]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ghana"
+year = 2023
+
+[sectors]
+shares = [0.360072, 0.176354, 0.463574]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Ghana"
+year = 2023
+
+[households]
+sizes = [0.214800, 0.295200, 0.271000, 0.219000]
+mean_size = 3.830
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Ghana, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.5781
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Ghana"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 33787914

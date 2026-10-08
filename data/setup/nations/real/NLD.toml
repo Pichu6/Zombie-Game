@@ -1,0 +1,54 @@
+# Netherlunds: a country with the real data of Netherlands under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "NLD"
+name = "Netherlunds"
+status = "sourced"
+pop_params = "demography/real/NLD.toml"
+
+[age_pyramid]
+shares = [0.049190, 0.049912, 0.052610, 0.056391, 0.065297, 0.066764, 0.067694, 0.063306, 0.059784, 0.058576, 0.070229, 0.071420, 0.067260, 0.057944, 0.051115, 0.043468, 0.026452, 0.014989, 0.006094, 0.001505]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Netherlands"
+year = 2023
+
+[education]
+age_25_34 = [0.004929, 0.035249, 0.461456, 0.498366]
+age_35_64 = [0.014103, 0.050758, 0.559145, 0.375994]
+age_65_plus = [0.018399, 0.142223, 0.616124, 0.223254]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Netherlands"
+year = 2023
+
+[labour]
+participation_15_24 = [0.8370, 0.8300]
+participation_25_54 = [0.9270, 0.8590]
+participation_55_64 = [0.8340, 0.7010]
+participation_65_plus = [0.1508, 0.0687]
+unemployment_rate = 0.0353
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Netherlands; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.060658, 0.310640, 0.168558, 0.083552, 0.174732, 0.069470, 0.040240, 0.092150]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Netherlands"
+year = 2023
+
+[sectors]
+shares = [0.018127, 0.143319, 0.838553]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Netherlands"
+year = 2023
+
+[households]
+sizes = [0.351100, 0.455300, 0.180100, 0.013500]
+mean_size = 2.230
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Netherlands, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.9532
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Netherlands"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 18092524

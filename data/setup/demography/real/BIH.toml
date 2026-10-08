@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bosnia and Herzegovina, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 74.38/80.92 vs WPP 74.42/80.90; TFR model 1.477 vs 1.486.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bosnia and Herzegovina"
+year = 2023
+
+male_share_at_birth = 0.516207
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.040952, 0.043367, 0.047880, 0.052094, 0.053741, 0.051572, 0.053619, 0.065128, 0.076848, 0.077659, 0.066494, 0.074075, 0.080147, 0.072508, 0.056911, 0.034778, 0.026313, 0.017190, 0.006783, 0.001942]
+
+[mortality_female]
+constant_hazard = 1.000000e-09
+gompertz_b = 1.340393e-05
+gompertz_c = 0.102885
+child_hazard = 1.215160e-02
+child_decline = 2.271900
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 3.445650e-05
+gompertz_c = 0.098674
+child_hazard = 1.648158e-02
+child_decline = 2.636585
+
+[fertility]
+hazard_by_band = [0.01133077, 0.06812265, 0.10645096, 0.08736292, 0.03783856, 0.00668925, 0.00040042]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 74.3841
+life_expectancy_0_female = 80.9198
+life_expectancy_15_male = 59.9259
+life_expectancy_15_female = 66.3860

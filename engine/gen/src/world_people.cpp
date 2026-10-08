@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <functional>
 #include <numeric>
 #include <queue>
@@ -111,7 +112,29 @@ double suitability(const WorldFields& f, CellId c) {
   return detmath::exp(-t * t) * (rain / (rain + 500.0)) * detmath::exp(-std::max(0.0, f.elevation_m[c]) / 1500.0) * coast;
 }
 
-WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, std::uint64_t seed, const GroupTables& tables) {
+std::vector<RealProfile> load_real_profiles(const std::string& data_dir) {
+  std::vector<RealProfile> out;
+  const std::filesystem::path dir = std::filesystem::path(data_dir) / "setup" / "nations" / "real";
+  if (!std::filesystem::exists(dir)) return out;
+  for (const auto& e : std::filesystem::directory_iterator(dir)) {
+    if (e.path().extension() != ".toml") continue;
+    const toml::table t = toml::parse_file(e.path().string());
+    RealProfile p;
+    p.iso = t["id"].value_or(std::string{});
+    p.name = t["name"].value_or(std::string{});
+    const std::string income = t["country"]["income"].value_or(std::string{});
+    p.population = t["country"]["population"].value_or(0.0);
+    p.income = -1;
+    for (int i = 0; i < kIncomeGroups; ++i)
+      if (income == kIncomeGroupIds[static_cast<std::size_t>(i)]) p.income = i;
+    if (p.income >= 0 && p.population > 0) out.push_back(std::move(p));
+  }
+  std::sort(out.begin(), out.end(), [](const RealProfile& a, const RealProfile& b) { return a.iso < b.iso; });  // directory order is not portable
+  return out;
+}
+
+WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, std::uint64_t seed, const GroupTables& tables,
+                           const std::vector<RealProfile>& profiles) {
   const std::size_t n = g.size();
   WorldPeople w;
   w.suitability.assign(n, 0.0);
@@ -271,6 +294,30 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, std::uint64
       if (mid < edge) { c.income = i; break; }
     }
     before += c.people;
+  }
+
+  // Spec 49: each country takes the unused real profile of its group nearest in people (scaled to this planet: the
+  // profile's people times this planet's people over Earth's), largest countries first.
+  {
+    std::vector<bool> used(profiles.size(), false);
+    std::vector<std::size_t> by_people(w.countries.size());
+    std::iota(by_people.begin(), by_people.end(), std::size_t{0});
+    std::stable_sort(by_people.begin(), by_people.end(), [&](std::size_t a, std::size_t b) { return w.countries[a].people > w.countries[b].people; });
+    const double scale = w.total_people / tables.world_population;
+    for (std::size_t k : by_people) {
+      Country& c = w.countries[k];
+      int best = -1;
+      double gap = 1e300;
+      for (std::size_t i = 0; i < profiles.size(); ++i) {
+        if (used[i] || profiles[i].income != c.income) continue;
+        const double d = std::abs(detmath::log(std::max(1.0, c.people)) - detmath::log(profiles[i].population * scale));
+        if (d < gap) { gap = d; best = static_cast<int>(i); }
+      }
+      if (best < 0) continue;
+      used[static_cast<std::size_t>(best)] = true;
+      c.profile = profiles[static_cast<std::size_t>(best)].iso;
+      c.name = profiles[static_cast<std::size_t>(best)].name;
+    }
   }
 
   // Rule 6: towns by rank-size in each country's most populous cells.

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Trinidad and Tobago, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.87/76.63 vs WPP 70.38/76.68; TFR model 1.527 vs 1.532.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Trinidad and Tobago"
+year = 2023
+
+male_share_at_birth = 0.510044
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.056106, 0.060900, 0.063266, 0.062637, 0.063204, 0.067598, 0.077960, 0.090112, 0.085352, 0.070247, 0.061718, 0.061220, 0.061142, 0.048896, 0.035385, 0.020112, 0.009356, 0.003604, 0.001015, 0.000172]
+
+[mortality_female]
+constant_hazard = 4.671870e-04
+gompertz_b = 1.503547e-05
+gompertz_c = 0.104654
+child_hazard = 3.827281e-02
+child_decline = 3.141559
+
+[mortality_male]
+constant_hazard = 1.494974e-03
+gompertz_b = 3.758149e-05
+gompertz_c = 0.097136
+child_hazard = 4.565675e-01
+child_decline = 33.852753
+
+[fertility]
+hazard_by_band = [0.03719268, 0.08461248, 0.08726503, 0.06777134, 0.03855608, 0.00994514, 0.00048371]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.8675
+life_expectancy_0_female = 76.6316
+life_expectancy_15_male = 57.3326
+life_expectancy_15_female = 63.0974

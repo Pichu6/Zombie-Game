@@ -1,0 +1,54 @@
+# Mussia: a country with the real data of Russian Federation under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "RUS"
+name = "Mussia"
+status = "sourced"
+pop_params = "demography/real/RUS.toml"
+
+[age_pyramid]
+shares = [0.049537, 0.063952, 0.061661, 0.053095, 0.048812, 0.052179, 0.074855, 0.088216, 0.077816, 0.070788, 0.063632, 0.060092, 0.069321, 0.060068, 0.046599, 0.022780, 0.019045, 0.011936, 0.004408, 0.001211]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Russian Federation"
+year = 2023
+
+[education]
+age_25_34 = [0.005068, 0.011054, 0.589131, 0.394746]
+age_35_64 = [0.003829, 0.009058, 0.667906, 0.319207]
+age_65_plus = [0.003962, 0.074578, 0.697851, 0.223609]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Russian Federation"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3209, 0.2613]
+participation_25_54 = [0.9571, 0.8939]
+participation_55_64 = [0.7210, 0.5011]
+participation_65_plus = [0.0872, 0.0477]
+unemployment_rate = 0.0308
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Russian Federation; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.048294, 0.270182, 0.139873, 0.034415, 0.163162, 0.124152, 0.125361, 0.094560]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Russian Federation"
+year = 2023
+
+[sectors]
+shares = [0.054593, 0.259426, 0.685981]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Russian Federation"
+year = 2023
+
+[households]
+sizes = [0.256900, 0.510400, 0.198400, 0.034300]
+mean_size = 2.580
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Russian Federation, latest survey"
+year = 2010
+
+[settlement]
+urban_share = 0.7498
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Russian Federation"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 145440500

@@ -1,0 +1,54 @@
+# Mile: a country with the real data of Chile under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CHL"
+name = "Mile"
+status = "sourced"
+pop_params = "demography/real/CHL.toml"
+
+[age_pyramid]
+shares = [0.049841, 0.060981, 0.063021, 0.061473, 0.069277, 0.079850, 0.083857, 0.077960, 0.071031, 0.067155, 0.064541, 0.060362, 0.053718, 0.045192, 0.035718, 0.024256, 0.015413, 0.009582, 0.004886, 0.001886]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Chile"
+year = 2023
+
+[education]
+age_25_34 = [0.019819, 0.016657, 0.534286, 0.429238]
+age_35_64 = [0.051611, 0.062375, 0.594182, 0.291832]
+age_65_plus = [0.234657, 0.212965, 0.406560, 0.145819]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Chile"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3379, 0.2650]
+participation_25_54 = [0.9054, 0.7328]
+participation_55_64 = [0.8244, 0.5011]
+participation_65_plus = [0.3223, 0.1230]
+unemployment_rate = 0.0901
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Chile; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.044979, 0.168669, 0.123144, 0.052612, 0.213635, 0.122024, 0.079621, 0.195315]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Chile"
+year = 2023
+
+[sectors]
+shares = [0.062084, 0.221061, 0.716855]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Chile"
+year = 2023
+
+[households]
+sizes = [0.201720, 0.447545, 0.274727, 0.076008]
+mean_size = 3.040
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Chile, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.8882
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Chile"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 19658835

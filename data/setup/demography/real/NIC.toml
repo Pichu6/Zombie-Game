@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nicaragua, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 72.30/77.44 vs WPP 72.31/77.42; TFR model 2.192 vs 2.218.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nicaragua"
+year = 2023
+
+male_share_at_birth = 0.508600
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.096314, 0.097849, 0.097876, 0.094679, 0.090607, 0.088444, 0.083226, 0.073300, 0.063459, 0.053961, 0.044393, 0.035138, 0.026961, 0.020365, 0.015474, 0.009332, 0.005656, 0.002325, 0.000561, 0.000080]
+
+[mortality_female]
+constant_hazard = 2.705368e-04
+gompertz_b = 1.486063e-05
+gompertz_c = 0.104580
+child_hazard = 2.668259e-02
+child_decline = 2.285447
+
+[mortality_male]
+constant_hazard = 4.156838e-04
+gompertz_b = 6.116161e-05
+gompertz_c = 0.090278
+child_hazard = 4.372105e-02
+child_decline = 3.126034
+
+[fertility]
+hazard_by_band = [0.10199221, 0.13428183, 0.11508635, 0.07705797, 0.04154037, 0.01131531, 0.00103116]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 72.2987
+life_expectancy_0_female = 77.4369
+life_expectancy_15_male = 58.8501
+life_expectancy_15_female = 63.6667

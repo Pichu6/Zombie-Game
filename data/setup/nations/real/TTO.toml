@@ -1,0 +1,54 @@
+# Trinidad and Tobaga: a country with the real data of Trinidad and Tobago under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "TTO"
+name = "Trinidad and Tobaga"
+status = "sourced"
+pop_params = "demography/real/TTO.toml"
+
+[age_pyramid]
+shares = [0.056106, 0.060900, 0.063266, 0.062637, 0.063204, 0.067598, 0.077960, 0.090112, 0.085352, 0.070247, 0.061718, 0.061220, 0.061142, 0.048896, 0.035385, 0.020112, 0.009356, 0.003604, 0.001015, 0.000172]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Trinidad and Tobago"
+year = 2023
+
+[education]
+age_25_34 = [0.009130, 0.025472, 0.593536, 0.371862]
+age_35_64 = [0.043576, 0.152736, 0.547208, 0.256480]
+age_65_plus = [0.188398, 0.350497, 0.300331, 0.160773]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Trinidad and Tobago"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4198, 0.3328]
+participation_25_54 = [0.9166, 0.7125]
+participation_55_64 = [0.6135, 0.3964]
+participation_65_plus = [0.0951, 0.0425]
+unemployment_rate = 0.0336
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Trinidad and Tobago; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.113644, 0.062737, 0.133697, 0.105478, 0.143681, 0.141979, 0.064486, 0.234299]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Trinidad and Tobago"
+year = 2023
+
+[sectors]
+shares = [0.046236, 0.248002, 0.705762]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Trinidad and Tobago"
+year = 2023
+
+[households]
+sizes = [0.192100, 0.397900, 0.293600, 0.116400]
+mean_size = 3.290
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Trinidad and Tobago, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.5395
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Trinidad and Tobago"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 1502932

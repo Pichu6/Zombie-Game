@@ -1,0 +1,54 @@
+# Albonia: a country with the real data of Albania under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ALB"
+name = "Albonia"
+status = "sourced"
+pop_params = "demography/real/ALB.toml"
+
+[age_pyramid]
+shares = [0.051597, 0.059203, 0.059620, 0.061016, 0.070935, 0.082835, 0.082129, 0.067930, 0.056154, 0.054870, 0.060668, 0.063862, 0.066162, 0.056281, 0.041869, 0.028701, 0.021223, 0.010755, 0.003482, 0.000710]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Albania"
+year = 2023
+
+[education]
+age_25_34 = [0.027876, 0.008248, 0.697093, 0.266783]
+age_35_64 = [0.025999, 0.021901, 0.807745, 0.144356]
+age_65_plus = [0.051188, 0.192623, 0.656365, 0.099824]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Albania"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4388, 0.3392]
+participation_25_54 = [0.9233, 0.8263]
+participation_55_64 = [0.8572, 0.6578]
+participation_65_plus = [0.2286, 0.1092]
+unemployment_rate = 0.1067
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Albania; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.040576, 0.137116, 0.036851, 0.019890, 0.177672, 0.122300, 0.090569, 0.375024]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Albania"
+year = 2023
+
+[sectors]
+shares = [0.320386, 0.216489, 0.463125]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Albania"
+year = 2023
+
+[households]
+sizes = [0.099510, 0.480848, 0.325133, 0.094509]
+mean_size = 3.300
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Albania, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.5821
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Albania"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 2811655

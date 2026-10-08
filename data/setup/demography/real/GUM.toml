@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guam, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 73.55/81.36 vs WPP 73.44/81.42; TFR model 2.782 vs 2.781.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guam"
+year = 2023
+
+male_share_at_birth = 0.516908
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.088777, 0.089731, 0.081696, 0.071528, 0.069528, 0.070069, 0.064946, 0.057715, 0.054898, 0.056087, 0.060363, 0.059318, 0.054160, 0.043644, 0.034161, 0.021885, 0.011501, 0.006666, 0.002198, 0.001129]
+
+[mortality_female]
+constant_hazard = 1.000000e-09
+gompertz_b = 7.446354e-05
+gompertz_c = 0.077491
+child_hazard = 2.856345e-02
+child_decline = 2.479482
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 2.316094e-04
+gompertz_c = 0.068961
+child_hazard = 3.124166e-02
+child_decline = 2.337930
+
+[fertility]
+hazard_by_band = [0.03441900, 0.13392940, 0.18975806, 0.17065578, 0.08727340, 0.01770693, 0.00101477]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 73.5458
+life_expectancy_0_female = 81.3612
+life_expectancy_15_male = 59.9312
+life_expectancy_15_female = 67.4544

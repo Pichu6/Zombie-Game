@@ -1,0 +1,54 @@
+# South Koreo: a country with the real data of Republic of Korea under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "KOR"
+name = "South Koreo"
+status = "sourced"
+pop_params = "demography/real/KOR.toml"
+
+[age_pyramid]
+shares = [0.026247, 0.039009, 0.044452, 0.044675, 0.057445, 0.069645, 0.067791, 0.065158, 0.078475, 0.076115, 0.086549, 0.079656, 0.081433, 0.063526, 0.043034, 0.031606, 0.025138, 0.013444, 0.005221, 0.001382]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Republic of Korea"
+year = 2023
+
+[education]
+age_25_34 = [0.000885, 0.002542, 0.275335, 0.721238]
+age_35_64 = [0.004198, 0.020571, 0.458019, 0.517212]
+age_65_plus = [0.100584, 0.251193, 0.500611, 0.147612]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Republic of Korea"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2279, 0.3145]
+participation_25_54 = [0.8871, 0.7067]
+participation_55_64 = [0.8246, 0.6287]
+participation_65_plus = [0.4936, 0.3210]
+unemployment_rate = 0.0267
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Republic of Korea; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.016723, 0.216950, 0.174807, 0.121943, 0.092220, 0.081340, 0.105157, 0.190860]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Republic of Korea"
+year = 2023
+
+[sectors]
+shares = [0.053243, 0.239914, 0.706842]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Republic of Korea"
+year = 2023
+
+[households]
+sizes = [0.317468, 0.480952, 0.192681, 0.008899]
+mean_size = 2.340
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Republic of Korea, latest survey"
+year = 2020
+
+[settlement]
+urban_share = 0.8116
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Republic of Korea"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 51748739

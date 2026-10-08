@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Czechia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 77.00/82.67 vs WPP 77.00/82.64; TFR model 1.447 vs 1.448.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Czechia"
+year = 2023
+
+male_share_at_birth = 0.512908
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.050642, 0.052680, 0.053415, 0.052274, 0.049757, 0.054019, 0.066273, 0.067931, 0.073885, 0.085945, 0.069805, 0.062849, 0.055066, 0.059279, 0.056472, 0.045020, 0.025787, 0.012588, 0.005191, 0.001121]
+
+[mortality_female]
+constant_hazard = 1.230561e-04
+gompertz_b = 3.949060e-06
+gompertz_c = 0.116719
+child_hazard = 5.497526e-02
+child_decline = 30.223990
+
+[mortality_male]
+constant_hazard = 8.646840e-05
+gompertz_b = 3.062670e-05
+gompertz_c = 0.096599
+child_hazard = 7.138711e-02
+child_decline = 30.033980
+
+[fertility]
+hazard_by_band = [0.00601117, 0.03840176, 0.10426773, 0.10584728, 0.04830611, 0.00910833, 0.00084945]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 77.0038
+life_expectancy_0_female = 82.6699
+life_expectancy_15_male = 62.3477
+life_expectancy_15_female = 67.9713

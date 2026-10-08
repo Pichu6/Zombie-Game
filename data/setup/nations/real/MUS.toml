@@ -1,0 +1,54 @@
+# Mauritias: a country with the real data of Mauritius under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MUS"
+name = "Mauritias"
+status = "sourced"
+pop_params = "demography/real/MUS.toml"
+
+[age_pyramid]
+shares = [0.047551, 0.048259, 0.055432, 0.070045, 0.073880, 0.078988, 0.082902, 0.071787, 0.078420, 0.071430, 0.062785, 0.067142, 0.061963, 0.049805, 0.037492, 0.021514, 0.011328, 0.006207, 0.002368, 0.000704]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mauritius"
+year = 2023
+
+[education]
+age_25_34 = [0.053741, 0.146548, 0.624225, 0.175486]
+age_35_64 = [0.236269, 0.232219, 0.459532, 0.071981]
+age_65_plus = [0.455164, 0.258803, 0.250352, 0.035681]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Mauritius"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4244, 0.3411]
+participation_25_54 = [0.9335, 0.7160]
+participation_55_64 = [0.7305, 0.3117]
+participation_65_plus = [0.1114, 0.0358]
+unemployment_rate = 0.0557
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mauritius; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.060447, 0.124467, 0.121048, 0.088494, 0.215611, 0.150262, 0.068336, 0.171335]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mauritius"
+year = 2023
+
+[sectors]
+shares = [0.050717, 0.211578, 0.737705]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Mauritius"
+year = 2023
+
+[households]
+sizes = [0.099700, 0.410200, 0.402400, 0.087700]
+mean_size = 3.480
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Mauritius, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.3900
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Mauritius"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 1273588

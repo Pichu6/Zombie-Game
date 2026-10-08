@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bhutan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 71.26/74.95 vs WPP 71.31/74.97; TFR model 1.467 vs 1.462.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bhutan"
+year = 2023
+
+male_share_at_birth = 0.511719
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.061457, 0.070968, 0.082189, 0.088034, 0.092261, 0.097005, 0.105013, 0.090704, 0.075235, 0.058104, 0.046426, 0.038643, 0.030273, 0.024900, 0.017046, 0.011134, 0.006518, 0.002962, 0.000949, 0.000179]
+
+[mortality_female]
+constant_hazard = 3.664431e-04
+gompertz_b = 1.383705e-05
+gompertz_c = 0.108288
+child_hazard = 4.389699e-02
+child_decline = 2.339890
+
+[mortality_male]
+constant_hazard = 4.359120e-04
+gompertz_b = 2.918799e-05
+gompertz_c = 0.102388
+child_hazard = 6.097845e-02
+child_decline = 2.684458
+
+[fertility]
+hazard_by_band = [0.00944315, 0.06043187, 0.09862938, 0.08288786, 0.04489875, 0.01504273, 0.00269869]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 71.2643
+life_expectancy_0_female = 74.9457
+life_expectancy_15_male = 58.3887
+life_expectancy_15_female = 61.7715

@@ -72,7 +72,10 @@ zs::Place place_of_town(const WorldGrid& grid, const WorldFields& f, const World
   p.town_people = t.people;
   p.sector = people.sector_of[t.cell];
   p.country = t.country;
-  p.income = kIncomeGroupIds[static_cast<std::size_t>(people.countries[static_cast<std::size_t>(t.country)].income)];
+  const Country& country = people.countries[static_cast<std::size_t>(t.country)];
+  p.income = kIncomeGroupIds[static_cast<std::size_t>(country.income)];
+  p.profile = country.profile;  // spec 49
+  p.country_name = country.name;
   return p;
 }
 
@@ -81,7 +84,8 @@ zs::tier0::Tier0 make_world(std::uint64_t seed) {
   WorldParams wp;
   wp.seed = seed;
   const WorldFields f = generate_fields(grid, wp);
-  const WorldPeople people = populate_world(grid, f, seed, load_group_tables(zs::tier0::data_dir()));
+  const std::string data = zs::tier0::data_dir();
+  const WorldPeople people = populate_world(grid, f, seed, load_group_tables(data), load_real_profiles(data));
   const int town = choose_town(f, people, seed);
   const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
   return zs::tier0::make_run(seed, place);

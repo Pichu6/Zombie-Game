@@ -1,0 +1,54 @@
+# Greesia: a country with the real data of Greece under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GRC"
+name = "Greesia"
+status = "sourced"
+pop_params = "demography/real/GRC.toml"
+
+[age_pyramid]
+shares = [0.038834, 0.045505, 0.051529, 0.051300, 0.050923, 0.050807, 0.053175, 0.058165, 0.073319, 0.075843, 0.076533, 0.072559, 0.066678, 0.060832, 0.053947, 0.046232, 0.033941, 0.024999, 0.011579, 0.003300]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Greece"
+year = 2023
+
+[education]
+age_25_34 = [0.018771, 0.052287, 0.415406, 0.513536]
+age_35_64 = [0.020847, 0.126470, 0.481996, 0.370687]
+age_65_plus = [0.104524, 0.423809, 0.293593, 0.178074]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Greece"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2674, 0.2307]
+participation_25_54 = [0.9260, 0.7725]
+participation_55_64 = [0.7012, 0.4732]
+participation_65_plus = [0.0703, 0.0357]
+unemployment_rate = 0.1102
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Greece; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.030928, 0.222575, 0.070630, 0.109279, 0.225787, 0.096767, 0.069259, 0.174776]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Greece"
+year = 2023
+
+[sectors]
+shares = [0.114760, 0.159526, 0.725714]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Greece"
+year = 2023
+
+[households]
+sizes = [0.257400, 0.491600, 0.226400, 0.024600]
+mean_size = 2.560
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Greece, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.7877
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Greece"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 10242908

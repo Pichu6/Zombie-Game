@@ -1,0 +1,54 @@
+# Saudi Arabistan: a country with the real data of Saudi Arabia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SAU"
+name = "Saudi Arabistan"
+status = "sourced"
+pop_params = "demography/real/SAU.toml"
+
+[age_pyramid]
+shares = [0.078559, 0.083132, 0.079284, 0.071295, 0.076766, 0.105121, 0.120120, 0.110765, 0.086980, 0.060965, 0.044569, 0.032615, 0.021634, 0.011947, 0.007251, 0.004816, 0.002592, 0.001143, 0.000361, 0.000085]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Saudi Arabia"
+year = 2023
+
+[education]
+age_25_34 = [0.064475, 0.067234, 0.495531, 0.372759]
+age_35_64 = [0.206082, 0.135863, 0.392774, 0.265282]
+age_65_plus = [0.510287, 0.132552, 0.201321, 0.155839]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Saudi Arabia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4214, 0.1669]
+participation_25_54 = [0.9475, 0.4487]
+participation_55_64 = [0.7387, 0.1818]
+participation_65_plus = [0.4800, 0.0651]
+unemployment_rate = 0.0401
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Saudi Arabia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.051706, 0.205091, 0.150605, 0.061959, 0.153848, 0.080794, 0.145448, 0.150550]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Saudi Arabia"
+year = 2023
+
+[sectors]
+shares = [0.027411, 0.230570, 0.742019]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Saudi Arabia"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for Saudi Arabia)"
+year = 2011.0
+
+[settlement]
+urban_share = 0.8430
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Saudi Arabia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 33264292

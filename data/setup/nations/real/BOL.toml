@@ -1,0 +1,54 @@
+# Bolivania: a country with the real data of Bolivia (Plurinational State of) under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BOL"
+name = "Bolivania"
+status = "sourced"
+pop_params = "demography/real/BOL.toml"
+
+[age_pyramid]
+shares = [0.102165, 0.100365, 0.098894, 0.095463, 0.091295, 0.086954, 0.080864, 0.069947, 0.059939, 0.051482, 0.043235, 0.035596, 0.028296, 0.021015, 0.014672, 0.010281, 0.005604, 0.002692, 0.001007, 0.000233]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bolivia (Plurinational State of)"
+year = 2023
+
+[education]
+age_25_34 = [0.047881, 0.106121, 0.568855, 0.277143]
+age_35_64 = [0.207697, 0.168360, 0.424345, 0.199597]
+age_65_plus = [0.504869, 0.148154, 0.222700, 0.124276]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Bolivia (Plurinational State of)"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6470, 0.5671]
+participation_25_54 = [0.9533, 0.8217]
+participation_55_64 = [0.9009, 0.7740]
+participation_65_plus = [0.6473, 0.5279]
+unemployment_rate = 0.0302
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bolivia (Plurinational State of); retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.017226, 0.073341, 0.064488, 0.028541, 0.231922, 0.181581, 0.086855, 0.316047]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bolivia (Plurinational State of)"
+year = 2023
+
+[sectors]
+shares = [0.250789, 0.201135, 0.548076]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bolivia (Plurinational State of)"
+year = 2023
+
+[households]
+sizes = [0.203400, 0.348200, 0.276400, 0.172000]
+mean_size = 3.530
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Bolivia (Plurinational State of), latest survey"
+year = 2012
+
+[settlement]
+urban_share = 0.7092
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Bolivia (Plurinational State of)"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 12244160

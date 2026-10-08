@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Philippines, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.90/72.82 vs WPP 66.89/72.82; TFR model 1.917 vs 1.916.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Philippines"
+year = 2023
+
+male_share_at_birth = 0.519231
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.083576, 0.099886, 0.102613, 0.097082, 0.093524, 0.088114, 0.080723, 0.069288, 0.061873, 0.052453, 0.046452, 0.039471, 0.032322, 0.023870, 0.015481, 0.007791, 0.003672, 0.001425, 0.000337, 0.000046]
+
+[mortality_female]
+constant_hazard = 4.378330e-04
+gompertz_b = 2.865158e-05
+gompertz_c = 0.100100
+child_hazard = 3.475673e-02
+child_decline = 1.524829
+
+[mortality_male]
+constant_hazard = 3.774748e-04
+gompertz_b = 1.216670e-04
+gompertz_c = 0.085919
+child_hazard = 4.701413e-02
+child_decline = 1.667053
+
+[fertility]
+hazard_by_band = [0.03282413, 0.09255134, 0.11352309, 0.09588654, 0.05817053, 0.02006875, 0.00244639]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.9003
+life_expectancy_0_female = 72.8224
+life_expectancy_15_male = 54.3690
+life_expectancy_15_female = 59.9934

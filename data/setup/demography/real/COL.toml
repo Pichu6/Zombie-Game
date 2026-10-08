@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Colombia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 74.52/80.39 vs WPP 74.95/80.45; TFR model 1.635 vs 1.645.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Colombia"
+year = 2023
+
+male_share_at_birth = 0.511002
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.067902, 0.067133, 0.070943, 0.077074, 0.084167, 0.087879, 0.083928, 0.075918, 0.069957, 0.062118, 0.057385, 0.054741, 0.047102, 0.036220, 0.025784, 0.016805, 0.009280, 0.004029, 0.001330, 0.000306]
+
+[mortality_female]
+constant_hazard = 4.633029e-04
+gompertz_b = 3.846538e-06
+gompertz_c = 0.118010
+child_hazard = 3.284337e-02
+child_decline = 3.917376
+
+[mortality_male]
+constant_hazard = 1.403930e-03
+gompertz_b = 4.938942e-06
+gompertz_c = 0.119576
+child_hazard = 3.233367e-01
+child_decline = 33.598832
+
+[fertility]
+hazard_by_band = [0.06281918, 0.09685956, 0.08592404, 0.06062852, 0.03354067, 0.00990956, 0.00074125]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 74.5170
+life_expectancy_0_female = 80.3947
+life_expectancy_15_male = 61.6933
+life_expectancy_15_female = 66.5939

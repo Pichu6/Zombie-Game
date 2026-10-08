@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mali, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 58.88/61.74 vs WPP 59.04/61.90; TFR model 5.574 vs 5.614.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mali"
+year = 2023
+
+male_share_at_birth = 0.508116
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.174940, 0.154601, 0.135061, 0.112753, 0.089362, 0.069990, 0.058546, 0.050423, 0.042490, 0.032959, 0.024077, 0.017513, 0.013232, 0.010077, 0.007117, 0.004329, 0.001961, 0.000500, 0.000067, 0.000002]
+
+[mortality_female]
+constant_hazard = 2.777400e-03
+gompertz_b = 1.633142e-05
+gompertz_c = 0.111847
+child_hazard = 9.701435e-02
+child_decline = 1.266466
+
+[mortality_male]
+constant_hazard = 2.671239e-03
+gompertz_b = 5.727613e-05
+gompertz_c = 0.097059
+child_hazard = 1.173167e-01
+child_decline = 1.330876
+
+[fertility]
+hazard_by_band = [0.15821791, 0.32787151, 0.32664011, 0.28947258, 0.18628083, 0.08246395, 0.02560553]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 58.8800
+life_expectancy_0_female = 61.7368
+life_expectancy_15_male = 51.6714
+life_expectancy_15_female = 54.1442

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United Republic of Tanzania, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 64.22/69.81 vs WPP 64.20/69.78; TFR model 4.599 vs 4.606.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United Republic of Tanzania"
+year = 2023
+
+male_share_at_birth = 0.507632
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.162275, 0.142497, 0.122467, 0.109658, 0.092770, 0.078155, 0.064643, 0.053984, 0.044715, 0.036517, 0.027790, 0.019491, 0.014605, 0.011896, 0.008630, 0.005538, 0.002732, 0.001157, 0.000379, 0.000098]
+
+[mortality_female]
+constant_hazard = 4.249261e-04
+gompertz_b = 1.882455e-04
+gompertz_c = 0.073766
+child_hazard = 4.889394e-02
+child_decline = 1.466560
+
+[mortality_male]
+constant_hazard = 5.079341e-04
+gompertz_b = 2.696158e-04
+gompertz_c = 0.074559
+child_hazard = 6.552858e-02
+child_decline = 1.692831
+
+[fertility]
+hazard_by_band = [0.12599218, 0.25895009, 0.25612710, 0.21593364, 0.15673109, 0.07200311, 0.01672886]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 64.2218
+life_expectancy_0_female = 69.8071
+life_expectancy_15_male = 52.6228
+life_expectancy_15_female = 57.8941

@@ -1,0 +1,54 @@
+# Luxembourgia: a country with the real data of Luxembourg under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "LUX"
+name = "Luxembourgia"
+status = "sourced"
+pop_params = "demography/real/LUX.toml"
+
+[age_pyramid]
+shares = [0.051403, 0.053519, 0.053278, 0.051856, 0.057328, 0.074636, 0.080915, 0.078736, 0.076475, 0.071675, 0.070987, 0.069409, 0.058721, 0.046560, 0.036904, 0.027686, 0.019814, 0.012502, 0.005983, 0.001615]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Luxembourg"
+year = 2023
+
+[education]
+age_25_34 = [0.001292, 0.026050, 0.479440, 0.493219]
+age_35_64 = [0.001296, 0.126764, 0.502519, 0.369421]
+age_65_plus = [0.000594, 0.294036, 0.480880, 0.224490]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Luxembourg"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3793, 0.3335]
+participation_25_54 = [0.9393, 0.8690]
+participation_55_64 = [0.5343, 0.4324]
+participation_65_plus = [0.0665, 0.0249]
+unemployment_rate = 0.0518
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Luxembourg; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.043156, 0.463635, 0.152800, 0.060644, 0.097850, 0.050907, 0.040505, 0.090503]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Luxembourg"
+year = 2023
+
+[sectors]
+shares = [0.009465, 0.090028, 0.900507]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Luxembourg"
+year = 2023
+
+[households]
+sizes = [0.333400, 0.432700, 0.208800, 0.025100]
+mean_size = 2.410
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Luxembourg, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.9480
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Luxembourg"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 665098

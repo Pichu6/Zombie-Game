@@ -1,0 +1,54 @@
+# Botswano: a country with the real data of Botswana under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BWA"
+name = "Botswano"
+status = "sourced"
+pop_params = "demography/real/BWA.toml"
+
+[age_pyramid]
+shares = [0.118399, 0.105413, 0.099001, 0.099741, 0.099526, 0.100725, 0.090054, 0.068658, 0.052543, 0.041776, 0.035810, 0.028436, 0.020222, 0.015444, 0.011604, 0.006549, 0.003705, 0.001744, 0.000533, 0.000119]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Botswana"
+year = 2023
+
+[education]
+age_25_34 = [0.068220, 0.067044, 0.604117, 0.260620]
+age_35_64 = [0.160013, 0.229414, 0.413430, 0.197142]
+age_65_plus = [0.641250, 0.185546, 0.085805, 0.087398]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Botswana"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4545, 0.3872]
+participation_25_54 = [0.8960, 0.8128]
+participation_55_64 = [0.7778, 0.6047]
+participation_65_plus = [0.4235, 0.2109]
+unemployment_rate = 0.2338
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Botswana; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.063877, 0.095490, 0.059739, 0.035036, 0.206864, 0.089421, 0.045816, 0.403756]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Botswana"
+year = 2023
+
+[sectors]
+shares = [0.179989, 0.157905, 0.662107]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Botswana"
+year = 2023
+
+[households]
+sizes = [0.278900, 0.323200, 0.204800, 0.193100]
+mean_size = 3.520
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Botswana, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.6702
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Botswana"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 2480244

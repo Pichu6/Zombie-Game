@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Paraguay, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.80/76.93 vs WPP 70.89/76.95; TFR model 2.414 vs 2.422.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Paraguay"
+year = 2023
+
+male_share_at_birth = 0.512195
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.099247, 0.098098, 0.090464, 0.085156, 0.085810, 0.087458, 0.083738, 0.075469, 0.062222, 0.050218, 0.044801, 0.040849, 0.032776, 0.024079, 0.017265, 0.011624, 0.006537, 0.002890, 0.001023, 0.000275]
+
+[mortality_female]
+constant_hazard = 2.966892e-04
+gompertz_b = 2.262904e-05
+gompertz_c = 0.098937
+child_hazard = 3.009467e-02
+child_decline = 2.221906
+
+[mortality_male]
+constant_hazard = 5.939680e-04
+gompertz_b = 7.421591e-05
+gompertz_c = 0.088586
+child_hazard = 6.174171e-02
+child_decline = 4.042734
+
+[fertility]
+hazard_by_band = [0.07506090, 0.12833891, 0.13381253, 0.11148359, 0.06290204, 0.02046062, 0.00122291]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.8049
+life_expectancy_0_female = 76.9329
+life_expectancy_15_male = 57.6147
+life_expectancy_15_female = 63.3441

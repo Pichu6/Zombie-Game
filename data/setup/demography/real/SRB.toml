@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Serbia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 73.41/79.96 vs WPP 73.50/80.04; TFR model 1.497 vs 1.500.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Serbia"
+year = 2023
+
+male_share_at_birth = 0.516675
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.046505, 0.048389, 0.048609, 0.050433, 0.052124, 0.056808, 0.060769, 0.067349, 0.070863, 0.071552, 0.067650, 0.066454, 0.069110, 0.072827, 0.066243, 0.038415, 0.025947, 0.014467, 0.004424, 0.001061]
+
+[mortality_female]
+constant_hazard = 1.909409e-05
+gompertz_b = 1.952214e-05
+gompertz_c = 0.099002
+child_hazard = 8.428335e-03
+child_decline = 1.981530
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 5.428413e-05
+gompertz_c = 0.093179
+child_hazard = 1.150017e-02
+child_decline = 2.261136
+
+[fertility]
+hazard_by_band = [0.01383832, 0.05776245, 0.10191996, 0.09353378, 0.04454029, 0.00947777, 0.00076428]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 73.4150
+life_expectancy_0_female = 79.9588
+life_expectancy_15_male = 58.9018
+life_expectancy_15_female = 65.3662

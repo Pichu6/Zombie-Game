@@ -1,0 +1,54 @@
+# Tunisio: a country with the real data of Tunisia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "TUN"
+name = "Tunisio"
+status = "sourced"
+pop_params = "demography/real/TUN.toml"
+
+[age_pyramid]
+shares = [0.073929, 0.087276, 0.083144, 0.070314, 0.065588, 0.071393, 0.076580, 0.078832, 0.074009, 0.066400, 0.058423, 0.055301, 0.047149, 0.038478, 0.025253, 0.014238, 0.008365, 0.004043, 0.001124, 0.000161]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Tunisia"
+year = 2023
+
+[education]
+age_25_34 = [0.025149, 0.036298, 0.552732, 0.385820]
+age_35_64 = [0.152821, 0.309319, 0.382725, 0.155135]
+age_65_plus = [0.550390, 0.259641, 0.150383, 0.039585]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Tunisia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3136, 0.1484]
+participation_25_54 = [0.8979, 0.3972]
+participation_55_64 = [0.5861, 0.1214]
+participation_65_plus = [0.1156, 0.0171]
+unemployment_rate = 0.1511
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tunisia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.044000, 0.113979, 0.053428, 0.046449, 0.183841, 0.139876, 0.125762, 0.292665]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tunisia"
+year = 2023
+
+[sectors]
+shares = [0.128477, 0.333169, 0.538354]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tunisia"
+year = 2023
+
+[households]
+sizes = [0.062700, 0.340900, 0.447700, 0.148700]
+mean_size = 3.890
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Tunisia, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.7003
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Tunisia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 12200431

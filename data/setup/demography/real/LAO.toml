@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lao People's Democratic Republic, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.75/71.23 vs WPP 66.78/71.25; TFR model 2.409 vs 2.421.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lao People's Democratic Republic"
+year = 2023
+
+male_share_at_birth = 0.512908
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.103809, 0.103360, 0.098407, 0.095432, 0.093754, 0.089166, 0.083424, 0.073678, 0.060470, 0.049604, 0.041227, 0.034649, 0.027666, 0.019679, 0.012624, 0.007330, 0.003778, 0.001482, 0.000392, 0.000071]
+
+[mortality_female]
+constant_hazard = 6.287462e-04
+gompertz_b = 2.416247e-05
+gompertz_c = 0.103364
+child_hazard = 6.262341e-02
+child_decline = 1.961819
+
+[mortality_male]
+constant_hazard = 9.093040e-04
+gompertz_b = 5.806211e-05
+gompertz_c = 0.095172
+child_hazard = 9.044112e-02
+child_decline = 2.313828
+
+[fertility]
+hazard_by_band = [0.08809865, 0.16594153, 0.14742289, 0.08258744, 0.03928363, 0.01333657, 0.00198827]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.7485
+life_expectancy_0_female = 71.2304
+life_expectancy_15_male = 55.3604
+life_expectancy_15_female = 59.2065

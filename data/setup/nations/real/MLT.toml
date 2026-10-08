@@ -1,0 +1,54 @@
+# Maltana: a country with the real data of Malta under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MLT"
+name = "Maltana"
+status = "sourced"
+pop_params = "demography/real/MLT.toml"
+
+[age_pyramid]
+shares = [0.041799, 0.045452, 0.044266, 0.041703, 0.049053, 0.074231, 0.093965, 0.087874, 0.080187, 0.070848, 0.059132, 0.054447, 0.059041, 0.056196, 0.051747, 0.045694, 0.021713, 0.014872, 0.005999, 0.001781]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malta"
+year = 2023
+
+[education]
+age_25_34 = [0.000000, 0.002385, 0.524571, 0.473044]
+age_35_64 = [0.000000, 0.016802, 0.686969, 0.296229]
+age_65_plus = [0.022465, 0.467934, 0.387481, 0.122120]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Malta"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5833, 0.5233]
+participation_25_54 = [0.9642, 0.8369]
+participation_55_64 = [0.6976, 0.4442]
+participation_65_plus = [0.1473, 0.0646]
+unemployment_rate = 0.0348
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malta; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.114414, 0.204006, 0.130707, 0.103711, 0.189524, 0.101434, 0.060249, 0.095956]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malta"
+year = 2023
+
+[sectors]
+shares = [0.011104, 0.180199, 0.808697]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malta"
+year = 2023
+
+[households]
+sizes = [0.226423, 0.492849, 0.256026, 0.024702]
+mean_size = 2.670
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Malta, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.9563
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Malta"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 532956

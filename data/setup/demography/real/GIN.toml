@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guinea, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 59.40/61.80 vs WPP 59.52/61.90; TFR model 4.194 vs 4.218.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Guinea"
+year = 2023
+
+male_share_at_birth = 0.511002
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.152343, 0.136939, 0.123147, 0.108218, 0.095105, 0.084491, 0.069560, 0.053573, 0.040413, 0.032447, 0.027607, 0.023248, 0.018499, 0.013790, 0.009716, 0.006107, 0.003225, 0.001241, 0.000294, 0.000038]
+
+[mortality_female]
+constant_hazard = 2.938545e-03
+gompertz_b = 3.583856e-05
+gompertz_c = 0.098851
+child_hazard = 1.130167e-01
+child_decline = 1.500443
+
+[mortality_male]
+constant_hazard = 3.106662e-03
+gompertz_b = 5.451729e-05
+gompertz_c = 0.094664
+child_hazard = 1.391427e-01
+child_decline = 1.557724
+
+[fertility]
+hazard_by_band = [0.13267768, 0.24143802, 0.23870752, 0.19241111, 0.11605086, 0.05494227, 0.01571977]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 59.3983
+life_expectancy_0_female = 61.7954
+life_expectancy_15_male = 52.7358
+life_expectancy_15_female = 54.3177

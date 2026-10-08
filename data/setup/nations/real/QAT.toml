@@ -1,0 +1,54 @@
+# Qatur: a country with the real data of Qatar under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "QAT"
+name = "Qatur"
+status = "sourced"
+pop_params = "demography/real/QAT.toml"
+
+[age_pyramid]
+shares = [0.051865, 0.053399, 0.046342, 0.037349, 0.054554, 0.123007, 0.161950, 0.158878, 0.120948, 0.078034, 0.051297, 0.029575, 0.017081, 0.008373, 0.003889, 0.001981, 0.000906, 0.000404, 0.000140, 0.000029]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Qatar"
+year = 2023
+
+[education]
+age_25_34 = [0.247295, 0.197516, 0.370854, 0.184335]
+age_35_64 = [0.264212, 0.212098, 0.335986, 0.187703]
+age_65_plus = [0.390441, 0.148098, 0.219791, 0.241669]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Qatar"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6941, 0.4186]
+participation_25_54 = [0.9948, 0.7226]
+participation_55_64 = [0.9217, 0.3442]
+participation_65_plus = [0.5096, 0.0693]
+unemployment_rate = 0.0013
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Qatar; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.032824, 0.131812, 0.065242, 0.040622, 0.065524, 0.342815, 0.106154, 0.215006]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Qatar"
+year = 2023
+
+[sectors]
+shares = [0.016906, 0.389613, 0.593481]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Qatar"
+year = 2023
+
+[households]
+sizes = [0.069800, 0.305900, 0.339900, 0.284400]
+mean_size = 4.670
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Qatar, latest survey"
+year = 2012
+
+[settlement]
+urban_share = 0.9928
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Qatar"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 2979082

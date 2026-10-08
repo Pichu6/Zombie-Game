@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Brunei Darussalam, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 73.30/77.57 vs WPP 73.33/77.56; TFR model 1.751 vs 1.747.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Brunei Darussalam"
+year = 2023
+
+male_share_at_birth = 0.518304
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.068482, 0.072005, 0.069755, 0.070707, 0.079858, 0.089027, 0.090829, 0.088140, 0.081911, 0.072391, 0.062980, 0.049273, 0.039527, 0.028578, 0.018420, 0.009391, 0.005689, 0.002266, 0.000660, 0.000111]
+
+[mortality_female]
+constant_hazard = 3.028229e-04
+gompertz_b = 1.644800e-05
+gompertz_c = 0.103272
+child_hazard = 2.727745e-02
+child_decline = 3.700500
+
+[mortality_male]
+constant_hazard = 2.903233e-04
+gompertz_b = 4.215296e-05
+gompertz_c = 0.095679
+child_hazard = 2.907603e-02
+child_decline = 3.347580
+
+[fertility]
+hazard_by_band = [0.00858344, 0.04940313, 0.11876159, 0.12304008, 0.06382213, 0.01751896, 0.00124764]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 73.3014
+life_expectancy_0_female = 77.5692
+life_expectancy_15_male = 59.3200
+life_expectancy_15_female = 63.5036

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bangladesh, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 72.99/76.28 vs WPP 73.03/76.37; TFR model 2.166 vs 2.163.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bangladesh"
+year = 2023
+
+male_share_at_birth = 0.511957
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.096258, 0.091424, 0.095927, 0.099994, 0.092703, 0.087734, 0.074564, 0.074711, 0.063346, 0.050762, 0.043448, 0.036224, 0.029700, 0.023912, 0.017339, 0.011630, 0.006497, 0.002837, 0.000852, 0.000139]
+
+[mortality_female]
+constant_hazard = 5.104359e-04
+gompertz_b = 2.823182e-05
+gompertz_c = 0.094649
+child_hazard = 5.037957e-02
+child_decline = 2.183095
+
+[mortality_male]
+constant_hazard = 5.419972e-04
+gompertz_b = 5.250401e-05
+gompertz_c = 0.089700
+child_hazard = 6.373799e-02
+child_decline = 2.362693
+
+[fertility]
+hazard_by_band = [0.07831266, 0.15512711, 0.12943174, 0.07780857, 0.02991234, 0.00842555, 0.00130166]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 72.9919
+life_expectancy_0_female = 76.2787
+life_expectancy_15_male = 60.6377
+life_expectancy_15_female = 63.6561

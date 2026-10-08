@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Togo, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 62.46/62.74 vs WPP 62.54/62.92; TFR model 4.172 vs 4.192.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Togo"
+year = 2023
+
+male_share_at_birth = 0.506903
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.144257, 0.132400, 0.122168, 0.104655, 0.088710, 0.076167, 0.067326, 0.058629, 0.050704, 0.042674, 0.034133, 0.026543, 0.019995, 0.014433, 0.009485, 0.005104, 0.002013, 0.000527, 0.000070, 0.000004]
+
+[mortality_female]
+constant_hazard = 3.219605e-03
+gompertz_b = 1.748815e-05
+gompertz_c = 0.111533
+child_hazard = 8.739807e-02
+child_decline = 2.263603
+
+[mortality_male]
+constant_hazard = 2.077511e-03
+gompertz_b = 5.109754e-05
+gompertz_c = 0.098303
+child_hazard = 9.107829e-02
+child_decline = 1.659931
+
+[fertility]
+hazard_by_band = [0.08276262, 0.23235800, 0.25935519, 0.21582454, 0.13351907, 0.05529066, 0.01451179]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 62.4552
+life_expectancy_0_female = 62.7380
+life_expectancy_15_male = 52.8981
+life_expectancy_15_female = 53.0877

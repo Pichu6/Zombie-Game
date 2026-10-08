@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Indonesia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 68.98/73.26 vs WPP 69.04/73.27; TFR model 2.123 vs 2.127.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Indonesia"
+year = 2023
+
+male_share_at_birth = 0.514799
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.079479, 0.083358, 0.086510, 0.082069, 0.078058, 0.078012, 0.074840, 0.074197, 0.073161, 0.066899, 0.060376, 0.051651, 0.040905, 0.029421, 0.018654, 0.012046, 0.006854, 0.002765, 0.000659, 0.000087]
+
+[mortality_female]
+constant_hazard = 5.883930e-04
+gompertz_b = 3.166758e-05
+gompertz_c = 0.098053
+child_hazard = 4.861039e-02
+child_decline = 3.155010
+
+[mortality_male]
+constant_hazard = 5.289553e-04
+gompertz_b = 6.963073e-05
+gompertz_c = 0.092246
+child_hazard = 5.395415e-02
+child_decline = 2.734097
+
+[fertility]
+hazard_by_band = [0.02705902, 0.10586149, 0.14590529, 0.10945189, 0.05918400, 0.01716684, 0.00331466]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 68.9781
+life_expectancy_0_female = 73.2577
+life_expectancy_15_male = 55.9856
+life_expectancy_15_female = 60.0545

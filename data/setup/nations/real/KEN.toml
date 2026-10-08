@@ -1,0 +1,54 @@
+# Kenja: a country with the real data of Kenya under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "KEN"
+name = "Kenja"
+status = "sourced"
+pop_params = "demography/real/KEN.toml"
+
+[age_pyramid]
+shares = [0.127156, 0.123073, 0.124242, 0.114455, 0.097666, 0.081986, 0.072731, 0.063010, 0.050852, 0.040437, 0.032304, 0.024964, 0.017990, 0.011855, 0.007465, 0.004757, 0.002706, 0.001463, 0.000627, 0.000261]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kenya"
+year = 2023
+
+[education]
+age_25_34 = [0.244929, 0.120081, 0.528187, 0.106802]
+age_35_64 = [0.265790, 0.165246, 0.480144, 0.088820]
+age_65_plus = [0.636598, 0.141540, 0.176561, 0.045301]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Kenya"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3885, 0.3391]
+participation_25_54 = [0.9169, 0.8016]
+participation_55_64 = [0.8537, 0.8036]
+participation_65_plus = [0.6283, 0.4940]
+unemployment_rate = 0.0541
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kenya; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.062394, 0.047512, 0.052983, 0.009984, 0.092301, 0.057260, 0.059896, 0.617671]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kenya"
+year = 2023
+
+[sectors]
+shares = [0.471556, 0.121596, 0.406848]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kenya"
+year = 2023
+
+[households]
+sizes = [0.194300, 0.293800, 0.314600, 0.197300]
+mean_size = 3.750
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Kenya, latest survey"
+year = 2020
+
+[settlement]
+urban_share = 0.3163
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Kenya"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 55339003

@@ -1,0 +1,54 @@
+# Icelund: a country with the real data of Iceland under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ISL"
+name = "Icelund"
+status = "sourced"
+pop_params = "demography/real/ISL.toml"
+
+[age_pyramid]
+shares = [0.059947, 0.057227, 0.063386, 0.062723, 0.066387, 0.078963, 0.084410, 0.071710, 0.069202, 0.061854, 0.058461, 0.057405, 0.054836, 0.048803, 0.039643, 0.029567, 0.018382, 0.010677, 0.005052, 0.001362]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Iceland"
+year = 2023
+
+[education]
+age_25_34 = [0.000000, 0.000000, 0.587618, 0.412382]
+age_35_64 = [0.000000, 0.000000, 0.592493, 0.407507]
+age_65_plus = [0.000000, 0.000000, 0.698766, 0.301234]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Iceland"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7571, 0.8172]
+participation_25_54 = [0.9363, 0.8669]
+participation_55_64 = [0.8835, 0.7615]
+participation_65_plus = [0.3051, 0.1562]
+unemployment_rate = 0.0352
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Iceland; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.127492, 0.264895, 0.138617, 0.038654, 0.199394, 0.094401, 0.052909, 0.083638]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Iceland"
+year = 2023
+
+[sectors]
+shares = [0.037767, 0.182479, 0.779753]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Iceland"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for Iceland)"
+year = 2011.0
+
+[settlement]
+urban_share = 0.9415
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Iceland"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 387558

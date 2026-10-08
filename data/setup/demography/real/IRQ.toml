@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Iraq, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.39/74.04 vs WPP 70.43/74.05; TFR model 3.244 vs 3.248.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Iraq"
+year = 2023
+
+male_share_at_birth = 0.513855
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.123360, 0.125375, 0.122179, 0.103359, 0.092943, 0.083393, 0.072557, 0.060190, 0.051979, 0.045194, 0.037579, 0.029124, 0.018800, 0.013574, 0.010247, 0.005855, 0.002990, 0.001060, 0.000217, 0.000023]
+
+[mortality_female]
+constant_hazard = 4.351616e-04
+gompertz_b = 1.666251e-05
+gompertz_c = 0.106758
+child_hazard = 4.198860e-02
+child_decline = 2.270920
+
+[mortality_male]
+constant_hazard = 5.501702e-04
+gompertz_b = 3.478510e-05
+gompertz_c = 0.100651
+child_hazard = 5.781994e-02
+child_decline = 2.585873
+
+[fertility]
+hazard_by_band = [0.06118467, 0.18533221, 0.20808208, 0.15620948, 0.09527644, 0.03641904, 0.00424466]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.3900
+life_expectancy_0_female = 74.0396
+life_expectancy_15_male = 57.5844
+life_expectancy_15_female = 60.8990

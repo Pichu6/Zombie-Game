@@ -1,0 +1,54 @@
+# Singapoor: a country with the real data of Singapore under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SGP"
+name = "Singapoor"
+status = "sourced"
+pop_params = "demography/real/SGP.toml"
+
+[age_pyramid]
+shares = [0.039507, 0.038848, 0.039519, 0.064934, 0.095860, 0.103849, 0.098007, 0.081025, 0.072131, 0.064607, 0.060011, 0.056796, 0.053951, 0.046717, 0.035746, 0.021992, 0.014048, 0.007697, 0.003541, 0.001213]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Singapore"
+year = 2023
+
+[education]
+age_25_34 = [0.007418, 0.005308, 0.135452, 0.851822]
+age_35_64 = [0.046187, 0.041702, 0.254520, 0.657591]
+age_65_plus = [0.269831, 0.122250, 0.374357, 0.233562]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Singapore"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3675, 0.3619]
+participation_25_54 = [0.9465, 0.8500]
+participation_55_64 = [0.8353, 0.6114]
+participation_65_plus = [0.4102, 0.2325]
+unemployment_rate = 0.0344
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Singapore; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.164839, 0.276602, 0.194201, 0.091018, 0.114466, 0.026203, 0.058831, 0.073839]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Singapore"
+year = 2023
+
+[sectors]
+shares = [0.000796, 0.138433, 0.860771]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Singapore"
+year = 2023
+
+[households]
+sizes = [0.160484, 0.430057, 0.319868, 0.089591]
+mean_size = 2.950
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Singapore, latest survey"
+year = 2020
+
+[settlement]
+urban_share = 1.0000
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Singapore"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 5789090

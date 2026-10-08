@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Saint Vincent and the Grenadines, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 68.62/74.33 vs WPP 68.66/74.32; TFR model 1.765 vs 1.775.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Saint Vincent and the Grenadines"
+year = 2023
+
+male_share_at_birth = 0.508116
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.062876, 0.075469, 0.078114, 0.071660, 0.072844, 0.073130, 0.067189, 0.065709, 0.067929, 0.065551, 0.062669, 0.063972, 0.057241, 0.043454, 0.029410, 0.019817, 0.012534, 0.006977, 0.002793, 0.000661]
+
+[mortality_female]
+constant_hazard = 4.712720e-04
+gompertz_b = 3.786482e-05
+gompertz_c = 0.094573
+child_hazard = 4.061785e-01
+child_decline = 33.123764
+
+[mortality_male]
+constant_hazard = 2.886710e-04
+gompertz_b = 1.514954e-04
+gompertz_c = 0.081403
+child_hazard = 4.787365e-01
+child_decline = 35.669955
+
+[fertility]
+hazard_by_band = [0.04396532, 0.09143206, 0.09289978, 0.08365173, 0.05037517, 0.01581518, 0.00106174]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 68.6222
+life_expectancy_0_female = 74.3258
+life_expectancy_15_male = 55.0896
+life_expectancy_15_female = 60.8065

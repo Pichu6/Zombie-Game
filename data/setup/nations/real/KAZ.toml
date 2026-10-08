@@ -1,0 +1,54 @@
+# Kazakhstun: a country with the real data of Kazakhstan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "KAZ"
+name = "Kazakhstun"
+status = "sourced"
+pop_params = "demography/real/KAZ.toml"
+
+[age_pyramid]
+shares = [0.104589, 0.098684, 0.092118, 0.074095, 0.058629, 0.065065, 0.078014, 0.076054, 0.064656, 0.057994, 0.052467, 0.048973, 0.045580, 0.035690, 0.022904, 0.010586, 0.008052, 0.004373, 0.001182, 0.000296]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kazakhstan"
+year = 2023
+
+[education]
+age_25_34 = [0.006084, 0.004466, 0.657434, 0.332015]
+age_35_64 = [0.005069, 0.005605, 0.723820, 0.265507]
+age_65_plus = [0.023627, 0.038646, 0.742562, 0.195166]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Kazakhstan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4757, 0.4169]
+participation_25_54 = [0.9534, 0.8907]
+participation_55_64 = [0.8399, 0.6467]
+participation_65_plus = [0.0629, 0.0376]
+unemployment_rate = 0.0483
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kazakhstan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.054043, 0.174281, 0.114833, 0.042288, 0.161165, 0.092952, 0.063001, 0.297437]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kazakhstan"
+year = 2023
+
+[sectors]
+shares = [0.120248, 0.198082, 0.681669]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kazakhstan"
+year = 2023
+
+[households]
+sizes = [0.155284, 0.413859, 0.280772, 0.150085]
+mean_size = 3.440
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Kazakhstan, latest survey"
+year = 2015
+
+[settlement]
+urban_share = 0.6176
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Kazakhstan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 20330104

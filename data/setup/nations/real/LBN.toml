@@ -1,0 +1,54 @@
+# Lebanoon: a country with the real data of Lebanon under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "LBN"
+name = "Lebanoon"
+status = "sourced"
+pop_params = "demography/real/LBN.toml"
+
+[age_pyramid]
+shares = [0.078272, 0.091111, 0.097775, 0.089402, 0.081647, 0.070524, 0.061421, 0.061665, 0.060317, 0.055313, 0.055893, 0.053728, 0.044686, 0.035401, 0.026603, 0.017901, 0.010422, 0.005558, 0.001986, 0.000373]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lebanon"
+year = 2023
+
+[education]
+age_25_34 = [0.023715, 0.122139, 0.475363, 0.378784]
+age_35_64 = [0.066904, 0.210584, 0.504930, 0.217581]
+age_65_plus = [0.351401, 0.256670, 0.316123, 0.075806]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Lebanon"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4742, 0.1997]
+participation_25_54 = [0.8649, 0.3049]
+participation_55_64 = [0.6837, 0.1508]
+participation_65_plus = [0.2695, 0.0321]
+unemployment_rate = 0.1098
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lebanon; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.073251, 0.171638, 0.053060, 0.043129, 0.214951, 0.166410, 0.088800, 0.188761]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lebanon"
+year = 2023
+
+[sectors]
+shares = [0.035130, 0.201234, 0.763636]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lebanon"
+year = 2023
+
+[households]
+sizes = [0.068540, 0.282720, 0.372592, 0.276148]
+mean_size = 4.561
+source = "Lower middle income group aggregate (no household data for Lebanon)"
+year = 2017.0
+
+[settlement]
+urban_share = 0.9045
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Lebanon"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 5773492

@@ -1,0 +1,54 @@
+# Namibio: a country with the real data of Namibia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "NAM"
+name = "Namibio"
+status = "sourced"
+pop_params = "demography/real/NAM.toml"
+
+[age_pyramid]
+shares = [0.138187, 0.126395, 0.108341, 0.093364, 0.088361, 0.085515, 0.079663, 0.064210, 0.053214, 0.043836, 0.034406, 0.026797, 0.021999, 0.014484, 0.009725, 0.006194, 0.003294, 0.001427, 0.000466, 0.000123]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Namibia"
+year = 2023
+
+[education]
+age_25_34 = [0.160490, 0.237980, 0.499499, 0.102031]
+age_35_64 = [0.261683, 0.216841, 0.420960, 0.100516]
+age_65_plus = [0.634396, 0.163092, 0.131401, 0.071111]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Namibia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3282, 0.2612]
+participation_25_54 = [0.7995, 0.7102]
+participation_55_64 = [0.6595, 0.5563]
+participation_65_plus = [0.4656, 0.3641]
+unemployment_rate = 0.1915
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Namibia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.049789, 0.090617, 0.058314, 0.061087, 0.146987, 0.127012, 0.046916, 0.419278]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Namibia"
+year = 2023
+
+[sectors]
+shares = [0.229421, 0.163924, 0.606655]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Namibia"
+year = 2023
+
+[households]
+sizes = [0.174483, 0.298370, 0.255574, 0.271573]
+mean_size = 4.240
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Namibia, latest survey"
+year = 2013
+
+[settlement]
+urban_share = 0.4995
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Namibia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 2963095

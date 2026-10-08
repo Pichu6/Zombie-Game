@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Iran (Islamic Republic of), 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 75.59/79.53 vs WPP 75.79/79.63; TFR model 1.690 vs 1.695.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Iran (Islamic Republic of)"
+year = 2023
+
+male_share_at_birth = 0.512671
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.068440, 0.083804, 0.076144, 0.068318, 0.063955, 0.070153, 0.091359, 0.101051, 0.087471, 0.067198, 0.057512, 0.046230, 0.039205, 0.030444, 0.023753, 0.013719, 0.007425, 0.003032, 0.000701, 0.000087]
+
+[mortality_female]
+constant_hazard = 4.148859e-04
+gompertz_b = 1.745365e-06
+gompertz_c = 0.130374
+child_hazard = 3.618597e-02
+child_decline = 3.985874
+
+[mortality_male]
+constant_hazard = 8.796045e-04
+gompertz_b = 5.213457e-06
+gompertz_c = 0.119729
+child_hazard = 3.091861e-01
+child_decline = 32.232282
+
+[fertility]
+hazard_by_band = [0.02683352, 0.08510282, 0.10313558, 0.08283761, 0.04823374, 0.01530261, 0.00196254]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 75.5921
+life_expectancy_0_female = 79.5334
+life_expectancy_15_male = 62.2494
+life_expectancy_15_female = 65.7165

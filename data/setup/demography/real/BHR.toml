@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bahrain, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 80.60/81.93 vs WPP 80.67/81.99; TFR model 1.831 vs 1.823.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bahrain"
+year = 2023
+
+male_share_at_birth = 0.509323
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.060332, 0.067020, 0.062566, 0.054335, 0.067851, 0.093545, 0.124323, 0.131771, 0.104771, 0.075903, 0.054314, 0.039669, 0.027220, 0.017129, 0.008279, 0.005220, 0.003259, 0.001642, 0.000651, 0.000201]
+
+[mortality_female]
+constant_hazard = 1.567625e-04
+gompertz_b = 6.997853e-06
+gompertz_c = 0.109530
+child_hazard = 1.404356e-02
+child_decline = 2.627998
+
+[mortality_male]
+constant_hazard = 3.210853e-04
+gompertz_b = 4.138594e-06
+gompertz_c = 0.117889
+child_hazard = 1.812397e-01
+child_decline = 34.608512
+
+[fertility]
+hazard_by_band = [0.00758616, 0.08143086, 0.12435481, 0.10276004, 0.06108596, 0.02000241, 0.00195845]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 80.5991
+life_expectancy_0_female = 81.9316
+life_expectancy_15_male = 66.3893
+life_expectancy_15_female = 67.5643

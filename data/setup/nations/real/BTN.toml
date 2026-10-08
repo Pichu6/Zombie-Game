@@ -1,0 +1,54 @@
+# Bhutoon: a country with the real data of Bhutan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BTN"
+name = "Bhutoon"
+status = "sourced"
+pop_params = "demography/real/BTN.toml"
+
+[age_pyramid]
+shares = [0.061457, 0.070968, 0.082189, 0.088034, 0.092261, 0.097005, 0.105013, 0.090704, 0.075235, 0.058104, 0.046426, 0.038643, 0.030273, 0.024900, 0.017046, 0.011134, 0.006518, 0.002962, 0.000949, 0.000179]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bhutan"
+year = 2023
+
+[education]
+age_25_34 = [0.311004, 0.024580, 0.460010, 0.204407]
+age_35_64 = [0.664691, 0.015960, 0.227618, 0.091731]
+age_65_plus = [0.931341, 0.002423, 0.041599, 0.024637]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Bhutan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3094, 0.3127]
+participation_25_54 = [0.9004, 0.7140]
+participation_55_64 = [0.7742, 0.5674]
+participation_65_plus = [0.4013, 0.2773]
+unemployment_rate = 0.0313
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bhutan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.107460, 0.074654, 0.054953, 0.031163, 0.098968, 0.083189, 0.062739, 0.486875]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bhutan"
+year = 2023
+
+[sectors]
+shares = [0.438136, 0.152548, 0.409316]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bhutan"
+year = 2023
+
+[households]
+sizes = [0.061294, 0.250775, 0.389461, 0.298470]
+mean_size = 4.590
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Bhutan, latest survey"
+year = 2010
+
+[settlement]
+urban_share = 0.4174
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Bhutan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 786385

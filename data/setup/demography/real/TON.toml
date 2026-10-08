@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Tonga, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.36/76.42 vs WPP 69.37/76.41; TFR model 3.119 vs 3.130.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Tonga"
+year = 2023
+
+male_share_at_birth = 0.519462
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.112869, 0.120814, 0.122554, 0.110345, 0.087362, 0.060928, 0.052610, 0.053356, 0.050536, 0.045995, 0.047085, 0.039857, 0.029656, 0.023413, 0.017342, 0.012381, 0.007773, 0.003738, 0.001205, 0.000182]
+
+[mortality_female]
+constant_hazard = 4.020312e-04
+gompertz_b = 2.347244e-05
+gompertz_c = 0.099386
+child_hazard = 2.437947e-01
+child_decline = 32.653299
+
+[mortality_male]
+constant_hazard = 2.899698e-04
+gompertz_b = 1.332939e-04
+gompertz_c = 0.082881
+child_hazard = 4.737879e-02
+child_decline = 4.899421
+
+[fertility]
+hazard_by_band = [0.02540602, 0.14110970, 0.20538418, 0.19806674, 0.10753693, 0.03919333, 0.00376550]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.3553
+life_expectancy_0_female = 76.4163
+life_expectancy_15_male = 55.5435
+life_expectancy_15_female = 62.4645

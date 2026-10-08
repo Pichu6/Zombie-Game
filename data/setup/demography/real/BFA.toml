@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Burkina Faso, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 58.67/63.06 vs WPP 58.92/63.22; TFR model 4.173 vs 4.186.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Burkina Faso"
+year = 2023
+
+male_share_at_birth = 0.510284
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.145539, 0.145615, 0.132859, 0.112721, 0.092518, 0.076907, 0.065049, 0.055974, 0.046242, 0.035586, 0.027101, 0.021335, 0.016346, 0.011635, 0.007317, 0.004665, 0.001990, 0.000529, 0.000069, 0.000003]
+
+[mortality_female]
+constant_hazard = 2.635634e-03
+gompertz_b = 1.599794e-05
+gompertz_c = 0.111902
+child_hazard = 8.694360e-02
+child_decline = 1.398009
+
+[mortality_male]
+constant_hazard = 3.203365e-03
+gompertz_b = 6.295458e-05
+gompertz_c = 0.096005
+child_hazard = 1.093535e-01
+child_decline = 1.594474
+
+[fertility]
+hazard_by_band = [0.09445112, 0.22198318, 0.24468506, 0.20587912, 0.14184397, 0.06080949, 0.01665113]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 58.6695
+life_expectancy_0_female = 63.0595
+life_expectancy_15_male = 50.6345
+life_expectancy_15_female = 54.5019

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ireland, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 80.41/84.46 vs WPP 80.37/84.48; TFR model 1.590 vs 1.598.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Ireland"
+year = 2023
+
+male_share_at_birth = 0.513619
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.056478, 0.063294, 0.070399, 0.066630, 0.063780, 0.059332, 0.060270, 0.068430, 0.079820, 0.074464, 0.067288, 0.059998, 0.054400, 0.047281, 0.039748, 0.031312, 0.019604, 0.011222, 0.004826, 0.001424]
+
+[mortality_female]
+constant_hazard = 4.816070e-05
+gompertz_b = 4.578543e-06
+gompertz_c = 0.112301
+child_hazard = 7.969455e-03
+child_decline = 2.908501
+
+[mortality_male]
+constant_hazard = 1.386601e-04
+gompertz_b = 1.105336e-05
+gompertz_c = 0.105919
+child_hazard = 9.464676e-02
+child_decline = 32.299227
+
+[fertility]
+hazard_by_band = [0.00408387, 0.02559083, 0.06469347, 0.13137662, 0.09731121, 0.02120436, 0.00200395]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 80.4135
+life_expectancy_0_female = 84.4606
+life_expectancy_15_male = 65.8307
+life_expectancy_15_female = 69.7607

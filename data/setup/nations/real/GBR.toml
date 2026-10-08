@@ -1,0 +1,54 @@
+# United Kingdumb: a country with the real data of United Kingdom under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GBR"
+name = "United Kingdumb"
+status = "sourced"
+pop_params = "demography/real/GBR.toml"
+
+[age_pyramid]
+shares = [0.052292, 0.059599, 0.062201, 0.058070, 0.058166, 0.065136, 0.067824, 0.066359, 0.065135, 0.060698, 0.067110, 0.065424, 0.059604, 0.052276, 0.046977, 0.041438, 0.025912, 0.016377, 0.007237, 0.002164]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United Kingdom"
+year = 2023
+
+[education]
+age_25_34 = [0.000414, 0.000221, 0.486037, 0.513328]
+age_35_64 = [0.000351, 0.000184, 0.595015, 0.404451]
+age_65_plus = [0.000264, 0.000143, 0.734427, 0.265166]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), United Kingdom"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5505, 0.5235]
+participation_25_54 = [0.9128, 0.8309]
+participation_55_64 = [0.7191, 0.6254]
+participation_65_plus = [0.1515, 0.0858]
+unemployment_rate = 0.0403
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Kingdom; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.156311, 0.251555, 0.143505, 0.093483, 0.141507, 0.067768, 0.042361, 0.103510]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Kingdom"
+year = 2023
+
+[sectors]
+shares = [0.008767, 0.159171, 0.832062]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Kingdom"
+year = 2023
+
+[households]
+sizes = [0.305831, 0.496750, 0.175018, 0.022402]
+mean_size = 2.350
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), United Kingdom, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.8316
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), United Kingdom"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 68682962

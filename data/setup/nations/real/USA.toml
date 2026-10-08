@@ -1,0 +1,54 @@
+# United States of Amerigo: a country with the real data of United States of America under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "USA"
+name = "United States of Amerigo"
+status = "sourced"
+pop_params = "demography/real/USA.toml"
+
+[age_pyramid]
+shares = [0.054279, 0.059185, 0.062482, 0.065826, 0.065187, 0.066164, 0.071350, 0.068765, 0.066398, 0.060114, 0.061245, 0.061543, 0.063143, 0.056321, 0.045259, 0.033533, 0.020588, 0.011703, 0.005296, 0.001618]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United States of America"
+year = 2023
+
+[education]
+age_25_34 = [0.005315, 0.016680, 0.521783, 0.456221]
+age_35_64 = [0.017342, 0.027358, 0.548585, 0.406715]
+age_65_plus = [0.028606, 0.033718, 0.588988, 0.348688]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), United States of America"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5143, 0.5083]
+participation_25_54 = [0.8915, 0.7741]
+participation_55_64 = [0.7163, 0.6024]
+participation_65_plus = [0.2315, 0.1595]
+unemployment_rate = 0.0364
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United States of America; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.118599, 0.229206, 0.171785, 0.084279, 0.147410, 0.083317, 0.058417, 0.106986]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United States of America"
+year = 2023
+
+[sectors]
+shares = [0.015696, 0.193357, 0.790947]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United States of America"
+year = 2023
+
+[households]
+sizes = [0.278900, 0.494900, 0.188100, 0.038100]
+mean_size = 2.490
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), United States of America, latest survey"
+year = 2015
+
+[settlement]
+urban_share = 0.8007
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), United States of America"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 343477335

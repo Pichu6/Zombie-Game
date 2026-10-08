@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Eswatini, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 61.21/66.98 vs WPP 61.19/66.95; TFR model 2.751 vs 2.752.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Eswatini"
+year = 2023
+
+male_share_at_birth = 0.507146
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.115522, 0.112176, 0.108992, 0.104601, 0.097241, 0.086848, 0.080271, 0.071356, 0.057809, 0.042122, 0.032333, 0.027449, 0.021811, 0.017246, 0.011373, 0.007282, 0.003779, 0.001376, 0.000344, 0.000072]
+
+[mortality_female]
+constant_hazard = 6.915979e-04
+gompertz_b = 1.918515e-04
+gompertz_c = 0.075490
+child_hazard = 6.642479e-02
+child_decline = 1.554422
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 6.598452e-04
+gompertz_c = 0.062604
+child_hazard = 8.624467e-02
+child_decline = 1.711151
+
+[fertility]
+hazard_by_band = [0.07323439, 0.17085556, 0.14525271, 0.12525854, 0.07294905, 0.02644241, 0.00343176]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 61.2081
+life_expectancy_0_female = 66.9839
+life_expectancy_15_male = 50.2644
+life_expectancy_15_female = 55.8617

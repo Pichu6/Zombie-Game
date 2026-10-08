@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Angola, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 62.07/67.11 vs WPP 62.10/67.14; TFR model 5.063 vs 5.124.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Angola"
+year = 2023
+
+male_share_at_birth = 0.506660
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.169232, 0.148650, 0.127841, 0.104833, 0.084440, 0.071718, 0.063179, 0.053861, 0.043700, 0.035054, 0.028455, 0.023073, 0.017849, 0.012427, 0.007678, 0.004673, 0.002272, 0.000842, 0.000193, 0.000030]
+
+[mortality_female]
+constant_hazard = 1.083328e-03
+gompertz_b = 5.272120e-05
+gompertz_c = 0.093577
+child_hazard = 8.711013e-02
+child_decline = 1.588955
+
+[mortality_male]
+constant_hazard = 1.216149e-03
+gompertz_b = 1.527357e-04
+gompertz_c = 0.082828
+child_hazard = 1.118370e-01
+child_decline = 1.709652
+
+[fertility]
+hazard_by_band = [0.16119290, 0.27724774, 0.28195209, 0.24916587, 0.17318787, 0.07776361, 0.01571108]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 62.0746
+life_expectancy_0_female = 67.1145
+life_expectancy_15_male = 52.5794
+life_expectancy_15_female = 57.0086

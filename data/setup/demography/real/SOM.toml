@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Somalia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 56.01/61.29 vs WPP 56.35/61.39; TFR model 6.111 vs 6.132.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Somalia"
+year = 2023
+
+male_share_at_birth = 0.510763
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.185837, 0.156258, 0.124692, 0.109057, 0.091794, 0.075376, 0.054113, 0.048402, 0.039233, 0.030558, 0.024390, 0.019413, 0.015231, 0.011407, 0.007673, 0.003949, 0.001830, 0.000645, 0.000127, 0.000015]
+
+[mortality_female]
+constant_hazard = 2.839436e-03
+gompertz_b = 3.685076e-05
+gompertz_c = 0.098351
+child_hazard = 1.005717e-01
+child_decline = 1.140759
+
+[mortality_male]
+constant_hazard = 4.429559e-03
+gompertz_b = 6.817381e-05
+gompertz_c = 0.092076
+child_hazard = 1.283622e-01
+child_decline = 1.381612
+
+[fertility]
+hazard_by_band = [0.13083098, 0.37000755, 0.38866663, 0.33799380, 0.21887480, 0.10150582, 0.03022420]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 56.0098
+life_expectancy_0_female = 61.2856
+life_expectancy_15_male = 50.2263
+life_expectancy_15_female = 54.5163

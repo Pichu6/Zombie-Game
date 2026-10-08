@@ -21,6 +21,8 @@ struct Place {
   double town_people = 50'000;
   int sector = -1, country = -1;
   std::string income = "upper_middle";
+  // Spec 49: the real profile the country takes (ISO3; empty: the base country of its group) and its parody name.
+  std::string profile, country_name;
 };
 
 // Rule 3: the placeholder place used when no planet was generated.

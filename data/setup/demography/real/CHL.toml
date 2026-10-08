@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Chile, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 79.18/83.03 vs WPP 79.24/83.08; TFR model 1.172 vs 1.167.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Chile"
+year = 2023
+
+male_share_at_birth = 0.510524
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.049841, 0.060981, 0.063021, 0.061473, 0.069277, 0.079850, 0.083857, 0.077960, 0.071031, 0.067155, 0.064541, 0.060362, 0.053718, 0.045192, 0.035718, 0.024256, 0.015413, 0.009582, 0.004886, 0.001886]
+
+[mortality_female]
+constant_hazard = 1.889170e-04
+gompertz_b = 1.005911e-05
+gompertz_c = 0.103082
+child_hazard = 1.371138e-01
+child_decline = 38.871255
+
+[mortality_male]
+constant_hazard = 2.879621e-04
+gompertz_b = 3.738874e-05
+gompertz_c = 0.089577
+child_hazard = 2.077588e-01
+child_decline = 49.180137
+
+[fertility]
+hazard_by_band = [0.00658053, 0.03890326, 0.05965829, 0.06904855, 0.05231218, 0.01873711, 0.00118655]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 79.1751
+life_expectancy_0_female = 83.0260
+life_expectancy_15_male = 64.9056
+life_expectancy_15_female = 68.5612

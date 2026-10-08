@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Honduras, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.30/75.50 vs WPP 70.35/75.50; TFR model 2.498 vs 2.500.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Honduras"
+year = 2023
+
+male_share_at_birth = 0.512433
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.106891, 0.102562, 0.100508, 0.099843, 0.098887, 0.091255, 0.080966, 0.071216, 0.062160, 0.050592, 0.038757, 0.029899, 0.023536, 0.018211, 0.012727, 0.006880, 0.003352, 0.001365, 0.000345, 0.000048]
+
+[mortality_female]
+constant_hazard = 3.996879e-04
+gompertz_b = 2.189673e-05
+gompertz_c = 0.101338
+child_hazard = 3.545856e-02
+child_decline = 3.038438
+
+[mortality_male]
+constant_hazard = 4.238092e-04
+gompertz_b = 6.479297e-05
+gompertz_c = 0.092304
+child_hazard = 4.415877e-02
+child_decline = 3.001646
+
+[fertility]
+hazard_by_band = [0.08859362, 0.15047322, 0.13436625, 0.09597680, 0.05916607, 0.02245325, 0.00292033]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.2986
+life_expectancy_0_female = 75.5027
+life_expectancy_15_male = 56.8743
+life_expectancy_15_female = 61.8515

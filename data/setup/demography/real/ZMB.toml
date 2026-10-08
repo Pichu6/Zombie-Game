@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Zambia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 63.86/68.60 vs WPP 63.94/68.67; TFR model 4.087 vs 4.101.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Zambia"
+year = 2023
+
+male_share_at_birth = 0.502735
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.152079, 0.138856, 0.128616, 0.112103, 0.093891, 0.080237, 0.068834, 0.059175, 0.048427, 0.038257, 0.027594, 0.019382, 0.013561, 0.008962, 0.005382, 0.002817, 0.001267, 0.000437, 0.000105, 0.000018]
+
+[mortality_female]
+constant_hazard = 9.182130e-04
+gompertz_b = 2.324489e-05
+gompertz_c = 0.105942
+child_hazard = 6.781189e-02
+child_decline = 1.591117
+
+[mortality_male]
+constant_hazard = 1.370819e-03
+gompertz_b = 5.653205e-05
+gompertz_c = 0.097309
+child_hazard = 8.347854e-02
+child_decline = 1.595246
+
+[fertility]
+hazard_by_band = [0.12934337, 0.22408559, 0.21684399, 0.19045216, 0.13255635, 0.05702591, 0.00929895]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 63.8635
+life_expectancy_0_female = 68.6038
+life_expectancy_15_male = 53.6173
+life_expectancy_15_female = 57.5064

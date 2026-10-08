@@ -1,0 +1,54 @@
+# Kyrgyzstun: a country with the real data of Kyrgyzstan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "KGZ"
+name = "Kyrgyzstun"
+status = "sourced"
+pop_params = "demography/real/KGZ.toml"
+
+[age_pyramid]
+shares = [0.111346, 0.112652, 0.102719, 0.082641, 0.073856, 0.077854, 0.079075, 0.070720, 0.058159, 0.050854, 0.046310, 0.042152, 0.037390, 0.025619, 0.015594, 0.006052, 0.004237, 0.002283, 0.000447, 0.000039]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kyrgyzstan"
+year = 2023
+
+[education]
+age_25_34 = [0.006528, 0.007974, 0.798166, 0.187332]
+age_35_64 = [0.003804, 0.007482, 0.824172, 0.164542]
+age_65_plus = [0.032302, 0.041514, 0.749175, 0.177009]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Kyrgyzstan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4165, 0.2035]
+participation_25_54 = [0.8886, 0.5768]
+participation_55_64 = [0.6945, 0.4483]
+participation_65_plus = [0.2880, 0.1166]
+unemployment_rate = 0.0350
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kyrgyzstan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.024216, 0.126429, 0.062211, 0.021121, 0.199342, 0.174307, 0.112087, 0.280287]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kyrgyzstan"
+year = 2023
+
+[sectors]
+shares = [0.167710, 0.260019, 0.572272]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Kyrgyzstan"
+year = 2023
+
+[households]
+sizes = [0.123400, 0.313100, 0.313800, 0.249700]
+mean_size = 4.050
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Kyrgyzstan, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.3471
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Kyrgyzstan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 7073516

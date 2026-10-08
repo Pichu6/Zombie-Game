@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nigeria, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 54.04/54.58 vs WPP 54.18/54.74; TFR model 4.462 vs 4.482.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nigeria"
+year = 2023
+
+male_share_at_birth = 0.509323
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.147122, 0.139421, 0.128379, 0.110990, 0.092224, 0.075740, 0.063655, 0.054735, 0.047639, 0.038830, 0.029826, 0.023226, 0.017931, 0.013126, 0.008643, 0.005183, 0.002396, 0.000771, 0.000147, 0.000016]
+
+[mortality_female]
+constant_hazard = 5.740798e-03
+gompertz_b = 4.789811e-05
+gompertz_c = 0.097688
+child_hazard = 1.248302e-01
+child_decline = 1.683292
+
+[mortality_male]
+constant_hazard = 4.946807e-03
+gompertz_b = 8.308359e-05
+gompertz_c = 0.091250
+child_hazard = 1.443486e-01
+child_decline = 1.575922
+
+[fertility]
+hazard_by_band = [0.09368688, 0.24625896, 0.27053065, 0.23150781, 0.14452519, 0.06493219, 0.01977514]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 54.0366
+life_expectancy_0_female = 54.5802
+life_expectancy_15_male = 48.2914
+life_expectancy_15_female = 48.4429

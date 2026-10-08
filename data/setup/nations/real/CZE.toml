@@ -1,0 +1,54 @@
+# Czechoria: a country with the real data of Czechia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CZE"
+name = "Czechoria"
+status = "sourced"
+pop_params = "demography/real/CZE.toml"
+
+[age_pyramid]
+shares = [0.050642, 0.052680, 0.053415, 0.052274, 0.049757, 0.054019, 0.066273, 0.067931, 0.073885, 0.085945, 0.069805, 0.062849, 0.055066, 0.059279, 0.056472, 0.045020, 0.025787, 0.012588, 0.005191, 0.001121]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Czechia"
+year = 2023
+
+[education]
+age_25_34 = [0.003487, 0.001687, 0.668466, 0.326359]
+age_35_64 = [0.005078, 0.002208, 0.760785, 0.231929]
+age_65_plus = [0.005005, 0.003858, 0.832079, 0.159058]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Czechia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3192, 0.2385]
+participation_25_54 = [0.9639, 0.8291]
+participation_55_64 = [0.8024, 0.7117]
+participation_65_plus = [0.1069, 0.0597]
+unemployment_rate = 0.0258
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Czechia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.051512, 0.195022, 0.166045, 0.069037, 0.152928, 0.165129, 0.134338, 0.065988]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Czechia"
+year = 2023
+
+[sectors]
+shares = [0.029076, 0.365052, 0.605872]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Czechia"
+year = 2023
+
+[households]
+sizes = [0.325067, 0.472153, 0.185381, 0.017398]
+mean_size = 2.340
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Czechia, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.7274
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Czechia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 10809716

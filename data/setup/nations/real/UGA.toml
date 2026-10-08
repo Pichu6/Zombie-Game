@@ -1,0 +1,54 @@
+# Ugando: a country with the real data of Uganda under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "UGA"
+name = "Ugando"
+status = "sourced"
+pop_params = "demography/real/UGA.toml"
+
+[age_pyramid]
+shares = [0.163151, 0.144517, 0.131713, 0.116951, 0.100892, 0.084542, 0.066841, 0.049727, 0.036770, 0.029265, 0.023720, 0.017757, 0.012647, 0.008865, 0.005988, 0.003193, 0.001824, 0.001049, 0.000444, 0.000143]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Uganda"
+year = 2023
+
+[education]
+age_25_34 = [0.404635, 0.262111, 0.193431, 0.139823]
+age_35_64 = [0.549790, 0.240753, 0.117628, 0.091829]
+age_65_plus = [0.748079, 0.163948, 0.043720, 0.044253]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Uganda"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7410, 0.6602]
+participation_25_54 = [0.9407, 0.8403]
+participation_55_64 = [0.8814, 0.8216]
+participation_65_plus = [0.5864, 0.4841]
+unemployment_rate = 0.0275
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uganda; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.005655, 0.029906, 0.017225, 0.003640, 0.155666, 0.067744, 0.038592, 0.681571]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uganda"
+year = 2023
+
+[sectors]
+shares = [0.658927, 0.071840, 0.269233]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Uganda"
+year = 2023
+
+[households]
+sizes = [0.131700, 0.219600, 0.265700, 0.383000]
+mean_size = 4.870
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Uganda, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.3061
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Uganda"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 48656601

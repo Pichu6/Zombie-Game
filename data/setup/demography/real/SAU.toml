@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Saudi Arabia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 77.01/81.14 vs WPP 77.10/81.16; TFR model 2.288 vs 2.280.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Saudi Arabia"
+year = 2023
+
+male_share_at_birth = 0.512433
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.078559, 0.083132, 0.079284, 0.071295, 0.076766, 0.105121, 0.120120, 0.110765, 0.086980, 0.060965, 0.044569, 0.032615, 0.021634, 0.011947, 0.007251, 0.004816, 0.002592, 0.001143, 0.000361, 0.000085]
+
+[mortality_female]
+constant_hazard = 2.065704e-04
+gompertz_b = 5.805902e-06
+gompertz_c = 0.113069
+child_hazard = 1.344762e-02
+child_decline = 2.676993
+
+[mortality_male]
+constant_hazard = 6.079889e-04
+gompertz_b = 1.061549e-05
+gompertz_c = 0.109256
+child_hazard = 1.568437e-01
+child_decline = 33.918258
+
+[fertility]
+hazard_by_band = [0.01122568, 0.09875802, 0.16242262, 0.12712511, 0.07376213, 0.03030999, 0.00528411]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 77.0124
+life_expectancy_0_female = 81.1377
+life_expectancy_15_male = 63.0371
+life_expectancy_15_female = 66.7908

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Djibouti, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 63.40/68.42 vs WPP 63.53/68.51; TFR model 2.609 vs 2.609.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Djibouti"
+year = 2023
+
+male_share_at_birth = 0.509082
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.099316, 0.098073, 0.098357, 0.100573, 0.096781, 0.085231, 0.077853, 0.068472, 0.062310, 0.056314, 0.046723, 0.035975, 0.026662, 0.018957, 0.013537, 0.008719, 0.004233, 0.001525, 0.000346, 0.000043]
+
+[mortality_female]
+constant_hazard = 1.757050e-03
+gompertz_b = 2.551408e-05
+gompertz_c = 0.101511
+child_hazard = 6.807452e-02
+child_decline = 1.818508
+
+[mortality_male]
+constant_hazard = 2.742328e-03
+gompertz_b = 4.992422e-05
+gompertz_c = 0.095335
+child_hazard = 9.378188e-02
+child_decline = 2.200578
+
+[fertility]
+hazard_by_band = [0.01929979, 0.06837286, 0.14387816, 0.17891986, 0.12902726, 0.04092661, 0.00694437]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 63.4048
+life_expectancy_0_female = 68.4228
+life_expectancy_15_male = 53.7097
+life_expectancy_15_female = 57.7661

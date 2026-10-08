@@ -1,0 +1,54 @@
+# Haitee: a country with the real data of Haiti under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "HTI"
+name = "Haitee"
+status = "sourced"
+pop_params = "demography/real/HTI.toml"
+
+[age_pyramid]
+shares = [0.106171, 0.105538, 0.104013, 0.099243, 0.093936, 0.087443, 0.080963, 0.069989, 0.058779, 0.049149, 0.040033, 0.032708, 0.025852, 0.019504, 0.013251, 0.007959, 0.003903, 0.001313, 0.000235, 0.000016]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Haiti"
+year = 2023
+
+[education]
+age_25_34 = [0.414731, 0.117742, 0.449482, 0.018045]
+age_35_64 = [0.493850, 0.146901, 0.341748, 0.017501]
+age_65_plus = [0.808175, 0.072457, 0.111852, 0.007516]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Haiti"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3914, 0.2963]
+participation_25_54 = [0.8477, 0.7589]
+participation_55_64 = [0.8059, 0.6836]
+participation_65_plus = [0.6012, 0.3525]
+unemployment_rate = 0.1446
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Haiti; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.001015, 0.045985, 0.049915, 0.014380, 0.254241, 0.097677, 0.017558, 0.519229]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Haiti"
+year = 2023
+
+[sectors]
+shares = [0.466745, 0.091131, 0.442124]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Haiti"
+year = 2023
+
+[households]
+sizes = [0.094300, 0.311000, 0.329300, 0.265400]
+mean_size = 4.290
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Haiti, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.5445
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Haiti"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 11637398

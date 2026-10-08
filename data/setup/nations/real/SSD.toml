@@ -1,0 +1,54 @@
+# South Sudon: a country with the real data of South Sudan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SSD"
+name = "South Sudon"
+status = "sourced"
+pop_params = "demography/real/SSD.toml"
+
+[age_pyramid]
+shares = [0.129199, 0.126672, 0.142645, 0.125637, 0.097129, 0.062368, 0.051603, 0.048234, 0.054321, 0.048482, 0.038000, 0.027133, 0.019453, 0.013253, 0.008113, 0.004746, 0.002203, 0.000698, 0.000104, 0.000007]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), South Sudan"
+year = 2023
+
+[education]
+age_25_34 = [0.587320, 0.190974, 0.184193, 0.037513]
+age_35_64 = [0.741553, 0.115176, 0.115002, 0.028268]
+age_65_plus = [0.871409, 0.067702, 0.042843, 0.018046]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), South Sudan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6195, 0.6355]
+participation_25_54 = [0.8659, 0.7808]
+participation_55_64 = [0.8850, 0.7131]
+participation_65_plus = [0.7299, 0.4201]
+unemployment_rate = 0.1237
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), South Sudan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.015378, 0.040032, 0.010262, 0.000999, 0.208526, 0.000999, 0.000999, 0.722805]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), South Sudan"
+year = 2023
+
+[sectors]
+shares = [0.637605, 0.016720, 0.345675]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), South Sudan"
+year = 2023
+
+[households]
+sizes = [0.031500, 0.145600, 0.293700, 0.529200]
+mean_size = 5.980
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), South Sudan, latest survey"
+year = 2010
+
+[settlement]
+urban_share = 0.2107
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), South Sudan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 11483374

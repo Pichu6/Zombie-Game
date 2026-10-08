@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Puerto Rico, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 78.08/85.20 vs WPP 78.03/85.24; TFR model 0.943 vs 0.941.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Puerto Rico"
+year = 2023
+
+male_share_at_birth = 0.512671
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.030168, 0.039736, 0.050145, 0.058449, 0.065158, 0.062033, 0.058077, 0.056773, 0.062488, 0.065100, 0.067718, 0.070864, 0.070853, 0.066906, 0.059634, 0.050102, 0.033528, 0.019689, 0.008921, 0.003658]
+
+[mortality_female]
+constant_hazard = 5.790305e-05
+gompertz_b = 6.696110e-06
+gompertz_c = 0.105873
+child_hazard = 1.209675e-02
+child_decline = 2.233261
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 6.326988e-05
+gompertz_c = 0.084342
+child_hazard = 1.486338e-02
+child_decline = 2.527266
+
+[fertility]
+hazard_by_band = [0.01425562, 0.05883836, 0.05839737, 0.04094497, 0.02076394, 0.00396445, 0.00012607]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 78.0757
+life_expectancy_0_female = 85.1977
+life_expectancy_15_male = 63.6666
+life_expectancy_15_female = 70.7447

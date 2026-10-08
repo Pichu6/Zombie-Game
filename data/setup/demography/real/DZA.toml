@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Algeria, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 74.81/77.61 vs WPP 74.90/77.70; TFR model 2.765 vs 2.766.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Algeria"
+year = 2023
+
+male_share_at_birth = 0.511241
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.102962, 0.108364, 0.095067, 0.075086, 0.061667, 0.068716, 0.077119, 0.080590, 0.075195, 0.062088, 0.052529, 0.043475, 0.033373, 0.025743, 0.018228, 0.010017, 0.006040, 0.002812, 0.000804, 0.000125]
+
+[mortality_female]
+constant_hazard = 2.749519e-04
+gompertz_b = 6.080427e-06
+gompertz_c = 0.116118
+child_hazard = 3.835209e-02
+child_decline = 2.089469
+
+[mortality_male]
+constant_hazard = 4.060063e-04
+gompertz_b = 7.485380e-06
+gompertz_c = 0.116998
+child_hazard = 5.080158e-02
+child_decline = 2.429049
+
+[fertility]
+hazard_by_band = [0.00876625, 0.08638576, 0.17404679, 0.17350114, 0.13366564, 0.04535095, 0.00662402]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 74.8055
+life_expectancy_0_female = 77.6070
+life_expectancy_15_male = 61.8192
+life_expectancy_15_female = 64.3487

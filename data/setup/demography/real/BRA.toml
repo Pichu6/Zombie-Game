@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Brazil, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 72.53/78.98 vs WPP 72.76/78.98; TFR model 1.612 vs 1.619.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Brazil"
+year = 2023
+
+male_share_at_birth = 0.511002
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.063279, 0.067691, 0.068389, 0.071363, 0.075969, 0.077465, 0.076755, 0.079643, 0.077401, 0.068837, 0.061011, 0.056188, 0.049673, 0.039469, 0.029239, 0.018740, 0.011296, 0.005389, 0.001820, 0.000383]
+
+[mortality_female]
+constant_hazard = 3.567298e-04
+gompertz_b = 1.062295e-05
+gompertz_c = 0.106660
+child_hazard = 4.260962e-02
+child_decline = 4.085315
+
+[mortality_male]
+constant_hazard = 1.043903e-03
+gompertz_b = 4.300054e-05
+gompertz_c = 0.092858
+child_hazard = 4.245135e-01
+child_decline = 34.024928
+
+[fertility]
+hazard_by_band = [0.04438247, 0.08552037, 0.08686372, 0.07063585, 0.04313566, 0.01295813, 0.00078360]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 72.5292
+life_expectancy_0_female = 78.9786
+life_expectancy_15_male = 59.5720
+life_expectancy_15_female = 65.2199

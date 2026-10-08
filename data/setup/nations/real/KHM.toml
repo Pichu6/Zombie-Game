@@ -1,0 +1,54 @@
+# Kombodia: a country with the real data of Cambodia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "KHM"
+name = "Kombodia"
+status = "sourced"
+pop_params = "demography/real/KHM.toml"
+
+[age_pyramid]
+shares = [0.104241, 0.101050, 0.095814, 0.092155, 0.079062, 0.077221, 0.082243, 0.076905, 0.068859, 0.045054, 0.043722, 0.040238, 0.033823, 0.024668, 0.017200, 0.009962, 0.005175, 0.002043, 0.000506, 0.000057]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cambodia"
+year = 2023
+
+[education]
+age_25_34 = [0.354543, 0.256312, 0.345061, 0.044084]
+age_35_64 = [0.465759, 0.262324, 0.247779, 0.024137]
+age_65_plus = [0.698834, 0.206727, 0.085094, 0.009346]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Cambodia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7334, 0.6828]
+participation_25_54 = [0.9807, 0.8913]
+participation_55_64 = [0.8901, 0.7265]
+participation_65_plus = [0.5559, 0.3743]
+unemployment_rate = 0.0026
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cambodia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.014380, 0.034806, 0.027201, 0.025852, 0.213322, 0.232455, 0.043149, 0.408835]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cambodia"
+year = 2023
+
+[sectors]
+shares = [0.353046, 0.275630, 0.371324]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cambodia"
+year = 2023
+
+[households]
+sizes = [0.033700, 0.256500, 0.430800, 0.279000]
+mean_size = 4.610
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Cambodia, latest survey"
+year = 2014
+
+[settlement]
+urban_share = 0.4063
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Cambodia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 17423880

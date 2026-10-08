@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Côte d'Ivoire, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 60.01/64.15 vs WPP 60.02/64.13; TFR model 4.262 vs 4.283.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Côte d'Ivoire"
+year = 2023
+
+male_share_at_birth = 0.507389
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.147401, 0.142135, 0.123229, 0.104331, 0.086115, 0.072730, 0.069946, 0.064708, 0.053863, 0.041223, 0.029903, 0.022339, 0.016395, 0.011148, 0.007059, 0.004135, 0.002146, 0.000866, 0.000260, 0.000068]
+
+[mortality_female]
+constant_hazard = 7.967002e-04
+gompertz_b = 2.431503e-04
+gompertz_c = 0.073921
+child_hazard = 9.222793e-02
+child_decline = 1.654838
+
+[mortality_male]
+constant_hazard = 9.039456e-04
+gompertz_b = 3.303742e-04
+gompertz_c = 0.072852
+child_hazard = 1.223943e-01
+child_decline = 1.708080
+
+[fertility]
+hazard_by_band = [0.10036598, 0.22876044, 0.24663958, 0.21394694, 0.14623672, 0.06337323, 0.01246561]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 60.0117
+life_expectancy_0_female = 64.1516
+life_expectancy_15_male = 50.7138
+life_expectancy_15_female = 53.9194

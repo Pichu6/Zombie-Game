@@ -1,0 +1,54 @@
+# Croatica: a country with the real data of Croatia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "HRV"
+name = "Croatica"
+status = "sourced"
+pop_params = "demography/real/HRV.toml"
+
+[age_pyramid]
+shares = [0.043326, 0.045544, 0.052516, 0.051861, 0.051244, 0.055153, 0.055621, 0.063888, 0.070147, 0.069231, 0.067731, 0.072192, 0.073391, 0.071185, 0.059444, 0.039720, 0.030621, 0.018369, 0.007151, 0.001663]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Croatia"
+year = 2023
+
+[education]
+age_25_34 = [0.004309, 0.001740, 0.672922, 0.321029]
+age_35_64 = [0.006411, 0.009990, 0.757287, 0.226313]
+age_65_plus = [0.036558, 0.120627, 0.684215, 0.158601]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Croatia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3735, 0.2486]
+participation_25_54 = [0.8869, 0.8393]
+participation_55_64 = [0.5837, 0.5005]
+participation_65_plus = [0.0520, 0.0242]
+unemployment_rate = 0.0612
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Croatia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.060794, 0.208745, 0.136078, 0.086388, 0.185952, 0.122199, 0.096287, 0.103557]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Croatia"
+year = 2023
+
+[sectors]
+shares = [0.046600, 0.274428, 0.678972]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Croatia"
+year = 2023
+
+[households]
+sizes = [0.245600, 0.444300, 0.252800, 0.057300]
+mean_size = 2.800
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Croatia, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.5724
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Croatia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 3896023

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), South Africa, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 62.54/69.63 vs WPP 62.61/69.60; TFR model 2.211 vs 2.216.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), South Africa"
+year = 2023
+
+male_share_at_birth = 0.509804
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.093143, 0.082935, 0.084771, 0.082781, 0.081503, 0.089175, 0.090305, 0.084367, 0.071015, 0.054762, 0.045920, 0.039557, 0.034615, 0.026395, 0.017686, 0.009417, 0.006038, 0.003463, 0.001633, 0.000520]
+
+[mortality_female]
+constant_hazard = 4.070220e-04
+gompertz_b = 2.081878e-04
+gompertz_c = 0.072534
+child_hazard = 5.135203e-02
+child_decline = 1.618010
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 6.401364e-04
+gompertz_c = 0.062498
+child_hazard = 5.948843e-02
+child_decline = 1.593781
+
+[fertility]
+hazard_by_band = [0.05405605, 0.12428539, 0.11779076, 0.09370805, 0.06580400, 0.02473327, 0.00297240]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 62.5361
+life_expectancy_0_female = 69.6327
+life_expectancy_15_male = 50.7930
+life_expectancy_15_female = 57.6119

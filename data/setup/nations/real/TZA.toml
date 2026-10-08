@@ -1,0 +1,54 @@
+# Tanzanica: a country with the real data of United Republic of Tanzania under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "TZA"
+name = "Tanzanica"
+status = "sourced"
+pop_params = "demography/real/TZA.toml"
+
+[age_pyramid]
+shares = [0.162275, 0.142497, 0.122467, 0.109658, 0.092770, 0.078155, 0.064643, 0.053984, 0.044715, 0.036517, 0.027790, 0.019491, 0.014605, 0.011896, 0.008630, 0.005538, 0.002732, 0.001157, 0.000379, 0.000098]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United Republic of Tanzania"
+year = 2023
+
+[education]
+age_25_34 = [0.224732, 0.467278, 0.228724, 0.079265]
+age_35_64 = [0.298426, 0.566127, 0.102083, 0.033364]
+age_65_plus = [0.684132, 0.250561, 0.053548, 0.011758]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), United Republic of Tanzania"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7224, 0.6948]
+participation_25_54 = [0.9795, 0.8980]
+participation_55_64 = [0.9732, 0.8493]
+participation_65_plus = [0.6983, 0.5498]
+unemployment_rate = 0.0157
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Republic of Tanzania; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.003747, 0.009654, 0.020112, 0.004115, 0.112976, 0.077627, 0.025468, 0.746301]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Republic of Tanzania"
+year = 2023
+
+[sectors]
+shares = [0.651616, 0.080445, 0.267938]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Republic of Tanzania"
+year = 2023
+
+[households]
+sizes = [0.096310, 0.257726, 0.299930, 0.346035]
+mean_size = 4.850
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), United Republic of Tanzania, latest survey"
+year = 2015
+
+[settlement]
+urban_share = 0.3547
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), United Republic of Tanzania"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 66617606

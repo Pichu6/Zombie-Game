@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Turkmenistan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.87/72.80 vs WPP 66.87/72.84; TFR model 2.700 vs 2.690.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Turkmenistan"
+year = 2023
+
+male_share_at_birth = 0.516207
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.109230, 0.111541, 0.095933, 0.070172, 0.074118, 0.089986, 0.086528, 0.074506, 0.061306, 0.056679, 0.052379, 0.041538, 0.033358, 0.021061, 0.011657, 0.004705, 0.003177, 0.001649, 0.000410, 0.000065]
+
+[mortality_female]
+constant_hazard = 3.652478e-04
+gompertz_b = 1.618015e-05
+gompertz_c = 0.107908
+child_hazard = 5.729574e-02
+child_decline = 1.762901
+
+[mortality_male]
+constant_hazard = 2.795839e-04
+gompertz_b = 8.521537e-05
+gompertz_c = 0.090691
+child_hazard = 7.882505e-02
+child_decline = 1.793245
+
+[fertility]
+hazard_by_band = [0.02163819, 0.19910312, 0.20983108, 0.13201280, 0.05201004, 0.01129606, 0.00051684]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.8684
+life_expectancy_0_female = 72.7994
+life_expectancy_15_male = 55.2768
+life_expectancy_15_female = 60.5977

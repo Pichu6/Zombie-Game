@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mauritius, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 71.91/78.20 vs WPP 71.93/78.18; TFR model 1.242 vs 1.241.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mauritius"
+year = 2023
+
+male_share_at_birth = 0.508600
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.047551, 0.048259, 0.055432, 0.070045, 0.073880, 0.078988, 0.082902, 0.071787, 0.078420, 0.071430, 0.062785, 0.067142, 0.061963, 0.049805, 0.037492, 0.021514, 0.011328, 0.006207, 0.002368, 0.000704]
+
+[mortality_female]
+constant_hazard = 1.118621e-04
+gompertz_b = 3.529557e-05
+gompertz_c = 0.091620
+child_hazard = 3.411307e-02
+child_decline = 2.718316
+
+[mortality_male]
+constant_hazard = 3.646518e-05
+gompertz_b = 1.880390e-04
+gompertz_c = 0.074182
+child_hazard = 6.127547e-02
+child_decline = 4.376024
+
+[fertility]
+hazard_by_band = [0.02012413, 0.04775160, 0.07320192, 0.07626669, 0.03683116, 0.00790072, 0.00052768]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 71.9057
+life_expectancy_0_female = 78.1952
+life_expectancy_15_male = 58.2850
+life_expectancy_15_female = 64.3782

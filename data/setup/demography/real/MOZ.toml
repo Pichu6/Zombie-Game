@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mozambique, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 60.28/66.46 vs WPP 60.30/66.54; TFR model 4.717 vs 4.763.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Mozambique"
+year = 2023
+
+male_share_at_birth = 0.504950
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.168532, 0.147930, 0.131087, 0.108023, 0.093475, 0.077945, 0.063908, 0.051434, 0.040898, 0.031443, 0.025661, 0.017951, 0.014047, 0.011981, 0.008481, 0.004550, 0.001944, 0.000574, 0.000120, 0.000017]
+
+[mortality_female]
+constant_hazard = 1.169736e-03
+gompertz_b = 2.835816e-05
+gompertz_c = 0.104036
+child_hazard = 9.454223e-02
+child_decline = 1.701340
+
+[mortality_male]
+constant_hazard = 1.116690e-03
+gompertz_b = 2.326731e-04
+gompertz_c = 0.078814
+child_hazard = 1.180493e-01
+child_decline = 1.832229
+
+[fertility]
+hazard_by_band = [0.17793147, 0.27177973, 0.24368129, 0.19789898, 0.13735943, 0.07327959, 0.02742246]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 60.2844
+life_expectancy_0_female = 66.4607
+life_expectancy_15_male = 50.5970
+life_expectancy_15_female = 56.3996

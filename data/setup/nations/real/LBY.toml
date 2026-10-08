@@ -1,0 +1,54 @@
+# Libbya: a country with the real data of Libya under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "LBY"
+name = "Libbya"
+status = "sourced"
+pop_params = "demography/real/LBY.toml"
+
+[age_pyramid]
+shares = [0.088184, 0.095236, 0.096191, 0.091463, 0.080972, 0.074060, 0.071531, 0.073315, 0.076935, 0.071366, 0.059622, 0.042432, 0.029910, 0.017822, 0.013610, 0.008843, 0.005316, 0.002409, 0.000675, 0.000105]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Libya"
+year = 2023
+
+[education]
+age_25_34 = [0.162034, 0.085660, 0.452467, 0.299839]
+age_35_64 = [0.350150, 0.171145, 0.327133, 0.151573]
+age_65_plus = [0.663911, 0.140422, 0.131357, 0.064310]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Libya"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2305, 0.1032]
+participation_25_54 = [0.8619, 0.5115]
+participation_55_64 = [0.5815, 0.0958]
+participation_65_plus = [0.0529, 0.0039]
+unemployment_rate = 0.1871
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Libya; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.055366, 0.113005, 0.101480, 0.069118, 0.144906, 0.165616, 0.124907, 0.225601]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Libya"
+year = 2023
+
+[sectors]
+shares = [0.105958, 0.182845, 0.711197]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Libya"
+year = 2023
+
+[households]
+sizes = [0.104461, 0.440665, 0.347451, 0.107423]
+mean_size = 3.503
+source = "Upper middle income group aggregate (no household data for Libya)"
+year = 2016.0
+
+[settlement]
+urban_share = 0.8786
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Libya"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 7305659

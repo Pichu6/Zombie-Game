@@ -1,0 +1,54 @@
+# Malawee: a country with the real data of Malawi under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MWI"
+name = "Malawee"
+status = "sourced"
+pop_params = "demography/real/MWI.toml"
+
+[age_pyramid]
+shares = [0.145932, 0.135666, 0.131563, 0.118112, 0.096979, 0.080932, 0.068603, 0.058597, 0.048483, 0.033299, 0.023597, 0.018443, 0.013868, 0.009453, 0.006767, 0.005133, 0.002882, 0.001224, 0.000374, 0.000093]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malawi"
+year = 2023
+
+[education]
+age_25_34 = [0.299043, 0.150873, 0.525276, 0.024808]
+age_35_64 = [0.463425, 0.153122, 0.364682, 0.018771]
+age_65_plus = [0.728172, 0.093387, 0.168925, 0.009516]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Malawi"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4939, 0.4445]
+participation_25_54 = [0.8086, 0.6932]
+participation_55_64 = [0.7493, 0.5962]
+participation_65_plus = [0.5654, 0.4423]
+unemployment_rate = 0.0501
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malawi; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.006460, 0.036922, 0.001011, 0.007549, 0.192665, 0.030393, 0.051241, 0.673758]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malawi"
+year = 2023
+
+[sectors]
+shares = [0.652995, 0.073287, 0.273719]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Malawi"
+year = 2023
+
+[households]
+sizes = [0.072000, 0.300600, 0.376400, 0.251000]
+mean_size = 4.280
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Malawi, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.1697
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Malawi"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 21104482

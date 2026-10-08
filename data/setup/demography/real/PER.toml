@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Peru, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 75.30/80.16 vs WPP 75.41/80.12; TFR model 1.974 vs 1.980.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Peru"
+year = 2023
+
+male_share_at_birth = 0.510044
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.079534, 0.080380, 0.083668, 0.085327, 0.082071, 0.081666, 0.080303, 0.074742, 0.066496, 0.060715, 0.053560, 0.044554, 0.037060, 0.030144, 0.023655, 0.016568, 0.010708, 0.006037, 0.002250, 0.000563]
+
+[mortality_female]
+constant_hazard = 2.927851e-04
+gompertz_b = 3.537120e-05
+gompertz_c = 0.088287
+child_hazard = 2.297026e-02
+child_decline = 1.973961
+
+[mortality_male]
+constant_hazard = 8.173341e-04
+gompertz_b = 3.953296e-05
+gompertz_c = 0.090969
+child_hazard = 4.211695e-01
+child_decline = 34.368810
+
+[fertility]
+hazard_by_band = [0.04533028, 0.09330228, 0.10552894, 0.09372910, 0.06440393, 0.02236080, 0.00217622]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 75.3039
+life_expectancy_0_female = 80.1607
+life_expectancy_15_male = 62.1661
+life_expectancy_15_female = 66.4970

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Comoros, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 64.72/68.90 vs WPP 64.79/68.93; TFR model 3.868 vs 3.878.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Comoros"
+year = 2023
+
+male_share_at_birth = 0.507874
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.134227, 0.125065, 0.114721, 0.100749, 0.091333, 0.072999, 0.067368, 0.062154, 0.055271, 0.044908, 0.035972, 0.028573, 0.021930, 0.016995, 0.012545, 0.008889, 0.004512, 0.001381, 0.000372, 0.000038]
+
+[mortality_female]
+constant_hazard = 8.892472e-04
+gompertz_b = 3.664890e-05
+gompertz_c = 0.098773
+child_hazard = 7.677362e-02
+child_decline = 1.913637
+
+[mortality_male]
+constant_hazard = 1.013651e-03
+gompertz_b = 8.086576e-05
+gompertz_c = 0.092130
+child_hazard = 9.504189e-02
+child_decline = 2.115188
+
+[fertility]
+hazard_by_band = [0.05810739, 0.17375794, 0.21970116, 0.22251472, 0.14664930, 0.06684782, 0.01708073]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 64.7181
+life_expectancy_0_female = 68.8993
+life_expectancy_15_male = 53.7489
+life_expectancy_15_female = 57.6407

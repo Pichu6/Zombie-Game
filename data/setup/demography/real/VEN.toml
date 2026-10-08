@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Venezuela (Bolivarian Republic of), 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 67.56/76.37 vs WPP 68.72/76.50; TFR model 2.064 vs 2.079.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Venezuela (Bolivarian Republic of)"
+year = 2023
+
+male_share_at_birth = 0.512908
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.075038, 0.089417, 0.097082, 0.095625, 0.078449, 0.064079, 0.063199, 0.064572, 0.064030, 0.061126, 0.056795, 0.052104, 0.045148, 0.036024, 0.025123, 0.017017, 0.009885, 0.004136, 0.001042, 0.000109]
+
+[mortality_female]
+constant_hazard = 8.176726e-04
+gompertz_b = 8.806618e-06
+gompertz_c = 0.110806
+child_hazard = 4.138645e-01
+child_decline = 31.556034
+
+[mortality_male]
+constant_hazard = 2.737847e-03
+gompertz_b = 2.247089e-05
+gompertz_c = 0.103149
+child_hazard = 4.980629e-01
+child_decline = 33.484647
+
+[fertility]
+hazard_by_band = [0.07844553, 0.13886293, 0.11332695, 0.07175155, 0.03851465, 0.01096378, 0.00094387]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 67.5644
+life_expectancy_0_female = 76.3731
+life_expectancy_15_male = 56.1889
+life_expectancy_15_female = 63.2669

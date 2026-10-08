@@ -1,0 +1,54 @@
+# Norwey: a country with the real data of Norway under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "NOR"
+name = "Norwey"
+status = "sourced"
+pop_params = "demography/real/NOR.toml"
+
+[age_pyramid]
+shares = [0.050100, 0.055197, 0.059770, 0.059747, 0.061034, 0.066972, 0.071822, 0.068195, 0.065215, 0.064758, 0.069025, 0.065154, 0.057671, 0.052719, 0.046416, 0.040812, 0.023857, 0.013296, 0.006311, 0.001927]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Norway"
+year = 2023
+
+[education]
+age_25_34 = [0.001193, 0.001545, 0.470855, 0.526407]
+age_35_64 = [0.003217, 0.005705, 0.537684, 0.453393]
+age_65_plus = [0.004185, 0.002986, 0.702458, 0.290371]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Norway"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6520, 0.6640]
+participation_25_54 = [0.8880, 0.8370]
+participation_55_64 = [0.7860, 0.7090]
+participation_65_plus = [0.2005, 0.1159]
+unemployment_rate = 0.0357
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Norway; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.080021, 0.298400, 0.153586, 0.059697, 0.210282, 0.087024, 0.056718, 0.054272]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Norway"
+year = 2023
+
+[sectors]
+shares = [0.023953, 0.187172, 0.788875]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Norway"
+year = 2023
+
+[households]
+sizes = [0.395800, 0.407300, 0.181300, 0.015600]
+mean_size = 2.220
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Norway, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.8307
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Norway"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 5519167

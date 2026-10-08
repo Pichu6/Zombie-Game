@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Montenegro, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 73.72/80.26 vs WPP 73.73/80.31; TFR model 1.798 vs 1.803.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Montenegro"
+year = 2023
+
+male_share_at_birth = 0.516675
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.058066, 0.061337, 0.063925, 0.060945, 0.061794, 0.061136, 0.060637, 0.067963, 0.070550, 0.066970, 0.063355, 0.064089, 0.064571, 0.060042, 0.047947, 0.027791, 0.021252, 0.012133, 0.004339, 0.001157]
+
+[mortality_female]
+constant_hazard = 1.593001e-04
+gompertz_b = 9.552261e-06
+gompertz_c = 0.108187
+child_hazard = 1.672390e-03
+child_decline = 0.792840
+
+[mortality_male]
+constant_hazard = 2.143629e-04
+gompertz_b = 3.549935e-05
+gompertz_c = 0.098742
+child_hazard = 3.831425e-03
+child_decline = 1.629810
+
+[fertility]
+hazard_by_band = [0.00945434, 0.05524272, 0.12979751, 0.12739618, 0.05887011, 0.01284196, 0.00106242]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 73.7211
+life_expectancy_0_female = 80.2591
+life_expectancy_15_male = 59.1862
+life_expectancy_15_female = 65.6260

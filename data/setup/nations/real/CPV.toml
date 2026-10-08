@@ -1,0 +1,54 @@
+# Cabo Verdo: a country with the real data of Cabo Verde under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CPV"
+name = "Cabo Verdo"
+status = "sourced"
+pop_params = "demography/real/CPV.toml"
+
+[age_pyramid]
+shares = [0.074921, 0.093890, 0.094895, 0.090848, 0.079723, 0.086228, 0.091166, 0.081810, 0.066268, 0.051708, 0.044173, 0.042800, 0.035768, 0.025210, 0.017730, 0.011041, 0.006795, 0.003806, 0.001055, 0.000165]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cabo Verde"
+year = 2023
+
+[education]
+age_25_34 = [0.158493, 0.189943, 0.528252, 0.123312]
+age_35_64 = [0.469390, 0.198699, 0.262692, 0.069219]
+age_65_plus = [0.790872, 0.108030, 0.064702, 0.036395]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Cabo Verde"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3623, 0.2547]
+participation_25_54 = [0.8246, 0.7128]
+participation_55_64 = [0.5728, 0.3877]
+participation_65_plus = [0.1062, 0.0583]
+unemployment_rate = 0.1188
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cabo Verde; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.031924, 0.092498, 0.051973, 0.055599, 0.239258, 0.154467, 0.062821, 0.311460]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cabo Verde"
+year = 2023
+
+[sectors]
+shares = [0.098997, 0.227161, 0.673842]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Cabo Verde"
+year = 2023
+
+[households]
+sizes = [0.104461, 0.440665, 0.347451, 0.107423]
+mean_size = 3.503
+source = "Upper middle income group aggregate (no household data for Cabo Verde)"
+year = 2016.0
+
+[settlement]
+urban_share = 0.7591
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Cabo Verde"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 522330

@@ -1,0 +1,54 @@
+# Azerbijan: a country with the real data of Azerbaijan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "AZE"
+name = "Azerbijan"
+status = "sourced"
+pop_params = "demography/real/AZE.toml"
+
+[age_pyramid]
+shares = [0.065397, 0.075837, 0.082209, 0.070941, 0.062085, 0.076998, 0.093008, 0.086329, 0.072925, 0.060140, 0.058787, 0.059255, 0.055982, 0.037354, 0.021657, 0.009171, 0.006838, 0.004036, 0.000928, 0.000122]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Azerbaijan"
+year = 2023
+
+[education]
+age_25_34 = [0.000958, 0.005119, 0.757649, 0.236274]
+age_35_64 = [0.002138, 0.005825, 0.827408, 0.164629]
+age_65_plus = [0.016324, 0.040243, 0.781629, 0.161804]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Azerbaijan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4354, 0.4288]
+participation_25_54 = [0.8638, 0.8256]
+participation_55_64 = [0.5626, 0.4752]
+participation_65_plus = [0.0758, 0.0421]
+unemployment_rate = 0.0564
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Azerbaijan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.014541, 0.136774, 0.096707, 0.050619, 0.131778, 0.061928, 0.067177, 0.440476]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Azerbaijan"
+year = 2023
+
+[sectors]
+shares = [0.351386, 0.154046, 0.494568]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Azerbaijan"
+year = 2023
+
+[households]
+sizes = [0.067700, 0.208600, 0.446900, 0.276800]
+mean_size = 4.550
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Azerbaijan, latest survey"
+year = 2009
+
+[settlement]
+urban_share = 0.5851
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Azerbaijan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 10318207

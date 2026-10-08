@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kazakhstan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 70.15/78.40 vs WPP 70.11/78.39; TFR model 2.998 vs 3.012.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kazakhstan"
+year = 2023
+
+male_share_at_birth = 0.515504
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.104589, 0.098684, 0.092118, 0.074095, 0.058629, 0.065065, 0.078014, 0.076054, 0.064656, 0.057994, 0.052467, 0.048973, 0.045580, 0.035690, 0.022904, 0.010586, 0.008052, 0.004373, 0.001182, 0.000296]
+
+[mortality_female]
+constant_hazard = 2.364640e-04
+gompertz_b = 1.275704e-05
+gompertz_c = 0.105994
+child_hazard = 2.193250e-02
+child_decline = 3.118454
+
+[mortality_male]
+constant_hazard = 2.874832e-05
+gompertz_b = 1.454039e-04
+gompertz_c = 0.081244
+child_hazard = 2.661009e-02
+child_decline = 2.739993
+
+[fertility]
+hazard_by_band = [0.01853761, 0.18398061, 0.22180471, 0.15487168, 0.09128862, 0.02390178, 0.00180131]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 70.1483
+life_expectancy_0_female = 78.3970
+life_expectancy_15_male = 56.1210
+life_expectancy_15_female = 64.2348

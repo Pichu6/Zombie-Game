@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kuwait, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 78.85/81.63 vs WPP 79.25/81.85; TFR model 1.525 vs 1.525.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kuwait"
+year = 2023
+
+male_share_at_birth = 0.511480
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.054990, 0.064926, 0.066112, 0.055971, 0.048551, 0.091539, 0.106056, 0.130402, 0.119387, 0.091937, 0.068692, 0.046002, 0.025905, 0.014265, 0.007516, 0.004188, 0.002227, 0.000967, 0.000302, 0.000064]
+
+[mortality_female]
+constant_hazard = 2.495475e-04
+gompertz_b = 5.620598e-07
+gompertz_c = 0.142966
+child_hazard = 2.074929e-02
+child_decline = 3.183170
+
+[mortality_male]
+constant_hazard = 6.619283e-04
+gompertz_b = 2.875606e-07
+gompertz_c = 0.154597
+child_hazard = 2.355440e-01
+child_decline = 32.058130
+
+[fertility]
+hazard_by_band = [0.00157823, 0.05753212, 0.11344076, 0.08577611, 0.05523690, 0.01410327, 0.00150020]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 78.8484
+life_expectancy_0_female = 81.6262
+life_expectancy_15_male = 65.1487
+life_expectancy_15_female = 67.4402

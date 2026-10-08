@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Maldives, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 79.62/82.71 vs WPP 79.69/82.82; TFR model 1.585 vs 1.575.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Maldives"
+year = 2023
+
+male_share_at_birth = 0.512433
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.058255, 0.067890, 0.074345, 0.058211, 0.067232, 0.116584, 0.134833, 0.124065, 0.088537, 0.059812, 0.045270, 0.033896, 0.027612, 0.018088, 0.010015, 0.007540, 0.004770, 0.002194, 0.000705, 0.000144]
+
+[mortality_female]
+constant_hazard = 1.147263e-04
+gompertz_b = 1.441583e-06
+gompertz_c = 0.129768
+child_hazard = 9.465279e-03
+child_decline = 2.272751
+
+[mortality_male]
+constant_hazard = 1.488446e-04
+gompertz_b = 3.009680e-06
+gompertz_c = 0.124936
+child_hazard = 1.363798e-02
+child_decline = 2.769235
+
+[fertility]
+hazard_by_band = [0.00545147, 0.06411743, 0.10670144, 0.09202903, 0.05557366, 0.01604551, 0.00176269]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 79.6159
+life_expectancy_0_female = 82.7146
+life_expectancy_15_male = 65.1786
+life_expectancy_15_female = 68.1930

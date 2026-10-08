@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Chad, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 53.06/56.87 vs WPP 53.20/57.01; TFR model 6.089 vs 6.120.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Chad"
+year = 2023
+
+male_share_at_birth = 0.510284
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.183597, 0.153547, 0.130228, 0.109224, 0.089995, 0.074309, 0.060295, 0.047572, 0.038347, 0.032913, 0.025961, 0.019348, 0.013917, 0.009435, 0.005975, 0.003116, 0.001503, 0.000542, 0.000134, 0.000043]
+
+[mortality_female]
+constant_hazard = 4.763593e-03
+gompertz_b = 4.557030e-05
+gompertz_c = 0.097567
+child_hazard = 1.036943e-01
+child_decline = 1.406408
+
+[mortality_male]
+constant_hazard = 5.517179e-03
+gompertz_b = 9.041646e-05
+gompertz_c = 0.090652
+child_hazard = 1.313329e-01
+child_decline = 1.562081
+
+[fertility]
+hazard_by_band = [0.15324810, 0.36202394, 0.37767777, 0.32020645, 0.21364423, 0.10666612, 0.02805138]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 53.0560
+life_expectancy_0_female = 56.8740
+life_expectancy_15_male = 47.1443
+life_expectancy_15_female = 50.2416

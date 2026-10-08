@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Myanmar, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 63.68/70.14 vs WPP 63.79/70.16; TFR model 2.114 vs 2.115.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Myanmar"
+year = 2023
+
+male_share_at_birth = 0.515973
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.081869, 0.082419, 0.080869, 0.081837, 0.083256, 0.081192, 0.077997, 0.076829, 0.071373, 0.064056, 0.057460, 0.049592, 0.040358, 0.030853, 0.020765, 0.011073, 0.005537, 0.002136, 0.000479, 0.000049]
+
+[mortality_female]
+constant_hazard = 8.170828e-04
+gompertz_b = 2.922121e-05
+gompertz_c = 0.101470
+child_hazard = 6.588261e-02
+child_decline = 2.072318
+
+[mortality_male]
+constant_hazard = 1.744591e-03
+gompertz_b = 9.393918e-05
+gompertz_c = 0.089625
+child_hazard = 1.327037e-01
+child_decline = 3.827126
+
+[fertility]
+hazard_by_band = [0.03454227, 0.11388328, 0.12780405, 0.09907067, 0.06214991, 0.02277803, 0.00245712]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 63.6750
+life_expectancy_0_female = 70.1374
+life_expectancy_15_male = 52.6359
+life_expectancy_15_female = 58.2538

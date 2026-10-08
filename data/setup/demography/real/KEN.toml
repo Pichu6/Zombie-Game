@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kenya, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 61.48/65.96 vs WPP 61.46/65.92; TFR model 3.206 vs 3.208.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kenya"
+year = 2023
+
+male_share_at_birth = 0.505440
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.127156, 0.123073, 0.124242, 0.114455, 0.097666, 0.081986, 0.072731, 0.063010, 0.050852, 0.040437, 0.032304, 0.024964, 0.017990, 0.011855, 0.007465, 0.004757, 0.002706, 0.001463, 0.000627, 0.000261]
+
+[mortality_female]
+constant_hazard = 3.478000e-04
+gompertz_b = 3.858808e-04
+gompertz_c = 0.066610
+child_hazard = 4.746511e-02
+child_decline = 1.362578
+
+[mortality_male]
+constant_hazard = 1.000000e-09
+gompertz_b = 6.616847e-04
+gompertz_c = 0.062957
+child_hazard = 6.622821e-02
+child_decline = 1.615784
+
+[fertility]
+hazard_by_band = [0.05930398, 0.20558202, 0.20205024, 0.15658797, 0.08851673, 0.02555326, 0.00375436]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 61.4784
+life_expectancy_0_female = 65.9588
+life_expectancy_15_male = 49.9472
+life_expectancy_15_female = 54.1874

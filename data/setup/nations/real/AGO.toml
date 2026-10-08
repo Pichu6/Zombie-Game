@@ -1,0 +1,54 @@
+# Angoola: a country with the real data of Angola under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "AGO"
+name = "Angoola"
+status = "sourced"
+pop_params = "demography/real/AGO.toml"
+
+[age_pyramid]
+shares = [0.169232, 0.148650, 0.127841, 0.104833, 0.084440, 0.071718, 0.063179, 0.053861, 0.043700, 0.035054, 0.028455, 0.023073, 0.017849, 0.012427, 0.007678, 0.004673, 0.002272, 0.000842, 0.000193, 0.000030]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Angola"
+year = 2023
+
+[education]
+age_25_34 = [0.349896, 0.307658, 0.331537, 0.010908]
+age_35_64 = [0.644212, 0.211376, 0.137574, 0.006837]
+age_65_plus = [0.818886, 0.121499, 0.056140, 0.003475]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Angola"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5539, 0.5305]
+participation_25_54 = [0.9262, 0.8560]
+participation_55_64 = [0.8254, 0.7716]
+participation_65_plus = [0.6334, 0.5424]
+unemployment_rate = 0.1405
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Angola; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.011941, 0.047131, 0.026907, 0.007071, 0.234491, 0.060675, 0.039421, 0.572363]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Angola"
+year = 2023
+
+[sectors]
+shares = [0.524066, 0.070670, 0.405263]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Angola"
+year = 2023
+
+[households]
+sizes = [0.108100, 0.239000, 0.284600, 0.368300]
+mean_size = 4.820
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Angola, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 0.6985
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Angola"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 36749906

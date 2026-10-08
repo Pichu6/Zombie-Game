@@ -1,0 +1,54 @@
+# Surinamo: a country with the real data of Suriname under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SUR"
+name = "Surinamo"
+status = "sourced"
+pop_params = "demography/real/SUR.toml"
+
+[age_pyramid]
+shares = [0.084801, 0.086844, 0.087819, 0.086442, 0.088341, 0.078948, 0.069952, 0.069673, 0.063945, 0.056685, 0.056721, 0.051736, 0.041877, 0.029832, 0.020039, 0.012603, 0.008132, 0.003718, 0.001515, 0.000377]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Suriname"
+year = 2023
+
+[education]
+age_25_34 = [0.023562, 0.149805, 0.703632, 0.123000]
+age_35_64 = [0.061721, 0.241034, 0.599000, 0.098245]
+age_65_plus = [0.162059, 0.379413, 0.379838, 0.078690]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Suriname"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4243, 0.2725]
+participation_25_54 = [0.8827, 0.6829]
+participation_55_64 = [0.3285, 0.1658]
+participation_65_plus = [0.0146, 0.0334]
+unemployment_rate = 0.0770
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Suriname; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.067142, 0.132981, 0.105643, 0.077140, 0.192621, 0.136533, 0.097837, 0.190103]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Suriname"
+year = 2023
+
+[sectors]
+shares = [0.072091, 0.261491, 0.666418]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Suriname"
+year = 2023
+
+[households]
+sizes = [0.139800, 0.358500, 0.304600, 0.197100]
+mean_size = 3.860
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Suriname, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.6576
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Suriname"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 628886

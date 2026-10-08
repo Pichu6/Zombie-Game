@@ -1,0 +1,54 @@
+# Spaine: a country with the real data of Spain under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ESP"
+name = "Spaine"
+status = "sourced"
+pop_params = "demography/real/ESP.toml"
+
+[age_pyramid]
+shares = [0.036796, 0.044855, 0.050936, 0.052665, 0.050867, 0.052122, 0.057587, 0.063222, 0.075846, 0.084185, 0.079800, 0.076833, 0.067749, 0.056141, 0.047663, 0.040914, 0.027832, 0.020661, 0.010421, 0.002906]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Spain"
+year = 2023
+
+[education]
+age_25_34 = [0.022721, 0.086198, 0.422807, 0.468273]
+age_35_64 = [0.027368, 0.093160, 0.506048, 0.373425]
+age_65_plus = [0.196971, 0.220023, 0.423394, 0.159612]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Spain"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3506, 0.3099]
+participation_25_54 = [0.9144, 0.8368]
+participation_55_64 = [0.7246, 0.6063]
+participation_65_plus = [0.0464, 0.0298]
+unemployment_rate = 0.1218
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Spain; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.044807, 0.193027, 0.125572, 0.101579, 0.208933, 0.107010, 0.079924, 0.139147]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Spain"
+year = 2023
+
+[sectors]
+shares = [0.034978, 0.200268, 0.764754]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Spain"
+year = 2023
+
+[households]
+sizes = [0.231877, 0.517448, 0.232877, 0.017798]
+mean_size = 2.580
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Spain, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.8013
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Spain"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 47911580

@@ -1,0 +1,54 @@
+# Portugallo: a country with the real data of Portugal under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PRT"
+name = "Portugallo"
+status = "sourced"
+pop_params = "demography/real/PRT.toml"
+
+[age_pyramid]
+shares = [0.040853, 0.041717, 0.046366, 0.049954, 0.053855, 0.052518, 0.054107, 0.058108, 0.068524, 0.077832, 0.073833, 0.071799, 0.069419, 0.064341, 0.059094, 0.048426, 0.034174, 0.022525, 0.009874, 0.002681]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Portugal"
+year = 2023
+
+[education]
+age_25_34 = [0.035211, 0.061290, 0.502933, 0.400567]
+age_35_64 = [0.167802, 0.170419, 0.422235, 0.239544]
+age_65_plus = [0.669882, 0.075860, 0.168048, 0.086211]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Portugal"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3731, 0.3339]
+participation_25_54 = [0.9353, 0.8940]
+participation_55_64 = [0.7423, 0.6675]
+participation_65_plus = [0.1280, 0.0653]
+unemployment_rate = 0.0650
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Portugal; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.060606, 0.213350, 0.112058, 0.091548, 0.192273, 0.131477, 0.084172, 0.114516]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Portugal"
+year = 2023
+
+[sectors]
+shares = [0.031071, 0.254766, 0.714164]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Portugal"
+year = 2023
+
+[households]
+sizes = [0.214379, 0.554745, 0.210979, 0.019898]
+mean_size = 2.580
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Portugal, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.6120
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Portugal"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 10430738

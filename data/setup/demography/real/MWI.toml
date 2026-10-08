@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malawi, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 64.08/70.56 vs WPP 64.07/70.56; TFR model 3.640 vs 3.648.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malawi"
+year = 2023
+
+male_share_at_birth = 0.503476
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.145932, 0.135666, 0.131563, 0.118112, 0.096979, 0.080932, 0.068603, 0.058597, 0.048483, 0.033299, 0.023597, 0.018443, 0.013868, 0.009453, 0.006767, 0.005133, 0.002882, 0.001224, 0.000374, 0.000093]
+
+[mortality_female]
+constant_hazard = 6.444820e-04
+gompertz_b = 6.135036e-05
+gompertz_c = 0.089987
+child_hazard = 5.124282e-02
+child_decline = 1.602515
+
+[mortality_male]
+constant_hazard = 6.848281e-04
+gompertz_b = 2.135589e-04
+gompertz_c = 0.078221
+child_hazard = 6.933326e-02
+child_decline = 1.742433
+
+[fertility]
+hazard_by_band = [0.12644821, 0.22878298, 0.19246231, 0.14741159, 0.10085428, 0.03921421, 0.00909924]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 64.0786
+life_expectancy_0_female = 70.5628
+life_expectancy_15_male = 52.6245
+life_expectancy_15_female = 58.5957

@@ -1,0 +1,54 @@
+# Makau: a country with the real data of China, Macao SAR under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MAC"
+name = "Makau"
+status = "sourced"
+pop_params = "demography/real/MAC.toml"
+
+[age_pyramid]
+shares = [0.041159, 0.053798, 0.045990, 0.039723, 0.058947, 0.074403, 0.098997, 0.099827, 0.077742, 0.070395, 0.071290, 0.065499, 0.067434, 0.058226, 0.037915, 0.020085, 0.009137, 0.005788, 0.002766, 0.000880]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), China, Macao SAR"
+year = 2023
+
+[education]
+age_25_34 = [0.012704, 0.056309, 0.431416, 0.499571]
+age_35_64 = [0.048204, 0.131697, 0.528129, 0.291970]
+age_65_plus = [0.249579, 0.322452, 0.367102, 0.060868]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), China, Macao SAR"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4585, 0.4217]
+participation_25_54 = [0.9588, 0.8390]
+participation_55_64 = [0.7408, 0.5109]
+participation_65_plus = [0.2140, 0.0829]
+unemployment_rate = 0.0221
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China, Macao SAR; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.114789, 0.053994, 0.122443, 0.270166, 0.204271, 0.067804, 0.032863, 0.133670]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China, Macao SAR"
+year = 2023
+
+[sectors]
+shares = [0.003890, 0.113313, 0.882797]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), China, Macao SAR"
+year = 2023
+
+[households]
+sizes = [0.151315, 0.481648, 0.310631, 0.056406]
+mean_size = 3.070
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), China, Macao SAR, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 1.0000
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), China, Macao SAR"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 713912

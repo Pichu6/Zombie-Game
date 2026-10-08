@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Papua New Guinea, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 63.67/69.05 vs WPP 63.74/69.08; TFR model 3.092 vs 3.099.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Papua New Guinea"
+year = 2023
+
+male_share_at_birth = 0.518536
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.118261, 0.112995, 0.106785, 0.099425, 0.092244, 0.084783, 0.077775, 0.068570, 0.058463, 0.049906, 0.040840, 0.032522, 0.023946, 0.015552, 0.009447, 0.005130, 0.002334, 0.000796, 0.000187, 0.000037]
+
+[mortality_female]
+constant_hazard = 9.706804e-04
+gompertz_b = 4.395921e-05
+gompertz_c = 0.096241
+child_hazard = 7.149072e-02
+child_decline = 2.225831
+
+[mortality_male]
+constant_hazard = 9.918935e-04
+gompertz_b = 1.365553e-04
+gompertz_c = 0.085806
+child_hazard = 8.990547e-02
+child_decline = 2.370332
+
+[fertility]
+hazard_by_band = [0.05682045, 0.16666332, 0.17722736, 0.14422661, 0.09889347, 0.04534095, 0.01103054]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 63.6709
+life_expectancy_0_female = 69.0477
+life_expectancy_15_male = 52.2374
+life_expectancy_15_female = 57.3159

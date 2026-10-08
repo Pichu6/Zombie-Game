@@ -1,0 +1,54 @@
+# Timor-Lesta: a country with the real data of Timor-Leste under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "TLS"
+name = "Timor-Lesta"
+status = "sourced"
+pop_params = "demography/real/TLS.toml"
+
+[age_pyramid]
+shares = [0.113367, 0.119262, 0.109667, 0.114712, 0.103250, 0.084888, 0.070719, 0.061572, 0.043648, 0.037978, 0.037221, 0.028280, 0.022092, 0.016103, 0.015924, 0.013362, 0.005946, 0.001669, 0.000310, 0.000028]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Timor-Leste"
+year = 2023
+
+[education]
+age_25_34 = [0.246801, 0.055071, 0.501947, 0.196180]
+age_35_64 = [0.484781, 0.070101, 0.341415, 0.103703]
+age_65_plus = [0.913764, 0.020845, 0.051685, 0.013706]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Timor-Leste"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4189, 0.3452]
+participation_25_54 = [0.8963, 0.7598]
+participation_55_64 = [0.9259, 0.7822]
+participation_65_plus = [0.6820, 0.5631]
+unemployment_rate = 0.0152
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Timor-Leste; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.007477, 0.172848, 0.027800, 0.011335, 0.227759, 0.054508, 0.022076, 0.476197]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Timor-Leste"
+year = 2023
+
+[sectors]
+shares = [0.483872, 0.031015, 0.485113]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Timor-Leste"
+year = 2023
+
+[households]
+sizes = [0.064094, 0.206079, 0.295870, 0.433957]
+mean_size = 5.270
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Timor-Leste, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 0.2860
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Timor-Leste"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 1384286

@@ -1,0 +1,54 @@
+# United Arab Emiritz: a country with the real data of United Arab Emirates under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ARE"
+name = "United Arab Emiritz"
+status = "sourced"
+pop_params = "demography/real/ARE.toml"
+
+[age_pyramid]
+shares = [0.053859, 0.057644, 0.051887, 0.047541, 0.087091, 0.134997, 0.151150, 0.133379, 0.097815, 0.067131, 0.047590, 0.034927, 0.018032, 0.007668, 0.005192, 0.002249, 0.001252, 0.000462, 0.000114, 0.000019]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), United Arab Emirates"
+year = 2023
+
+[education]
+age_25_34 = [0.049411, 0.079388, 0.569244, 0.301957]
+age_35_64 = [0.184418, 0.115481, 0.453805, 0.246297]
+age_65_plus = [0.366744, 0.085885, 0.288176, 0.259195]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), United Arab Emirates"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6153, 0.2693]
+participation_25_54 = [0.9788, 0.6328]
+participation_55_64 = [0.8846, 0.3402]
+participation_65_plus = [0.4865, 0.0759]
+unemployment_rate = 0.0215
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Arab Emirates; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.111748, 0.140202, 0.093123, 0.049589, 0.146015, 0.174563, 0.074244, 0.210515]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Arab Emirates"
+year = 2023
+
+[sectors]
+shares = [0.015161, 0.307827, 0.677011]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), United Arab Emirates"
+year = 2023
+
+[households]
+sizes = [0.295481, 0.483089, 0.190714, 0.030716]
+mean_size = 2.458
+source = "High income group aggregate (no household data for United Arab Emirates)"
+year = 2011.0
+
+[settlement]
+urban_share = 0.8567
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), United Arab Emirates"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 10642081

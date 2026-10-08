@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Madagascar, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 61.81/65.28 vs WPP 61.94/65.38; TFR model 3.925 vs 3.972.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Madagascar"
+year = 2023
+
+male_share_at_birth = 0.509323
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.147075, 0.129532, 0.119115, 0.106765, 0.096136, 0.083341, 0.066908, 0.054839, 0.047202, 0.039737, 0.031878, 0.024559, 0.019561, 0.014815, 0.010032, 0.004806, 0.002452, 0.000982, 0.000235, 0.000029]
+
+[mortality_female]
+constant_hazard = 2.375604e-03
+gompertz_b = 3.111168e-05
+gompertz_c = 0.099926
+child_hazard = 7.707035e-02
+child_decline = 1.548122
+
+[mortality_male]
+constant_hazard = 2.927164e-03
+gompertz_b = 5.219801e-05
+gompertz_c = 0.094970
+child_hazard = 9.664296e-02
+child_decline = 1.645048
+
+[fertility]
+hazard_by_band = [0.14689361, 0.22152126, 0.20767761, 0.16442098, 0.11112908, 0.05118138, 0.01246550]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 61.8145
+life_expectancy_0_female = 65.2819
+life_expectancy_15_male = 53.2276
+life_expectancy_15_female = 55.8657

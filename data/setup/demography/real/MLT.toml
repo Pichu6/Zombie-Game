@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malta, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 81.23/85.19 vs WPP 81.27/85.26; TFR model 1.108 vs 1.098.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Malta"
+year = 2023
+
+male_share_at_birth = 0.516207
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.041799, 0.045452, 0.044266, 0.041703, 0.049053, 0.074231, 0.093965, 0.087874, 0.080187, 0.070848, 0.059132, 0.054447, 0.059041, 0.056196, 0.051747, 0.045694, 0.021713, 0.014872, 0.005999, 0.001781]
+
+[mortality_female]
+constant_hazard = 2.028245e-04
+gompertz_b = 3.885116e-06
+gompertz_c = 0.111755
+child_hazard = 2.925139e-01
+child_decline = 33.642170
+
+[mortality_male]
+constant_hazard = 8.492891e-05
+gompertz_b = 7.186308e-06
+gompertz_c = 0.110574
+child_hazard = 5.522039e-03
+child_decline = 0.970236
+
+[fertility]
+hazard_by_band = [0.01049569, 0.02892797, 0.05510913, 0.07963755, 0.04852418, 0.00999062, 0.00067912]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 81.2304
+life_expectancy_0_female = 85.1935
+life_expectancy_15_male = 66.8027
+life_expectancy_15_female = 71.1878

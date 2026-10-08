@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Tunisia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 73.83/79.08 vs WPP 73.92/79.15; TFR model 1.836 vs 1.832.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Tunisia"
+year = 2023
+
+male_share_at_birth = 0.512433
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.073929, 0.087276, 0.083144, 0.070314, 0.065588, 0.071393, 0.076580, 0.078832, 0.074009, 0.066400, 0.058423, 0.055301, 0.047149, 0.038478, 0.025253, 0.014238, 0.008365, 0.004043, 0.001124, 0.000161]
+
+[mortality_female]
+constant_hazard = 2.584161e-04
+gompertz_b = 4.641725e-06
+gompertz_c = 0.118774
+child_hazard = 2.167223e-02
+child_decline = 2.553934
+
+[mortality_male]
+constant_hazard = 4.990499e-04
+gompertz_b = 2.066207e-05
+gompertz_c = 0.104696
+child_hazard = 3.066888e-01
+child_decline = 32.707235
+
+[fertility]
+hazard_by_band = [0.00433173, 0.04563980, 0.12153346, 0.12739821, 0.07824512, 0.02319036, 0.00206371]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 73.8290
+life_expectancy_0_female = 79.0806
+life_expectancy_15_male = 60.0773
+life_expectancy_15_female = 65.0454

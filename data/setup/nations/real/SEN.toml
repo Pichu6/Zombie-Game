@@ -1,0 +1,54 @@
+# Senegol: a country with the real data of Senegal under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SEN"
+name = "Senegol"
+status = "sourced"
+pop_params = "demography/real/SEN.toml"
+
+[age_pyramid]
+shares = [0.135618, 0.127879, 0.122799, 0.111021, 0.097005, 0.083259, 0.068100, 0.057598, 0.047350, 0.038385, 0.030709, 0.025020, 0.019353, 0.015159, 0.010315, 0.005817, 0.003415, 0.001025, 0.000164, 0.000010]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Senegal"
+year = 2023
+
+[education]
+age_25_34 = [0.571254, 0.150295, 0.187588, 0.090863]
+age_35_64 = [0.706241, 0.146386, 0.103854, 0.043519]
+age_65_plus = [0.811270, 0.086305, 0.074287, 0.028138]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Senegal"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4386, 0.1900]
+participation_25_54 = [0.8180, 0.4950]
+participation_55_64 = [0.7594, 0.4933]
+participation_65_plus = [0.3946, 0.2356]
+unemployment_rate = 0.0278
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Senegal; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.009235, 0.096223, 0.040624, 0.061631, 0.126400, 0.301084, 0.071203, 0.293600]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Senegal"
+year = 2023
+
+[sectors]
+shares = [0.314643, 0.222534, 0.462823]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Senegal"
+year = 2023
+
+[households]
+sizes = [0.069200, 0.114700, 0.154800, 0.661300]
+mean_size = 8.660
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Senegal, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.5470
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Senegal"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 18077573

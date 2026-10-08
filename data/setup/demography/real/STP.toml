@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Sao Tome and Principe, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 66.23/73.71 vs WPP 66.24/73.73; TFR model 3.637 vs 3.644.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Sao Tome and Principe"
+year = 2023
+
+male_share_at_birth = 0.506660
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.132751, 0.127246, 0.122802, 0.116097, 0.092123, 0.070544, 0.060301, 0.058170, 0.054960, 0.044119, 0.034057, 0.026603, 0.021540, 0.014753, 0.009988, 0.006488, 0.004734, 0.002122, 0.000533, 0.000069]
+
+[mortality_female]
+constant_hazard = 6.270104e-04
+gompertz_b = 3.987982e-05
+gompertz_c = 0.094260
+child_hazard = 3.433822e-01
+child_decline = 33.634749
+
+[mortality_male]
+constant_hazard = 2.009394e-04
+gompertz_b = 2.670988e-04
+gompertz_c = 0.075360
+child_hazard = 5.057823e-02
+child_decline = 4.252046
+
+[fertility]
+hazard_by_band = [0.09340847, 0.20749026, 0.20588962, 0.17692630, 0.11010295, 0.04581585, 0.00484409]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 66.2271
+life_expectancy_0_female = 73.7150
+life_expectancy_15_male = 52.6316
+life_expectancy_15_female = 60.1909

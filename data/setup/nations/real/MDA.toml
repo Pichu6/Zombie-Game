@@ -1,0 +1,54 @@
+# Moldovia: a country with the real data of Republic of Moldova under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "MDA"
+name = "Moldovia"
+status = "sourced"
+pop_params = "demography/real/MDA.toml"
+
+[age_pyramid]
+shares = [0.058301, 0.073629, 0.067992, 0.058820, 0.048712, 0.055750, 0.073518, 0.082969, 0.069609, 0.064132, 0.059681, 0.059988, 0.070752, 0.061136, 0.049822, 0.019470, 0.015135, 0.007449, 0.002492, 0.000645]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Republic of Moldova"
+year = 2023
+
+[education]
+age_25_34 = [0.002195, 0.019665, 0.796094, 0.182046]
+age_35_64 = [0.005859, 0.021072, 0.828753, 0.144316]
+age_65_plus = [0.020506, 0.102760, 0.738205, 0.138529]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Republic of Moldova"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3736, 0.3483]
+participation_25_54 = [0.7865, 0.7950]
+participation_55_64 = [0.8353, 0.8107]
+participation_65_plus = [0.6821, 0.6111]
+unemployment_rate = 0.0157
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Republic of Moldova; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.046701, 0.100337, 0.043178, 0.019328, 0.092756, 0.085842, 0.055507, 0.556349]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Republic of Moldova"
+year = 2023
+
+[sectors]
+shares = [0.511235, 0.133163, 0.355603]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Republic of Moldova"
+year = 2023
+
+[households]
+sizes = [0.226400, 0.436200, 0.278700, 0.058700]
+mean_size = 2.890
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Republic of Moldova, latest survey"
+year = 2014
+
+[settlement]
+urban_share = 0.4300
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Republic of Moldova"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 3067070

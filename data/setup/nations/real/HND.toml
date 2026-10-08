@@ -1,0 +1,54 @@
+# Hondurra: a country with the real data of Honduras under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "HND"
+name = "Hondurra"
+status = "sourced"
+pop_params = "demography/real/HND.toml"
+
+[age_pyramid]
+shares = [0.106891, 0.102562, 0.100508, 0.099843, 0.098887, 0.091255, 0.080966, 0.071216, 0.062160, 0.050592, 0.038757, 0.029899, 0.023536, 0.018211, 0.012727, 0.006880, 0.003352, 0.001365, 0.000345, 0.000048]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Honduras"
+year = 2023
+
+[education]
+age_25_34 = [0.262564, 0.293276, 0.359319, 0.084841]
+age_35_64 = [0.400617, 0.315361, 0.223818, 0.060203]
+age_65_plus = [0.668893, 0.186951, 0.110024, 0.034132]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Honduras"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6592, 0.3378]
+participation_25_54 = [0.8115, 0.4603]
+participation_55_64 = [0.7094, 0.3326]
+participation_65_plus = [0.3983, 0.1444]
+unemployment_rate = 0.0607
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Honduras; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.019200, 0.052417, 0.044574, 0.036230, 0.263581, 0.136323, 0.066322, 0.381352]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Honduras"
+year = 2023
+
+[sectors]
+shares = [0.229822, 0.217870, 0.552307]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Honduras"
+year = 2023
+
+[households]
+sizes = [0.103700, 0.358500, 0.359700, 0.178100]
+mean_size = 3.870
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Honduras, latest survey"
+year = 2019
+
+[settlement]
+urban_share = 0.5831
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Honduras"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 10644851

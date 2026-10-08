@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Rwanda, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 65.50/69.88 vs WPP 65.49/69.89; TFR model 3.696 vs 3.698.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Rwanda"
+year = 2023
+
+male_share_at_birth = 0.506417
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.134612, 0.126768, 0.115934, 0.113417, 0.092478, 0.076423, 0.070649, 0.064571, 0.054888, 0.037265, 0.029033, 0.023454, 0.022290, 0.016656, 0.011106, 0.005907, 0.003037, 0.001174, 0.000300, 0.000039]
+
+[mortality_female]
+constant_hazard = 6.654073e-04
+gompertz_b = 5.929896e-05
+gompertz_c = 0.091631
+child_hazard = 4.900216e-02
+child_decline = 1.594540
+
+[mortality_male]
+constant_hazard = 6.588412e-04
+gompertz_b = 1.700272e-04
+gompertz_c = 0.080493
+child_hazard = 6.231452e-02
+child_decline = 1.723484
+
+[fertility]
+hazard_by_band = [0.03165123, 0.16222175, 0.22630584, 0.21599030, 0.15190324, 0.06771653, 0.01030306]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 65.4953
+life_expectancy_0_female = 69.8823
+life_expectancy_15_male = 53.7810
+life_expectancy_15_female = 57.8129

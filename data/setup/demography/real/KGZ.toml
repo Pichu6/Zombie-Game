@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kyrgyzstan, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 68.19/75.24 vs WPP 68.18/75.25; TFR model 2.799 vs 2.800.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Kyrgyzstan"
+year = 2023
+
+male_share_at_birth = 0.513619
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.111346, 0.112652, 0.102719, 0.082641, 0.073856, 0.077854, 0.079075, 0.070720, 0.058159, 0.050854, 0.046310, 0.042152, 0.037390, 0.025619, 0.015594, 0.006052, 0.004237, 0.002283, 0.000447, 0.000039]
+
+[mortality_female]
+constant_hazard = 2.298462e-04
+gompertz_b = 1.223045e-05
+gompertz_c = 0.110881
+child_hazard = 2.985772e-02
+child_decline = 2.143398
+
+[mortality_male]
+constant_hazard = 8.979772e-05
+gompertz_b = 1.132705e-04
+gompertz_c = 0.087298
+child_hazard = 3.942985e-02
+child_decline = 2.208342
+
+[fertility]
+hazard_by_band = [0.02906095, 0.18466824, 0.19370645, 0.13483569, 0.07756759, 0.01949179, 0.00222689]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 68.1914
+life_expectancy_0_female = 75.2435
+life_expectancy_15_male = 54.7075
+life_expectancy_15_female = 61.5617

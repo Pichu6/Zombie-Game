@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Slovenia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 78.85/84.29 vs WPP 78.90/84.34; TFR model 1.573 vs 1.576.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Slovenia"
+year = 2023
+
+male_share_at_birth = 0.515269
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.045257, 0.050116, 0.053925, 0.047778, 0.047167, 0.053473, 0.059595, 0.068572, 0.075755, 0.075182, 0.069659, 0.072188, 0.068010, 0.065175, 0.056092, 0.036939, 0.028512, 0.016794, 0.007632, 0.002178]
+
+[mortality_female]
+constant_hazard = 7.189227e-05
+gompertz_b = 2.920363e-06
+gompertz_c = 0.118504
+child_hazard = 3.824110e-03
+child_decline = 2.655558
+
+[mortality_male]
+constant_hazard = 9.961389e-05
+gompertz_b = 1.977486e-05
+gompertz_c = 0.100290
+child_hazard = 8.127140e-02
+child_decline = 39.361922
+
+[fertility]
+hazard_by_band = [0.00350697, 0.04006574, 0.12217670, 0.11956050, 0.04889921, 0.00911600, 0.00064999]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 78.8460
+life_expectancy_0_female = 84.2901
+life_expectancy_15_male = 64.1641
+life_expectancy_15_female = 69.5031

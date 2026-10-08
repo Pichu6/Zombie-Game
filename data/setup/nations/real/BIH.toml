@@ -1,0 +1,54 @@
+# Bosnio and Herzegovania: a country with the real data of Bosnia and Herzegovina under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BIH"
+name = "Bosnio and Herzegovania"
+status = "sourced"
+pop_params = "demography/real/BIH.toml"
+
+[age_pyramid]
+shares = [0.040952, 0.043367, 0.047880, 0.052094, 0.053741, 0.051572, 0.053619, 0.065128, 0.076848, 0.077659, 0.066494, 0.074075, 0.080147, 0.072508, 0.056911, 0.034778, 0.026313, 0.017190, 0.006783, 0.001942]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Bosnia and Herzegovina"
+year = 2023
+
+[education]
+age_25_34 = [0.007583, 0.004570, 0.726411, 0.261436]
+age_35_64 = [0.011298, 0.030324, 0.796806, 0.161572]
+age_65_plus = [0.104484, 0.200767, 0.570662, 0.124087]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Bosnia and Herzegovina"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3306, 0.1845]
+participation_25_54 = [0.8864, 0.6606]
+participation_55_64 = [0.6223, 0.3979]
+participation_65_plus = [0.1032, 0.0908]
+unemployment_rate = 0.1067
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bosnia and Herzegovina; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.025868, 0.154132, 0.080873, 0.056211, 0.178185, 0.167390, 0.092468, 0.244873]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bosnia and Herzegovina"
+year = 2023
+
+[sectors]
+shares = [0.175725, 0.306296, 0.517978]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Bosnia and Herzegovina"
+year = 2023
+
+[households]
+sizes = [0.115000, 0.370700, 0.415700, 0.098600]
+mean_size = 3.500
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Bosnia and Herzegovina, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.5157
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Bosnia and Herzegovina"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 3185073

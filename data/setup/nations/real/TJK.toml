@@ -1,0 +1,54 @@
+# Tajikistun: a country with the real data of Tajikistan under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "TJK"
+name = "Tajikistun"
+status = "sourced"
+pop_params = "demography/real/TJK.toml"
+
+[age_pyramid]
+shares = [0.128354, 0.126882, 0.109827, 0.085374, 0.086793, 0.082614, 0.079521, 0.069175, 0.052497, 0.042691, 0.038011, 0.033548, 0.028213, 0.017741, 0.009984, 0.004249, 0.002832, 0.001321, 0.000329, 0.000043]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Tajikistan"
+year = 2023
+
+[education]
+age_25_34 = [0.017836, 0.016509, 0.685137, 0.280518]
+age_35_64 = [0.009572, 0.033893, 0.691087, 0.265448]
+age_65_plus = [0.018774, 0.063561, 0.606334, 0.311330]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Tajikistan"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2897, 0.1016]
+participation_25_54 = [0.7185, 0.2914]
+participation_55_64 = [0.5827, 0.2124]
+participation_65_plus = [0.1120, 0.0391]
+unemployment_rate = 0.0704
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tajikistan; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.038300, 0.145715, 0.047085, 0.013678, 0.135692, 0.195528, 0.091463, 0.332540]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tajikistan"
+year = 2023
+
+[sectors]
+shares = [0.450625, 0.168134, 0.381241]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Tajikistan"
+year = 2023
+
+[households]
+sizes = [0.028797, 0.150985, 0.298470, 0.521748]
+mean_size = 5.990
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Tajikistan, latest survey"
+year = 2017
+
+[settlement]
+urban_share = 0.2619
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Tajikistan"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 10389798

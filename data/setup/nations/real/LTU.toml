@@ -1,0 +1,54 @@
+# Lithuvania: a country with the real data of Lithuania under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "LTU"
+name = "Lithuvania"
+status = "sourced"
+pop_params = "demography/real/LTU.toml"
+
+[age_pyramid]
+shares = [0.044823, 0.052945, 0.051104, 0.048598, 0.055649, 0.064234, 0.073580, 0.070231, 0.061856, 0.064292, 0.070143, 0.069938, 0.074046, 0.058714, 0.047633, 0.034413, 0.030394, 0.018597, 0.007247, 0.001564]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lithuania"
+year = 2023
+
+[education]
+age_25_34 = [0.008954, 0.005625, 0.361534, 0.623888]
+age_35_64 = [0.005069, 0.006227, 0.393591, 0.595113]
+age_65_plus = [0.022670, 0.088586, 0.372248, 0.516496]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Lithuania"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3604, 0.3549]
+participation_25_54 = [0.9153, 0.8864]
+participation_55_64 = [0.7529, 0.7529]
+participation_65_plus = [0.1736, 0.1019]
+unemployment_rate = 0.0684
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lithuania; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.090164, 0.290930, 0.096378, 0.042227, 0.120002, 0.133870, 0.093753, 0.132676]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lithuania"
+year = 2023
+
+[sectors]
+shares = [0.050592, 0.258085, 0.691323]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Lithuania"
+year = 2023
+
+[households]
+sizes = [0.316700, 0.475000, 0.189800, 0.018500]
+mean_size = 2.380
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Lithuania, latest survey"
+year = 2011
+
+[settlement]
+urban_share = 0.6858
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Lithuania"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 2854099

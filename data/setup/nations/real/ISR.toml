@@ -1,0 +1,54 @@
+# Isroel: a country with the real data of Israel under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "ISR"
+name = "Isroel"
+status = "sourced"
+pop_params = "demography/real/ISR.toml"
+
+[age_pyramid]
+shares = [0.094577, 0.093897, 0.087673, 0.079190, 0.074396, 0.068287, 0.064951, 0.062649, 0.059786, 0.057438, 0.050704, 0.042627, 0.039669, 0.036865, 0.033526, 0.024373, 0.013878, 0.009603, 0.004224, 0.001687]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Israel"
+year = 2023
+
+[education]
+age_25_34 = [0.036252, 0.063028, 0.393447, 0.507274]
+age_35_64 = [0.045629, 0.098406, 0.363475, 0.492490]
+age_65_plus = [0.101010, 0.169787, 0.295393, 0.433810]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Israel"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4901, 0.4777]
+participation_25_54 = [0.8700, 0.8241]
+participation_55_64 = [0.8042, 0.6735]
+participation_65_plus = [0.2932, 0.1671]
+unemployment_rate = 0.0337
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Israel; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.075137, 0.326179, 0.150610, 0.065542, 0.193606, 0.074346, 0.058366, 0.056213]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Israel"
+year = 2023
+
+[sectors]
+shares = [0.008124, 0.154237, 0.837639]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Israel"
+year = 2023
+
+[households]
+sizes = [0.210121, 0.399940, 0.282928, 0.107011]
+mean_size = 3.140
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Israel, latest survey"
+year = 2008
+
+[settlement]
+urban_share = 0.9151
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Israel"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 9256314

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Sri Lanka, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 74.21/80.57 vs WPP 74.24/80.59; TFR model 1.971 vs 1.974.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Sri Lanka"
+year = 2023
+
+male_share_at_birth = 0.510763
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.071177, 0.074483, 0.077952, 0.078575, 0.073241, 0.071782, 0.068738, 0.067713, 0.071897, 0.063426, 0.058118, 0.054986, 0.050524, 0.042740, 0.033962, 0.022223, 0.011357, 0.005126, 0.001678, 0.000303]
+
+[mortality_female]
+constant_hazard = 1.327822e-04
+gompertz_b = 5.564658e-06
+gompertz_c = 0.114963
+child_hazard = 1.050733e-02
+child_decline = 2.129520
+
+[mortality_male]
+constant_hazard = 4.640030e-05
+gompertz_b = 4.542314e-05
+gompertz_c = 0.094443
+child_hazard = 1.340450e-02
+child_decline = 2.092329
+
+[fertility]
+hazard_by_band = [0.01529766, 0.07700516, 0.14147504, 0.12632623, 0.05939970, 0.01387065, 0.00116087]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 74.2142
+life_expectancy_0_female = 80.5680
+life_expectancy_15_male = 59.8334
+life_expectancy_15_female = 66.1266

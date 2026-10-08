@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Benin, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 59.22/62.10 vs WPP 59.35/62.21; TFR model 4.544 vs 4.556.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Benin"
+year = 2023
+
+male_share_at_birth = 0.510044
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.154237, 0.141493, 0.122633, 0.106056, 0.089934, 0.078149, 0.065885, 0.055912, 0.045913, 0.036579, 0.029981, 0.024082, 0.018267, 0.012860, 0.008637, 0.005441, 0.002726, 0.000960, 0.000223, 0.000032]
+
+[mortality_female]
+constant_hazard = 3.158838e-03
+gompertz_b = 3.750014e-05
+gompertz_c = 0.098487
+child_hazard = 8.629192e-02
+child_decline = 1.450269
+
+[mortality_male]
+constant_hazard = 3.506351e-03
+gompertz_b = 6.185013e-05
+gompertz_c = 0.093558
+child_hazard = 1.072359e-01
+child_decline = 1.526440
+
+[fertility]
+hazard_by_band = [0.08367948, 0.26381070, 0.30291013, 0.23882079, 0.14140033, 0.05883141, 0.01654854]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 59.2236
+life_expectancy_0_female = 62.1002
+life_expectancy_15_male = 51.6307
+life_expectancy_15_female = 53.7774

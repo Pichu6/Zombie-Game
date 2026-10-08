@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Jamaica, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 68.96/74.01 vs WPP 68.98/73.99; TFR model 1.360 vs 1.358.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Jamaica"
+year = 2023
+
+male_share_at_birth = 0.509564
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.058280, 0.062330, 0.070732, 0.080259, 0.084266, 0.093754, 0.090745, 0.083036, 0.073856, 0.064985, 0.058556, 0.054126, 0.046453, 0.032574, 0.020124, 0.014231, 0.007626, 0.002952, 0.000950, 0.000165]
+
+[mortality_female]
+constant_hazard = 2.631354e-04
+gompertz_b = 3.079391e-05
+gompertz_c = 0.098713
+child_hazard = 3.164249e-02
+child_decline = 1.999454
+
+[mortality_male]
+constant_hazard = 3.790113e-04
+gompertz_b = 1.002906e-04
+gompertz_c = 0.086905
+child_hazard = 4.624033e-02
+child_decline = 2.398478
+
+[fertility]
+hazard_by_band = [0.03777702, 0.07455331, 0.06917544, 0.05237020, 0.03879881, 0.01346754, 0.00088493]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 68.9635
+life_expectancy_0_female = 74.0103
+life_expectancy_15_male = 55.8469
+life_expectancy_15_female = 60.5208

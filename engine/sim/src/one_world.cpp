@@ -23,10 +23,10 @@ constexpr std::int64_t kPlaceholderRegionBudgetCents = 10'000'000;
 constexpr std::int64_t kPlaceholderCountryBudgetCents = 1'000'000'000;
 
 // Rule 2: one founder per census row, slot = row, the row's age and sex; households as rosters.
-// Spec 48: the block's country is its place's income group's base country.
+// Spec 48: the block's country is its place's income group's base country; spec 49: or its real profile.
 std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place& place) {
   const std::string data = data_dir();
-  auto pops = std::make_unique<PopSystem>(w, make_pop_params(load_nation(data + "/setup/nations/base_" + place.income + ".toml"), data));
+  auto pops = std::make_unique<PopSystem>(w, make_pop_params(load_nation(data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml"), data));
   PopRegistry& reg = pops->setup(w);
   const auto& people = census.people();
   reg.add_cohort({kBlockCohort, kBlockRegion, 0, people.size()});

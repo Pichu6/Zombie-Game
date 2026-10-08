@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Albania, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 77.76/81.35 vs WPP 77.73/81.45; TFR model 1.359 vs 1.348.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Albania"
+year = 2023
+
+male_share_at_birth = 0.516908
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.051597, 0.059203, 0.059620, 0.061016, 0.070935, 0.082835, 0.082129, 0.067930, 0.056154, 0.054870, 0.060668, 0.063862, 0.066162, 0.056281, 0.041869, 0.028701, 0.021223, 0.010755, 0.003482, 0.000710]
+
+[mortality_female]
+constant_hazard = 2.284456e-04
+gompertz_b = 3.173763e-06
+gompertz_c = 0.120430
+child_hazard = 2.208125e-02
+child_decline = 2.881707
+
+[mortality_male]
+constant_hazard = 2.353977e-04
+gompertz_b = 1.823235e-05
+gompertz_c = 0.101646
+child_hazard = 2.955673e-02
+child_decline = 3.322772
+
+[fertility]
+hazard_by_band = [0.01293710, 0.05845954, 0.09135599, 0.08273915, 0.03781266, 0.00645563, 0.00045649]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 77.7568
+life_expectancy_0_female = 81.3485
+life_expectancy_15_male = 63.7446
+life_expectancy_15_female = 67.2369

@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nepal, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 68.80/71.81 vs WPP 68.84/71.84; TFR model 1.991 vs 1.984.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Nepal"
+year = 2023
+
+male_share_at_birth = 0.511957
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.094026, 0.095589, 0.097521, 0.101101, 0.098956, 0.089822, 0.075499, 0.065866, 0.058182, 0.050054, 0.043878, 0.035452, 0.030448, 0.024947, 0.018703, 0.011735, 0.005806, 0.001954, 0.000415, 0.000046]
+
+[mortality_female]
+constant_hazard = 6.592904e-04
+gompertz_b = 2.497979e-05
+gompertz_c = 0.103030
+child_hazard = 5.359394e-02
+child_decline = 2.545188
+
+[mortality_male]
+constant_hazard = 7.290764e-04
+gompertz_b = 4.772882e-05
+gompertz_c = 0.097256
+child_hazard = 7.262273e-02
+child_decline = 2.948394
+
+[fertility]
+hazard_by_band = [0.07146895, 0.17069953, 0.11922849, 0.05560711, 0.01895829, 0.00625497, 0.00087125]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 68.8044
+life_expectancy_0_female = 71.8145
+life_expectancy_15_male = 56.3052
+life_expectancy_15_female = 59.0467

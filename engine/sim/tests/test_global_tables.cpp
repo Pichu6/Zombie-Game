@@ -4,6 +4,8 @@
 #include <doctest.h>
 
 #include <cmath>
+#include <filesystem>
+#include <set>
 #include <fstream>
 #include <iterator>
 #include <string>
@@ -198,4 +200,24 @@ TEST_CASE("global tables: the version-6 fixture still loads and re-saves to the 
   CHECK(loaded.save() == bytes);
   CHECK(loaded.params().fertility.hazard_by_band.size() == 7);
   CHECK(loaded.params().female.child_hazard == 0.0);
+}
+
+TEST_CASE("real profiles (spec 49): every real country loads, is sourced, and wears a parody name") {
+  std::set<std::string> names;
+  int count = 0;
+  for (const auto& e : std::filesystem::directory_iterator(data() + "/setup/nations/real")) {
+    const NationDemographics n = load_nation(e.path().string());
+    CHECK(n.sourced);
+    CHECK(names.insert(n.name).second);
+    CHECK(n.population > 0);
+    CHECK_FALSE(n.income.empty());
+    // The real name is in the sources; the parody name must not be it.
+    const std::string& src = n.age_pyramid_source.text;
+    const std::string real = src.substr(src.rfind(", ") + 2);
+    CHECK_MESSAGE(n.name != real, n.id);
+    const PopParams p = make_pop_params(n, data());
+    CHECK(p.fertility.hazard_by_band.size() == 7);
+    ++count;
+  }
+  CHECK(count > 150);
 }

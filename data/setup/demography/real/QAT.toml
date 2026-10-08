@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Qatar, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 81.50/83.36 vs WPP 81.61/83.37; TFR model 1.740 vs 1.729.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Qatar"
+year = 2023
+
+male_share_at_birth = 0.509804
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.051865, 0.053399, 0.046342, 0.037349, 0.054554, 0.123007, 0.161950, 0.158878, 0.120948, 0.078034, 0.051297, 0.029575, 0.017081, 0.008373, 0.003889, 0.001981, 0.000906, 0.000404, 0.000140, 0.000029]
+
+[mortality_female]
+constant_hazard = 1.007373e-04
+gompertz_b = 2.056414e-06
+gompertz_c = 0.124083
+child_hazard = 9.776415e-03
+child_decline = 2.357392
+
+[mortality_male]
+constant_hazard = 2.505886e-04
+gompertz_b = 1.006899e-06
+gompertz_c = 0.135838
+child_hazard = 1.382041e-01
+child_decline = 32.536754
+
+[fertility]
+hazard_by_band = [0.00572216, 0.07737072, 0.10426815, 0.09805409, 0.06513596, 0.02289664, 0.00282676]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 81.5016
+life_expectancy_0_female = 83.3574
+life_expectancy_15_male = 67.1320
+life_expectancy_15_female = 68.8240

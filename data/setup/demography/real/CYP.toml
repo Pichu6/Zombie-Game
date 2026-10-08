@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cyprus, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 79.60/83.64 vs WPP 79.63/83.67; TFR model 1.397 vs 1.389.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cyprus"
+year = 2023
+
+male_share_at_birth = 0.515738
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.055058, 0.053960, 0.051521, 0.049382, 0.055874, 0.070436, 0.090688, 0.096398, 0.085650, 0.071250, 0.064185, 0.058770, 0.053593, 0.045137, 0.036569, 0.028047, 0.018480, 0.009958, 0.003918, 0.001126]
+
+[mortality_female]
+constant_hazard = 3.576251e-05
+gompertz_b = 2.295250e-06
+gompertz_c = 0.122697
+child_hazard = 7.471792e-03
+child_decline = 2.379039
+
+[mortality_male]
+constant_hazard = 5.052157e-05
+gompertz_b = 7.947933e-06
+gompertz_c = 0.112177
+child_hazard = 1.020618e-02
+child_decline = 2.938452
+
+[fertility]
+hazard_by_band = [0.00702490, 0.02892368, 0.07089680, 0.10915429, 0.06573551, 0.01609830, 0.00188028]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 79.5970
+life_expectancy_0_female = 83.6350
+life_expectancy_15_male = 64.9495
+life_expectancy_15_female = 68.9451

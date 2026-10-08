@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Sierra Leone, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 60.01/63.45 vs WPP 60.06/63.50; TFR model 3.775 vs 3.791.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Sierra Leone"
+year = 2023
+
+male_share_at_birth = 0.508358
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.137549, 0.126915, 0.120853, 0.109087, 0.097400, 0.082644, 0.069481, 0.058568, 0.048467, 0.039740, 0.032053, 0.025645, 0.019529, 0.013887, 0.008958, 0.005600, 0.002586, 0.000841, 0.000172, 0.000023]
+
+[mortality_female]
+constant_hazard = 1.419840e-03
+gompertz_b = 4.076587e-05
+gompertz_c = 0.099002
+child_hazard = 1.250563e-01
+child_decline = 1.431239
+
+[mortality_male]
+constant_hazard = 1.745641e-03
+gompertz_b = 5.946486e-05
+gompertz_c = 0.096556
+child_hazard = 1.541385e-01
+child_decline = 1.527783
+
+[fertility]
+hazard_by_band = [0.10215901, 0.21497645, 0.21059284, 0.17489661, 0.11405430, 0.04671446, 0.01464618]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 60.0149
+life_expectancy_0_female = 63.4525
+life_expectancy_15_male = 52.9973
+life_expectancy_15_female = 55.5984

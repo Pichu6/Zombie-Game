@@ -1,0 +1,54 @@
+# Burkina Fasso: a country with the real data of Burkina Faso under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BFA"
+name = "Burkina Fasso"
+status = "sourced"
+pop_params = "demography/real/BFA.toml"
+
+[age_pyramid]
+shares = [0.145539, 0.145615, 0.132859, 0.112721, 0.092518, 0.076907, 0.065049, 0.055974, 0.046242, 0.035586, 0.027101, 0.021335, 0.016346, 0.011635, 0.007317, 0.004665, 0.001990, 0.000529, 0.000069, 0.000003]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Burkina Faso"
+year = 2023
+
+[education]
+age_25_34 = [0.815177, 0.074219, 0.098368, 0.012236]
+age_35_64 = [0.860476, 0.050391, 0.075926, 0.013207]
+age_65_plus = [0.940086, 0.023749, 0.025880, 0.010285]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Burkina Faso"
+year = 2023
+
+[labour]
+participation_15_24 = [0.6182, 0.4877]
+participation_25_54 = [0.9017, 0.7790]
+participation_55_64 = [0.8114, 0.6422]
+participation_65_plus = [0.5507, 0.3776]
+unemployment_rate = 0.0360
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Burkina Faso; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.021082, 0.044066, 0.038994, 0.011608, 0.254441, 0.123041, 0.029271, 0.477497]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Burkina Faso"
+year = 2023
+
+[sectors]
+shares = [0.526974, 0.165608, 0.307418]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Burkina Faso"
+year = 2023
+
+[households]
+sizes = [0.066393, 0.195080, 0.273973, 0.464554]
+mean_size = 5.920
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Burkina Faso, latest survey"
+year = 2014
+
+[settlement]
+urban_share = 0.2779
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Burkina Faso"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 23025776

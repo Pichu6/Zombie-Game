@@ -1,0 +1,54 @@
+# Gabonne: a country with the real data of Gabon under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GAB"
+name = "Gabonne"
+status = "sourced"
+pop_params = "demography/real/GAB.toml"
+
+[age_pyramid]
+shares = [0.133305, 0.123517, 0.109801, 0.091907, 0.080843, 0.076704, 0.076751, 0.071151, 0.060390, 0.047949, 0.037173, 0.028491, 0.021601, 0.015775, 0.011134, 0.007095, 0.003969, 0.001777, 0.000543, 0.000125]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Gabon"
+year = 2023
+
+[education]
+age_25_34 = [0.144969, 0.369185, 0.352399, 0.133446]
+age_35_64 = [0.210875, 0.353272, 0.314302, 0.121551]
+age_65_plus = [0.547087, 0.236166, 0.126958, 0.089789]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Gabon"
+year = 2023
+
+[labour]
+participation_15_24 = [0.2022, 0.1543]
+participation_25_54 = [0.8296, 0.5911]
+participation_55_64 = [0.5447, 0.3102]
+participation_65_plus = [0.2683, 0.1875]
+unemployment_rate = 0.2016
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Gabon; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.061778, 0.082075, 0.056662, 0.056088, 0.129038, 0.125360, 0.104255, 0.384745]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Gabon"
+year = 2023
+
+[sectors]
+shares = [0.293151, 0.182791, 0.524058]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Gabon"
+year = 2023
+
+[households]
+sizes = [0.224200, 0.284800, 0.225000, 0.266000]
+mean_size = 4.100
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Gabon, latest survey"
+year = 2012
+
+[settlement]
+urban_share = 0.9164
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Gabon"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 2484788

@@ -1,0 +1,54 @@
+# Benon: a country with the real data of Benin under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "BEN"
+name = "Benon"
+status = "sourced"
+pop_params = "demography/real/BEN.toml"
+
+[age_pyramid]
+shares = [0.154237, 0.141493, 0.122633, 0.106056, 0.089934, 0.078149, 0.065885, 0.055912, 0.045913, 0.036579, 0.029981, 0.024082, 0.018267, 0.012860, 0.008637, 0.005441, 0.002726, 0.000960, 0.000223, 0.000032]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Benin"
+year = 2023
+
+[education]
+age_25_34 = [0.419254, 0.195087, 0.307780, 0.077880]
+age_35_64 = [0.701087, 0.136191, 0.126470, 0.036252]
+age_65_plus = [0.848070, 0.076631, 0.056665, 0.018635]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Benin"
+year = 2023
+
+[labour]
+participation_15_24 = [0.5204, 0.5295]
+participation_25_54 = [0.9444, 0.8920]
+participation_55_64 = [0.8578, 0.8497]
+participation_65_plus = [0.6323, 0.5298]
+unemployment_rate = 0.0164
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Benin; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.006359, 0.027603, 0.013821, 0.010012, 0.293324, 0.147729, 0.036847, 0.464303]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Benin"
+year = 2023
+
+[sectors]
+shares = [0.418571, 0.183031, 0.398399]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Benin"
+year = 2023
+
+[households]
+sizes = [0.097800, 0.235600, 0.291000, 0.375600]
+mean_size = 5.190
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Benin, latest survey"
+year = 2018
+
+[settlement]
+urban_share = 0.5175
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Benin"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 14111034

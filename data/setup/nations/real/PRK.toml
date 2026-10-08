@@ -1,0 +1,54 @@
+# North Koreo: a country with the real data of Dem. People's Republic of Korea under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "PRK"
+name = "North Koreo"
+status = "sourced"
+pop_params = "demography/real/PRK.toml"
+
+[age_pyramid]
+shares = [0.064776, 0.063669, 0.061362, 0.062878, 0.069771, 0.074782, 0.073968, 0.068917, 0.063387, 0.064638, 0.082755, 0.072940, 0.055871, 0.043636, 0.027008, 0.025560, 0.015998, 0.006473, 0.001411, 0.000199]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Dem. People's Republic of Korea"
+year = 2023
+
+[education]
+age_25_34 = [0.000223, 0.000119, 0.742811, 0.256847]
+age_35_64 = [0.000207, 0.000186, 0.780427, 0.219180]
+age_65_plus = [0.005253, 0.044132, 0.737448, 0.213167]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Dem. People's Republic of Korea"
+year = 2023
+
+[labour]
+participation_15_24 = [0.7537, 0.8169]
+participation_25_54 = [0.9652, 0.9340]
+participation_55_64 = [0.8799, 0.7111]
+participation_65_plus = [0.5872, 0.3280]
+unemployment_rate = 0.0346
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Dem. People's Republic of Korea; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.011248, 0.000966, 0.000966, 0.041720, 0.087759, 0.190382, 0.109768, 0.557190]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Dem. People's Republic of Korea"
+year = 2023
+
+[sectors]
+shares = [0.544933, 0.226565, 0.228503]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Dem. People's Republic of Korea"
+year = 2023
+
+[households]
+sizes = [0.016802, 0.327233, 0.554255, 0.101710]
+mean_size = 3.930
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Dem. People's Republic of Korea, latest survey"
+year = 2008
+
+[settlement]
+urban_share = 0.6354
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Dem. People's Republic of Korea"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "low"
+population = 26418204

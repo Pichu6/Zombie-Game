@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cabo Verde, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 72.81/79.08 vs WPP 72.86/79.21; TFR model 1.524 vs 1.522.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Cabo Verde"
+year = 2023
+
+male_share_at_birth = 0.508116
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.074921, 0.093890, 0.094895, 0.090848, 0.079723, 0.086228, 0.091166, 0.081810, 0.066268, 0.051708, 0.044173, 0.042800, 0.035768, 0.025210, 0.017730, 0.011041, 0.006795, 0.003806, 0.001055, 0.000165]
+
+[mortality_female]
+constant_hazard = 2.240004e-04
+gompertz_b = 4.820400e-06
+gompertz_c = 0.118304
+child_hazard = 2.172822e-02
+child_decline = 2.271378
+
+[mortality_male]
+constant_hazard = 1.096793e-04
+gompertz_b = 5.936101e-05
+gompertz_c = 0.091465
+child_hazard = 2.707168e-02
+child_decline = 2.251786
+
+[fertility]
+hazard_by_band = [0.04014823, 0.06881872, 0.07546357, 0.07179343, 0.04782732, 0.01742367, 0.00173882]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 72.8092
+life_expectancy_0_female = 79.0753
+life_expectancy_15_male = 58.9171
+life_expectancy_15_female = 65.0886

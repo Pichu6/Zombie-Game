@@ -1,0 +1,54 @@
+# Slovenio: a country with the real data of Slovenia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "SVN"
+name = "Slovenio"
+status = "sourced"
+pop_params = "demography/real/SVN.toml"
+
+[age_pyramid]
+shares = [0.045257, 0.050116, 0.053925, 0.047778, 0.047167, 0.053473, 0.059595, 0.068572, 0.075755, 0.075182, 0.069659, 0.072188, 0.068010, 0.065175, 0.056092, 0.036939, 0.028512, 0.016794, 0.007632, 0.002178]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Slovenia"
+year = 2023
+
+[education]
+age_25_34 = [0.001420, 0.002923, 0.616104, 0.379552]
+age_35_64 = [0.002339, 0.009908, 0.697325, 0.290427]
+age_65_plus = [0.002584, 0.090006, 0.778728, 0.128682]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Slovenia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4068, 0.3110]
+participation_25_54 = [0.9413, 0.8989]
+participation_55_64 = [0.5982, 0.5263]
+participation_65_plus = [0.0662, 0.0339]
+unemployment_rate = 0.0365
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Slovenia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.038725, 0.231145, 0.145533, 0.076988, 0.139622, 0.137444, 0.087817, 0.142726]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Slovenia"
+year = 2023
+
+[sectors]
+shares = [0.040242, 0.321155, 0.638603]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Slovenia"
+year = 2023
+
+[households]
+sizes = [0.326033, 0.436944, 0.205421, 0.031603]
+mean_size = 2.470
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Slovenia, latest survey"
+year = 2015
+
+[settlement]
+urban_share = 0.5554
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Slovenia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 2118396

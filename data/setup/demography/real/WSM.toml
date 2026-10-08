@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Samoa, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 69.82/73.65 vs WPP 69.86/73.66; TFR model 3.813 vs 3.829.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Samoa"
+year = 2023
+
+male_share_at_birth = 0.518304
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.130541, 0.133172, 0.123563, 0.098058, 0.074525, 0.064883, 0.057660, 0.051346, 0.047783, 0.044829, 0.045568, 0.038455, 0.032557, 0.023511, 0.015194, 0.009692, 0.005243, 0.002506, 0.000706, 0.000208]
+
+[mortality_female]
+constant_hazard = 6.211995e-04
+gompertz_b = 3.756639e-05
+gompertz_c = 0.095192
+child_hazard = 3.705502e-01
+child_decline = 33.372668
+
+[mortality_male]
+constant_hazard = 4.325140e-04
+gompertz_b = 7.470624e-05
+gompertz_c = 0.090714
+child_hazard = 4.548246e-02
+child_decline = 3.094040
+
+[fertility]
+hazard_by_band = [0.04530429, 0.22438657, 0.25031105, 0.20947226, 0.12196433, 0.04651211, 0.00779103]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 69.8151
+life_expectancy_0_female = 73.6495
+life_expectancy_15_male = 56.4050
+life_expectancy_15_female = 60.1810

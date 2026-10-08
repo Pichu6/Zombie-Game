@@ -1,0 +1,54 @@
+# Equatorial Guinoa: a country with the real data of Equatorial Guinea under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "GNQ"
+name = "Equatorial Guinoa"
+status = "sourced"
+pop_params = "demography/real/GNQ.toml"
+
+[age_pyramid]
+shares = [0.136630, 0.125939, 0.112275, 0.093746, 0.076103, 0.073491, 0.076836, 0.072838, 0.057675, 0.046679, 0.037663, 0.030437, 0.023454, 0.015927, 0.010577, 0.005455, 0.002867, 0.001061, 0.000278, 0.000070]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Equatorial Guinea"
+year = 2023
+
+[education]
+age_25_34 = [0.209097, 0.413375, 0.319194, 0.058334]
+age_35_64 = [0.281691, 0.423370, 0.251363, 0.043576]
+age_65_plus = [0.477405, 0.330539, 0.155977, 0.036079]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Equatorial Guinea"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3261, 0.2820]
+participation_25_54 = [0.8498, 0.7009]
+participation_55_64 = [0.6901, 0.4845]
+participation_65_plus = [0.3902, 0.2753]
+unemployment_rate = 0.0822
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Equatorial Guinea; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.021246, 0.034604, 0.056856, 0.029784, 0.135048, 0.186310, 0.086139, 0.450011]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Equatorial Guinea"
+year = 2023
+
+[sectors]
+shares = [0.554355, 0.101188, 0.344458]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Equatorial Guinea"
+year = 2023
+
+[households]
+sizes = [0.141386, 0.238476, 0.200380, 0.419758]
+mean_size = 5.300
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Equatorial Guinea, latest survey"
+year = 2000
+
+[settlement]
+urban_share = 0.7113
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Equatorial Guinea"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "upper_middle"
+population = 1847549

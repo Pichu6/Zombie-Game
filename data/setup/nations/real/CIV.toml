@@ -1,0 +1,54 @@
+# Ivory Coust: a country with the real data of Côte d'Ivoire under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "CIV"
+name = "Ivory Coust"
+status = "sourced"
+pop_params = "demography/real/CIV.toml"
+
+[age_pyramid]
+shares = [0.147401, 0.142135, 0.123229, 0.104331, 0.086115, 0.072730, 0.069946, 0.064708, 0.053863, 0.041223, 0.029903, 0.022339, 0.016395, 0.011148, 0.007059, 0.004135, 0.002146, 0.000866, 0.000260, 0.000068]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Côte d'Ivoire"
+year = 2023
+
+[education]
+age_25_34 = [0.523736, 0.144386, 0.224508, 0.107371]
+age_35_64 = [0.635843, 0.167788, 0.135650, 0.060719]
+age_65_plus = [0.807030, 0.099712, 0.072573, 0.020686]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Côte d'Ivoire"
+year = 2023
+
+[labour]
+participation_15_24 = [0.4029, 0.3363]
+participation_25_54 = [0.9462, 0.7551]
+participation_55_64 = [0.8732, 0.6324]
+participation_65_plus = [0.5634, 0.2967]
+unemployment_rate = 0.0226
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Côte d'Ivoire; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.001727, 0.022511, 0.024494, 0.025425, 0.302612, 0.091413, 0.013019, 0.518798]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Côte d'Ivoire"
+year = 2023
+
+[sectors]
+shares = [0.470774, 0.137922, 0.391304]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Côte d'Ivoire"
+year = 2023
+
+[households]
+sizes = [0.170000, 0.251200, 0.260800, 0.318000]
+mean_size = 4.580
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Côte d'Ivoire, latest survey"
+year = 2016
+
+[settlement]
+urban_share = 0.5341
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Côte d'Ivoire"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "lower_middle"
+population = 31165654

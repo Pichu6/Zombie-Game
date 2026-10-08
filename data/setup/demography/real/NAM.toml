@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Namibia, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 63.35/71.36 vs WPP 63.33/71.34; TFR model 3.200 vs 3.212.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Namibia"
+year = 2023
+
+male_share_at_birth = 0.502735
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.138187, 0.126395, 0.108341, 0.093364, 0.088361, 0.085515, 0.079663, 0.064210, 0.053214, 0.043836, 0.034406, 0.026797, 0.021999, 0.014484, 0.009725, 0.006194, 0.003294, 0.001427, 0.000466, 0.000123]
+
+[mortality_female]
+constant_hazard = 4.543292e-04
+gompertz_b = 1.152775e-04
+gompertz_c = 0.079752
+child_hazard = 4.576077e-02
+child_decline = 1.482880
+
+[mortality_male]
+constant_hazard = 4.613654e-04
+gompertz_b = 3.309579e-04
+gompertz_c = 0.072416
+child_hazard = 6.104194e-02
+child_decline = 1.648099
+
+[fertility]
+hazard_by_band = [0.07018531, 0.17434575, 0.17380820, 0.15097942, 0.10666611, 0.04207639, 0.00919468]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 63.3527
+life_expectancy_0_female = 71.3554
+life_expectancy_15_male = 51.6414
+life_expectancy_15_female = 59.2400

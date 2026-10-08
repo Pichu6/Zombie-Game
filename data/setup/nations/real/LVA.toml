@@ -1,0 +1,54 @@
+# Latvonia: a country with the real data of Latvia under a parody name (decision 0053).
+# Written by tools/data/countries.py; do not edit by hand.
+
+id = "LVA"
+name = "Latvonia"
+status = "sourced"
+pop_params = "demography/real/LVA.toml"
+
+[age_pyramid]
+shares = [0.046351, 0.057539, 0.053031, 0.052929, 0.046627, 0.047293, 0.067479, 0.073812, 0.066774, 0.067009, 0.069169, 0.066989, 0.071677, 0.062284, 0.051820, 0.037520, 0.033986, 0.018994, 0.007165, 0.001550]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Latvia"
+year = 2023
+
+[education]
+age_25_34 = [0.007603, 0.015299, 0.588224, 0.388873]
+age_35_64 = [0.004174, 0.009836, 0.681016, 0.304973]
+age_65_plus = [0.004816, 0.019804, 0.751585, 0.223795]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), Latvia"
+year = 2023
+
+[labour]
+participation_15_24 = [0.3703, 0.3273]
+participation_25_54 = [0.9100, 0.8428]
+participation_55_64 = [0.7536, 0.7556]
+participation_65_plus = [0.1906, 0.1258]
+unemployment_rate = 0.0646
+retirement_age = 65
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Latvia; retirement_age is an estimate, not data"
+year = 2023
+
+[occupations]
+shares = [0.111581, 0.215977, 0.131260, 0.052908, 0.142422, 0.103325, 0.094660, 0.147866]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Latvia"
+year = 2023
+
+[sectors]
+shares = [0.058352, 0.233245, 0.708402]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), Latvia"
+year = 2023
+
+[households]
+sizes = [0.410841, 0.408041, 0.144114, 0.037004]
+mean_size = 2.260
+source = "UN DESA Population Division, Database on Household Size and Composition 2022 (CC BY 3.0 IGO), Latvia, latest survey"
+year = 2021
+
+[settlement]
+urban_share = 0.6836
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), Latvia"
+year = 2023
+
+[country]  # read by the world generator (spec 49), not by the profile loader's tables
+income = "high"
+population = 1882396

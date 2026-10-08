@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Panama, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 76.50/82.63 vs WPP 76.65/82.56; TFR model 2.111 vs 2.119.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Panama"
+year = 2023
+
+male_share_at_birth = 0.513145
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.080691, 0.086997, 0.085074, 0.081587, 0.079469, 0.077094, 0.074339, 0.071259, 0.065526, 0.060765, 0.056633, 0.049624, 0.040375, 0.031341, 0.023540, 0.016306, 0.010666, 0.005792, 0.002260, 0.000664]
+
+[mortality_female]
+constant_hazard = 4.044126e-04
+gompertz_b = 7.672176e-06
+gompertz_c = 0.105089
+child_hazard = 2.745307e-02
+child_decline = 2.167360
+
+[mortality_male]
+constant_hazard = 9.315065e-04
+gompertz_b = 1.908168e-05
+gompertz_c = 0.099116
+child_hazard = 5.056365e-02
+child_decline = 3.917297
+
+[fertility]
+hazard_by_band = [0.06044634, 0.13103250, 0.11704363, 0.08799953, 0.05019297, 0.01410157, 0.00153334]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 76.5028
+life_expectancy_0_female = 82.6255
+life_expectancy_15_male = 63.5241
+life_expectancy_15_female = 69.1573

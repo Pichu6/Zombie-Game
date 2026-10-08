@@ -1,0 +1,33 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Republic of Korea, 2023. Written by tools/data/countries.py; do not edit by hand.
+# Fit: e0 model 81.18/87.11 vs WPP 81.19/87.16; TFR model 0.717 vs 0.720.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Republic of Korea"
+year = 2023
+
+male_share_at_birth = 0.514091
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.026247, 0.039009, 0.044452, 0.044675, 0.057445, 0.069645, 0.067791, 0.065158, 0.078475, 0.076115, 0.086549, 0.079656, 0.081433, 0.063526, 0.043034, 0.031606, 0.025138, 0.013444, 0.005221, 0.001382]
+
+[mortality_female]
+constant_hazard = 6.719480e-05
+gompertz_b = 1.379345e-06
+gompertz_c = 0.123654
+child_hazard = 3.790935e-03
+child_decline = 1.792252
+
+[mortality_male]
+constant_hazard = 6.236937e-05
+gompertz_b = 4.963741e-06
+gompertz_c = 0.116211
+child_hazard = 4.759855e-03
+child_decline = 1.766968
+
+[fertility]
+hazard_by_band = [0.00053726, 0.00343573, 0.02281884, 0.07241642, 0.04323424, 0.00767246, 0.00028830]
+gap_min = 1.0
+
+[check]
+life_expectancy_0_male = 81.1838
+life_expectancy_0_female = 87.1112
+life_expectancy_15_male = 66.4850
+life_expectancy_15_female = 72.3796
