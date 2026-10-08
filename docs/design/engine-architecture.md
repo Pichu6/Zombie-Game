@@ -106,18 +106,18 @@ If hot work goes over budget, warm and macro slices wait (they have deadlines, n
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
 - ECS storage as archetypes or sparse sets? Stable ids favour sparse sets. ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
-- Two frames in flight (as niagara and Sascha Willems' examples use) or "2-3"? The research recommends 2. ([renderer](../research/renderer.md))
-- Minimum GPU: Vulkan 1.3 with buffer device address, descriptor indexing, dynamic rendering and synchronization2; mesh shaders optional? ([renderer](../research/renderer.md))
-- Does any simulation rule need rigid-body physics, or does Jolt stay view-side ([ES-45](../research/engine-stack.md))? ([engine-stack](../research/engine-stack.md))
+- Two frames in flight (as niagara and Sascha Willems' examples use) or "2-3"? The research recommends 2. ([renderer](../research/renderer.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** two frames in flight.
+- Minimum GPU: Vulkan 1.3 with buffer device address, descriptor indexing, dynamic rendering and synchronization2; mesh shaders optional? ([renderer](../research/renderer.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** yes, mesh shaders optional.
+- Does any simulation rule need rigid-body physics, or does Jolt stay view-side ([ES-45](../research/engine-stack.md))? ([engine-stack](../research/engine-stack.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** physics is view-side unless a game rule needs it.
 - Does the sim's grid pathing scale to open 3D ground, or do we add Detour, and if so do its float-based paths feed the sim? ([engine-stack](../research/engine-stack.md))
-- Raw Vulkan with vk-bootstrap and VMA rather than SDL_gpu ([ES-47](../research/engine-stack.md)), to be confirmed in a decision superseding 0002. ([engine-stack](../research/engine-stack.md))
-- Will a macOS build ever be a target? If so, recheck toml++ float parsing on libc++ and SDL_gpu's portability case. ([engine-stack](../research/engine-stack.md))
+- Raw Vulkan with vk-bootstrap and VMA rather than SDL_gpu ([ES-47](../research/engine-stack.md)), to be confirmed in a decision superseding 0002. ([engine-stack](../research/engine-stack.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** raw Vulkan; SDL3 for window and input.
+- Will a macOS build ever be a target? If so, recheck toml++ float parsing on libc++ and SDL_gpu's portability case. ([engine-stack](../research/engine-stack.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** x64 Windows and Linux only for now.
 - Do the id-set and record-layout ratios hold on MSVC and a desktop CPU? Rerun the benchmark before the layout goes into a spec. ([ecs-memory-layout](../research/ecs-memory-layout.md))
 - Which pop record fields are hot and which cold (spec 28)? Needs the realistic record that benchmark B1 waits for. ([ecs-memory-layout](../research/ecs-memory-layout.md))
-- Should spec 01's float path become "required across compilers", now that GCC 13 and Clang 18 reproduce every MSVC golden? ([determinism](../research/determinism.md))
-- Are only x64 platforms in scope, or also ARM64, where FMA is in the base instruction set? ([determinism](../research/determinism.md))
-- Should a NaN in saved state be canonicalised, or treated as a bug (spec 06)? ([determinism](../research/determinism.md))
-- Where does the floating-point environment guard live once there are worker threads: per step, per job, or per worker at start? ([determinism](../research/determinism.md))
+- Should spec 01's float path become "required across compilers", now that GCC 13 and Clang 18 reproduce every MSVC golden? ([determinism](../research/determinism.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** yes, required and checked in CI on GCC and Clang.
+- Are only x64 platforms in scope, or also ARM64, where FMA is in the base instruction set? ([determinism](../research/determinism.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** x64 only for now.
+- Should a NaN in saved state be canonicalised, or treated as a bug (spec 06)? ([determinism](../research/determinism.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** a bug; the archive asserts.
+- Where does the floating-point environment guard live once there are worker threads: per step, per job, or per worker at start? ([determinism](../research/determinism.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** per step now, per worker at start later.
 
 ## Research
 

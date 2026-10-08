@@ -126,12 +126,12 @@ Every long thing is the same kind of record, a **Process**: a plan (inputs, labo
 - Do Roaring-style compressed id sets beat plain sorted arrays at our roster sizes? Needs a measurement. ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
 - How do Songs of Syx and Dwarf Fortress actually lay out their data? Not readable yet. ([low-resource-city-simulation](../research/low-resource-city-simulation.md))
 - Should a stored region-scale id set be over founder slots, record slots or 64-bit PopId (roaring64)? Is CRoaring's portable serialisation byte-identical for the same set whatever its history, as the save hash needs? ([ecs-memory-layout](../research/ecs-memory-layout.md))
-- Saves (spec 06): which zstd release to vendor, and does adding it need a decision beside 0002? ([data-compression](../research/data-compression.md))
-- Should save format version 4 add the codec, the uncompressed size and spec 06 rule 4's fields (binary hash, data hash, seed, settings) all at once? ([data-compression](../research/data-compression.md))
-- How often to write a full save in the autosave and rewind history (one per game day proposed, deltas between)? ([data-compression](../research/data-compression.md))
-- Pop records (spec 28): regenerate founder specs from the generator, or store them as compressed columns? Switch the death-year and effect-year doubles to fixed point? ([data-compression](../research/data-compression.md))
+- Saves (spec 06): which zstd release to vendor, and does adding it need a decision beside 0002? ([data-compression](../research/data-compression.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** vendor zstd (a pinned release); recorded in 0055, no separate decision.
+- Should save format version 4 add the codec, the uncompressed size and spec 06 rule 4's fields (binary hash, data hash, seed, settings) all at once? ([data-compression](../research/data-compression.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** yes, all at once; the version 3 reader stays.
+- How often to write a full save in the autosave and rewind history (one per game day proposed, deltas between)? ([data-compression](../research/data-compression.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** one per game day, deltas between.
+- Pop records (spec 28): regenerate founder specs from the generator, or store them as compressed columns? Switch the death-year and effect-year doubles to fixed point? ([data-compression](../research/data-compression.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** regenerate; fixed point when the record format next changes.
 - Chronicle (spec 25): after old events are folded into sums, keep the full log compressed in the save or drop it? ([data-compression](../research/data-compression.md))
-- Is a trained dictionary per blob kind worth the upkeep for a 16% gain? ([data-compression](../research/data-compression.md))
+- Is a trained dictionary per blob kind worth the upkeep for a 16% gain? ([data-compression](../research/data-compression.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** no, not for now.
 
 ## Research
 

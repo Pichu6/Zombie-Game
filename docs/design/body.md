@@ -161,7 +161,7 @@ See [body-trauma.md](body-trauma.md).
 
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
-- Should the window show a moodle-style column for the selected pop? Which states get an icon, from which body fields? (First list: hunger, thirst, fatigue, cold or heat, pain, bleeding, fear, sickness.) ([project-zomboid](../research/project-zomboid.md))
+- Should the window show a moodle-style column for the selected pop? Which states get an icon, from which body fields? (First list: hunger, thirst, fatigue, cold or heat, pain, bleeding, fear, sickness.) ([project-zomboid](../research/project-zomboid.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** yes (see the fix plan, package 1).
 
 ## Research
 

@@ -168,6 +168,6 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
 - Is "call support" a commander-layer verb that shows the asset, its travel time and its ammunition? ([world-in-conflict](../research/world-in-conflict.md))
-- Does direct control cap time at 1:1 (1.35 cells per real second) or 3x, and on WASD only or on any approach by the controlled pop? (Today the window's "1x" is 24x game time.) ([view-readability](../research/view-readability.md))
-- Does the follow camera hard-lock (OpenTTD, OpenRCT2) or lag with a dead zone (Godot, Mindustry), and which key recentres? ([view-readability](../research/view-readability.md))
-- Which events raise a pausing Pacer alert at normal speed (spec 40)? ([view-readability](../research/view-readability.md))
+- Does direct control cap time at 1:1 (1.35 cells per real second) or 3x, and on WASD only or on any approach by the controlled pop? (Today the window's "1x" is 24x game time.) ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** X3 while walking or WASD held, Real in a fight.
+- Does the follow camera hard-lock (OpenTTD, OpenRCT2) or lag with a dead zone (Godot, Mindustry), and which key recentres? ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** smoothed follow (tau 0.1 s) with a 20 % dead zone; F or Home recentres.
+- Which events raise a pausing Pacer alert at normal speed (spec 40)? ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** a walker in sight of a group member, a bite, a group member down.

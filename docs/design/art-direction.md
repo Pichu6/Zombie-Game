@@ -177,7 +177,7 @@ First visual sequence (Proposal): same underground facility, same inhabitant, sa
 
 - Starting budget of bodies on screen per tier: about 50 full, hundreds mid, thousands far? ([renderer](../research/renderer.md))
 - Are clothing layers wrapped on mid-tier bodies, or baked into the texture ([CW-17](../research/clothing-wrap.md))? ([renderer](../research/renderer.md))
-- Which colour-blind-safe palette (Tol bright or Tableau Colorblind10), and which shapes separate pops, walkers, objects and items at 20-32 px per cell? ([view-readability](../research/view-readability.md))
+- Which colour-blind-safe palette (Tol bright or Tableau Colorblind10), and which shapes separate pops, walkers, objects and items at 20-32 px per cell? ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** Tol bright; pops discs, walkers diamonds, objects labelled squares.
 
 ## Research
 
