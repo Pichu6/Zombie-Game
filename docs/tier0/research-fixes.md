@@ -89,5 +89,5 @@ A work list for a **local session on Windows** (MSVC), built from six research n
 
 ## Housekeeping for the next session
 
-- Branch `claude/intelligent-wright-4dliah` adds `docs/research/draw-call-and-mesh-optimizations.md` in the old format and an index row in the old alphabetical table. When it merges, convert the note to the [0054](../decisions/0054-research-notes-findings-and-links.md) format and put it under "Engine and rendering"; run `python3 tools/docs/check_research.py`.
+- ~~Branch `claude/intelligent-wright-4dliah`~~: merged 2026-10-08; its note is in the 0054 format (IDs DMO) under "Engine and rendering".
 - Every design doc touched by the research now has a "From research" list in its Open section; answer or close items there as packages land.

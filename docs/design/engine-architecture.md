@@ -132,3 +132,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
 - [ecs-memory-layout](../research/ecs-memory-layout.md): Entity storage and memory layout: archetypes, sparse sets, id sets, profiling
 - [determinism](../research/determinism.md): Cross-compiler and cross-platform determinism: pitfalls and fixes
+- [draw-call-and-mesh-optimizations](../research/draw-call-and-mesh-optimizations.md): Draw-call and mesh optimizations, from a voxel-engine video

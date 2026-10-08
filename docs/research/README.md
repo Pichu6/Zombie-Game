@@ -116,6 +116,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [ecs-memory-layout.md](ecs-memory-layout.md) | Entity storage and memory layout: archetypes, sparse sets, id sets, profiling | 2026-10-08 |
 | [data-compression.md](data-compression.md) | Data compression for saves, replays, traces and pop records | 2026-10-08 |
 | [determinism.md](determinism.md) | Cross-compiler and cross-platform determinism: pitfalls and fixes | 2026-10-08 |
+| [draw-call-and-mesh-optimizations.md](draw-call-and-mesh-optimizations.md) | Draw-call and mesh optimizations, from a voxel-engine video | 2026-10-08 |
 
 ### The old prototype
 
