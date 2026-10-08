@@ -114,6 +114,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [engine-stack.md](engine-stack.md) | The engine stack behind decision 0002: licences, versions, determinism, alternatives | 2026-10-08 |
 | [view-readability.md](view-readability.md) | Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks | 2026-10-08 |
 | [ecs-memory-layout.md](ecs-memory-layout.md) | Entity storage and memory layout: archetypes, sparse sets, id sets, profiling | 2026-10-08 |
+| [data-compression.md](data-compression.md) | Data compression for saves, replays, traces and pop records | 2026-10-08 |
 
 ### The old prototype
 
