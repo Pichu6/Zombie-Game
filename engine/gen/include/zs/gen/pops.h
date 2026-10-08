@@ -2,9 +2,11 @@
 // docs/design/content-tools.md section 4. generate_town is a pure function of (catalog, mix, seed).
 #pragma once
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
+#include "zs/demographics.h"
 #include "zs/gen/catalog.h"
 
 namespace zs::gen {
@@ -22,8 +24,14 @@ struct Mix {
   std::vector<double> household_sizes;  // shares of 1, 2, 3, 4, 5+ people
   double intermarriage = 0, same_sex_couples = 0;
   std::vector<Group> groups;
+  // Spec 47: when set, household sizes, schooling, work and occupations follow this country's tables instead of
+  // household_sizes and the jobs' own shares (`country = "base_low"` in the mix, a profile in data/setup/nations/).
+  std::string country;
+  std::shared_ptr<const zs::NationDemographics> nation;
 };
 Mix load_mix(const std::string& path);
+// Spec 47: points a mix at a nation profile (an id under data/setup/nations/ of `data_dir`).
+void set_country(Mix& mix, const std::string& country, const std::string& data_dir);
 
 // One stretch of a pop's past (or present): ages [from, to).
 struct Term {
@@ -47,6 +55,7 @@ struct Pop {
   int moved_at = -1;        // age they came to the town's country; -1 if born there
   int years_in_town = 0;
   std::string education, occupation, job_id, workplace;
+  int attainment = -1;  // spec 47: the country's level (0 none, 1 primary, 2 secondary, 3 tertiary); -1 without a country
   int years_in_job = 0;
   std::string past_job;     // label, or empty
   std::string last_job_id;  // the job a retired or out-of-work pop had

@@ -64,3 +64,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 44 | [Child mortality](44-child-mortality.md) | Siler hazard (early childhood), fitted on qx weighted by deaths | decision 0052 |
 | 45 | [Households and sectors](45-households-and-sectors.md) | UN household sizes and ILO employment by sector per income group; four household groups | decision 0052 |
 | 46 | [Education, labour, occupations and settlement](46-education-labour-occupations-settlement.md) | WIC2023 education, ILO participation, unemployment and occupations, urban share; base countries fully sourced | decision 0052 |
+| 47 | [Towns generated for a country](47-country-towns.md) | the town generator draws households, schooling, work and occupations from a base country | decision 0052 |

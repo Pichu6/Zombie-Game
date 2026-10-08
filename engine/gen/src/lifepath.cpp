@@ -132,7 +132,8 @@ struct Life {
         const bool retired = p.occupation.starts_with("retired");
         const int since = retired ? r.range(p.id, field::LifeRetire, std::max(at + 1, std::min(now, 60)), std::max(at + 1, std::min(now, 67)))
                                   : std::max(at + 1, now - r.range(p.id, field::LifeRetire, 1, 3));
-        if (since < now) back.push_back(Term{since, now, retired ? "retired" : "out of work", {}, {}});
+        const char* what = retired ? "retired" : p.occupation == "keeps house" ? "keeping house" : "out of work";  // spec 47
+        if (since < now) back.push_back(Term{since, now, what, {}, {}});
         end = since;
       }
       if (last && end > at) {
@@ -206,7 +207,7 @@ struct Life {
     for (std::uint32_t ti = 0; ti < life.size(); ++ti) {
       Term& term = life[ti];
       const bool school_term = term.what.find("student") != std::string::npos;
-      const bool work_term = !school_term && term.what != "out of work" && term.what != "retired" &&
+      const bool work_term = !school_term && term.what != "out of work" && term.what != "retired" && term.what != "keeping house" &&
                              term.what != "small child" && ti + 1 < life.size();  // past jobs only
       for (std::uint32_t e = 0; e < cat.life.events.size(); ++e) {
         const LifeEvent& ev = cat.life.events[e];

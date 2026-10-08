@@ -115,6 +115,8 @@ Catalog load_catalog(const std::string& dir) {
     j.workplace = x["workplace"].value_or(std::string{});
     j.education = x["education"].value_or(std::string("none"));
     education_level(j.education);  // validates
+    j.group = x["group"].value_or(-1);
+    if (j.group < 0 || j.group > 7) throw std::runtime_error("gen: job " + j.id + " needs a group 0-7");
     if (const auto* a = x["skills"].as_array())
       for (const auto& e : *a) j.skills.push_back(e.value<std::string>().value());
     cat.jobs.push_back(std::move(j));

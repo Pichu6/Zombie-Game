@@ -2,6 +2,7 @@
 #include "zs/gen/pops.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <set>
 #include <sstream>
@@ -175,6 +176,117 @@ struct Builder {
     return cat.jobs[r.weighted(id, f, w, k)];
   }
 
+  // ---- Spec 47: a country's tables. ----
+
+  // Highest job education a country level allows: none and primary take unschooled jobs; secondary includes
+  // vocational post-secondary (WIC folds ISCED 4 into upper secondary), so trade jobs; tertiary takes any job.
+  static int max_job_level(int attainment) { return attainment <= 1 ? 0 : attainment == 2 ? 2 : 5; }
+
+  bool eligible(const Job& j, int age, int attainment) const {
+    const int level = education_level(j.education);
+    const int min_age = 16 + 2 * level + (j.education == "doctorate" ? 4 : 0);
+    return age >= std::max(18, min_age) && level <= max_job_level(attainment);
+  }
+
+  // Occupations depend on schooling: a group is open to a level if one of its jobs is. Each group's weight gets a
+  // factor, fitted once (iterative proportional fitting) so that, over the workers' schooling (the 25-34 and 35-64
+  // shares, 35:65), the groups come out in the country's shares.
+  std::array<double, zs::kOccupationGroups> group_factor{};
+  bool group_open(std::size_t g, int attainment) const {
+    for (const Job& j : cat.jobs)
+      if (static_cast<std::size_t>(j.group) == g && education_level(j.education) <= max_job_level(attainment)) return true;
+    return false;
+  }
+  void fit_group_factors() {
+    const zs::NationDemographics& n = *mix.nation;
+    group_factor.fill(1.0);
+    std::array<double, zs::kEducationLevels> workers{};
+    for (std::size_t e = 0; e < workers.size(); ++e) workers[e] = 0.35 * n.education[0][e] + 0.65 * n.education[1][e];
+    for (int it = 0; it < 200; ++it) {
+      std::array<double, zs::kOccupationGroups> got{};
+      for (std::size_t e = 0; e < workers.size(); ++e) {
+        double total = 0;
+        for (std::size_t g = 0; g < got.size(); ++g)
+          if (group_open(g, static_cast<int>(e))) total += group_factor[g] * n.occupations[g];
+        if (total <= 0) continue;
+        for (std::size_t g = 0; g < got.size(); ++g)
+          if (group_open(g, static_cast<int>(e))) got[g] += workers[e] * group_factor[g] * n.occupations[g] / total;
+      }
+      for (std::size_t g = 0; g < got.size(); ++g)
+        if (got[g] > 0) group_factor[g] *= n.occupations[g] / got[g];
+    }
+  }
+
+  // The occupation group by the fitted weights among the groups the pop can work in, then a job of that group by the
+  // jobs' own shares.
+  const Job& draw_country_job(std::uint64_t id, std::uint32_t f, int age, int attainment, std::uint32_t k = 0) const {
+    const auto& occ = mix.nation->occupations;
+    std::vector<double> gw(occ.size(), 0.0);
+    for (const Job& j : cat.jobs)
+      if (eligible(j, age, attainment)) {
+        const auto g = static_cast<std::size_t>(j.group);
+        gw[g] = group_factor[g] * occ[g];
+      }
+    const int group = static_cast<int>(r.weighted(id, field::OccupationGroup, gw, k));
+    std::vector<double> w;
+    for (const Job& j : cat.jobs) w.push_back(j.group == group && eligible(j, age, attainment) ? j.share : 0.0);
+    return cat.jobs[r.weighted(id, f, w, k)];
+  }
+
+  static std::string country_education(int attainment, const Job* job) {
+    if (attainment <= 1) return "none";
+    if (attainment == 2) return job && job->education == "trade" ? "trade" : "high_school";
+    return job && education_level(job->education) > 3 ? job->education : "bachelor";
+  }
+
+  void work_in_country(Pop& p) {
+    const zs::NationDemographics& n = *mix.nation;
+    const std::size_t edu_group = p.age < 35 ? 0 : p.age < 65 ? 1 : 2;  // 18-24 take the 25-34 shares
+    const auto& edu = n.education[edu_group];
+    p.attainment = static_cast<int>(r.weighted(p.id, field::Attainment, std::span<const double>(edu.data(), edu.size())));
+    const std::size_t lab_group = p.age < 25 ? 0 : p.age < 55 ? 1 : p.age < 65 ? 2 : 3;
+    const double participation = n.participation[lab_group][p.sex == 'f' ? 1 : 0];
+    if (!r.chance(p.id, field::LabourForce, participation)) {
+      if (p.age < 25 && p.attainment >= 2) {
+        p.occupation = "college student";
+        p.education = "high_school";
+        p.workplace = business_at("college", p.id, field::School);
+      } else if (p.age >= 55) {
+        const Job& job = draw_country_job(p.id, field::Job, std::min(p.age, 60), p.attainment);
+        p.occupation = "retired " + job.label;
+        p.last_job_id = job.id;
+        p.skills = job.skills;
+        p.education = country_education(p.attainment, &job);
+      } else {
+        p.occupation = "keeps house";
+        p.education = country_education(p.attainment, nullptr);
+      }
+      return;
+    }
+    const Job& job = draw_country_job(p.id, field::Job, p.age, p.attainment);
+    p.education = country_education(p.attainment, &job);
+    if (r.chance(p.id, field::Unemployed, n.unemployment_rate)) {
+      p.occupation = "out of work";
+      p.last_job_id = job.id;
+      p.past_job = job.label;
+      return;
+    }
+    employ(p, job, education_level(p.education));
+  }
+
+  void employ(Pop& p, const Job& job, int level) {
+    p.job_id = job.id;
+    p.occupation = job.label;
+    p.skills = job.skills;
+    p.workplace = job.workplace.empty() ? std::string{} : business_at(job.workplace, p.id, field::Workplace);
+    const int start = std::max(18, 16 + 2 * level);
+    p.years_in_job = r.range(p.id, field::YearsInJob, 1, std::max(1, std::min(p.age - start, 30)));
+    if (p.age - p.years_in_job >= 25 && r.chance(p.id, field::PastJob, 0.5)) {
+      const Job& past = draw_job(p.id, field::PastJob, p.age - p.years_in_job, 1);
+      if (past.id != job.id) p.past_job = past.label;
+    }
+  }
+
   void work(Pop& p) {
     if (p.age < 5) {
       p.occupation = "small child";
@@ -187,6 +299,7 @@ struct Builder {
       p.workplace = business_at(p.age < 14 ? "elementary_school" : "high_school", p.id, field::School);
       return;
     }
+    if (mix.nation) return work_in_country(p);
     if (p.age <= 22 && r.chance(p.id, field::Work, 0.4)) {
       p.occupation = "college student";
       p.education = "high_school";
@@ -210,16 +323,20 @@ struct Builder {
       p.past_job = job.label;
       return;
     }
-    p.job_id = job.id;
-    p.occupation = job.label;
-    p.skills = job.skills;
-    p.workplace = job.workplace.empty() ? std::string{} : business_at(job.workplace, p.id, field::Workplace);
-    const int start = std::max(18, 16 + 2 * level);
-    p.years_in_job = r.range(p.id, field::YearsInJob, 1, std::max(1, std::min(p.age - start, 30)));
-    if (p.age - p.years_in_job >= 25 && r.chance(p.id, field::PastJob, 0.5)) {
-      const Job& past = draw_job(p.id, field::PastJob, p.age - p.years_in_job, 1);
-      if (past.id != job.id) p.past_job = past.label;
-    }
+    employ(p, job, level);
+  }
+
+  // Spec 47: a size from the country's groups (1, 2-3, 4-5, 6+). Within 2-3 and 4-5 the upper size is taken with one
+  // share q, set so the mean equals the published mean; 6+ is 6 to 9 evenly (mean 7.5, an estimate).
+  int country_household_size(std::uint64_t hid) const {
+    const auto& s = mix.nation->household_sizes;
+    const double base = s[0] + 2 * s[1] + 4 * s[2] + 7.5 * s[3];
+    const double mean = zs::mean_household_size(*mix.nation);
+    const double q = s[1] + s[2] > 0 ? std::clamp((mean - base) / (s[1] + s[2]), 0.0, 1.0) : 0.0;
+    const std::size_t g = r.weighted(hid, field::CountrySize, std::span<const double>(s.data(), s.size()));
+    if (g == 0) return 1;
+    if (g == 3) return 6 + static_cast<int>(r.below(hid, field::CountrySize, 4, 1));
+    return (g == 1 ? 2 : 4) + (r.chance(hid, field::CountrySize, q, 2) ? 1 : 0);
   }
 
   void make_household(int h, int size) {
@@ -393,16 +510,28 @@ Mix load_mix(const std::string& path) {
                         x["born_abroad"].value_or(0.0), x["host_given"].value_or(1.0)});
   }
   if (m.groups.empty() || m.household_sizes.empty()) throw std::runtime_error("gen: mix needs groups and household_sizes");
+  if (const auto c = t["country"].value<std::string>()) set_country(m, *c, ZS_DATA_DIR);
   return m;
+}
+
+void set_country(Mix& mix, const std::string& country, const std::string& data_dir) {
+  mix.country = country;
+  mix.nation = std::make_shared<const zs::NationDemographics>(zs::load_nation(data_dir + "/setup/nations/" + country + ".toml"));
 }
 
 Town generate_town(const Catalog& cat, const Mix& mix, std::uint64_t seed) {
   Builder b{cat, mix, Keyed(seed), {}};
+  if (mix.nation) b.fit_group_factors();  // spec 47
   b.make_town();
   for (int h = 0; static_cast<int>(b.town.pops.size()) < mix.people; ++h) {
     const std::uint64_t hid = household_id(h);
-    int size = 1 + static_cast<int>(b.r.weighted(hid, field::Size, mix.household_sizes));
-    if (size >= 5) size += static_cast<int>(b.r.below(hid, field::Size, 3, 1));
+    int size = 0;
+    if (mix.nation) {
+      size = b.country_household_size(hid);
+    } else {
+      size = 1 + static_cast<int>(b.r.weighted(hid, field::Size, mix.household_sizes));
+      if (size >= 5) size += static_cast<int>(b.r.below(hid, field::Size, 3, 1));
+    }
     size = std::min(size, mix.people - static_cast<int>(b.town.pops.size()));
     b.make_household(h, size);
   }

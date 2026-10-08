@@ -4,6 +4,9 @@
 # workplace: a business type in businesses.toml ("" = no fixed workplace, works around town).
 # education: lowest level the job needs (none, high_school, trade, bachelor, master, doctorate).
 # skills: tags the AI and the body/know-how model can read later; not numbers yet.
+# group: the ILO modelled occupation group (spec 47): 0 managers, 1 professionals, 2 technicians and associate
+#   professionals, 3 clerical support, 4 services and sales, 5 craft and trades, 6 plant and machine operators,
+#   7 skilled agriculture and elementary occupations. Soldiers have no group of their own there; counted as 4.
 
 [[job]]
 id = "cashier"
@@ -11,6 +14,7 @@ label = "cashier"
 share = 3.0
 workplace = "grocery"
 education = "none"
+group = 4
 skills = ["people"]
 
 [[job]]
@@ -19,6 +23,7 @@ label = "store clerk"
 share = 3.0
 workplace = "hardware"
 education = "none"
+group = 4
 skills = ["people"]
 
 [[job]]
@@ -27,6 +32,7 @@ label = "cook"
 share = 2.5
 workplace = "diner"
 education = "none"
+group = 4
 skills = ["cooking", "knives"]
 
 [[job]]
@@ -35,6 +41,7 @@ label = "server"
 share = 2.0
 workplace = "diner"
 education = "none"
+group = 4
 skills = ["people"]
 
 [[job]]
@@ -43,6 +50,7 @@ label = "nurse"
 share = 2.2
 workplace = "hospital"
 education = "bachelor"
+group = 1
 skills = ["medicine", "first_aid"]
 
 [[job]]
@@ -51,6 +59,7 @@ label = "nursing assistant"
 share = 1.5
 workplace = "care_home"
 education = "trade"
+group = 4
 skills = ["first_aid", "lifting"]
 
 [[job]]
@@ -59,6 +68,7 @@ label = "doctor"
 share = 0.6
 workplace = "hospital"
 education = "doctorate"
+group = 1
 skills = ["medicine", "first_aid", "surgery"]
 
 [[job]]
@@ -67,6 +77,7 @@ label = "pharmacist"
 share = 0.2
 workplace = "pharmacy"
 education = "doctorate"
+group = 1
 skills = ["medicine", "chemistry"]
 
 [[job]]
@@ -75,6 +86,7 @@ label = "paramedic"
 share = 0.2
 workplace = "hospital"
 education = "trade"
+group = 2
 skills = ["first_aid", "driving"]
 
 [[job]]
@@ -83,6 +95,7 @@ label = "teacher"
 share = 2.5
 workplace = "school"
 education = "bachelor"
+group = 1
 skills = ["teaching", "people"]
 
 [[job]]
@@ -91,6 +104,7 @@ label = "truck driver"
 share = 1.4
 workplace = "warehouse"
 education = "trade"
+group = 6
 skills = ["driving", "vehicles"]
 
 [[job]]
@@ -99,6 +113,7 @@ label = "warehouse worker"
 share = 2.0
 workplace = "warehouse"
 education = "none"
+group = 7
 skills = ["lifting", "forklift"]
 
 [[job]]
@@ -107,6 +122,7 @@ label = "construction laborer"
 share = 1.5
 workplace = ""
 education = "none"
+group = 7
 skills = ["lifting", "tools", "building"]
 
 [[job]]
@@ -115,6 +131,7 @@ label = "carpenter"
 share = 0.6
 workplace = ""
 education = "trade"
+group = 5
 skills = ["carpentry", "tools", "building"]
 
 [[job]]
@@ -123,6 +140,7 @@ label = "electrician"
 share = 0.5
 workplace = ""
 education = "trade"
+group = 5
 skills = ["electrical", "tools"]
 
 [[job]]
@@ -131,6 +149,7 @@ label = "plumber"
 share = 0.3
 workplace = ""
 education = "trade"
+group = 5
 skills = ["plumbing", "tools"]
 
 [[job]]
@@ -139,6 +158,7 @@ label = "auto mechanic"
 share = 0.5
 workplace = "auto_repair"
 education = "trade"
+group = 5
 skills = ["mechanics", "engines", "tools"]
 
 [[job]]
@@ -147,6 +167,7 @@ label = "machinist"
 share = 0.3
 workplace = "factory"
 education = "trade"
+group = 5
 skills = ["metalwork", "tools"]
 
 [[job]]
@@ -155,6 +176,7 @@ label = "assembly worker"
 share = 1.2
 workplace = "factory"
 education = "none"
+group = 6
 skills = ["tools"]
 
 [[job]]
@@ -163,6 +185,7 @@ label = "office clerk"
 share = 3.0
 workplace = "office"
 education = "high_school"
+group = 3
 skills = ["computers"]
 
 [[job]]
@@ -171,6 +194,7 @@ label = "accountant"
 share = 1.0
 workplace = "office"
 education = "bachelor"
+group = 1
 skills = ["computers", "numbers"]
 
 [[job]]
@@ -179,6 +203,7 @@ label = "manager"
 share = 3.0
 workplace = "office"
 education = "bachelor"
+group = 0
 skills = ["leadership", "people"]
 
 [[job]]
@@ -187,6 +212,7 @@ label = "software developer"
 share = 1.0
 workplace = "office"
 education = "bachelor"
+group = 1
 skills = ["computers", "electronics"]
 
 [[job]]
@@ -195,6 +221,7 @@ label = "janitor"
 share = 1.5
 workplace = "school"
 education = "none"
+group = 7
 skills = ["cleaning", "tools"]
 
 [[job]]
@@ -203,6 +230,7 @@ label = "security guard"
 share = 0.8
 workplace = "warehouse"
 education = "high_school"
+group = 4
 skills = ["watch", "people"]
 
 [[job]]
@@ -211,6 +239,7 @@ label = "police officer"
 share = 0.5
 workplace = "police"
 education = "high_school"
+group = 4
 skills = ["firearms", "first_aid", "driving", "watch"]
 
 [[job]]
@@ -219,6 +248,7 @@ label = "firefighter"
 share = 0.2
 workplace = "fire_station"
 education = "trade"
+group = 4
 skills = ["first_aid", "lifting", "rescue"]
 
 [[job]]
@@ -227,6 +257,7 @@ label = "hairdresser"
 share = 0.4
 workplace = "salon"
 education = "trade"
+group = 4
 skills = ["people"]
 
 [[job]]
@@ -235,6 +266,7 @@ label = "bank teller"
 share = 0.3
 workplace = "bank"
 education = "high_school"
+group = 3
 skills = ["numbers", "people"]
 
 [[job]]
@@ -243,6 +275,7 @@ label = "social worker"
 share = 0.5
 workplace = "office"
 education = "bachelor"
+group = 1
 skills = ["people"]
 
 [[job]]
@@ -251,6 +284,7 @@ label = "pastor"
 share = 0.2
 workplace = "church"
 education = "master"
+group = 1
 skills = ["people", "leadership"]
 
 [[job]]
@@ -259,6 +293,7 @@ label = "farm worker"
 share = 0.6
 workplace = ""
 education = "none"
+group = 7
 skills = ["farming", "lifting", "animals"]
 
 [[job]]
@@ -267,6 +302,7 @@ label = "bus driver"
 share = 0.3
 workplace = ""
 education = "trade"
+group = 6
 skills = ["driving"]
 
 [[job]]
@@ -275,4 +311,32 @@ label = "soldier"
 share = 0.3
 workplace = ""
 education = "high_school"
+group = 4
 skills = ["firearms", "first_aid", "watch", "fitness"]
+
+[[job]]
+id = "it_technician"
+label = "IT technician"
+share = 0.8
+workplace = "office"
+education = "trade"
+group = 2
+skills = ["computers"]
+
+[[job]]
+id = "lab_technician"
+label = "lab technician"
+share = 0.4
+workplace = "hospital"
+education = "trade"
+group = 2
+skills = ["medicine"]
+
+[[job]]
+id = "sales_rep"
+label = "sales representative"
+share = 1.2
+workplace = "office"
+education = "high_school"
+group = 2
+skills = ["people"]

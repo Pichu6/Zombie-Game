@@ -1,5 +1,5 @@
 // zs gen: the content generators from the command line (docs/design/content-tools.md section 6).
-//   zs gen town   [--seed N] [--mix FILE]          town, streets, businesses and every pop's dossier
+//   zs gen town   [--seed N] [--mix FILE] [--country ID]        town, streets, businesses and every pop's dossier
 //   zs gen census [--seed N] [--mix FILE]          the pops as a data/tier0/census.toml-style table
 //   zs gen names  --culture ID [--kind K] [--count N] [--seed N]
 //                 kinds: person (default), street, town, province, country
@@ -27,7 +27,7 @@ std::string arg(int argc, char** argv, const std::string& key, const std::string
 }
 
 int usage() {
-  std::cerr << "usage: zs gen town|census [--seed N] [--mix FILE]\n"
+  std::cerr << "usage: zs gen town|census [--seed N] [--mix FILE] [--country ID]   ID: data/setup/nations/<ID>.toml, e.g. base_low\n"
                "       zs gen names --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]\n"
                "       zs gen cultures\n"
                "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]\n";
@@ -125,7 +125,8 @@ int gen_main(int argc, char** argv) {
       return 0;
     }
     if (cmd == "town" || cmd == "census") {
-      const auto mix = zs::gen::load_mix(arg(argc, argv, "--mix", data + "/gen/populations/tier0_block.toml"));
+      auto mix = zs::gen::load_mix(arg(argc, argv, "--mix", data + "/gen/populations/tier0_block.toml"));
+      if (const std::string c = arg(argc, argv, "--country", ""); !c.empty()) zs::gen::set_country(mix, c, data);  // spec 47
       const auto town = zs::gen::generate_town(cat, mix, seed);
       if (cmd == "census") {
         std::cout << zs::gen::census_toml(town);

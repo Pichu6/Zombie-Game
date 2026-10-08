@@ -34,6 +34,7 @@ struct Culture {
 struct Job {
   std::string id, label, workplace, education;
   double share = 0;
+  int group = -1;  // the ILO modelled occupation group, 0-7 (spec 47)
   std::vector<std::string> skills;
 };
 
