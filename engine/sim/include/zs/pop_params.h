@@ -11,11 +11,15 @@
 
 namespace zs {
 
-// Two independent hazards, so the death age is closed-form: a constant one (accidents) and a Gompertz one (ageing).
+// Independent hazards, so the death age is closed-form: a constant one (accidents), a Gompertz one (ageing) and, from
+// spec 44, an early-childhood one that falls from child_hazard at birth by child_decline per year of age (the Siler
+// model; 0 = none, the spec 28 model).
 struct Mortality {
   double constant_hazard = 3.0e-4;  // per year
   double gompertz_b = 1.5e-5;       // per year at age 0
   double gompertz_c = 0.10;         // per year of age
+  double child_hazard = 0.0;        // per year at birth (spec 44)
+  double child_decline = 1.0;       // per year of age
   bool operator==(const Mortality&) const = default;
 };
 
@@ -52,7 +56,10 @@ struct PopParams {
 
 const PopParams& default_pop_params();                 // the compiled-in preset, used only to make new worlds
 PopParams load_pop_params(const std::string& path);    // a TOML preset; unknown keys are an error, missing keys keep the default
-void write_pop_params(ArchiveWriter& w, const PopParams& p);
+// `registry_version` is the version the registry writes (6 with fertility hazards, 7 with the child hazard).
+void write_pop_params(ArchiveWriter& w, const PopParams& p, std::uint32_t registry_version);
+// Spec 44: the registry version these params need (4 = the oldest layout that holds them; the registry may raise it).
+std::uint32_t pop_params_version(const PopParams& p);
 // `registry_version` is the registry save version that wrote it: the pyramid is stored from version 4.
 PopParams read_pop_params(ArchiveReader& r, std::uint32_t registry_version);
 constexpr int kAgeBands = 20;

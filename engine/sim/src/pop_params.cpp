@@ -31,7 +31,9 @@ void read_mortality(const toml::table* t, Mortality& m, const std::string& where
   read_double(*t, "constant_hazard", m.constant_hazard, seen);
   read_double(*t, "gompertz_b", m.gompertz_b, seen);
   read_double(*t, "gompertz_c", m.gompertz_c, seen);
-  check_keys(*t, {"constant_hazard", "gompertz_b", "gompertz_c"}, where);
+  read_double(*t, "child_hazard", m.child_hazard, seen);
+  read_double(*t, "child_decline", m.child_decline, seen);
+  check_keys(*t, {"constant_hazard", "gompertz_b", "gompertz_c", "child_hazard", "child_decline"}, where);
 }
 }  // namespace
 
@@ -81,23 +83,32 @@ PopParams load_pop_params(const std::string& path) {
   if (p.male_share_at_birth < 0 || p.male_share_at_birth > 1 || p.fertility.childless_share < 0 || p.fertility.childless_share > 1)
     throw std::runtime_error("pop params: a share is outside 0..1");
   for (const Mortality* m : {&p.female, &p.male})
-    if (m->constant_hazard <= 0 || m->gompertz_b <= 0 || m->gompertz_c <= 0) throw std::runtime_error("pop params: hazards must be positive");
+    if (m->constant_hazard <= 0 || m->gompertz_b <= 0 || m->gompertz_c <= 0 || m->child_hazard < 0 || m->child_decline <= 0)
+      throw std::runtime_error("pop params: hazards must be positive");
   if (p.fertility.first_mean_delay <= 0 || p.fertility.gap_mean_extra <= 0 || p.founder_age_span <= 0)
     throw std::runtime_error("pop params: means and spans must be positive");
   return p;
 }
 
-void write_pop_params(ArchiveWriter& w, const PopParams& p) {
+std::uint32_t pop_params_version(const PopParams& p) {
+  if (p.female.child_hazard > 0 || p.male.child_hazard > 0) return 7;
+  if (!p.fertility.hazard_by_band.empty()) return 6;
+  return 4;
+}
+
+void write_pop_params(ArchiveWriter& w, const PopParams& p, std::uint32_t registry_version) {
   for (const Mortality* m : {&p.female, &p.male}) { w.f64(m->constant_hazard); w.f64(m->gompertz_b); w.f64(m->gompertz_c); }
   w.f64(p.male_share_at_birth); w.f64(p.founder_min_age); w.f64(p.founder_age_span);
   const Fertility& f = p.fertility;
   w.f64(f.childless_share); w.f64(f.first_min_age); w.f64(f.first_mean_delay); w.f64(f.gap_min); w.f64(f.gap_mean_extra); w.f64(f.end_age);
   w.u64(p.age_pyramid.size());  // registry version 4
   for (double x : p.age_pyramid) w.f64(x);
-  if (!f.hazard_by_band.empty()) {  // registry version 6 (written only then)
+  if (registry_version >= 6) {  // the fertility hazards (v6 has them always; v7 may have none)
     w.u64(f.hazard_by_band.size());
     for (double x : f.hazard_by_band) w.f64(x);
   }
+  if (registry_version >= 7)  // the child hazard (spec 44)
+    for (const Mortality* m : {&p.female, &p.male}) { w.f64(m->child_hazard); w.f64(m->child_decline); }
 }
 
 PopParams read_pop_params(ArchiveReader& r, std::uint32_t registry_version) {
@@ -114,6 +125,8 @@ PopParams read_pop_params(ArchiveReader& r, std::uint32_t registry_version) {
     f.hazard_by_band.resize(r.u64());
     for (double& x : f.hazard_by_band) x = r.f64();
   }
+  if (registry_version >= 7)  // older saves had no child hazard
+    for (Mortality* m : {&p.female, &p.male}) { m->child_hazard = r.f64(); m->child_decline = r.f64(); }
   return p;
 }
 

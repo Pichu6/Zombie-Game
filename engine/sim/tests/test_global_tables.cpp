@@ -66,7 +66,7 @@ TEST_CASE("global tables: the mortality draws give WPP's life expectancy at 15 (
       }
       const double model = *pre["check"][male ? "life_expectancy_15_male" : "life_expectancy_15_female"].value<double>();
       CHECK(sum / n == doctest::Approx(model).epsilon(0.01));  // the draws follow the fitted hazards
-      MESSAGE(std::string(level) << (male ? " male" : " female") << " e15 drawn " << sum / n << ", fitted " << model);
+      MESSAGE(std::string(level) << std::string(male ? " male" : " female") << " e15 drawn " << sum / n << ", fitted " << model);
     }
   }
 }
@@ -95,7 +95,51 @@ TEST_CASE("global tables: the birth draws give WPP's age-specific fertility and 
   }
 }
 
-TEST_CASE("global tables: a registry with age-specific fertility saves as version 6 and loads back") {
+TEST_CASE("global tables (spec 44): the draws give WPP's life expectancy at birth and infant mortality"
+          * doctest::skip(World::kDebugBuild)) {
+  const toml::table w = world_tables();
+  for (const char* level : kLevels) {
+    const PopParams p = params_of(level);
+    const toml::table pre = toml::parse_file(data() + "/setup/demography/wpp2024_" + std::string(level) + ".toml");
+    for (bool male : {true, false}) {
+      double sum = 0;
+      int infants = 0;
+      const int n = 400'000;
+      for (PopId id = 1; id <= static_cast<PopId>(n); ++id) {
+        const PopBase b = derive_base(43, id, 0.0, 0.0, p, male ? PopSex::Male : PopSex::Female);
+        sum += b.death_year;
+        infants += b.death_year < 1.0;
+      }
+      const double model = *pre["check"][male ? "life_expectancy_0_male" : "life_expectancy_0_female"].value<double>();
+      const double wpp = *w[level][male ? "life_expectancy_male" : "life_expectancy_female"].value<double>();
+      const double q0 = numbers(*w[level].as_table(), male ? "life_qx_male" : "life_qx_female")[0];
+      CHECK(sum / n == doctest::Approx(model).epsilon(0.005));
+      CHECK(sum / n == doctest::Approx(wpp).epsilon(0.01));
+      CHECK(static_cast<double>(infants) / n == doctest::Approx(q0).epsilon(0.1));
+      MESSAGE(std::string(level) << std::string(male ? " male" : " female") << " e0 drawn " << sum / n << ", WPP " << wpp
+                                 << "; infant deaths drawn " << 1000.0 * infants / n << " per 1000, WPP " << 1000 * q0);
+    }
+  }
+}
+
+namespace {
+void check_fixture(const std::vector<std::uint8_t>& bytes, const std::string& name) {
+  const std::string path = std::string(ZS_FIXTURES_DIR) + "/" + name;
+  std::ifstream in(path, std::ios::binary);
+  if (!in) {
+    std::ofstream out(path, std::ios::binary);
+    out.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
+    FAIL("wrote the fixture " << name << "; commit it and run again");
+  }
+  const std::vector<std::uint8_t> fixture((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  PopRegistry from_fixture(3);
+  from_fixture.load(fixture);
+  CHECK(from_fixture.save() == fixture);
+  CHECK(fixture == bytes);
+}
+}  // namespace
+
+TEST_CASE("global tables: a registry with the child hazard saves as version 7 and loads back") {
   PopRegistry reg(3, params_of("low"));
   reg.add_cohort({1, 0, 0, 50});
   reg.set_death_year(9, 61.5);
@@ -104,17 +148,19 @@ TEST_CASE("global tables: a registry with age-specific fertility saves as versio
   loaded.load(bytes);
   CHECK(loaded.params() == reg.params());
   CHECK(loaded.save() == bytes);
-  // fixtures/popreg_v6.bin was written from this registry when version 6 shipped. Never regenerate it.
-  const std::string path = std::string(ZS_FIXTURES_DIR) + "/popreg_v6.bin";
-  std::ifstream in(path, std::ios::binary);
-  if (!in) {
-    std::ofstream out(path, std::ios::binary);
-    out.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
-    FAIL("wrote the version-6 fixture; commit it and run again");
-  }
-  const std::vector<std::uint8_t> fixture((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-  PopRegistry from_fixture(3);
-  from_fixture.load(fixture);
-  CHECK(from_fixture.save() == fixture);
-  CHECK(fixture == bytes);
+  // fixtures/popreg_v7.bin was written from this registry when version 7 shipped. Never regenerate it.
+  check_fixture(bytes, "popreg_v7.bin");
+}
+
+TEST_CASE("global tables: the version-6 fixture still loads and re-saves to the same bytes") {
+  // fixtures/popreg_v6.bin was written when version 6 shipped (spec 43, before the child hazard). Never regenerate it:
+  // if this fails, the format changed and needs a new version and a new reader beside this one.
+  std::ifstream in(std::string(ZS_FIXTURES_DIR) + "/popreg_v6.bin", std::ios::binary);
+  REQUIRE(in);
+  const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  PopRegistry loaded(3);
+  loaded.load(bytes);
+  CHECK(loaded.save() == bytes);
+  CHECK(loaded.params().fertility.hazard_by_band.size() == 7);
+  CHECK(loaded.params().female.child_hazard == 0.0);
 }

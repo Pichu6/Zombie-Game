@@ -1,7 +1,7 @@
 # Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), High-income countries, 2023.
 # Written by tools/data/wpp2024.py; do not edit by hand. Spec: docs/tier0/specs/43-global-tables.md
-# Fit: life expectancy at 15 model 64.46 / 70.09 (m/f) vs WPP 64.33 / 69.49;
-#      at birth model 78.96 / 84.88 vs WPP 78.84 / 84.05 (the model has no child-mortality term);
+# Fit: life expectancy at 15 model 64.53 / 69.62 (m/f) vs WPP 64.33 / 69.49;
+#      at birth model 78.92 / 84.12 vs WPP 78.84 / 84.05;
 #      TFR model 1.468 vs 1.467; mean age at childbearing model 30.76 vs 30.76
 #      (WPP's own MAC is from single-year rates); worst band 0.000 %; never a mother 20.7 %.
 source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), High-income countries"
@@ -12,20 +12,26 @@ founder_min_age = 18.0
 founder_age_span = 47.0
 age_pyramid = [0.048003, 0.053358, 0.055837, 0.056522, 0.058889, 0.063795, 0.068572, 0.068540, 0.068775, 0.066706, 0.067711, 0.065612, 0.062714, 0.055699, 0.048496, 0.037749, 0.026647, 0.016496, 0.007526, 0.002352]
 
-[mortality_female]  # Gompertz-Makeham on log mx, ages 15-89
-constant_hazard = 1.440908e-04
-gompertz_b = 1.361992e-05
-gompertz_c = 0.097125
+[mortality_female]  # Siler model on log qx, ages 0-94, weighted by deaths (spec 44)
+constant_hazard = 1.561220e-04
+gompertz_b = 6.057005e-06
+gompertz_c = 0.108432
+child_hazard = 1.450841e-02
+child_decline = 4.054084
 
-[mortality_male]  # Gompertz-Makeham on log mx, ages 15-89
-constant_hazard = 3.973396e-04
-gompertz_b = 2.908085e-05
-gompertz_c = 0.093447
+[mortality_male]  # Siler model on log qx, ages 0-94, weighted by deaths (spec 44)
+constant_hazard = 1.992070e-04
+gompertz_b = 2.793389e-05
+gompertz_c = 0.094521
+child_hazard = 1.311531e-01
+child_decline = 31.432922
 
 [fertility]  # birth hazard by band 15-19 ... 45-49, fitted so the model's rates equal WPP's (spec 43)
 hazard_by_band = [0.00860985, 0.04254923, 0.08636850, 0.10443359, 0.05862655, 0.01355528, 0.00110464]
 gap_min = 1.0
 
 [check]  # what the model gives, for the loader test (not read by the simulation)
-life_expectancy_15_male = 64.4570
-life_expectancy_15_female = 70.0856
+life_expectancy_0_male = 78.9181
+life_expectancy_0_female = 84.1207
+life_expectancy_15_male = 64.5276
+life_expectancy_15_female = 69.6189

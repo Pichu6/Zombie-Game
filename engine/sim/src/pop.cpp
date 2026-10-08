@@ -11,7 +11,7 @@ constexpr int kGenShift = 60, kPathBits = 28, kPathShift = 32;
 constexpr unsigned kMaxGeneration = 7, kMaxChildren = 15;
 constexpr int kFeistelRounds = 6;
 // Which life draw (the `b` key of Purpose::PopLife).
-constexpr std::uint64_t kDrawSex = 0, kDrawConstantHazard = 1, kDrawGompertz = 2;
+constexpr std::uint64_t kDrawSex = 0, kDrawConstantHazard = 1, kDrawGompertz = 2, kDrawChild = 3;
 }  // namespace
 
 std::uint64_t keyed_u64(std::uint64_t world_seed, Purpose purpose, std::uint64_t a, std::uint64_t b) {
@@ -70,7 +70,16 @@ PopBase derive_base(std::uint64_t world_seed, PopId id, double birth_year, doubl
   const double age_constant = known_alive_age + e1 / m.constant_hazard;
   const double age_gompertz =
       detmath::log(detmath::exp(m.gompertz_c * known_alive_age) + m.gompertz_c * e2 / m.gompertz_b) / m.gompertz_c;
-  p.death_year = birth_year + (age_constant < age_gompertz ? age_constant : age_gompertz);
+  double age = age_constant < age_gompertz ? age_constant : age_gompertz;
+  if (m.child_hazard > 0) {  // spec 44: its cumulative hazard is bounded, so it may never strike
+    const double e3 = -detmath::log1p(-keyed_uniform01(world_seed, Purpose::PopLife, id, kDrawChild));
+    const double left = detmath::exp(-m.child_decline * known_alive_age) - m.child_decline * e3 / m.child_hazard;
+    if (left > 0) {
+      const double age_child = -detmath::log(left) / m.child_decline;
+      if (age_child < age) age = age_child;
+    }
+  }
+  p.death_year = birth_year + age;
   return p;
 }
 

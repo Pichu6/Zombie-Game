@@ -42,7 +42,6 @@ FILES = {
     "fert": "WPP2024_Fertility_by_Age5.csv.gz",
     "ind": "WPP2024_Demographic_Indicators_Medium.csv.gz",
 }
-FIT_AGES = (15, 90)          # Gompertz-Makeham is fitted on the abridged groups starting in [15, 90)
 FERT_MIN_AGE = 15.0          # the model's first possible birth (WPP's 10-14 band is under 1 % of births)
 FERT_END_AGE = 50.0
 FERT_GAP_MIN = 1.0           # the shortest interval between births, about nine months plus postpartum infertility
@@ -92,38 +91,42 @@ def bands20(pop):
     return [(male[i] + female[i]) / total for i in range(20)], [m / total for m in male], [f / total for f in female]
 
 
-# ---- Mortality: hazard A + B exp(C x), the model of zs::Mortality (spec 28).
+# ---- Mortality: hazard A + B exp(C x) + D exp(-E x), the model of zs::Mortality (specs 28 and 44): accidents,
+# ageing and early childhood (the Siler model).
 
-def survival(a, b, c, x):
-    return np.exp(-a * x - b / c * np.expm1(c * x))
+def log_survival(t, x):
+    a, b, c, d, e = t
+    return -a * x - b / c * np.expm1(c * x) + d / e * np.expm1(-e * x)
 
 
-def life_expectancy(a, b, c, from_age=0.0, to_age=130.0):
-    x = np.arange(from_age, to_age, 0.01)
-    s = survival(a, b, c, x) / survival(a, b, c, from_age)
+def life_expectancy(t, from_age=0.0, to_age=130.0):
+    x = np.arange(from_age, to_age, 0.005)
+    s = np.exp(log_survival(t, x) - log_survival(t, from_age))
     return float(np.trapezoid(s, x))
 
 
 def fit_mortality(table):
-    """Least squares on log mx at each group's midpoint, ages in FIT_AGES, weighted by group span."""
-    pts = [(start + span / 2.0, mx, span) for start, span, mx, _, _ in table
-           if FIT_AGES[0] <= start < FIT_AGES[1] and mx > 0]
-    x = np.array([p[0] for p in pts])
-    y = np.log(np.array([p[1] for p in pts]))
-    w = np.array([p[2] for p in pts], dtype=float)
+    """Least squares on log qx of every abridged group below 95, each weighted by its share of the life table's
+    deaths (plus a small floor), so the ages where people die count most and life expectancy comes out right."""
+    pts = [(start, span, qx) for start, span, _, qx, _ in table if start < 95 and qx > 0]
+    x0 = np.array([p[0] for p in pts], dtype=float)
+    n = np.array([p[1] for p in pts], dtype=float)
+    q = np.array([p[2] for p in pts])
+    alive = np.concatenate([[1.0], np.cumprod(1 - q)[:-1]])
+    w = alive * q + 0.002
 
     def loss(theta):
-        a, b, c = np.exp(theta)
-        return float(np.sum(w * (np.log(a + b * np.exp(c * x)) - y) ** 2))
+        t = np.exp(theta)
+        qm = -np.expm1(log_survival(t, x0 + n) - log_survival(t, x0))
+        return float(np.sum(w * (np.log(qm) - np.log(q)) ** 2))
 
     best = None
-    for c0 in (0.07, 0.09, 0.11):
-        r = minimize(loss, np.log([5e-4, 2e-5, c0]), method="Nelder-Mead",
-                     options={"xatol": 1e-10, "fatol": 1e-14, "maxiter": 20000, "maxfev": 40000})
+    for d0, e0 in ((0.05, 2.0), (0.2, 5.0), (0.02, 1.0)):
+        r = minimize(loss, np.log([5e-4, 2e-5, 0.09, d0, e0]), method="Nelder-Mead",
+                     options={"xatol": 1e-10, "fatol": 1e-14, "maxiter": 40000, "maxfev": 80000})
         if best is None or r.fun < best.fun:
             best = r
-    a, b, c = np.exp(best.x)
-    return float(a), float(b), float(c)
+    return tuple(max(float(v), 1e-9) for v in np.exp(best.x))
 
 
 # ---- Fertility: the age-specific model of zs::Fertility (spec 43). A woman's birth hazard is constant within each
@@ -186,8 +189,8 @@ def main():
         srb = float(ind["SRB"])
         e0 = {1: float(ind["LExMale"]), 2: float(ind["LExFemale"])}
         e15 = {s: next(ex for start, _, _, _, ex in d["life"][s] if start == 15) for s in (1, 2)}
-        model_e0 = {s: life_expectancy(*fits[s]) for s in (1, 2)}
-        model_e15 = {s: life_expectancy(*fits[s], from_age=15.0) for s in (1, 2)}
+        model_e0 = {s: life_expectancy(fits[s]) for s in (1, 2)}
+        model_e15 = {s: life_expectancy(fits[s], from_age=15.0) for s in (1, 2)}
         report.append((level, e0, model_e0, e15, model_e15, float(ind["TFR"]), tfr_m, float(ind["MAC"]), mac_m, childless, worst))
 
         world += [f"[{level}]", f'wpp_location = "{wpp_name}"', f"wpp_loc_id = {loc}",
@@ -205,7 +208,7 @@ def main():
         preset = [f"# Pop parameters fitted to {SOURCE}, {wpp_name}, {year}.",
                   "# Written by tools/data/wpp2024.py; do not edit by hand. Spec: docs/tier0/specs/43-global-tables.md",
                   f"# Fit: life expectancy at 15 model {model_e15[1]:.2f} / {model_e15[2]:.2f} (m/f) vs WPP {e15[1]:.2f} / {e15[2]:.2f};",
-                  f"#      at birth model {model_e0[1]:.2f} / {model_e0[2]:.2f} vs WPP {e0[1]:.2f} / {e0[2]:.2f} (the model has no child-mortality term);",
+                  f"#      at birth model {model_e0[1]:.2f} / {model_e0[2]:.2f} vs WPP {e0[1]:.2f} / {e0[2]:.2f};",
                   f"#      TFR model {tfr_m:.3f} vs {float(ind['TFR']):.3f}; mean age at childbearing model {mac_m:.2f} vs {float(ind['MAC']):.2f}",
                   f"#      (WPP's own MAC is from single-year rates); worst band {100 * worst:.3f} %; never a mother {100 * childless:.1f} %.",
                   f'source = "{SOURCE}, {wpp_name}"', f"year = {year}", "",
@@ -213,12 +216,14 @@ def main():
                   "founder_min_age = 18.0", "founder_age_span = 47.0",
                   f"age_pyramid = {fmt_list(both)}", ""]
         for sex, name in ((2, "female"), (1, "male")):
-            a, b, c = fits[sex]
-            preset += [f"[mortality_{name}]  # Gompertz-Makeham on log mx, ages {FIT_AGES[0]}-{FIT_AGES[1] - 1}",
-                       f"constant_hazard = {a:.6e}", f"gompertz_b = {b:.6e}", f"gompertz_c = {c:.6f}", ""]
+            a, b, c, dd, ee = fits[sex]
+            preset += [f"[mortality_{name}]  # Siler model on log qx, ages 0-94, weighted by deaths (spec 44)",
+                       f"constant_hazard = {a:.6e}", f"gompertz_b = {b:.6e}", f"gompertz_c = {c:.6f}",
+                       f"child_hazard = {dd:.6e}", f"child_decline = {ee:.6f}", ""]
         preset += ["[fertility]  # birth hazard by band 15-19 ... 45-49, fitted so the model's rates equal WPP's (spec 43)",
                    f"hazard_by_band = {fmt_list(hazards, 8)}", f"gap_min = {FERT_GAP_MIN}", "",
                    "[check]  # what the model gives, for the loader test (not read by the simulation)",
+                   f"life_expectancy_0_male = {model_e0[1]:.4f}", f"life_expectancy_0_female = {model_e0[2]:.4f}",
                    f"life_expectancy_15_male = {model_e15[1]:.4f}", f"life_expectancy_15_female = {model_e15[2]:.4f}", ""]
         (ROOT / "data/setup/demography" / f"wpp2024_{level}.toml").write_text("\n".join(preset), encoding="utf-8", newline="\n")
 

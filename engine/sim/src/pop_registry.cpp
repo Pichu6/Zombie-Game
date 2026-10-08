@@ -19,7 +19,7 @@ constexpr std::uint64_t kSaveMagic = 0x474552504f50ull;  // "POPREG"
 // 2 adds the region-event counter; 3 adds founder specs and roster kinds; 4 adds the age pyramid to the params; 5 adds
 // embodiment (written only when some pop has embodied data, else 4); 6 adds age-specific fertility to the params
 // (written only when the params have it, always with the embodiment trailer).
-constexpr std::uint32_t kSaveVersion = 6;
+constexpr std::uint32_t kSaveVersion = 7;  // 7 adds the child hazard (spec 44), written only when the params have it
 constexpr std::uint64_t kDrawStartAge = 10, kDrawAgeInBand = 11;                // the `b` key of Purpose::PopLife
 }  // namespace
 
@@ -440,10 +440,11 @@ std::vector<std::uint8_t> PopRegistry::save() const {
   for (const auto& [id, r] : records_) any_embodied = any_embodied || r.embodied != 0 || !r.body_state.empty();
   ArchiveWriter w;
   w.u64(kSaveMagic);
-  const bool hazards = !params_.fertility.hazard_by_band.empty();
-  w.u32(hazards ? 6 : any_embodied ? 5 : 4);
+  const std::uint32_t params_version = pop_params_version(params_);
+  const std::uint32_t version = params_version >= 6 ? params_version : any_embodied ? 5 : 4;
+  w.u32(version);
   w.u64(seed_);
-  write_pop_params(w, params_);
+  write_pop_params(w, params_, version);
   w.u64(cohorts_.size());
   for (const auto& [id, c] : cohorts_) { w.u64(c.id); w.u32(c.region); w.u32(c.first_slot); w.u64(c.size); }
   w.u64(log_.size());
@@ -464,7 +465,7 @@ std::vector<std::uint8_t> PopRegistry::save() const {
     w.u64(cid); w.u64(specs.size());
     for (const FounderSpec& f : specs) { w.u16(f.age); w.u8(static_cast<std::uint8_t>(f.sex)); }
   }
-  if (any_embodied || hazards) {  // v5, v6
+  if (version >= 5) {  // v5 and later
     std::uint64_t n = 0;
     for (const auto& [id, r] : records_) n += (r.embodied != 0 || !r.body_state.empty()) ? 1 : 0;
     w.u64(n);
@@ -489,6 +490,7 @@ void PopRegistry::load(const std::vector<std::uint8_t>& bytes) {
     case 4: load_v4(r); return;
     case 5: load_v5(r); return;
     case 6: load_v6(r); return;
+    case 7: load_v7(r); return;
     default:
       throw std::runtime_error("pop registry save is version " + std::to_string(version) + "; this build reads up to " +
                                std::to_string(kSaveVersion));
@@ -533,6 +535,14 @@ void PopRegistry::load_v5(ArchiveReader& r) {
 
 void PopRegistry::load_v6(ArchiveReader& r) {
   load_body(r, 6);  // version 5's layout with the fertility hazards inside the params
+  load_events(r);
+  load_specs(r);
+  load_embodied(r);
+  if (!r.at_end()) throw std::runtime_error("pop registry save has trailing bytes");
+}
+
+void PopRegistry::load_v7(ArchiveReader& r) {
+  load_body(r, 7);  // version 6's layout with the child hazards inside the params
   load_events(r);
   load_specs(r);
   load_embodied(r);

@@ -35,7 +35,7 @@ TFR differences are WPP's births at 10–14 and 50–54, outside the model's age
 
 ## Not in this spec
 
-- **Child mortality**: a third hazard term for ages 0–5, so life expectancy at birth matches too.
+- **Child mortality**: done in [44](44-child-mortality.md) (the Siler model, refitted on all ages); the mortality numbers in the table above are spec 43's fit.
 - **Childlessness by choice and sterility**: the low-income group's 0.4 % never-mothers is too low (primary sterility alone is a few per cent); a share of women with zero hazard would fix it.
 - **The other tables**: households (UN household size and composition), labour and sectors (ILOSTAT, CC BY 4.0), education, settlement. Each needs its own download, asked for by name and size.
 - Migration, and the change of rates over time (the tables are one year).
