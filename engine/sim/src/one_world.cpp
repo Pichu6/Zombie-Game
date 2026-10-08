@@ -2,6 +2,7 @@
 // with the census rows as the registry's founders. Spec: docs/tier0/specs/41-one-world.md
 #include <memory>
 
+#include "zs/demographics.h"
 #include "zs/economy_system.h"
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
@@ -12,6 +13,8 @@ namespace zs::tier0 {
 
 namespace {
 
+// Spec 43: the block's country is the upper-middle-income base country (default taken by Claude, decision 0052).
+constexpr const char* kBlockCountry = "/setup/nations/base_upper_middle.toml";
 constexpr std::uint64_t kBlockCohort = 1;
 constexpr std::uint32_t kBlockRegion = 1;
 constexpr std::uint64_t kHouseholdRoster = std::uint64_t{1} << 32;  // the generator's household roster ids (registry_bridge)
@@ -23,7 +26,8 @@ constexpr std::int64_t kPlaceholderCountryBudgetCents = 1'000'000'000;
 
 // Rule 2: one founder per census row, slot = row, the row's age and sex; households as rosters.
 std::unique_ptr<PopSystem> make_pops(World& w, const Census& census) {
-  auto pops = std::make_unique<PopSystem>(w);
+  const std::string data = data_dir();
+  auto pops = std::make_unique<PopSystem>(w, make_pop_params(load_nation(data + kBlockCountry), data));
   PopRegistry& reg = pops->setup(w);
   const auto& people = census.people();
   reg.add_cohort({kBlockCohort, kBlockRegion, 0, people.size()});

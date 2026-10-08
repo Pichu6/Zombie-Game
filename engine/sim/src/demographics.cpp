@@ -61,8 +61,8 @@ void rate(double x, const std::string& what) {
   if (x < 0 || x > 1) fail(what + " must be between 0 and 1");
 }
 
-Source source(const toml::table& t, const std::string& where) {
-  Source s;
+DataSource source(const toml::table& t, const std::string& where) {
+  DataSource s;
   if (const auto text = t["source"].value<std::string>()) s.text = *text;
   if (const auto year = t["year"].value<int64_t>()) s.year = static_cast<int>(*year);
   (void)where;
@@ -140,7 +140,7 @@ NationDemographics load_nation(const std::string& path) {
   n.settlement_source = source(set, "[settlement]");
 
   if (n.sourced) {  // real data must say where it came from
-    const std::pair<const char*, const Source*> all[] = {{"age_pyramid", &n.age_pyramid_source}, {"education", &n.education_source},
+    const std::pair<const char*, const DataSource*> all[] = {{"age_pyramid", &n.age_pyramid_source}, {"education", &n.education_source},
         {"labour", &n.labour_source}, {"occupations", &n.occupation_source}, {"sectors", &n.sector_source},
         {"households", &n.household_source}, {"settlement", &n.settlement_source}};
     for (const auto& [name, src] : all)

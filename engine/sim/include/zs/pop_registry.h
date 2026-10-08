@@ -166,6 +166,7 @@ class PopRegistry {
   void load_v3(ArchiveReader& r);
   void load_v4(ArchiveReader& r);
   void load_v5(ArchiveReader& r);
+  void load_v6(ArchiveReader& r);
   void load_embodied(ArchiveReader& r);  // v5 trailer
   void load_events(ArchiveReader& r);  // the region-event counter (v2 and later)
   void load_specs(ArchiveReader& r);   // the founder specs (v3)

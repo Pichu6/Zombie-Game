@@ -22,7 +22,7 @@ inline constexpr int kSectors = 3;             // agriculture, industry, service
 inline constexpr int kHouseholdSizes = 5;      // 1, 2, 3, 4, 5 or more people
 inline constexpr int kLabourAgeGroups = 4;     // 15-24, 25-54, 55-64, 65 and over
 
-struct Source {
+struct DataSource {
   std::string text;  // who published it (an organisation, a table)
   int year = 0;      // the data year
 };
@@ -33,21 +33,21 @@ struct NationDemographics {
   std::string pop_params;  // a demography preset under data/setup/ for mortality and fertility ("" = the defaults)
 
   std::vector<double> age_pyramid;                                     // shares by five-year band, 20 bands, add to 1
-  Source age_pyramid_source;
+  DataSource age_pyramid_source;
   std::array<std::array<double, kEducationLevels>, kEducationAgeGroups> education{};  // attainment shares by age group
-  Source education_source;
+  DataSource education_source;
   std::array<std::array<double, 2>, kLabourAgeGroups> participation{};  // share in the labour force: [age group][men, women]
   double unemployment_rate = 0;   // of the labour force
   double retirement_age = 65;
-  Source labour_source;
+  DataSource labour_source;
   std::array<double, kOccupationGroups> occupations{};  // shares of the employed
-  Source occupation_source;
+  DataSource occupation_source;
   std::array<double, kSectors> sectors{};               // shares of the employed
-  Source sector_source;
+  DataSource sector_source;
   std::array<double, kHouseholdSizes> household_sizes{};  // shares of households
-  Source household_source;
+  DataSource household_source;
   double urban_share = 0;  // share of people living in towns and cities
-  Source settlement_source;
+  DataSource settlement_source;
 };
 
 // Loads and checks a profile. Throws with a plain message on a missing table, an unknown key, shares that do not

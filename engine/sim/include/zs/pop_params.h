@@ -21,11 +21,17 @@ struct Mortality {
 
 // About 1.8 births per woman who lives to the end age: some childless; first birth at a minimum age plus an
 // exponential delay; then a minimum gap plus an exponential one; none from the end age; at most 15 (the id format).
+inline constexpr double kFertilityStartAge = 15.0;
+
 struct Fertility {
   double childless_share = 0.20;
   double first_min_age = 18.0, first_mean_delay = 10.0;
   double gap_min = 3.0, gap_mean_extra = 9.0;
   double end_age = 45.0;
+  // Spec 43: when set, the age-specific model replaces the one above: a birth hazard per year, constant within each
+  // five-year band from kFertilityStartAge (15-19, 20-24 ... 45-49), none for gap_min years after a birth. Fitted
+  // to real age-specific fertility rates (tools/data/wpp2024.py). Empty = the model above.
+  std::vector<double> hazard_by_band;
   bool operator==(const Fertility&) const = default;
 };
 

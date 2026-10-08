@@ -1,0 +1,51 @@
+# Base country, low income: a fictional country built from the Low-income countries aggregate of UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO).
+# Written by tools/data/wpp2024.py. The age pyramid and the pop parameters (mortality, fertility, sex ratio at
+# birth) are sourced; education, labour, occupations, sectors, households and settlement are still the
+# placeholder shapes, so the profile's status stays "placeholder" until those tables are sourced too.
+
+id = "base_low"
+name = "Base country, low income"
+status = "placeholder"
+pop_params = "demography/wpp2024_low.toml"
+
+[age_pyramid]        # 20 five-year bands: 0-4, 5-9, ... 90-94, 95+
+shares = [0.155097, 0.136434, 0.123039, 0.108940, 0.094051, 0.079384, 0.065302, 0.053469, 0.043800, 0.035638, 0.030038, 0.024005, 0.018444, 0.013466, 0.008922, 0.005719, 0.002892, 0.001072, 0.000251, 0.000039]
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Low-income countries"
+year = 2023
+
+[education]          # attainment of adults: none, primary, secondary, tertiary
+age_25_34 = [0.02, 0.06, 0.52, 0.40]
+age_35_64 = [0.04, 0.12, 0.52, 0.32]
+age_65_plus = [0.10, 0.30, 0.38, 0.22]
+source = "shape only, not data"
+year = 0
+
+[labour]             # share of each group in the labour force: [men, women]
+participation_15_24 = [0.45, 0.40]
+participation_25_54 = [0.92, 0.78]
+participation_55_64 = [0.70, 0.55]
+participation_65_plus = [0.15, 0.08]
+unemployment_rate = 0.06
+retirement_age = 65
+source = "shape only, not data"
+year = 0
+
+[occupations]        # of the employed: armed forces, managers, professionals, technicians, clerks, services and sales, skilled agriculture, craft trades, plant and machine operators, elementary
+shares = [0.005, 0.06, 0.18, 0.14, 0.09, 0.19, 0.03, 0.11, 0.08, 0.115]
+source = "shape only, not data"
+year = 0
+
+[sectors]            # of the employed: agriculture, industry, services
+shares = [0.04, 0.22, 0.74]
+source = "shape only, not data"
+year = 0
+
+[households]         # shares of households of 1, 2, 3, 4, 5 or more people
+sizes = [0.28, 0.33, 0.16, 0.14, 0.09]
+source = "shape only, not data"
+year = 0
+
+[settlement]
+urban_share = 0.78
+source = "shape only, not data"
+year = 0

@@ -60,3 +60,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 40 | [Time across levels](40-time.md) | World::jump (wake ticks), Pacer (speed ladder, caps, real time) | after Tier 0; layer jumps row 17 |
 | 41 | [The one world](41-one-world.md) | make_run as the one world: census rows as registry founders, owners and money, grid tree, orders audience | decision 0052 |
 | 42 | [The block's place](42-place.md) | Place, PlaceSystem (weather at the cell, indoor temperature), choose_place, gen::make_world | decision 0052 |
+| 43 | [Global tables and base countries](43-global-tables.md) | WPP 2024 tables, fitted mortality, age-specific fertility, base countries | decision 0052 |

@@ -6,10 +6,38 @@ namespace zs {
 
 namespace {
 // The `b` keys of Purpose::PopLife (pop.cpp uses 0..2 and the registry 10).
-constexpr std::uint64_t kDrawChildless = 20, kDrawFirst = 21, kDrawGapBase = 100;
+constexpr std::uint64_t kDrawChildless = 20, kDrawFirst = 21, kDrawGapBase = 100, kDrawHazardBase = 300;
 
 double exp_draw(std::uint64_t seed, PopId id, std::uint64_t key, double mean) {
   return -mean * detmath::log1p(-keyed_uniform01(seed, Purpose::PopLife, id, key));
+}
+// Spec 43: the next birth age at or after `age` under the band hazards, or end_age if none: the band-wise inverse of
+// the cumulative hazard at an exponential draw.
+double next_by_hazard(const Fertility& f, double age, double e) {
+  for (std::size_t b = 0; b < f.hazard_by_band.size(); ++b) {
+    const double band_end = kFertilityStartAge + 5.0 * static_cast<double>(b + 1);
+    if (age >= band_end) continue;
+    const double h = f.hazard_by_band[b], room = band_end - age;
+    if (h * room >= e) return age + e / h;
+    e -= h * room;
+    age = band_end;
+  }
+  return f.end_age;
+}
+
+std::vector<Birth> births_by_hazard(std::uint64_t seed, PopId mother, const PopBase& base, double after_year, const Fertility& f) {
+  std::vector<Birth> out;
+  double age = kFertilityStartAge;
+  for (unsigned k = 0; k < kMaxBirths; ++k) {
+    const double e = -detmath::log1p(-keyed_uniform01(seed, Purpose::PopLife, mother, kDrawHazardBase + k));
+    age = next_by_hazard(f, age, e);
+    if (age >= f.end_age) break;
+    const double year = base.birth_year + age;
+    if (year >= base.death_year) break;  // she has to be alive
+    if (year > after_year) out.push_back({k, year});
+    age += f.gap_min;
+  }
+  return out;
 }
 }  // namespace
 
@@ -17,6 +45,7 @@ std::vector<Birth> births_of(std::uint64_t seed, PopId mother, const PopBase& ba
   const Fertility& f = params.fertility;
   std::vector<Birth> out;
   if (base.sex != PopSex::Female) return out;
+  if (!f.hazard_by_band.empty()) return births_by_hazard(seed, mother, base, after_year, f);
   if (keyed_uniform01(seed, Purpose::PopLife, mother, kDrawChildless) < f.childless_share) return out;
   double age = f.first_min_age + exp_draw(seed, mother, kDrawFirst, f.first_mean_delay);
   for (unsigned k = 0; k < kMaxBirths && age < f.end_age; ++k) {

@@ -65,9 +65,19 @@ PopParams load_pop_params(const std::string& path) {
     read_double(*f, "gap_min", x.gap_min, s2);
     read_double(*f, "gap_mean_extra", x.gap_mean_extra, s2);
     read_double(*f, "end_age", x.end_age, s2);
-    check_keys(*f, {"childless_share", "first_min_age", "first_mean_delay", "gap_min", "gap_mean_extra", "end_age"}, "[fertility]");
+    if (const toml::array* h = (*f)["hazard_by_band"].as_array()) {  // spec 43
+      for (const auto& e : *h) {
+        const auto v = e.value<double>();
+        if (!v || *v < 0) throw std::runtime_error("pop params: hazard_by_band must be non-negative numbers");
+        x.hazard_by_band.push_back(*v);
+      }
+      if (x.hazard_by_band.empty() || x.hazard_by_band.size() > 10) throw std::runtime_error("pop params: hazard_by_band needs 1 to 10 bands");
+      x.end_age = kFertilityStartAge + 5.0 * static_cast<double>(x.hazard_by_band.size());
+    }
+    check_keys(*f, {"childless_share", "first_min_age", "first_mean_delay", "gap_min", "gap_mean_extra", "end_age", "hazard_by_band"}, "[fertility]");
   }
-  check_keys(t, {"male_share_at_birth", "founder_min_age", "founder_age_span", "mortality_female", "mortality_male", "fertility", "age_pyramid"}, "the file");
+  // source, year and [check] are provenance and the fit's own readout (spec 43); the simulation does not read them.
+  check_keys(t, {"male_share_at_birth", "founder_min_age", "founder_age_span", "mortality_female", "mortality_male", "fertility", "age_pyramid", "source", "year", "check"}, "the file");
   if (p.male_share_at_birth < 0 || p.male_share_at_birth > 1 || p.fertility.childless_share < 0 || p.fertility.childless_share > 1)
     throw std::runtime_error("pop params: a share is outside 0..1");
   for (const Mortality* m : {&p.female, &p.male})
@@ -84,6 +94,10 @@ void write_pop_params(ArchiveWriter& w, const PopParams& p) {
   w.f64(f.childless_share); w.f64(f.first_min_age); w.f64(f.first_mean_delay); w.f64(f.gap_min); w.f64(f.gap_mean_extra); w.f64(f.end_age);
   w.u64(p.age_pyramid.size());  // registry version 4
   for (double x : p.age_pyramid) w.f64(x);
+  if (!f.hazard_by_band.empty()) {  // registry version 6 (written only then)
+    w.u64(f.hazard_by_band.size());
+    for (double x : f.hazard_by_band) w.f64(x);
+  }
 }
 
 PopParams read_pop_params(ArchiveReader& r, std::uint32_t registry_version) {
@@ -95,6 +109,10 @@ PopParams read_pop_params(ArchiveReader& r, std::uint32_t registry_version) {
   if (registry_version >= 4) {  // older saves drew founders by the placeholder rule: an empty pyramid keeps that
     p.age_pyramid.resize(r.u64());
     for (double& x : p.age_pyramid) x = r.f64();
+  }
+  if (registry_version >= 6) {  // older saves used the parametric model
+    f.hazard_by_band.resize(r.u64());
+    for (double& x : f.hazard_by_band) x = r.f64();
   }
   return p;
 }

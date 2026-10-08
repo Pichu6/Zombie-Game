@@ -1,0 +1,31 @@
+# Pop parameters fitted to UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lower-middle-income countries, 2023.
+# Written by tools/data/wpp2024.py; do not edit by hand. Spec: docs/tier0/specs/43-global-tables.md
+# Fit: life expectancy at 15 model 56.46 / 60.26 (m/f) vs WPP 56.41 / 60.26;
+#      at birth model 70.31 / 74.26 vs WPP 67.65 / 71.61 (the model has no child-mortality term);
+#      TFR model 2.550 vs 2.554; mean age at childbearing model 28.02 vs 27.97
+#      (WPP's own MAC is from single-year rates); worst band 0.000 %; never a mother 5.6 %.
+source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), Lower-middle-income countries"
+year = 2023
+
+male_share_at_birth = 0.513619
+founder_min_age = 18.0
+founder_age_span = 47.0
+age_pyramid = [0.098090, 0.099085, 0.098133, 0.092895, 0.087565, 0.081794, 0.077519, 0.072135, 0.062936, 0.053295, 0.045664, 0.038599, 0.031945, 0.024655, 0.016946, 0.009814, 0.005465, 0.002515, 0.000778, 0.000169]
+
+[mortality_female]  # Gompertz-Makeham on log mx, ages 15-89
+constant_hazard = 9.236870e-04
+gompertz_b = 3.110217e-05
+gompertz_c = 0.097010
+
+[mortality_male]  # Gompertz-Makeham on log mx, ages 15-89
+constant_hazard = 1.032855e-03
+gompertz_b = 8.347688e-05
+gompertz_c = 0.087303
+
+[fertility]  # birth hazard by band 15-19 ... 45-49, fitted so the model's rates equal WPP's (spec 43)
+hazard_by_band = [0.04262082, 0.16400651, 0.17676559, 0.11328662, 0.05483639, 0.01980399, 0.00382885]
+gap_min = 1.0
+
+[check]  # what the model gives, for the loader test (not read by the simulation)
+life_expectancy_15_male = 56.4563
+life_expectancy_15_female = 60.2623
