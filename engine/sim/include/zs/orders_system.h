@@ -51,6 +51,9 @@ class OrdersSystem : public System {
 
   void apply_command(World& w, const Command& c, EventId cause) override;
   void update(World& w) override;  // applies the standing edicts once a game day
+  std::int64_t next_wake(const World&, std::int64_t now) const override {
+    return ((now + kTicksPerGameDay - 1) / kTicksPerGameDay) * kTicksPerGameDay;
+  }
   void save(ArchiveWriter& w) const override;
   void load(ArchiveReader& r) override;
 

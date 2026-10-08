@@ -41,6 +41,11 @@ class System {
   virtual void update(World&) = 0;
   virtual void save(ArchiveWriter&) const = 0;
   virtual void load(ArchiveReader&) = 0;
+  // Spec 40: the first tick at or after `now` at which this system has work to do. A system that steps every tick
+  // (bodies, actors, fields) returns `now`; a cold system returns its next cadence boundary, or kNever if it only
+  // reacts to commands. World::jump skips the ticks nobody needs.
+  static constexpr std::int64_t kNever = std::int64_t{1} << 62;
+  virtual std::int64_t next_wake(const World&, std::int64_t now) const { return now; }
 };
 
 class World {
@@ -77,6 +82,12 @@ class World {
   // Advances one tick: commands, systems in order, due scheduled events, ledger check.
   void step();
   void run_ticks(std::int64_t n) { for (std::int64_t i = 0; i < n; ++i) step(); }
+  // Spec 40: advances to `to_tick` stepping only the ticks at which some system, a pending command or a scheduled
+  // event has work; the ticks between are skipped. With every system cold this is one step per hour or day; with
+  // a body attended it is every tick. The result equals stepping tick by tick, event log included.
+  void jump(std::int64_t to_tick);
+  // The next tick at or after `now` at which anything has work (commands, systems, scheduled events).
+  std::int64_t next_wake(std::int64_t now) const;
 
   // Writes an event, remembering it as emitted this tick (the app's TimeControl reads these).
   EventId emit(EventType type, EntityId subject, EventId cause, std::int64_t a = 0, std::int64_t b = 0);

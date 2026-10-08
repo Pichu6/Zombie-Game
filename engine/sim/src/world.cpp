@@ -1,5 +1,7 @@
 #include "zs/world.h"
 
+#include <algorithm>
+
 #include <stdexcept>
 
 namespace zs {
@@ -49,6 +51,30 @@ void World::step() {
     if (last_violation) throw std::logic_error("ledger: " + *last_violation);
   }
   ++clock.tick;
+}
+
+std::int64_t World::next_wake(std::int64_t now) const {
+  if (!pending_.empty()) return now;
+  std::int64_t wake = System::kNever;
+  for (const auto& s : systems_) wake = std::min(wake, std::max(now, s->next_wake(*this, now)));
+  if (!scheduler.pending().empty()) wake = std::min(wake, std::max(now, scheduler.pending().begin()->first.first));
+  return wake;
+}
+
+void World::jump(std::int64_t to_tick) {
+  while (clock.tick < to_tick) {
+    const std::int64_t wake = next_wake(clock.tick);
+    if (wake >= to_tick) {  // nothing has work before to_tick: skip straight there
+      clock.tick = to_tick;
+      if (check_every_tick) {
+        last_violation = ledger.check();
+        if (last_violation) throw std::logic_error("ledger: " + *last_violation);
+      }
+      return;
+    }
+    clock.tick = wake;
+    step();
+  }
 }
 
 void World::save_state(ArchiveWriter& w, bool with_input_log) const {

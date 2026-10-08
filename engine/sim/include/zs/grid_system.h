@@ -33,6 +33,7 @@ class GridSystem : public System {
 
   void apply_command(World& w, const Command& c, EventId cause) override;
   void update(World&) override {}
+  std::int64_t next_wake(const World&, std::int64_t) const override { return kNever; }  // reacts to commands only
   void save(ArchiveWriter& w) const override { tree_.save(w); }
   void load(ArchiveReader& r) override { tree_.load(r); }
 

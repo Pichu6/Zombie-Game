@@ -42,6 +42,7 @@ add_library(zs_sim
   src/edicts.cpp
   src/beliefs.cpp
   src/orders_system.cpp
+  src/pacer.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

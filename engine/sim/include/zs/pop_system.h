@@ -55,6 +55,8 @@ class PopSystem : public System {
 
   void apply_command(World& w, const Command& c, EventId cause) override;
   void update(World& w) override;  // audits the registry when the world checks every tick
+  // With bodies attached a pop may die any tick; without them the registry only changes by command.
+  std::int64_t next_wake(const World&, std::int64_t now) const override { return bodies_ ? now : kNever; }
   void save(ArchiveWriter& w) const override;
   void load(ArchiveReader& r) override;
 

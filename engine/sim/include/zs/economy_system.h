@@ -99,6 +99,10 @@ class EconomySystem : public System {
   void update(World& w) override;
   void save(ArchiveWriter& w) const override;
   void load(ArchiveReader& r) override;
+  // Cold: work once a game hour (spec 40).
+  std::int64_t next_wake(const World&, std::int64_t now) const override {
+    return ((now + kTicksPerGameHour - 1) / kTicksPerGameHour) * kTicksPerGameHour;
+  }
 
  private:
   void refuse(World& w, const Command& c, EventId cause, EconRefusal why);
