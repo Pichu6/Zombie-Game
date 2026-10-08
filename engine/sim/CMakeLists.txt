@@ -31,6 +31,7 @@ add_library(zs_sim
   src/hypergeometric.cpp
   src/demographics.cpp
   src/economy.cpp
+  src/economy_system.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

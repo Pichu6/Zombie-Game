@@ -61,6 +61,11 @@ enum class EventType : std::uint16_t {
   PopEmbodied = 43,       // subject = pop, a = the body (pool slot), b = 1 if restored from a saved state
   PopDisembodied = 44,    // subject = pop, a = the body it left, b = 1 if it died while embodied
   PopDiedDemoted = 45,  // subject = pop; a = DeathCause, b = the tick: the body jump found it dead (spec 29 rule 6)
+  // Spec 32: stocks, goods and money.
+  EconTraded = 46,      // subject = buyer, a = seller, b = units bought (the good and price are in the Intent)
+  EconPaid = 47,        // subject = receiver, a = payer, b = cents
+  EconSpoiled = 48,     // subject = 0 (all lots), a = bulk amount moved to the decay sink this jump
+  EconRefused = 49,     // subject = what it was aimed at, a = the command type, b = EconRefusal
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

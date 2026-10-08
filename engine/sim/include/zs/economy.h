@@ -108,6 +108,7 @@ class Spoilage {
   std::int64_t advance(Ledger& l, const Goods& goods, OwnerId decayed, std::int64_t to_tick, CauseId cause);
 
   const std::vector<Lot>& lots() const { return lots_; }
+  void restore(std::vector<Lot> lots) { lots_ = std::move(lots); }
 
  private:
   std::vector<Lot> lots_;
@@ -134,12 +135,18 @@ class Money {
   std::int64_t received(OwnerId o) const;  // all kinds
   std::int64_t paid(OwnerId o) const;
 
+  // Persistence: the tallies (the balances themselves are the ledger's).
+  using Tallies = std::map<std::pair<OwnerId, FlowKind>, std::int64_t>;
+  const Tallies& received_tallies() const { return in_; }
+  const Tallies& paid_tallies() const { return out_; }
+  void restore(Tallies in, Tallies out) { in_ = std::move(in); out_ = std::move(out); }
+
  private:
   void tally(OwnerId from, OwnerId to, FlowKind k, std::int64_t cents);
 
   ResourceId money_;
-  std::map<std::pair<OwnerId, FlowKind>, std::int64_t> in_;
-  std::map<std::pair<OwnerId, FlowKind>, std::int64_t> out_;
+  Tallies in_;
+  Tallies out_;
 };
 
 // Decision 0051: whose money and resources a panel shows.
