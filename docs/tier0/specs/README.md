@@ -63,3 +63,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 43 | [Global tables and base countries](43-global-tables.md) | WPP 2024 tables, fitted mortality, age-specific fertility, base countries | decision 0052 |
 | 44 | [Child mortality](44-child-mortality.md) | Siler hazard (early childhood), fitted on qx weighted by deaths | decision 0052 |
 | 45 | [Households and sectors](45-households-and-sectors.md) | UN household sizes and ILO employment by sector per income group; four household groups | decision 0052 |
+| 46 | [Education, labour, occupations and settlement](46-education-labour-occupations-settlement.md) | WIC2023 education, ILO participation, unemployment and occupations, urban share; base countries fully sourced | decision 0052 |

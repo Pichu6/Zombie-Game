@@ -15,9 +15,10 @@ namespace zs {
 // Fixed orders (never reorder: the profile files and saves rely on them).
 inline constexpr int kEducationLevels = 4;   // none, primary, secondary, tertiary
 inline constexpr int kEducationAgeGroups = 3;  // 25-34, 35-64, 65 and over
-inline constexpr int kOccupationGroups = 10;   // ISCO-08 major groups: armed forces, managers, professionals, technicians,
-                                               // clerks, services and sales, skilled agriculture, craft trades, plant and
-                                               // machine operators, elementary occupations
+inline constexpr int kOccupationGroups = 8;    // the ILO modelled estimates' ISCO-08 groups (spec 46): managers,
+                                               // professionals, technicians, clerks, services and sales, craft trades, plant
+                                               // and machine operators, skilled agriculture with elementary occupations
+                                               // (armed forces are spread over the others)
 inline constexpr int kSectors = 3;             // agriculture, industry, services
 inline constexpr int kHouseholdSizes = 4;      // 1, 2-3, 4-5, 6 or more people (the UN household database's groups, spec 45)
 inline constexpr int kLabourAgeGroups = 4;     // 15-24, 25-54, 55-64, 65 and over

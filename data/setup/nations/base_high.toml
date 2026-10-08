@@ -1,11 +1,9 @@
-# Base country, high income: a fictional country built from the High-income countries aggregate of UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO).
-# Written by tools/data/global_tables.py. Sourced: the age pyramid, the pop parameters (mortality, fertility, sex
-# ratio at birth), sectors and households. Still placeholder shapes: education, labour, occupations and
-# settlement, so the profile's status stays "placeholder" until those tables are sourced too.
+# Base country, high income: a fictional country built from the High income aggregates of the open
+# global tables (specs 43-46). Written by tools/data/global_tables.py; do not edit by hand.
 
 id = "base_high"
 name = "Base country, high income"
-status = "placeholder"
+status = "sourced"
 pop_params = "demography/wpp2024_high.toml"
 
 [age_pyramid]        # 20 five-year bands: 0-4, 5-9, ... 90-94, 95+
@@ -13,27 +11,27 @@ shares = [0.048003, 0.053358, 0.055837, 0.056522, 0.058889, 0.063795, 0.068572, 
 source = "UN DESA Population Division, World Population Prospects 2024 (CC BY 3.0 IGO), High-income countries"
 year = 2023
 
-[education]          # attainment of adults: none, primary, secondary, tertiary
-age_25_34 = [0.02, 0.06, 0.52, 0.40]
-age_35_64 = [0.04, 0.12, 0.52, 0.32]
-age_65_plus = [0.10, 0.30, 0.38, 0.22]
-source = "shape only, not data"
-year = 0
+[education]          # attainment of adults: none (incl. incomplete primary), primary, secondary, tertiary
+age_25_34 = [0.010369, 0.023516, 0.490836, 0.475279]
+age_35_64 = [0.022539, 0.038017, 0.552280, 0.387164]
+age_65_plus = [0.043542, 0.106398, 0.601055, 0.249005]
+source = "Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); no licence stated: aggregated shares used as published facts (decision 0046 route 2), countries of the High income group, 2023 between 2020 and 2025"
+year = 2023
 
 [labour]             # share of each group in the labour force: [men, women]
-participation_15_24 = [0.45, 0.40]
-participation_25_54 = [0.92, 0.78]
-participation_55_64 = [0.70, 0.55]
-participation_65_plus = [0.15, 0.08]
-unemployment_rate = 0.06
+participation_15_24 = [0.4637, 0.4264]
+participation_25_54 = [0.9214, 0.8011]
+participation_55_64 = [0.7503, 0.5957]
+participation_65_plus = [0.1918, 0.1072]
+unemployment_rate = 0.0433
 retirement_age = 65
-source = "shape only, not data"
-year = 0
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), High income; retirement_age is an estimate, not data"
+year = 2023
 
-[occupations]        # of the employed: armed forces, managers, professionals, technicians, clerks, services and sales, skilled agriculture, craft trades, plant and machine operators, elementary
-shares = [0.005, 0.06, 0.18, 0.14, 0.09, 0.19, 0.03, 0.11, 0.08, 0.115]
-source = "shape only, not data"
-year = 0
+[occupations]        # of the employed: managers, professionals, technicians, clerks, services and sales, craft trades, plant and machine operators, skilled agriculture and elementary
+shares = [0.072662, 0.215677, 0.151519, 0.097528, 0.169368, 0.098914, 0.080464, 0.113869]
+source = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0), High income"
+year = 2023
 
 [sectors]            # of the employed: agriculture, industry, services
 shares = [0.031224, 0.225501, 0.743275]
@@ -47,6 +45,6 @@ source = "UN DESA Population Division, Database on Household Size and Compositio
 year = 2011
 
 [settlement]
-urban_share = 0.78
-source = "shape only, not data"
-year = 0
+urban_share = 0.8002
+source = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0), High income"
+year = 2023

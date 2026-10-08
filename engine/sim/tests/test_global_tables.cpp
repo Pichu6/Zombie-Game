@@ -41,7 +41,7 @@ TEST_CASE("global tables: every base country and its preset load, with the sourc
   const toml::table w = world_tables();
   for (const char* level : kLevels) {
     const NationDemographics n = load_nation(data() + "/setup/nations/base_" + std::string(level) + ".toml");
-    CHECK_FALSE(n.sourced);  // other tables are still placeholders
+    CHECK(n.sourced);  // spec 46: every table has a source and a year
     CHECK(n.age_pyramid_source.text.find("World Population Prospects 2024") != std::string::npos);
     const PopParams p = params_of(level);
     CHECK(p.fertility.hazard_by_band.size() == 7);
@@ -66,6 +66,24 @@ TEST_CASE("global tables (spec 45): base countries carry the sourced households 
     for (std::size_t k = 0; k < 3; ++k) CHECK(n.sectors[k] == doctest::Approx(sectors[k]).epsilon(1e-5));
     CHECK(*w[level]["household_coverage"].value<double>() > 0.9);
   }
+}
+
+TEST_CASE("global tables (spec 46): base countries carry education, labour, occupations and settlement") {
+  const toml::table w = world_tables();
+  for (const char* level : kLevels) {
+    const NationDemographics n = load_nation(data() + "/setup/nations/base_" + std::string(level) + ".toml");
+    const std::vector<double> occ = numbers(*w[level].as_table(), "employment_by_occupation");
+    for (std::size_t k = 0; k < occ.size(); ++k) CHECK(n.occupations[k] == doctest::Approx(occ[k]).epsilon(1e-5));
+    CHECK(n.urban_share == doctest::Approx(*w[level]["urban_share"].value<double>()).epsilon(1e-3));
+    CHECK(n.unemployment_rate == doctest::Approx(*w[level]["unemployment_rate"].value<double>()).epsilon(1e-3));
+    CHECK(n.participation[1][0] > n.participation[3][0]);  // prime-age men work more than men over 65
+    CHECK(n.education_source.text.find("Wittgenstein") != std::string::npos);
+  }
+  // Across income groups: richer means more tertiary and fewer without schooling among the young (25-34).
+  const NationDemographics high = load_nation(data() + "/setup/nations/base_high.toml");
+  const NationDemographics low = load_nation(data() + "/setup/nations/base_low.toml");
+  CHECK(high.education[0][3] > 3 * low.education[0][3]);
+  CHECK(low.education[0][0] > 10 * high.education[0][0]);
 }
 
 TEST_CASE("global tables: the mortality draws give WPP's life expectancy at 15 (within half a year)"

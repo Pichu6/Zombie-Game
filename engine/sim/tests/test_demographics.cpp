@@ -55,7 +55,7 @@ TEST_CASE("the placeholder nation loads, every table adds up, and it says it is 
   CHECK(share_under(n, 100) == doctest::Approx(1.0).epsilon(1e-9));
   CHECK(share_under(n, 15) > 0.14);
   CHECK(share_under(n, 15) < 0.20);
-  CHECK(std::string(occupation_group_name(1)) == "managers");
+  CHECK(std::string(occupation_group_name(0)) == "managers");
   CHECK(std::string(sector_name(2)) == "services");
   CHECK(std::string(education_level_name(3)) == "tertiary");
 }

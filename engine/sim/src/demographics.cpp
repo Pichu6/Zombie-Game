@@ -10,8 +10,8 @@ namespace zs {
 
 namespace {
 
-const char* kOccupations[kOccupationGroups] = {"armed_forces", "managers", "professionals", "technicians", "clerks",
-                                               "services_sales", "skilled_agriculture", "craft_trades", "plant_machine", "elementary"};
+const char* kOccupations[kOccupationGroups] = {"managers", "professionals", "technicians", "clerks", "services_sales",
+                                               "craft_trades", "plant_machine", "agriculture_elementary"};
 const char* kSectorNames[kSectors] = {"agriculture", "industry", "services"};
 const char* kEducation[kEducationLevels] = {"none", "primary", "secondary", "tertiary"};
 

@@ -34,8 +34,8 @@ retirement_age = 65
 source = "shape only, not data"
 year = 0
 
-[occupations]        # of the employed: armed forces, managers, professionals, technicians, clerks, services and sales, skilled agriculture, craft trades, plant and machine operators, elementary
-shares = [0.005, 0.06, 0.18, 0.14, 0.09, 0.19, 0.03, 0.11, 0.08, 0.115]
+[occupations]        # of the employed: managers, professionals, technicians, clerks, services and sales, craft trades, plant and machine operators, skilled agriculture and elementary
+shares = [0.06, 0.18, 0.145, 0.09, 0.19, 0.11, 0.08, 0.145]
 source = "shape only, not data"
 year = 0
 

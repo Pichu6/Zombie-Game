@@ -24,6 +24,11 @@ household_mean_size = 3.659
 household_coverage = 0.983  # share of the group's people in countries with data
 household_median_year = 2015
 employment_by_sector = [0.265560, 0.235141, 0.499300]  # agriculture, industry, services
+employment_by_occupation = [0.035462, 0.105418, 0.057392, 0.047922, 0.158637, 0.115088, 0.070459, 0.409623]  # ILO's eight modelled groups
+labour_participation = [[0.4972, 0.3465], [0.9209, 0.6405], [0.7416, 0.4824], [0.2853, 0.1459]]  # 15-24, 25-54, 55-64, 65+ x [men, women]
+unemployment_rate = 0.0490
+urban_share = 0.5731
+education_attainment = [[0.1509, 0.1016, 0.4778, 0.2697], [0.2029, 0.1374, 0.4754, 0.1843], [0.2848, 0.1978, 0.3913, 0.1261]]  # 25-34, 35-64, 65+ x none, primary, secondary, tertiary
 
 [high]
 wpp_location = "High-income countries"
@@ -47,6 +52,11 @@ household_mean_size = 2.458
 household_coverage = 0.950  # share of the group's people in countries with data
 household_median_year = 2011
 employment_by_sector = [0.031224, 0.225501, 0.743275]  # agriculture, industry, services
+employment_by_occupation = [0.072662, 0.215677, 0.151519, 0.097528, 0.169368, 0.098914, 0.080464, 0.113869]  # ILO's eight modelled groups
+labour_participation = [[0.4637, 0.4264], [0.9214, 0.8011], [0.7503, 0.5957], [0.1918, 0.1072]]  # 15-24, 25-54, 55-64, 65+ x [men, women]
+unemployment_rate = 0.0433
+urban_share = 0.8002
+education_attainment = [[0.0104, 0.0235, 0.4908, 0.4753], [0.0225, 0.0380, 0.5523, 0.3872], [0.0435, 0.1064, 0.6011, 0.2490]]  # 25-34, 35-64, 65+ x none, primary, secondary, tertiary
 
 [upper_middle]
 wpp_location = "Upper-middle-income countries"
@@ -70,6 +80,11 @@ household_mean_size = 3.503
 household_coverage = 0.990  # share of the group's people in countries with data
 household_median_year = 2016
 employment_by_sector = [0.209183, 0.275030, 0.515787]  # agriculture, industry, services
+employment_by_occupation = [0.027069, 0.104130, 0.041116, 0.051806, 0.152070, 0.127096, 0.078048, 0.418665]  # ILO's eight modelled groups
+labour_participation = [[0.5103, 0.3931], [0.9067, 0.7095], [0.7010, 0.4795], [0.2791, 0.1580]]  # 15-24, 25-54, 55-64, 65+ x [men, women]
+unemployment_rate = 0.0565
+urban_share = 0.6745
+education_attainment = [[0.0475, 0.0818, 0.5525, 0.3182], [0.0956, 0.1715, 0.5801, 0.1527], [0.2797, 0.3086, 0.3465, 0.0652]]  # 25-34, 35-64, 65+ x none, primary, secondary, tertiary
 
 [lower_middle]
 wpp_location = "Lower-middle-income countries"
@@ -93,6 +108,11 @@ household_mean_size = 4.561
 household_coverage = 0.998  # share of the group's people in countries with data
 household_median_year = 2017
 employment_by_sector = [0.411316, 0.218948, 0.369736]  # agriculture, industry, services
+employment_by_occupation = [0.028450, 0.057073, 0.029903, 0.022585, 0.164303, 0.121269, 0.064105, 0.512313]  # ILO's eight modelled groups
+labour_participation = [[0.4842, 0.2734], [0.9449, 0.4998], [0.7866, 0.3794], [0.3949, 0.1579]]  # 15-24, 25-54, 55-64, 65+ x [men, women]
+unemployment_rate = 0.0429
+urban_share = 0.4120
+education_attainment = [[0.2314, 0.1430, 0.4439, 0.1817], [0.4080, 0.1602, 0.3180, 0.1138], [0.6298, 0.1305, 0.1762, 0.0636]]  # 25-34, 35-64, 65+ x none, primary, secondary, tertiary
 
 [low]
 wpp_location = "Low-income countries"
@@ -116,3 +136,8 @@ household_mean_size = 5.228
 household_coverage = 0.995  # share of the group's people in countries with data
 household_median_year = 2018
 employment_by_sector = [0.606948, 0.099954, 0.293098]  # agriculture, industry, services
+employment_by_occupation = [0.011493, 0.039141, 0.016346, 0.011326, 0.137502, 0.066496, 0.032880, 0.684816]  # ILO's eight modelled groups
+labour_participation = [[0.5495, 0.4196], [0.8691, 0.6078], [0.8031, 0.5459], [0.5641, 0.3390]]  # 15-24, 25-54, 55-64, 65+ x [men, women]
+unemployment_rate = 0.0528
+urban_share = 0.3429
+education_attainment = [[0.5093, 0.1468, 0.2752, 0.0687], [0.6223, 0.1106, 0.2117, 0.0554], [0.7200, 0.0594, 0.1705, 0.0501]]  # 25-34, 35-64, 65+ x none, primary, secondary, tertiary

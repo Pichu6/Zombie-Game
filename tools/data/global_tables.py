@@ -1,9 +1,11 @@
-"""Global tables and base countries (specs 43, 44, 45).
+"""Global tables and base countries (specs 43 to 46).
 
 Reads, from a raw-data folder outside the repo (RAW_DIR, default ../data_raw):
   wpp2024/            the four UN World Population Prospects 2024 CSV files (CC BY 3.0 IGO)
   undesa_households/  the UN Database on Household Size and Composition 2022 (CC BY 3.0 IGO)
-  ilostat/            the ILO modelled estimates of employment by sector as the World Bank API serves them
+  wittgenstein/       pop-age-edattain.rds, WIC2023 SSP2 (education by age; read by tools/data/rds.py)
+  ilostat/            ILO modelled estimates from the ILO SDMX API (ilo_DF_*.csv: occupations, participation by age,
+                      unemployment), urbanisation (wb_SP.URB.TOTL.IN.ZS.json), and employment by sector as the World Bank API serves them
                       (wb_SL.AGR.EMPL.ZS.json, wb_SL.IND.EMPL.ZS.json, wb_SL.SRV.EMPL.ZS.json; CC BY 4.0) and the
                       World Bank's country income classification (wb_countries.json)
 keeps the world and the four World Bank income groups for one year, and writes:
@@ -263,6 +265,92 @@ def load_sectors(raw, year):
     return out
 
 
+# ---- Labour, occupations and settlement (spec 46): published aggregates for the income groups.
+
+ILO_AREA = {"world": "X01", "low": "X02", "lower_middle": "X03", "upper_middle": "X04", "high": "X05"}
+ILO_SOURCE = "ILO modelled estimates (ILOEST), via the ILO SDMX API (CC BY 4.0)"
+URBAN_SOURCE = "UN World Urbanization Prospects via World Bank WDI SP.URB.TOTL.IN.ZS (CC BY 4.0)"
+EDU_SOURCE = ("Wittgenstein Centre Human Capital Data Explorer, WIC2023, SSP2 (K.C. et al. 2024, IIASA WP-24-003); "
+              "no licence stated: aggregated shares used as published facts (decision 0046 route 2)")
+OCCUPATIONS = ["OCU_ISCO08_1", "OCU_ISCO08_2", "OCU_ISCO08_3", "OCU_ISCO08_4", "OCU_ISCO08_5", "OCU_ISCO08_7",
+               "OCU_ISCO08_8", "OCU_ISCO08_96"]
+
+
+def ilo_rows(raw, flow, year):
+    with open(raw / "ilostat" / f"ilo_{flow}.csv", encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if r["TIME_PERIOD"] == year and r["OBS_VALUE"]:
+                yield r
+
+
+def load_labour(raw, year):
+    part = {}
+    for r in ilo_rows(raw, "DF_EAP_2WAP_SEX_AGE_RT", year):
+        part[(r["REF_AREA"], r["SEX"], r["AGE"])] = float(r["OBS_VALUE"]) / 100
+    unemp = {r["REF_AREA"]: float(r["OBS_VALUE"]) / 100 for r in ilo_rows(raw, "DF_UNE_2EAP_SEX_AGE_RT", year)
+             if r["SEX"] == "SEX_T" and r["AGE"] == "AGE_YTHADULT_YGE15"}
+    out = {}
+    for level, area in ILO_AREA.items():
+        groups = []
+        for age in ("Y15-24", "Y25-54", "Y55-64", "YGE65"):
+            groups.append([part[(area, sex, "AGE_AGGREGATE_" + age)] for sex in ("SEX_M", "SEX_F")])
+        out[level] = {"participation": groups, "unemployment": unemp[area]}
+    return out
+
+
+def load_occupations(raw, year):
+    emp = {}
+    for r in ilo_rows(raw, "DF_EMP_2EMP_SEX_OCU_NB", year):
+        if r["SEX"] == "SEX_T":
+            emp[(r["REF_AREA"], r["OCU"])] = float(r["OBS_VALUE"])
+    out = {}
+    for level, area in ILO_AREA.items():
+        v = [emp[(area, o)] for o in OCCUPATIONS]
+        total = emp[(area, "OCU_ISCO08_TOTAL")]
+        if abs(sum(v) / total - 1) > 0.001:
+            sys.exit(f"global_tables: occupations of {level} do not add up to the total")
+        out[level] = [x / sum(v) for x in v]
+    return out
+
+
+def load_urban(raw, year):
+    import json
+    _, rows = json.loads((raw / "ilostat" / "wb_SP.URB.TOTL.IN.ZS.json").read_text(encoding="utf-8"))
+    out = {}
+    for r in rows:
+        for level, name in WB_AGGREGATE_NAME.items():
+            if r["country"]["value"] == name and r["date"] == year:
+                out[level] = r["value"] / 100
+    return out
+
+
+def load_education(raw, iso3, income, year):
+    """Attainment shares (none, primary, secondary, tertiary) for ages 25-34, 35-64 and 65+, summed over the group's
+    countries (WIC counts people, so the sum is the group's own distribution), interpolated between 2020 and 2025."""
+    sys.path.insert(0, str(pathlib.Path(__file__).parent))
+    import rds
+    d = rds.read_rds(raw / "wittgenstein" / "pop-age-edattain.rds")
+    level_of = {"No Education": 0, "Incomplete Primary": 0, "Primary": 1, "Lower Secondary": 2, "Upper Secondary": 2,
+                "Post Secondary": 3}  # Post Secondary is the sum of short post-secondary, bachelor and master and higher
+    def age_group(a):
+        lo = int(a.split("--")[0].rstrip("+"))
+        return None if lo < 25 else 0 if lo < 35 else 1 if lo < 65 else 2
+    w = (int(year) - 2020) / 5.0
+    sums = {lv: [[0.0] * 4 for _ in range(3)] for lv in WB_GROUP}
+    for code, y, a, e, p in zip(d["country_code"], d["year"], d["age"], d["education"], d["pop"]):
+        if y not in (2020.0, 2025.0) or e not in level_of or code is None:
+            continue
+        g = age_group(a)
+        loc = int(code)
+        if g is None or loc not in iso3:
+            continue
+        weight = (1 - w) if y == 2020.0 else w
+        for level, wb in WB_GROUP.items():
+            if wb is None or income.get(iso3[loc]) == wb:
+                sums[level][g][level_of[e]] += weight * p
+    return {lv: [[x / sum(row) for x in row] for row in rows] for lv, rows in sums.items()}
+
+
 def load_income(raw):
     import json
     _, rows = json.loads((raw / "ilostat" / "wb_countries.json").read_text(encoding="utf-8"))
@@ -283,8 +371,12 @@ def main():
     raw = pathlib.Path(args[0]) if args else DEFAULT_RAW
     data = load(raw, year)
     pop, iso3 = country_populations(raw, year)
-    households = load_households(raw, pop, iso3, load_income(raw))
+    income = load_income(raw)
+    households = load_households(raw, pop, iso3, income)
     sectors = load_sectors(raw, year)
+    tables = {"households": households, "sectors": sectors, "labour": load_labour(raw, year),
+              "occupations": load_occupations(raw, year), "urban": load_urban(raw, year),
+              "education": load_education(raw, iso3, income, year)}
 
     world = [f"# Global tables, data year {year}. Written by tools/data/global_tables.py; do not edit by hand.",
              f"# Demography: {SOURCE}. Households: {HH_SOURCE}. Sectors: {SECTOR_SOURCE}.",
@@ -318,7 +410,12 @@ def main():
                   f"household_mean_size = {households[level]['mean']:.3f}",
                   f"household_coverage = {households[level]['coverage']:.3f}  # share of the group's people in countries with data",
                   f"household_median_year = {households[level]['median_year']}",
-                  f"employment_by_sector = {fmt_list(sectors[level])}  # agriculture, industry, services", ""]
+                  f"employment_by_sector = {fmt_list(sectors[level])}  # agriculture, industry, services",
+                  f"employment_by_occupation = {fmt_list(tables['occupations'][level])}  # ILO's eight modelled groups",
+                  "labour_participation = [" + ", ".join(fmt_list(g, 4) for g in tables['labour'][level]['participation']) + "]  # 15-24, 25-54, 55-64, 65+ x [men, women]",
+                  f"unemployment_rate = {tables['labour'][level]['unemployment']:.4f}",
+                  f"urban_share = {tables['urban'][level]:.4f}",
+                  "education_attainment = [" + ", ".join(fmt_list(g, 4) for g in tables['education'][level]) + "]  # 25-34, 35-64, 65+ x none, primary, secondary, tertiary", ""]
 
         preset = [f"# Pop parameters fitted to {SOURCE}, {wpp_name}, {year}.",
                   "# Written by tools/data/global_tables.py; do not edit by hand. Spec: docs/tier0/specs/43-global-tables.md",
@@ -343,7 +440,7 @@ def main():
         (ROOT / "data/setup/demography" / f"wpp2024_{level}.toml").write_text("\n".join(preset), encoding="utf-8", newline="\n")
 
         if level in BASE_NAMES:
-            write_base(level, both, year, wpp_name, households[level], sectors[level])
+            write_base(level, both, year, wpp_name, tables)
 
     out = ROOT / "data/setup/world"
     out.mkdir(parents=True, exist_ok=True)
@@ -354,27 +451,32 @@ def main():
         h = households[level]
         print(f"{level:14} {'/'.join(f'{100 * x:.1f}' for x in h['shares']):>26} {h['mean']:5.2f} {h['coverage']:5.2f}"
               f" {h['median_year']:5}   {'/'.join(f'{100 * x:.1f}' for x in sectors[level]):>16}")
+    print(f"{'group':14} {'tertiary 25-34':>14} {'none 25-34':>10} {'LFPR 25-54 m/f':>15} {'unemp':>6} {'urban':>6}")
+    for level, _, _ in GROUPS:
+        lab = tables['labour'][level]
+        print(f"{level:14} {100 * tables['education'][level][0][3]:13.1f}% {100 * tables['education'][level][0][0]:9.1f}%"
+              f" {100 * lab['participation'][1][0]:7.1f}/{100 * lab['participation'][1][1]:5.1f} {100 * lab['unemployment']:5.1f}% {100 * tables['urban'][level]:5.1f}%")
     print(f"{'group':14} {'e15 m/f model':>16} {'e15 m/f WPP':>14} {'e0 m/f model':>15} {'e0 m/f WPP':>13} {'TFR':>11} {'MAC':>11} {'childless':>9} {'worst':>7}")
     for level, e0, me0, e15, me15, tfr, tfr_m, mac, mac_m, childless, worst in report:
         print(f"{level:14} {me15[1]:7.2f}/{me15[2]:6.2f} {e15[1]:7.2f}/{e15[2]:6.2f} {me0[1]:7.2f}/{me0[2]:6.2f}"
               f" {e0[1]:6.2f}/{e0[2]:6.2f} {tfr_m:5.2f}/{tfr:4.2f} {mac_m:5.2f}/{mac:5.2f} {100 * childless:8.1f}% {100 * worst:6.3f}%")
 
 
-def write_base(level, both, year, wpp_name, households, sectors):
-    """A base country: this group's sourced age pyramid, preset, sectors and households; the placeholder profile's
-    other tables."""
-    placeholder = (ROOT / "data/setup/nations/placeholder.toml").read_text(encoding="utf-8")
-    body = placeholder.split("[education]", 1)[1].split("[sectors]", 1)[0]
-    settlement = "[settlement]" + placeholder.split("[settlement]", 1)[1]
+RETIREMENT_AGE = 65  # no open source gives it by income group; an estimate, named as such in the labour table
+
+
+def write_base(level, both, year, wpp_name, t):
+    """A base country: every table sourced from its income group's aggregate (spec 46)."""
+    lab = t["labour"][level]
+    edu = t["education"][level]
+    hh = t["households"][level]
     text = "\n".join([
-        f"# {BASE_NAMES[level]}: a fictional country built from the {wpp_name} aggregate of {SOURCE}.",
-        "# Written by tools/data/global_tables.py. Sourced: the age pyramid, the pop parameters (mortality, fertility, sex",
-        "# ratio at birth), sectors and households. Still placeholder shapes: education, labour, occupations and",
-        "# settlement, so the profile's status stays \"placeholder\" until those tables are sourced too.",
+        f"# {BASE_NAMES[level]}: a fictional country built from the {WB_AGGREGATE_NAME[level]} aggregates of the open",
+        "# global tables (specs 43-46). Written by tools/data/global_tables.py; do not edit by hand.",
         "",
         f'id = "base_{level}"',
         f'name = "{BASE_NAMES[level]}"',
-        'status = "placeholder"',
+        'status = "sourced"',
         f'pop_params = "demography/wpp2024_{level}.toml"',
         "",
         "[age_pyramid]        # 20 five-year bands: 0-4, 5-9, ... 90-94, 95+",
@@ -382,19 +484,44 @@ def write_base(level, both, year, wpp_name, households, sectors):
         f'source = "{SOURCE}, {wpp_name}"',
         f"year = {year}",
         "",
-        "[education]" + body.rstrip() + "\n",
+        "[education]          # attainment of adults: none (incl. incomplete primary), primary, secondary, tertiary",
+        f"age_25_34 = {fmt_list(edu[0])}",
+        f"age_35_64 = {fmt_list(edu[1])}",
+        f"age_65_plus = {fmt_list(edu[2])}",
+        f'source = "{EDU_SOURCE}, countries of the {WB_AGGREGATE_NAME[level]} group, {year} between 2020 and 2025"',
+        f"year = {year}",
+        "",
+        "[labour]             # share of each group in the labour force: [men, women]",
+        f"participation_15_24 = {fmt_list(lab['participation'][0], 4)}",
+        f"participation_25_54 = {fmt_list(lab['participation'][1], 4)}",
+        f"participation_55_64 = {fmt_list(lab['participation'][2], 4)}",
+        f"participation_65_plus = {fmt_list(lab['participation'][3], 4)}",
+        f"unemployment_rate = {lab['unemployment']:.4f}",
+        f"retirement_age = {RETIREMENT_AGE}",
+        f'source = "{ILO_SOURCE}, {WB_AGGREGATE_NAME[level]}; retirement_age is an estimate, not data"',
+        f"year = {year}",
+        "",
+        "[occupations]        # of the employed: managers, professionals, technicians, clerks, services and sales, craft trades, plant and machine operators, skilled agriculture and elementary",
+        f"shares = {fmt_list(t['occupations'][level])}",
+        f'source = "{ILO_SOURCE}, {WB_AGGREGATE_NAME[level]}"',
+        f"year = {year}",
+        "",
         "[sectors]            # of the employed: agriculture, industry, services",
-        f"shares = {fmt_list(sectors)}",
+        f"shares = {fmt_list(t['sectors'][level])}",
         f'source = "{SECTOR_SOURCE}, {WB_AGGREGATE_NAME[level]}"',
         f"year = {year}",
         "",
         "[households]         # shares of households of 1, 2-3, 4-5, 6 or more people",
-        f"sizes = {fmt_list(households['shares'])}",
-        f"mean_size = {households['mean']:.3f}",
-        f'source = "{HH_SOURCE}, latest survey per country (median year {households["median_year"]}), weighted by households"',
-        f"year = {households['median_year']}",
+        f"sizes = {fmt_list(hh['shares'])}",
+        f"mean_size = {hh['mean']:.3f}",
+        f'source = "{HH_SOURCE}, latest survey per country (median year {hh["median_year"]}), weighted by households"',
+        f"year = {hh['median_year']}",
         "",
-        settlement,
+        "[settlement]",
+        f"urban_share = {t['urban'][level]:.4f}",
+        f'source = "{URBAN_SOURCE}, {WB_AGGREGATE_NAME[level]}"',
+        f"year = {year}",
+        "",
     ])
     (ROOT / "data/setup/nations" / f"base_{level}.toml").write_text(text, encoding="utf-8", newline="\n")
 
