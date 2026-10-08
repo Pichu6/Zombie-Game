@@ -16,6 +16,7 @@ add_library(zs_sim
   src/actions.cpp
   src/tier0.cpp
   src/one_world.cpp
+  src/place.cpp
   src/power.cpp
   src/noise.cpp
   src/census.cpp

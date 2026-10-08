@@ -1,4 +1,5 @@
 // Power network, fridge and light. Specs: docs/tier0/specs/17-power-network.md, 19-light-field.md
+#include "zs/place.h"
 #include "zs/power.h"
 
 #include <algorithm>
@@ -281,7 +282,7 @@ void Power::step_fuel(World& w) {
 void Power::step_fridge(World& w) {
   if (!fridge_object_) return;
   const bool cooling = powered(fridge_object_);
-  const double target = cooling ? fridge_.cold_c : fridge_.room_c;
+  const double target = cooling ? fridge_.cold_c : place_ ? place_->indoor_c(w) : fridge_.room_c;
   const double tau_s = (cooling ? fridge_.cool_tau_h : fridge_.warm_tau_h) * 3600.0;
   fridge_c_ += (target - fridge_c_) * -detmath::expm1(-kDt / tau_s);
   const auto store = actors_.store_of(fridge_object_);

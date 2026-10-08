@@ -53,6 +53,8 @@ struct WindowLeak {
   double seen_m = 0;    // how far away it stands out against the night (0 = it doesn't)
 };
 
+class PlaceSystem;
+
 class Power : public System {
  public:
   Power(World& w, SiteMap& map, Assemblies& items, Actors& actors);
@@ -66,6 +68,8 @@ class Power : public System {
   // the action hooks into Actors and schedules the grid failure (drawn in [day 2, day 5)).
   void load_file(const std::string& path);
   void setup(World& w);
+  // Spec 42 rule 6: in the one world the fridge warms towards the place's indoor temperature, not room_c.
+  void attach_place(const PlaceSystem* place) { place_ = place; }
 
   // Controls (the actions call these; tests may too). Each returns false if it could not be done.
   bool start_generator(World& w, EventId cause);
@@ -120,6 +124,7 @@ class Power : public System {
   SiteMap& map_;
   Assemblies& items_;
   Actors& actors_;
+  const PlaceSystem* place_ = nullptr;
   GeneratorDef gen_;
   FridgeDef fridge_;
   std::vector<CircuitDef> circuits_;

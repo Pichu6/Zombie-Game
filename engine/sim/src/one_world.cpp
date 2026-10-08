@@ -92,7 +92,7 @@ std::unique_ptr<GridSystem> make_grids(WorldOwners& ids) {
 
 }  // namespace
 
-void add_world_systems(Tier0& t) {
+void add_world_systems(Tier0& t, const Place& place) {
   World& w = *t.world;
   auto pops = make_pops(w, *t.census);
   auto econ = make_economy(w, *t.census, t.owners);
@@ -107,11 +107,15 @@ void add_world_systems(Tier0& t) {
   t.orders = orders.get();
   t.grids = grids.get();
   t.census->attach_pops(t.pops);
+  auto where = std::make_unique<PlaceSystem>(place);  // spec 42
+  t.place = where.get();
+  t.power->attach_place(t.place);
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));
   w.add_system(std::move(orders));
   w.add_system(std::move(grids));
+  w.add_system(std::move(where));
 }
 
 }  // namespace zs::tier0

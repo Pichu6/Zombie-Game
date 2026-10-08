@@ -23,6 +23,7 @@
 
 #include "zs/noise.h"
 #include "zs/run.h"
+#include "zs/gen/place.h"
 #include "zs/tier0.h"
 #include "modes.h"
 
@@ -81,7 +82,7 @@ struct App {
 
 void start(App& a, std::uint64_t seed) {
   a.seed = seed;
-  a.t = make_run(seed);
+  a.t = zs::gen::make_world(seed);  // the one world (specs 41, 42)
   a.t.world->check_every_tick = false;
   a.t.ai->possess(a.t.run->controlled());
   a.selected = a.me();
@@ -457,6 +458,12 @@ void time_bar(App& a) {
     a.rest_until = w.clock.tick + 8 * kTicksPerGameHour;
   }
   const double fuel_l = static_cast<double>(p.fuel_ul(w)) / 1e6;
+  if (const PlaceSystem* place = a.t.place) {  // spec 42 rule 7
+    const Place& at = place->place();
+    ImGui::Text("%s, %.0f %s %.0f %s, %.0f m | outside %.1f C | rain today %.1f mm", at.biome.c_str(), std::abs(at.lat_deg),
+                at.lat_deg < 0 ? "S" : "N", std::abs(at.lon_deg), at.lon_deg < 0 ? "W" : "E", at.elevation_m,
+                place->outdoor_c(w), place->today_rain_mm(w));
+  }
   ImGui::Text("Grid %s | generator %s, %.1f L | level %d (PgUp/PgDn) | overlay:", p.mains_alive() ? "on" : "DEAD",
               p.generator_running() ? "running" : "off", fuel_l, a.level);
   ImGui::SameLine();

@@ -59,3 +59,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 39 | [Orders and belief](39-orders-and-belief.md) | Edict (levy, tax, staffing), cause trace, Beliefs (message, retell, lens) | after Tier 0; layer jumps rows 15 and 16 |
 | 40 | [Time across levels](40-time.md) | World::jump (wake ticks), Pacer (speed ladder, caps, real time) | after Tier 0; layer jumps row 17 |
 | 41 | [The one world](41-one-world.md) | make_run as the one world: census rows as registry founders, owners and money, grid tree, orders audience | decision 0052 |
+| 42 | [The block's place](42-place.md) | Place, PlaceSystem (weather at the cell, indoor temperature), choose_place, gen::make_world | decision 0052 |

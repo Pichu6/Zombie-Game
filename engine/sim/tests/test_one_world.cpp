@@ -8,6 +8,7 @@
 #include "zs/economy_system.h"
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
+#include "zs/place.h"
 #include "zs/pop_system.h"
 #include "zs/tier0.h"
 
@@ -90,5 +91,46 @@ TEST_CASE("one world: a death in the census is a death in the registry; save and
   Tier0 u = make_run(3);
   u.world->load(mid);
   run_hours(u, 47);
+  CHECK(u.world->world_hash() == t.world->world_hash());
+}
+
+// ---- Spec 42: the place.
+
+TEST_CASE("place: the default place; the outdoor temperature over a year averages the climate's mean") {
+  Tier0 t = make_run(1);
+  REQUIRE(t.place);
+  const Place& p = t.place->place();
+  CHECK(p.frequency == 0);
+  CHECK(p.climate.temp_mean_c == 12.0);
+  // Daily means through the system over a whole year (no stepping: the place is a pure read of the tick).
+  World probe(1);
+  double sum = 0;
+  for (int d = 0; d < fields::kDaysPerYear; ++d) {
+    probe.clock.tick = static_cast<std::int64_t>(d) * kTicksPerGameDay;
+    sum += t.place->today_mean_c(probe);
+  }
+  CHECK(sum / fields::kDaysPerYear == doctest::Approx(p.climate.temp_mean_c).epsilon(1e-9));
+  CHECK(t.place->indoor_c(probe) == doctest::Approx(t.place->today_mean_c(probe) + 3.0));
+}
+
+TEST_CASE("place: an unpowered fridge warms towards a hot place faster than a cold one; save keeps the place") {
+  Place hot = default_place(), cold = default_place();
+  hot.climate = {30.0, 8.0, 800.0, false};
+  cold.climate = {-5.0, 8.0, 800.0, false};
+  double fridge[2];
+  int k = 0;
+  for (const Place& where : {hot, cold}) {
+    Tier0 t = make_run(1, where);
+    t.world->check_every_tick = false;
+    t.power->fail_grid(*t.world, 0);
+    run_hours(t, 3);
+    fridge[k++] = t.power->fridge_temp_c();
+  }
+  CHECK(fridge[0] > fridge[1] + 1.0);
+  Tier0 t = make_run(1, hot);
+  const auto bytes = t.world->save();
+  Tier0 u = make_run(1);  // a default place, then the save restores the hot one
+  u.world->load(bytes);
+  CHECK(u.place->place().climate.temp_mean_c == 30.0);
   CHECK(u.world->world_hash() == t.world->world_hash());
 }

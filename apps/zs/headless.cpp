@@ -12,6 +12,7 @@
 #include "zs/demo.h"
 #include "zs/noise.h"
 #include "zs/site_map.h"
+#include "zs/gen/place.h"
 #include "zs/tier0.h"
 #include "modes.h"
 #include "pop_bench.h"
@@ -480,7 +481,7 @@ double fuel_left_l(const zs::tier0::Tier0& t) {
 GroupResult group_run(std::uint64_t seed, int days, const std::string& trace_path, bool verbose, bool is_run = false,
                       bool careless = false) {
   using namespace zs;
-  auto t = is_run ? tier0::make_run(seed) : tier0::make_world(seed, true, 4);
+  auto t = is_run ? zs::gen::make_world(seed) : tier0::make_world(seed, true, 4);  // --run plays the one world
   if (careless) t.ai->set_careless(true);
   t.world->check_every_tick = false;
   Trace trace;
