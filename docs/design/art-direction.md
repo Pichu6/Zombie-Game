@@ -177,6 +177,7 @@ First visual sequence (Proposal): same underground facility, same inhabitant, sa
 
 - Starting budget of bodies on screen per tier: about 50 full, hundreds mid, thousands far? ([renderer](../research/renderer.md))
 - Are clothing layers wrapped on mid-tier bodies, or baked into the texture ([CW-17](../research/clothing-wrap.md))? ([renderer](../research/renderer.md))
+- Which colour-blind-safe palette (Tol bright or Tableau Colorblind10), and which shapes separate pops, walkers, objects and items at 20-32 px per cell? ([view-readability](../research/view-readability.md))
 
 ## Research
 
@@ -184,6 +185,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 
 - [second-order-dynamics](../research/second-order-dynamics.md): Second-order dynamics for procedural motion
 - [renderer](../research/renderer.md): The renderer, at engineering level
+- [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
 
 ## Prototype sources
 

@@ -123,3 +123,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [threading-and-partition](../research/threading-and-partition.md): Threading and partition model
 - [renderer](../research/renderer.md): The renderer, at engineering level
 - [engine-stack](../research/engine-stack.md): The engine stack behind decision 0002: licences, versions, determinism, alternatives
+- [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
