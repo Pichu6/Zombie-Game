@@ -114,6 +114,10 @@ If hot work goes over budget, warm and macro slices wait (they have deadlines, n
 - Will a macOS build ever be a target? If so, recheck toml++ float parsing on libc++ and SDL_gpu's portability case. ([engine-stack](../research/engine-stack.md))
 - Do the id-set and record-layout ratios hold on MSVC and a desktop CPU? Rerun the benchmark before the layout goes into a spec. ([ecs-memory-layout](../research/ecs-memory-layout.md))
 - Which pop record fields are hot and which cold (spec 28)? Needs the realistic record that benchmark B1 waits for. ([ecs-memory-layout](../research/ecs-memory-layout.md))
+- Should spec 01's float path become "required across compilers", now that GCC 13 and Clang 18 reproduce every MSVC golden? ([determinism](../research/determinism.md))
+- Are only x64 platforms in scope, or also ARM64, where FMA is in the base instruction set? ([determinism](../research/determinism.md))
+- Should a NaN in saved state be canonicalised, or treated as a bug (spec 06)? ([determinism](../research/determinism.md))
+- Where does the floating-point environment guard live once there are worker threads: per step, per job, or per worker at start? ([determinism](../research/determinism.md))
 
 ## Research
 
@@ -127,3 +131,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [engine-stack](../research/engine-stack.md): The engine stack behind decision 0002: licences, versions, determinism, alternatives
 - [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
 - [ecs-memory-layout](../research/ecs-memory-layout.md): Entity storage and memory layout: archetypes, sparse sets, id sets, profiling
+- [determinism](../research/determinism.md): Cross-compiler and cross-platform determinism: pitfalls and fixes
