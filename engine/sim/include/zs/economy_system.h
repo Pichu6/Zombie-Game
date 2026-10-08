@@ -4,6 +4,8 @@
 #include <cstdint>
 
 #include "zs/economy.h"
+#include "zs/establishment.h"
+#include "zs/pop_system.h"
 #include "zs/world.h"
 
 namespace zs {
@@ -15,6 +17,9 @@ enum EconCommand : std::uint16_t {
   EconPurchase = 0x2003,  // subject = buyer, a = seller, b = econ_purchase_arg(good, want, price)
   EconPay = 0x2004,       // subject = payer, a = receiver, b = econ_pay_arg(kind, cents)
   EconShip = 0x2005,      // subject = from, a = to, b = econ_ship_arg(good, bulk amount): a transfer of bulk between owners
+  EstabSetStaff = 0x2006, // subject = establishment owner, a = workers (refused if its staff comes from a roster)
+  EstabSetPower = 0x2007, // subject = establishment owner, a = watts available
+  EconRunByHand = 0x2008, // subject = a pop's owner, a = recipe, b = max batches: the same recipe as a plant, labour supplied by the action
 };
 
 // Packing of the `b` field. A purchase: good in the low 16 bits, units wanted in the next 16, price in cents in the
@@ -36,6 +41,9 @@ enum class EconRefusal : std::int64_t {
   UnknownOwner = 1,  // not in the owner tree (a body slot, a typo, a sink as buyer)
   UnknownGood = 2,
   Nothing = 3,       // the command would move nothing: no stock, no money, zero amount, same owner both sides
+  NoEstablishment = 4,
+  UnknownRecipe = 5,
+  StaffFromRoster = 6,  // the roster decides its staff; lay people off there
 };
 
 class EconomySystem : public System {
@@ -47,14 +55,25 @@ class EconomySystem : public System {
   // is open, mint through the ledger. The same setup must make the same calls (definitions are not saved).
   Owners& owners() { return owners_; }
   Goods& goods() { return goods_; }
+  Recipes& recipes() { return recipes_; }
+  Establishments& establishments() { return estabs_; }
   const Owners& owners() const { return owners_; }
+  const Recipes& recipes() const { return recipes_; }
+  const Establishments& establishments() const { return estabs_; }
   const Goods& goods() const { return goods_; }
   const Money& money() const { return money_; }
   const Spoilage& spoilage() const { return spoilage_; }
   OwnerId decay_sink() const { return decayed_; }
+  OwnerId consumed_sink() const { return consumed_; }
+
+  // Spec 33 rule 3: an establishment with a roster takes its staff from the roster's present members who are not laid off
+  // or ill, read from the pop system. Setup only, the same call in every setup (not saved).
+  void attach_pops(const PopSystem& pops) { pops_ = &pops; }
 
   // Every owner's bulk of every spoiling good starts decaying now. Call once at the end of setup, after minting.
   void start_lots(const World& w);
+  // Establishments start their clocks now. Call once at the end of setup, with start_lots.
+  void start_establishments(const World& w);
 
   // Decision 0051: the panel for a layer and a context, read from this world.
   Panel panel(const World& w, Layer layer, const Context& ctx) const;
@@ -67,12 +86,18 @@ class EconomySystem : public System {
  private:
   void refuse(World& w, const Command& c, EventId cause, EconRefusal why);
   bool known_good(std::int64_t g) const { return g >= 0 && static_cast<std::size_t>(g) < goods_.size(); }
+  void read_staff(const World& w);
+  void catch_up(World& w, CauseId cause);
 
   Owners owners_;
   Goods goods_;
   Money money_;
   Spoilage spoilage_;
+  Recipes recipes_;
+  Establishments estabs_;
+  const PopSystem* pops_ = nullptr;
   OwnerId decayed_;
+  OwnerId consumed_;
 };
 
 }  // namespace zs

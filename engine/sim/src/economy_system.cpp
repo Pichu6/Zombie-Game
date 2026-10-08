@@ -7,6 +7,31 @@ namespace zs {
 
 EconomySystem::EconomySystem(World& w) : money_(w.ledger) {
   decayed_ = owners_.add(w.ledger, "world.decayed", Scope::Sink);
+  consumed_ = owners_.add(w.ledger, "world.consumed", Scope::Sink);
+}
+
+void EconomySystem::start_establishments(const World& w) {
+  for (std::size_t i = 0; i < estabs_.size(); ++i) estabs_.at(i).caught_up = w.clock.tick;
+  read_staff(w);
+}
+
+void EconomySystem::read_staff(const World& w) {
+  if (!pops_) return;
+  const double year = year_of_tick(w.clock.tick);
+  for (std::size_t i = 0; i < estabs_.size(); ++i) {
+    Establishment& e = estabs_.at(i);
+    if (e.roster == 0) continue;
+    const Roster* r = pops_->registry().roster(e.roster);
+    if (!r) continue;
+    const std::int64_t present = static_cast<std::int64_t>(r->size(year));
+    const std::int64_t away = static_cast<std::int64_t>(r->count(EffectKind::LaidOff, year) + r->count(EffectKind::Ill, year));
+    e.staff = present > away ? present - away : 0;
+  }
+}
+
+void EconomySystem::catch_up(World& w, CauseId cause) {
+  for (const auto& [i, n] : estabs_.advance(w.ledger, goods_, recipes_, w.clock.tick, consumed_, cause))
+    w.emit(EventType::EconProduced, estabs_.at(i).owner, cause, estabs_.at(i).recipe, n);
 }
 
 void EconomySystem::start_lots(const World& w) {
@@ -29,9 +54,10 @@ void EconomySystem::refuse(World& w, const Command& c, EventId cause, EconRefusa
 }
 
 void EconomySystem::apply_command(World& w, const Command& c, EventId cause) {
-  if (c.type < EconVisit || c.type > EconShip) return;
+  if (c.type < EconVisit || c.type > EconRunByHand) return;
   const auto subject = static_cast<OwnerId>(c.subject);
   const std::int64_t tick = w.clock.tick;
+  catch_up(w, cause);  // establishments run up to now before anything changes under them
   if (!owners_.known(subject) || owners_.scope(subject) == Scope::Sink) return refuse(w, c, cause, EconRefusal::UnknownOwner);
   switch (c.type) {
     case EconVisit: {
@@ -90,6 +116,29 @@ void EconomySystem::apply_command(World& w, const Command& c, EventId cause) {
       }
       return;
     }
+    case EstabSetStaff: {
+      Establishment* e = estabs_.find(subject);
+      if (!e) return refuse(w, c, cause, EconRefusal::NoEstablishment);
+      if (e->roster != 0) return refuse(w, c, cause, EconRefusal::StaffFromRoster);
+      if (c.a < 0 || c.a == e->staff) return refuse(w, c, cause, EconRefusal::Nothing);
+      e->staff = c.a;
+      return;
+    }
+    case EstabSetPower: {
+      Establishment* e = estabs_.find(subject);
+      if (!e) return refuse(w, c, cause, EconRefusal::NoEstablishment);
+      if (c.a < 0 || c.a == e->power_w) return refuse(w, c, cause, EconRefusal::Nothing);
+      e->power_w = c.a;
+      return;
+    }
+    case EconRunByHand: {
+      if (c.a < 0 || static_cast<std::size_t>(c.a) >= recipes_.size()) return refuse(w, c, cause, EconRefusal::UnknownRecipe);
+      const auto r = static_cast<RecipeId>(c.a);
+      const std::int64_t n = recipes_.run(w.ledger, goods_, tick, subject, r, c.b, consumed_, cause);
+      if (n <= 0) return refuse(w, c, cause, EconRefusal::Nothing);
+      w.emit(EventType::EconProduced, subject, cause, c.a, n);
+      return;
+    }
     default: return;
   }
 }
@@ -99,6 +148,8 @@ void EconomySystem::update(World& w) {
   if (w.clock.tick % kTicksPerGameHour != 0) return;
   const std::int64_t moved = spoilage_.advance(w.ledger, goods_, decayed_, w.clock.tick, 0);
   if (moved > 0) w.emit(EventType::EconSpoiled, 0, 0, moved);
+  read_staff(w);  // the roster may have changed since the last hour
+  catch_up(w, 0);
 }
 
 void EconomySystem::save(ArchiveWriter& w) const {
@@ -113,6 +164,11 @@ void EconomySystem::save(ArchiveWriter& w) const {
   };
   write_tallies(money_.received_tallies());
   write_tallies(money_.paid_tallies());
+  const auto& es = estabs_.all();
+  w.u64(es.size());
+  for (const Establishment& e : es) {
+    w.u32(e.owner); w.u16(e.recipe); w.u64(e.roster); w.i64(e.staff); w.i64(e.power_w); w.i64(e.labour_bank); w.i64(e.caught_up); w.i64(e.produced);
+  }
 }
 
 void EconomySystem::load(ArchiveReader& r) {
@@ -134,6 +190,11 @@ void EconomySystem::load(ArchiveReader& r) {
   Money::Tallies in = read_tallies();
   Money::Tallies out = read_tallies();
   money_.restore(std::move(in), std::move(out));
+  std::vector<Establishment> es(r.u64());
+  for (Establishment& e : es) {
+    e.owner = r.u32(); e.recipe = r.u16(); e.roster = r.u64(); e.staff = r.i64(); e.power_w = r.i64(); e.labour_bank = r.i64(); e.caught_up = r.i64(); e.produced = r.i64();
+  }
+  estabs_.restore(std::move(es));
 }
 
 }  // namespace zs

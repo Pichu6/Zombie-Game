@@ -25,6 +25,12 @@ const std::vector<OwnerId>& Owners::children(OwnerId o) const {
   return it == children_.end() ? none : it->second;
 }
 
+bool Owners::under(OwnerId o, OwnerId root) const {
+  for (OwnerId cur = o; cur != kNoOwner; cur = info_.at(cur).parent)
+    if (cur == root) return true;
+  return false;
+}
+
 std::int64_t Owners::aggregate(const Ledger& l, OwnerId o, ResourceId r) const {
   std::int64_t sum = l.balance(o, r);
   for (OwnerId c : children(o)) sum += aggregate(l, c, r);

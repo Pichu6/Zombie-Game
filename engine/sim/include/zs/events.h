@@ -66,6 +66,7 @@ enum class EventType : std::uint16_t {
   EconPaid = 47,        // subject = receiver, a = payer, b = cents
   EconSpoiled = 48,     // subject = 0 (all lots), a = bulk amount moved to the decay sink this jump
   EconRefused = 49,     // subject = what it was aimed at, a = the command type, b = EconRefusal
+  EconProduced = 50,    // subject = the establishment's owner (or the pop working by hand), a = recipe, b = batches
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,
