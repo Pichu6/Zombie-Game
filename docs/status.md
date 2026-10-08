@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-10-06.
+Updated: 2026-10-07.
 
 ## What we're building
 
@@ -18,11 +18,17 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 | Tier 0 stages 6-9 | power, noise, light; the dead; the group; the 14-day run | `--stage6`, `--stage7`, `--group`, `--run` |
 | Content tools | seeded names, pops and towns, six culture packs, lifepath backgrounds built from places that exist in the town (`data/gen/lifepath.toml`) | `zs_gen town` |
 | Pop levels ([spec 28](tier0/specs/28-pop-levels.md)) | one pop at every layer: ids, random-access lives, births, cohorts and rosters, region-wide events, versioned saves, a world system with commands | `--pop-bench`, `--town` |
+| World grid ([spec 30](tier0/specs/30-world-grid.md)) | the icosahedral hex-and-pentagon grid of world cells (102,012 at Earth size, areas within 1.42x), neighbours, distances, lookup; first unit of the world generator | `ctest` (`zs_gen_tests`) |
+| Terrain and climate ([spec 31](tier0/specs/31-terrain-climate.md)) | plates, elevation, sea level, temperature, rain, biome on the grid, from sliders (land share, temperature, relief, moisture) and a seed | `zs_gen world --seed 1` (text map) |
 | Nation demographics ([0034](decisions/0034-nation-demographics.md)) | a country's own age, education, work, households as data (placeholder profile only) | `data/setup/nations/` |
 
 **Stage 5, the sandbox window:** built; the user's on-screen check is pending (`play/zs_sandbox.exe` on the PC). **Windows/MSVC:** CI builds `main` and uploads a zip; on 2026-10-07 the user's PC built this `main` (28c5a7e) with MSVC 2022 from a clean tree, release and debug, and `ctest --preset debug` passed with the Linux-pinned golden hashes (Validated: cross-compiler A1).
 
 **Designed, not built** (all Proposals unless a decision says otherwise): [sandbox parameters](design/sandbox-parameters.md), [world numbers](design/world-numbers.md), [world systems](design/world-systems.md) (sectors and zones, the generation pipeline, factions, subjects), built from research notes in `docs/research/` whose numbers are second-hand search summaries.
+
+**Zoom continuum** ([design](design/zoom-continuum.md), Proposal, 2026-10-07): the "Google Earth" idea, one continuous camera from globe to person with the layers by height; four kinds of trick and where each is allowed; the world grid is nested, so it is already the zoom ladder. Touches three earlier decisions, listed in its section 5.
+
+**Focus and compression** ([design](design/focus-and-compression.md), Proposal, 2026-10-07): detail follows the player's attention (attended, watched, cold); ten compression techniques; one coherence rule set; the hospital order traced through all three layers (a project is one progress scalar plus a plan, so every layer's view is derived and agrees). Questions for the user at its end.
 
 **Layer jumps** ([0039](decisions/0039-fill-the-layer-jumps.md), Decided intent; [audit](design/layer-jumps.md), Proposal): 22 domains audited for how Macro, City and Individual connect; first gap closed: embodied pops ([spec 29](tier0/specs/29-embodied-pops.md), headless, tested). Next: a generic jump test harness, then stocks and money.
 
@@ -30,14 +36,16 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 **Merged on 2026-10-07 from a local session** (its stage 5 and stage 9 code was dropped in favour of this line's; its documents stayed): research on [pop simulation and persistence](research/pop-simulation-and-persistence.md), [catch-up maths](research/catch-up-jump-forms.md), [threading](research/threading-and-partition.md) and [the human generator's data](research/human-generator-data.md); decisions [0041](decisions/0041-threading-and-partition.md)–[0046](decisions/0046-realistic-numbers-from-free-data.md) (threading decided, pop presentation per layer, the City layer loop, information scope per layer, ten open questions, realistic numbers from free data) and [0047](decisions/0047-one-line-of-work.md) (one line of work); the [pop states and actions](design/pop-states-actions.md) catalogue; the [playtest](tier0/playtest.md) template; Proposal rules in specs 02, 04, 05, 06 and 27.
 
-**Decisions** run up to [0047](decisions/0047-one-line-of-work.md); 0038 is the last of the world design ones (0023, 0025, 0026 are engine architecture, the sandbox engine as first game, and country creation; mine start at 0027; 0024 is unused): equal-area global grid (~5,000 km² cells), dozens of sectors, zones of 100-500 m, uneven development at the start, map editing before the run, real Earth later.
+**Decisions** run up to [0050](decisions/0050-start-speed-and-time-while-closed.md); 0038 is the last of the world design ones (0023, 0025, 0026 are engine architecture, the sandbox engine as first game, and country creation; mine start at 0027; 0024 is unused): equal-area global grid (~5,000 km² cells), dozens of sectors, zones of 100-500 m, uneven development at the start, map editing before the run, real Earth later.
+
+**Merged on 2026-10-07 from the cloud branch `claude/vibrant-thompson-mlzepp`** (eleven commits made after PR #5, never merged until now; no code on `main` duplicated them): the world grid and the terrain and climate fields (specs 30 and 31, above); the [zoom continuum](design/zoom-continuum.md) and [focus and compression](design/focus-and-compression.md) designs; research on [world generation prior art](research/world-generation-prior-art.md), [low-resource city simulation](research/low-resource-city-simulation.md), [Haven and Hearth](research/haven-and-hearth.md) and [pop storage and lenses](research/pop-storage-and-lenses.md), with a [research index](research/README.md); and three decisions the user made there, renumbered from 0041–0043 to [0048](decisions/0048-realistic-time-default-commit-on-observation-and-pins.md), [0049](decisions/0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md) and [0050](decisions/0050-start-speed-and-time-while-closed.md) because the local session's documents had taken those numbers: durations are real and long waits are played as progress bars with a speed ladder; a new game starts at 1 real hour = 1 game day with 1:1 one key away; time does not pass while the game is closed; observed detail is stored only where it saves memory; pins with one view per layer.
 
 ## Next step
 
 1. **Fill the layer jumps** ([layer jumps](design/layer-jumps.md) §5): embodied pops, the jump test harness (`engine/sim/tests/jumps.h`) and body time while demoted (spec 29 rule 6, `advance_demoted`) are done (2026-10-07); next stocks and money.
-2. **Write the first generator spec** (global grid, terrain and climate fields, sectors, zones; tests with agreement levels), then build it.
+2. **Continue the generator**: the world grid ([spec 30](tier0/specs/30-world-grid.md)) and terrain and climate ([spec 31](tier0/specs/31-terrain-climate.md)) are built and tested; next the spec for sectors and zones on the grid (tests with agreement levels), then build it.
 3. Then, in order ([world systems](design/world-systems.md) section 8): geology and deposits, capacity and settlements, routes, sectors and faction territory, economy core and chains, networks, building stock, the audit and realism report.
-4. Tier 0: play the sandbox from the Windows zip; then stage 10 (kill or keep: real player runs).
+4. Tier 0: play the sandbox from the Windows zip; then stage 10 (kill or keep: real player runs). Relabel the sandbox time bar to the speed ladder of [0050](decisions/0050-start-speed-and-time-while-closed.md) when it is next touched.
 
 ## Waiting on the user
 
