@@ -1,4 +1,4 @@
-// Spec 28 benchmark: what records, lazy pops and promotion cost. `zs_headless --pop-bench`.
+// Spec 28 benchmark: what records, lazy pops and promotion cost. `zs --pop-bench`.
 // First run only measures: the targets in the spec are set from these numbers, never the other way.
 #include <chrono>
 #include <cstdio>
@@ -147,7 +147,7 @@ int pop_bench() {
   for (double years : {10.0, 60.0, 150.0}) b4_long_step(100000, years);
   b4_long_step(1000000, 60.0);
   for (std::uint64_t size : {100ull, 1000ull, 10000ull}) b7_rosters(200000, size);
-  std::puts("B5 embodied: see `zs_headless --bench` (4 pops + 60 walkers for a game day)");
+  std::puts("B5 embodied: see `zs --bench` (4 pops + 60 walkers for a game day)");
   std::puts("B6 is partial: the realism report against real data is not written yet");
   return 0;
 }

@@ -1,4 +1,4 @@
-"""Inline a zs_headless --trace JSON into the replay page.
+"""Inline a zs --trace JSON into the replay page.
 
 usage: python3 tools/viewer/embed.py trace.json out.html [--max-mb 12]
 

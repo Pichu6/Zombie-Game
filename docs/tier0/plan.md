@@ -20,7 +20,7 @@ Every unit has a one-page spec in [specs/](specs/README.md), written before its 
 ```
 engine/sim/        simulation core library (no SDL, no ImGui)
 engine/sim/tests/  unit, property and golden tests
-apps/headless/     command-line runner: batch runs, AI-only runs, replays
+apps/zs/     command-line runner: batch runs, AI-only runs, replays
 apps/view2d/       SDL3 + ImGui window
 data/tier0/        definitions, map, census table, presets
 docs/tier0/        this plan and the specs

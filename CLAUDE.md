@@ -34,6 +34,7 @@ A realistic zombie survival simulation for PC, on our own C++ engine with a Vulk
 - **Every engine task serves a vertical-slice scenario** (`docs/status.md`). If none needs it, it waits.
 - Small files with one responsibility, by design rather than by a line limit.
 - Don't spend credits on paid services or take external actions without asking.
+- **One executable, one simulation, nothing waiting** ([0052](docs/decisions/0052-one-executable-one-simulation.md)): every new mode goes into `zs`, every built system into the one world. When a choice comes up, take a sensible default, record it in a decision marked "default taken by Claude", and keep going; don't leave items waiting on the user.
 
 ## Old prototype
 
@@ -47,20 +48,21 @@ Needs CMake 3.25+, Ninja and a C++20 compiler (MSVC 2022, GCC 13 or Clang 17). T
 cmake --preset debug          # or: release
 cmake --build --preset debug
 ctest --preset debug          # unit, property and golden tests
-build/debug/apps/headless/zs_headless --days 14   # stage 1 demo run, one line per game day
-build/debug/apps/headless/zs_headless --map       # stage 2: room graph of the Tier 0 block
-build/release/apps/headless/zs_headless --body-lab  # stage 3: body calibration scenarios vs their bands
-build/release/apps/headless/zs_headless --bench     # stage 3: body cost, 4 pops + 60 walkers for a game day
-build/release/apps/headless/zs_headless --scripted-pop [--ai]  # stage 4: a pop eats, treats a wound, salvages, barricades
-build/release/apps/headless/zs_headless --stage6 [--seed N]  # stage 6: grid fails, generator, fuel, fridge; night noise and light snapshot
-build/release/apps/headless/zs_headless --stage7 [--seed N]  # stage 7: stage 6 with the dead (census, walkers, bites, turning); runs until the pop rises
-build/release/apps/headless/zs_headless --group [--seed N] [--days D] [--seeds N]  # stage 8: 4 AI pops with the dead; --seeds runs a batch and counts causes
-build/release/apps/headless/zs_headless --run [--seed N] [--seeds N] [--careless]  # stage 9: the 14-day run (found survivors, stranger, radio), death screen and day-by-day chronicle
-build/release/apps/gen/zs_gen town --seed 1   # content tools: a generated town with every pop's dossier (also: census, names, cultures)
-# sandbox window (spec 16): -DZS_BUILD_SANDBOX=ON (default on Windows) builds apps/sandbox/zs_sandbox [--seed N] [--watch]; --shot f.bmp [--ticks N] [--menu x,y] [--overlay noise|light] renders offscreen
+build/debug/apps/zs/zs --days 14   # stage 1 demo run, one line per game day
+build/debug/apps/zs/zs --map       # stage 2: room graph of the Tier 0 block
+build/release/apps/zs/zs --body-lab  # stage 3: body calibration scenarios vs their bands
+build/release/apps/zs/zs --bench     # stage 3: body cost, 4 pops + 60 walkers for a game day
+build/release/apps/zs/zs --scripted-pop [--ai]  # stage 4: a pop eats, treats a wound, salvages, barricades
+build/release/apps/zs/zs --stage6 [--seed N]  # stage 6: grid fails, generator, fuel, fridge; night noise and light snapshot
+build/release/apps/zs/zs --stage7 [--seed N]  # stage 7: stage 6 with the dead (census, walkers, bites, turning); runs until the pop rises
+build/release/apps/zs/zs --group [--seed N] [--days D] [--seeds N]  # stage 8: 4 AI pops with the dead; --seeds runs a batch and counts causes
+build/release/apps/zs/zs --run [--seed N] [--seeds N] [--careless]  # stage 9: the 14-day run (found survivors, stranger, radio), death screen and day-by-day chronicle
+build/release/apps/zs/zs gen town --seed 1   # content tools: a generated town with every pop's dossier (also: census, names, cultures)
+build/release/apps/zs/zs [--seed N] [--watch]   # the window (spec 16), the default with no headless flag; --shot f.bmp [--ticks N] [--menu x,y] [--overlay noise|light] renders offscreen
+# -DZS_BUILD_WINDOW=OFF builds zs without the window (headless modes and generators only)
 # replay viewer: --stage6, --stage7, --group or --run with --trace trace.json, then python3 tools/viewer/embed.py trace.json replay.html [--max-mb 12] (open in a browser; --max-mb thins long runs)
 ```
 
-On Windows, run these from a "x64 Native Tools Command Prompt for VS 2022". Golden hashes in the tests are pinned on Linux; Windows must reproduce them (cross-compiler determinism, [spec 01](docs/tier0/specs/01-quantity.md)).
+Work is done locally on Windows ([0052](docs/decisions/0052-one-executable-one-simulation.md)): run these from a "x64 Native Tools Command Prompt for VS 2022". Golden hashes in the tests are pinned on MSVC; other compilers must reproduce them (cross-compiler determinism, [spec 01](docs/tier0/specs/01-quantity.md)); the Windows CI build is an extra check.
 
-Layout: `engine/sim` is the simulation library (no window), `engine/gen` the content generators (names, pops, towns; data in `data/gen/`), `apps/headless` the command-line runner, `docs/tier0` the plan and specs.
+Layout: `engine/sim` is the simulation library (no window), `engine/gen` the content generators (names, pops, towns; data in `data/gen/`), `apps/zs` the one executable (`zs`: the window, the headless modes, `zs gen`), `docs/tier0` the plan and specs.

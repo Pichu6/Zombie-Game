@@ -70,7 +70,7 @@ Rivers and lakes, soil, flora and fauna (next spec), geology and deposits, month
 
 ## As built
 
-- `engine/gen`: `generate_fields(grid, params)` returning `WorldFields` (`zs/gen/world_fields.h`, `src/world_fields.cpp`), `classify_biome`, `area_share`. Tests: `engine/gen/tests/test_world_fields.cpp` (12 cases). Command: `zs_gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]` prints land share, hypsometry, biome shares and a text map.
+- `engine/gen`: `generate_fields(grid, params)` returning `WorldFields` (`zs/gen/world_fields.h`, `src/world_fields.cpp`), `classify_biome`, `area_share`. Tests: `engine/gen/tests/test_world_fields.cpp` (12 cases). Command: `zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]` prints land share, hypsometry, biome shares and a text map.
 - Boundary effects: collision +7,000 m × convergence, subduction (land side) +5,000, island arc +3,500, trench −6,000, ridge +1,500, rift −700; spread over about 350 km with a tenfold fade. Strengthened from the first draft (5,000 and 3,500) because mountains were absent from a quarter of worlds.
 - Rain: latitude profile × (0.35 + 0.65 × moisture carried by the wind) + 900 mm per km of rising ground, moisture falling on rising ground (shadow behind it). Winds: easterlies below 30° and above about 60°, westerlies between.
 - Biome thresholds as tuned: tropical forest from 1,100 mm (savanna was 30–49% of land at 1,400 mm).

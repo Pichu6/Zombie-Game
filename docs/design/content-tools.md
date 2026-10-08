@@ -63,7 +63,7 @@ Per household, in order:
 6. **Appearance.** Founders draw from their culture; children blend their parents' skin tone with some spread and inherit hair and eye colour from a parent; hair greys with age.
 7. **Work.** Under 5: at home; 5-17: elementary or high school; 18-22: college for some; adults draw a job by employment share among the jobs their age allows, with education at least the job's level; retirement from 62; some are out of work; a past job for some over 35. The workplace is a business from the town directory.
 
-Output per pop: see the table in §2. `zs_gen town` prints a dossier with the lifepath, for example:
+Output per pop: see the table in §2. `zs gen town` prints a dossier with the lifepath, for example:
 
 ```
 Jose Gomez Lopez, 55, male | American (naturalized)
@@ -103,17 +103,17 @@ Any person a text names (a spouse, a business owner, a coworker, a teacher) is a
 ## 5. How it plugs into the sim
 
 - **Draws:** `zs::gen::Keyed`, a stateless Philox draw on (seed, id, field, k). Field numbers are append only (`engine/gen/src/fields.h`).
-- **Census:** `zs_gen census --seed N` writes the same table format as `data/tier0/census.toml` (plus `job` and `culture`, which the stage 7 loader ignores). Tier 0 keeps its current hand-checked table; switching the census to read the generator directly (person = f(world seed, slot)) is a stage 9 or Tier 1 change for the census owner, and changes the stage 7 goldens.
+- **Census:** `zs gen census --seed N` writes the same table format as `data/tier0/census.toml` (plus `job` and `culture`, which the stage 7 loader ignores). Tier 0 keeps its current hand-checked table; switching the census to read the generator directly (person = f(world seed, slot)) is a stage 9 or Tier 1 change for the census owner, and changes the stage 7 goldens.
 - **Pop AI:** jobs and skills tags are ready for the AI's job choice (spec 24) once it reads them.
 - **Setup:** the culture and mix files are what the setup screens (macro layer §6) edit: auto, preset or custom.
 
 ## 6. Commands
 
 ```
-zs_gen town   [--seed N] [--mix FILE]     # town, streets, businesses, then every pop's dossier
-zs_gen census [--seed N] [--mix FILE]     # pops as a census table
-zs_gen names  --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]
-zs_gen cultures
+zs gen town   [--seed N] [--mix FILE]     # town, streets, businesses, then every pop's dossier
+zs gen census [--seed N] [--mix FILE]     # pops as a census table
+zs gen names  --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]
+zs gen cultures
 ```
 
 ## 7. Tests (Implemented, 2026-10-06)
@@ -129,10 +129,10 @@ Not validated: whether the people read as real and varied to the user. That need
 
 ## 8. From the generators to the simulation (2026-10-06)
 
-The generators and the simulation are one stack, not separate tools: `engine/gen` links `engine/sim`, and the apps (`zs_headless`, `zs_gen`, `zs_sandbox`) are thin shells over them.
+The generators and the simulation are one stack, not separate tools: `engine/gen` links `engine/sim`, and the apps (`zs`, `zs gen`, `zs`) are thin shells over them.
 
 - **Town to pops.** `zs::gen::populate_registry` (`engine/gen/include/zs/gen/registry_bridge.h`) turns a generated town into pops in the pop registry ([spec 28](../tier0/specs/28-pop-levels.md)): every person becomes a founder with their generated age and sex, every household a roster (`RosterKind::Household`), every business a staff roster (`Workplace`) and every school a pupil roster (`School`, separate, so a layoff never touches a child). The generated name, dossier, job and look stay in the town record, found by the same index.
-- **Demo.** `zs_headless --town [--seed N] [--people N] [--years Y]` runs it: a generated town inside a world, a Macro-style layoff by command with its reason, and decades of births and deaths with no outbreak.
-- **Same people as Tier 0.** `zs_gen census` already writes Tier 0's 60 neighbours from the same generator; making the Tier 0 world's census and the registry the same pops (so the block's neighbours are the town's founders) is a next step, held back because adding a system to the Tier 0 world changes its pinned golden hashes and deserves its own decision.
+- **Demo.** `zs --town [--seed N] [--people N] [--years Y]` runs it: a generated town inside a world, a Macro-style layoff by command with its reason, and decades of births and deaths with no outbreak.
+- **Same people as Tier 0.** `zs gen census` already writes Tier 0's 60 neighbours from the same generator; making the Tier 0 world's census and the registry the same pops (so the block's neighbours are the town's founders) is a next step, held back because adding a system to the Tier 0 world changes its pinned golden hashes and deserves its own decision.
 - **Known gaps:** businesses are drawn from small-town counts (23 for 3,000 people), so workplaces are large; fathers and marriage are not modelled yet, so a child's household roster does not follow births; the generator is not yet asked for age pyramids, jobs or households for births.
 

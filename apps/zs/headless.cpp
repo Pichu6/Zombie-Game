@@ -1,4 +1,4 @@
-// Headless runner: runs the simulation with no window. Spec: docs/tier0/specs/16-view-2d.md rule 2.
+// zs headless modes: the simulation with no window. Spec: docs/tier0/specs/16-view-2d.md rule 2.
 // Stage 1: runs the demo scenario and prints one line per game day.
 #include <chrono>
 #include <cmath>
@@ -13,20 +13,26 @@
 #include "zs/noise.h"
 #include "zs/site_map.h"
 #include "zs/tier0.h"
+#include "modes.h"
 #include "pop_bench.h"
 #include "town_demo.h"
 
 namespace {
 
 void usage() {
-  std::puts("usage: zs_headless [--seed N] [--days D] [--save FILE] [--load FILE]\n"
-            "       zs_headless --map [FILE]   print the room graph of a map (default: the Tier 0 block)\n"
-            "       zs_headless --body-lab     run the body calibration scenarios\n"
-            "       zs_headless --bench        body cost: 4 pops and 60 walkers for one game day\n"
-            "       zs_headless --town [--seed N] [--people N] [--years Y]  a generated town as pops: a layoff, then years\n"
-            "       zs_headless --pop-bench    spec 28: what records, lazy pops and promotion cost\n"
-            "       zs_headless --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades\n"
-            "       zs_headless --stage6 [--seed N] [--trace FILE]  the grid fails; generator, fuel, fridge, noise and light\n"
+  std::puts("usage: zs [--seed N] [--watch]   the window (no headless flag)\n"
+            "       zs gen ...       the content generators (zs gen with no command lists them)\n"
+            "       zs --days D [--seed N] [--save FILE] [--load FILE]  stage 1 demo, one line per game day\n"
+            "       zs --run [--seed N] [--seeds N] [--careless] [--trace FILE]  the 14-day run, AI only, with the chronicle\n"
+            "       zs --group [--seed N] [--days D] [--seeds N] [--trace FILE]  stage 8: 4 AI pops with the dead\n"
+            "       zs --stage7 [--seed N] [--trace FILE]  stage 6 with the dead, until the pop rises\n"
+            "       zs --map [FILE]   print the room graph of a map (default: the Tier 0 block)\n"
+            "       zs --body-lab     run the body calibration scenarios\n"
+            "       zs --bench        body cost: 4 pops and 60 walkers for one game day\n"
+            "       zs --town [--seed N] [--people N] [--years Y]  a generated town as pops: a layoff, then years\n"
+            "       zs --pop-bench    spec 28: what records, lazy pops and promotion cost\n"
+            "       zs --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades\n"
+            "       zs --stage6 [--seed N] [--trace FILE]  the grid fails; generator, fuel, fridge, noise and light\n"
             "                  (--trace writes a JSON replay for the web viewer, tools/viewer)");
 }
 
@@ -594,7 +600,7 @@ GroupResult group_run(std::uint64_t seed, int days, const std::string& trace_pat
   return out;
 }
 
-int main(int argc, char** argv) {
+int headless_main(int argc, char** argv) {
   if (argc >= 2 && !std::strcmp(argv[1], "--run")) {
     std::uint64_t seed = 1, seeds = 0;
     std::string trace;

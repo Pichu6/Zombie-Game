@@ -59,7 +59,7 @@ TEST_CASE("golden hash of the scripted demo run (A1; pinned on Linux, must match
 }
 
 TEST_CASE("every saved format version still loads (A1)") {
-  // fixtures/save_vN.zsav: demo seed 1, one game day, written by zs_headless --days 1 --save
+  // fixtures/save_vN.zsav: demo seed 1, one game day, written by zs --days 1 --save
   // with the build of that format version.
   for (const char* file : {"/save_v1.zsav", "/save_v2.zsav", "/save_v3.zsav"}) {
     CAPTURE(file);

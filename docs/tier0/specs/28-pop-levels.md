@@ -67,7 +67,7 @@ Record size is an **estimate**: a few hundred bytes to 1 KB. Not found in any ot
 
 ## Benchmark (the first thing to build)
 
-A headless command, `zs_headless --pop-bench`, using the Tier 0 core and the generator, with fixed seeds. Numbers below are **targets to be confirmed by the first run**, not facts; the first run only measures and the targets are then set from it.
+A headless command, `zs --pop-bench`, using the Tier 0 core and the generator, with fixed seeds. Numbers below are **targets to be confirmed by the first run**, not facts; the first run only measures and the targets are then set from it.
 
 | Case | Measure |
 | --- | --- |
@@ -80,7 +80,7 @@ A headless command, `zs_headless --pop-bench`, using the Tier 0 core and the gen
 
 Starting budget to test (estimates from the research note): 50–300 embodied, 10,000–100,000 records, lazy unbounded.
 
-### First measurement (2026-10-06, `zs_headless --pop-bench`, release build, one thread, a cloud container; GCC)
+### First measurement (2026-10-06, `zs --pop-bench`, release build, one thread, a cloud container; GCC)
 
 Measured, not estimated. The records are **thin** (only office, followed flag and exceptions), so the memory figure is a floor: real records with ties, beliefs, wounds and items will be several times larger.
 

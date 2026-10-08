@@ -40,7 +40,7 @@ The Tier 0 window: SDL3 + Dear ImGui, top-down 2D, no Vulkan ([0010](../../decis
 
 ## Model as implemented (stage 5)
 
-`apps/sandbox` (`zs_sandbox`), built when `ZS_BUILD_SANDBOX` is on (default on Windows). SDL3 3.4.8 and Dear ImGui 1.92.9 are fetched by CMake at pinned commits; the map is drawn with ImGui's draw lists over the SDL renderer. It starts the run (spec 26) for `--seed N` with the controlled pop possessed.
+`apps/zs` (`zs`), built when `ZS_BUILD_WINDOW` is on (default on Windows). SDL3 3.4.8 and Dear ImGui 1.92.9 are fetched by CMake at pinned commits; the map is drawn with ImGui's draw lists over the SDL renderer. It starts the run (spec 26) for `--seed N` with the controlled pop possessed.
 
 - Map: floors darkened by the light falling on them (night outdoors is near black), walls, doors, windows, fences, barricades, map objects as lettered squares, items as dots, walkers (bright when not idle), the group in member colours with initials and a ring on the controlled pop. Hovering a cell lists what is there in words. Levels with PgUp/PgDn.
 - Overlays: noise margin over background, light (refreshed every 5 game minutes).
@@ -61,7 +61,7 @@ Needs Visual Studio 2022 (Desktop C++), CMake 3.25+ and Git. From the repo folde
 cmake -S . -B build
 cmake --build build --config Release
 build\engine\sim\tests\Release\zs_sim_tests.exe
-build\apps\sandbox\Release\zs_sandbox.exe --seed 5
+build\apps\sandbox\Release\zs.exe --seed 5
 ```
 
 The tests are the first MSVC check: the golden hashes must match Linux.

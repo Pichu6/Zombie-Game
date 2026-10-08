@@ -37,7 +37,7 @@ Every parameter has three bands: **realistic** (calibrated on real data), **sand
 
 ### 1.5 Where it lives (Proposal)
 
-Data, not code, like the content packs ([content tools](content-tools.md) §1 rule 3): TOML presets under `data/setup/` (`world/`, `nation/`, `culture/`, `government/`, `corporation/`, `scenario/`), each with an `id`, `version`, a `[meta]` block (name, author, realism tag) and the fields below. The setup screens, `zs_headless`, the sandbox window and tests read the same files. A run records the final resolved settings and the seed in its save, so a preset update never changes an old save. First built for pop lives: `data/setup/demography/default.toml`, copied into each world's save ([spec 28](../tier0/specs/28-pop-levels.md), "Built to be changed").
+Data, not code, like the content packs ([content tools](content-tools.md) §1 rule 3): TOML presets under `data/setup/` (`world/`, `nation/`, `culture/`, `government/`, `corporation/`, `scenario/`), each with an `id`, `version`, a `[meta]` block (name, author, realism tag) and the fields below. The setup screens, `zs`, the sandbox window and tests read the same files. A run records the final resolved settings and the seed in its save, so a preset update never changes an old save. First built for pop lives: `data/setup/demography/default.toml`, copied into each world's save ([spec 28](../tier0/specs/28-pop-levels.md), "Built to be changed").
 
 ## 2. The outbreak is a module
 

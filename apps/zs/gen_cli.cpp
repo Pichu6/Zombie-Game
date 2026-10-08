@@ -1,10 +1,10 @@
-// zs_gen: the content generators from the command line (docs/design/content-tools.md section 6).
-//   zs_gen town   [--seed N] [--mix FILE]          town, streets, businesses and every pop's dossier
-//   zs_gen census [--seed N] [--mix FILE]          the pops as a data/tier0/census.toml-style table
-//   zs_gen names  --culture ID [--kind K] [--count N] [--seed N]
+// zs gen: the content generators from the command line (docs/design/content-tools.md section 6).
+//   zs gen town   [--seed N] [--mix FILE]          town, streets, businesses and every pop's dossier
+//   zs gen census [--seed N] [--mix FILE]          the pops as a data/tier0/census.toml-style table
+//   zs gen names  --culture ID [--kind K] [--count N] [--seed N]
 //                 kinds: person (default), street, town, province, country
-//   zs_gen cultures                                list the culture packs
-//   zs_gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]
+//   zs gen cultures                                list the culture packs
+//   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]
 //                                                  world fields: summary and a text map (spec 31)
 #include <cstdint>
 #include <cstdlib>
@@ -16,6 +16,7 @@
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
 #include "zs/gen/world_fields.h"
+#include "modes.h"
 
 namespace {
 
@@ -26,16 +27,17 @@ std::string arg(int argc, char** argv, const std::string& key, const std::string
 }
 
 int usage() {
-  std::cerr << "usage: zs_gen town|census [--seed N] [--mix FILE]\n"
-               "       zs_gen names --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]\n"
-               "       zs_gen cultures\n"
-               "       zs_gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]\n";
+  std::cerr << "usage: zs gen town|census [--seed N] [--mix FILE]\n"
+               "       zs gen names --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]\n"
+               "       zs gen cultures\n"
+               "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]\n";
   return 2;
 }
 
 }  // namespace
 
-int main(int argc, char** argv) {
+// argv[0] is "gen": the command is argv[1], as when this was its own program.
+int gen_main(int argc, char** argv) {
   if (argc < 2) return usage();
   const std::string cmd = argv[1];
   const std::string data = ZS_DATA_DIR;
@@ -159,7 +161,7 @@ int main(int argc, char** argv) {
       return 0;
     }
   } catch (const std::exception& e) {
-    std::cerr << "zs_gen: " << e.what() << "\n";
+    std::cerr << "zs gen: " << e.what() << "\n";
     return 1;
   }
   return usage();

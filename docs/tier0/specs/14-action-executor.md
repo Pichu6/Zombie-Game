@@ -39,7 +39,7 @@ Pichu's constraint: items will number in the thousands and actions must stay com
 - Phases are approach then work, with effects at finish.
 - Player commands (`World::submit`) and AI intents (`World::queue_intent`) take the same path. Only the player's are kept in the input log, so parity compares `World::world_hash()`, which leaves the input log out.
 - Floors are fixed entity ids per cell, so dropped items need no extra saved state.
-- `zs_headless --scripted-pop [--ai]` runs the stage 4 scenario.
+- `zs --scripted-pop [--ai]` runs the stage 4 scenario.
 - **Review fixes:**
   - Only items on a floor or at a map object can be picked up; built-in edges, barricades and items in someone's hands can't.
   - Take respects the carry limit.

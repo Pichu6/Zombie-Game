@@ -68,7 +68,7 @@ The one body model for the player, every pop and every zombie ([0007](../../deci
 
 ## Model as implemented (stage 3)
 
-Code: `engine/sim/src/body.cpp`; scenarios: `engine/sim/src/body_lab.cpp` (`zs_headless --body-lab`).
+Code: `engine/sim/src/body.cpp`; scenarios: `engine/sim/src/body_lab.cpp` (`zs --body-lab`).
 
 - **Review fixes (stage 3 re-check).** Water thresholds are shares of the body's own mobile pool, so fat and lean bodies both die of thirst. Muscle gain takes 1 g glycogen + 1 g water per 2 g wet muscle (mass is conserved). Disuse is −0.05 %/day. Starvation needs the fat store gone (< 3 %). VO₂max is clamped at creation. Core temperature is derived, not saved. Calibration constants are still in `body.cpp` (move to data when a tuning UI needs them).
 - **Units.** The ledger holds tissues in mg, water and blood in µL and energy in J, and every continuous flow keeps a saved remainder ([01](01-quantity.md) rule 2).

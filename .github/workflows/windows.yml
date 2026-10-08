@@ -1,5 +1,5 @@
-# Builds the game on Windows (MSVC), runs the simulation tests there, and packages the sandbox
-# window as a zip to download from the run's page (Actions tab -> the run -> Artifacts).
+# An extra check (work is local, decision 0052): builds the game on Windows (MSVC), runs the
+# simulation tests there, and packages zs.exe as a zip to download from the run's page (Actions tab -> the run -> Artifacts).
 name: windows
 
 on:
@@ -16,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Configure
-        run: cmake -S . -B build -A x64 -DZS_BUILD_SANDBOX=ON
+        run: cmake -S . -B build -A x64 -DZS_BUILD_WINDOW=ON
       - name: Build
         run: cmake --build build --config Release --parallel
-      - name: Simulation tests (golden hashes must match Linux)
+      - name: Simulation tests (golden hashes)
         run: build\engine\sim\tests\Release\zs_sim_tests.exe
       - name: Content generator tests
         run: build\engine\gen\tests\Release\zs_gen_tests.exe
@@ -27,10 +27,9 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force pkg | Out-Null
-          Copy-Item build\apps\sandbox\Release\zs_sandbox.exe pkg\
-          Copy-Item build\apps\headless\Release\zs_headless.exe pkg\
+          Copy-Item build\apps\zs\Release\zs.exe pkg\
           Copy-Item -Recurse data pkg\data
-          Set-Content pkg\README.txt "Double-click zs_sandbox.exe. Keys: WASD move, right click actions, Space pause, 1-6 speed, F5 save, F9 load. zs_sandbox.exe --seed N picks another run."
+          Set-Content pkg\README.txt "Double-click zs.exe. Keys: WASD move, right click actions, Space pause, 1-6 speed, F5 save, F9 load. zs.exe --seed N picks another run; zs.exe --help lists the modes without a window."
       - uses: actions/upload-artifact@v5
         with:
           name: juego-zombie-windows
@@ -44,6 +43,6 @@ jobs:
           Compress-Archive -Path pkg\* -DestinationPath juego-zombie-windows.zip
           gh release view windows-latest 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create windows-latest --prerelease --title "Windows build (latest main)" --notes "Built automatically from main. Unzip and double-click zs_sandbox.exe."
+            gh release create windows-latest --prerelease --title "Windows build (latest main)" --notes "Built automatically from main. Unzip and double-click zs.exe."
           }
           gh release upload windows-latest juego-zombie-windows.zip --clobber

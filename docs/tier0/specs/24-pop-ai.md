@@ -47,7 +47,7 @@ Relationships, trust, complaints, learning, dialogue, bandits, belief stores.
 
 ## Model as implemented (stage 8)
 
-Code: `engine/sim/src/pop_ai.cpp` (`PopAI`, a saved System updated after Bodies), `zs_headless --group [--seed N] [--days D] [--trace F] [--seeds N]`.
+Code: `engine/sim/src/pop_ai.cpp` (`PopAI`, a saved System updated after Bodies), `zs --group [--seed N] [--days D] [--trace F] [--seeds N]`.
 
 - **Decision step** every 5 s per pop not possessed. Wants in rank order: fight or flee (0); put down the group's dead, treat a wound (1); drink at thirst 0.4 (2); eat at hunger 0.5 when there is food it can start on (3); sleep at tiredness 0.75 by day, 0.35 at night, upstairs if there is one (4); the order (5); pick up a weapon lying about, or ask a found survivor the group knows about to join (6); jobs by priority 1-3 (7); idle (9). A more urgent want cancels the current plan. A want that cannot be planned waits 5 game minutes. Each want becomes a short plan of process steps sent through `World::queue_intent`.
 - **Fight or flee:** fear ≥ 0.7 (brave 0.9) panics: drop everything and run to the safest reachable room (one `Panicked` per scare), unless armed and already in reach. A walker in reach: strike if armed (weapon score ≥ 0.3), else flee. Armed and brave, or with fear below 0.5: step up to a walker within 4 m indoors. Unarmed: back off from one within 8 m. Both only when the walker is in the same room (or both outdoors): one beyond a wall or window is watched, not fled (stage 9). An armed pop that is not panicking answers a struggle within 15 m on its level (a walker in reach of another pop).

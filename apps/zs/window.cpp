@@ -1,11 +1,10 @@
 // The Tier 0 window (spec 16): the run seen from above, a sandbox to play and inspect it.
 // It reads the simulation and only sends it intents (World::submit); it keeps no game state.
 //
-// usage: zs_sandbox [--seed N] [--watch] [--shot out.bmp [--ticks N] [--menu x,y] [--overlay noise|light]]
+// usage: zs [--seed N] [--watch] [--shot out.bmp [--ticks N] [--menu x,y] [--overlay noise|light]]
 //   --watch starts with the AI driving everyone (nobody possessed).
 //   --shot renders one frame without a screen (offscreen driver) and saves it, for checks.
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
@@ -25,6 +24,7 @@
 #include "zs/noise.h"
 #include "zs/run.h"
 #include "zs/tier0.h"
+#include "modes.h"
 
 using namespace zs;
 using namespace zs::tier0;
@@ -595,7 +595,7 @@ void help_line() {
 
 }  // namespace
 
-int main(int argc, char** argv) {
+int window_main(int argc, char** argv) {
   App a;
   std::uint64_t seed = 1;
   std::string shot;
@@ -628,7 +628,7 @@ int main(int argc, char** argv) {
   auto fail = [](const char* what) {
     const std::string msg = std::string(what) + ": " + SDL_GetError();
     std::fprintf(stderr, "%s\n", msg.c_str());
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "zs_sandbox", msg.c_str(), nullptr);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "zs", msg.c_str(), nullptr);
     return 1;
   };
   if (!SDL_Init(SDL_INIT_VIDEO)) return fail("SDL_Init failed");

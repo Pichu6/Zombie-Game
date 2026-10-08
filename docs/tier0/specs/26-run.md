@@ -65,7 +65,7 @@ Setup screens, other scenarios, the warning week, Macro and City layers.
 
 ## Model as implemented (stage 9, headless; numbers are Proposal)
 
-Code: `engine/sim/src/run.cpp` (`Run`, a saved System updated last), `tier0::make_run`, data `data/tier0/run.toml`, map objects tagged `scenario = "run"` in `block.toml`; chronicle in `tier0.cpp` (`danger_tags`, `missed_counters`, `day_summary`); `zs_headless --run [--seed N] [--seeds N] [--careless] [--trace F]`.
+Code: `engine/sim/src/run.cpp` (`Run`, a saved System updated last), `tier0::make_run`, data `data/tier0/run.toml`, map objects tagged `scenario = "run"` in `block.toml`; chronicle in `tier0.cpp` (`danger_tags`, `missed_counters`, `day_summary`); `zs --run [--seed N] [--seeds N] [--careless] [--trace F]`.
 
 - **Fuel:** 4 L in the tank, 15 L in the workshop, 5 L in each house: 29 L, about nine evenings of 4 h at the fridge-and-lamps load.
 - **The stranger** is a body marked `away` (spec 27: cold, nothing runs or senses it) until the drawn time; a hidden bite is given on arrival by one of the walkers still off the map, so its clock starts at the gate.

@@ -1,5 +1,5 @@
 // Body lab: scripted scenarios that check the body against its calibration bands.
-// Used by the tests (stage 3 "done when") and by `zs_headless --body-lab`.
+// Used by the tests (stage 3 "done when") and by `zs --body-lab`.
 // Specs: docs/tier0/specs/11-body-composition.md, 12-body-wounds.md, 13-capabilities.md
 #pragma once
 #include <memory>
