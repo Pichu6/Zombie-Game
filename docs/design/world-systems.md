@@ -279,6 +279,19 @@ Reported, from search summaries; confirm on each publisher's page before shippin
 
 ## Open
 
+### From research (city-layout-generation, 2026-10-09)
+
+The note proposes a pipeline from the town record: a land budget (density, street share, lots per income and land use), anchors from the country's routes that become arterials, Watabou-style districts on the zone cells, tensor-field streets (grid, radial, coast or contour following), Vanegas block-by-block plot subdivision with forced street access, and households and businesses assigned to plots for real addresses; streets, blocks and plots are records made at town creation, buildings and interiors on approach. Calibration: streets about 30 % of land, 39-73 intersections per km2 in Europe and North America, built-up density 28-135 people per ha by income. Its questions:
+
+- Atlas of Urban Expansion 2016 volume 2 and "State of the Streets" (2018) hold the 1990-2015 numbers on road share, block size, four-way intersections and arterial access by region; not read here. They should set the bands for modern expansion areas. ([city-layout-generation](../research/city-layout-generation.md))
+- Land use shares for whole cities (residential, commercial, industrial, green) by region were not found from a primary source; only UN-Habitat's floor mix for centres (CL-28). ([city-layout-generation](../research/city-layout-generation.md))
+- Residential lot sizes for Latin America, Africa and South and East Asia, and lot sizes by income group, were not found. ([city-layout-generation](../research/city-layout-generation.md))
+- Dwellings per ha by density class (detached, terraced, walk-up, tower) need a source table; only two examples (CL-44, CL-48). ([city-layout-generation](../research/city-layout-generation.md))
+- Informal settlements: whether and how a generator for low-income countries draws unplanned subdivisions (narrow alleys, CL-41; densities over 1,000 per ha, CL-33). ([city-layout-generation](../research/city-layout-generation.md))
+- Which style is the default per culture pack, and whether an old town core with a newer grid around it is one rule (era rings). ([city-layout-generation](../research/city-layout-generation.md))
+- Whether city growth during play (zoning, [simcity](../research/simcity.md)) reuses the same subdivision step on new blocks, so built and generated land look alike. ([city-layout-generation](../research/city-layout-generation.md))
+- Example-based synthesis needs real parcel data; OpenStreetMap is ODbL and still needs a decision ([world systems](../design/world-systems.md) open list). ([city-layout-generation](../research/city-layout-generation.md))
+
 ### From research (living-disease, 2026-10-09)
 
 The note proposes one table-driven host-pathogen model for every living stock (S/E/I/R shares per cell and host, spread by neighbour contact, a fat-tailed wind kernel and gravity jumps along movement that bans can cut, fronts with measured speeds where unwatched), soil health as a stock, the links as multipliers tied to findings, and history replays as tests. Its questions:
@@ -310,3 +323,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [world-systems-resources-networks](../research/world-systems-resources-networks.md): World systems: where resources are, and how grids and networks are laid out
 - [living-disease](../research/living-disease.md): Disease and degradation in crops, forests, livestock, wildlife, fish and soil
 - [terrain-hydrology-climate](../research/terrain-hydrology-climate.md): Terrain, hydrology and climate: erosion, rivers, inland basins, Koppen, soils, multi-resolution terrain
+- [city-layout-generation](../research/city-layout-generation.md): City layout generation: streets, districts, blocks and plots, with real urban-form numbers

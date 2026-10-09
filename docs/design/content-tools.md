@@ -156,3 +156,4 @@ The note proposes Lopes-style grid growth by zones with a final pass that adds d
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
 - [building-generation](../research/building-generation.md): Building and interior generation, and real housing data by income
+- [city-layout-generation](../research/city-layout-generation.md): City layout generation: streets, districts, blocks and plots, with real urban-form numbers

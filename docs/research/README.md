@@ -74,6 +74,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [world-systems-resources-networks.md](world-systems-resources-networks.md) | World systems: where resources are, and how grids and networks are laid out | 2026-10-06 |
 | [building-generation.md](building-generation.md) | Building and interior generation, and real housing data by income | 2026-10-09 |
 | [terrain-hydrology-climate.md](terrain-hydrology-climate.md) | Terrain, hydrology and climate: erosion, rivers, inland basins, Koppen, soils, multi-resolution terrain | 2026-10-09 |
+| [city-layout-generation.md](city-layout-generation.md) | City layout generation: streets, districts, blocks and plots, with real urban-form numbers | 2026-10-09 |
 
 ### People and bodies
 

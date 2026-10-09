@@ -117,3 +117,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [world-generation-prior-art](../research/world-generation-prior-art.md): World generation: prior art
 - [renderer](../research/renderer.md): The renderer, at engineering level
 - [terrain-hydrology-climate](../research/terrain-hydrology-climate.md): Terrain, hydrology and climate: erosion, rivers, inland basins, Koppen, soils, multi-resolution terrain
+- [city-layout-generation](../research/city-layout-generation.md): City layout generation: streets, districts, blocks and plots, with real urban-form numbers
