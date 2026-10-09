@@ -136,3 +136,23 @@ The generators and the simulation are one stack, not separate tools: `engine/gen
 - **Same people as Tier 0.** `zs gen census` already writes Tier 0's 60 neighbours from the same generator; making the Tier 0 world's census and the registry the same pops (so the block's neighbours are the town's founders) is a next step, held back because adding a system to the Tier 0 world changes its pinned golden hashes and deserves its own decision.
 - **Known gaps:** businesses are drawn from small-town counts (23 for 3,000 people), so workplaces are large; fathers and marriage are not modelled yet, so a child's household roster does not follow births; the generator is not yet asked for age pyramids, jobs or households for births.
 
+## Open
+
+### From research (building-generation, 2026-10-09)
+
+The note proposes Lopes-style grid growth by zones with a final pass that adds doors until every room is reachable (the corridor plan of spec 51 as the fallback), tagged lego kits by culture, era and income, apartments as stacked floors around a stair core, business premises from business records, and sourced housing numbers to replace spec 51's estimates (area per person 8/15/30/45 m2 by income spread by quintile, bedrooms from the overcrowding rule, bathroom and fridge from country shares). Its questions:
+
+- Is the income group per country or per household? Proposal: country pack for the anchor, household quintile for the spread. ([building-generation](../research/building-generation.md))
+- Floor area per person for low-income countries rests on old or city data (BG-33, BG-34, BG-40). A search on UN-Habitat SDG 11.1.1, India NSS housing rounds and IEA floor area per capita should follow. ([building-generation](../research/building-generation.md))
+- Food stocks by income have no data (BG-54). Keep estimates, or derive from shopping frequency and fridge ownership? ([building-generation](../research/building-generation.md))
+- How many plan methods to keep: corridor plus grid growth for houses and treemap for flats, or one method for all? ([building-generation](../research/building-generation.md))
+- Should rooms be counted in the OECD way (no kitchen in Europe) or ours (all rooms)? Packs must say which. ([building-generation](../research/building-generation.md))
+- Where do era kits come from: one pack per decade band of construction, tied to the building's build year in the record? ([building-generation](../research/building-generation.md))
+- Commercial floor space per worker by business type needs its own research. ([building-generation](../research/building-generation.md))
+- Does a damaged or looted house change the record or only the placement? (World simulation §12 says the record is the truth.) ([building-generation](../research/building-generation.md))
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [building-generation](../research/building-generation.md): Building and interior generation, and real housing data by income

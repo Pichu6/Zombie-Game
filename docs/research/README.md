@@ -72,6 +72,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [world-systems-economy.md](world-systems-economy.md) | World systems: how a real economy works in numbers | 2026-10-06 |
 | [world-systems-factions.md](world-systems-factions.md) | World systems for factions: territory, subjects, expansion, conquest, collapse | 2026-10-06 |
 | [world-systems-resources-networks.md](world-systems-resources-networks.md) | World systems: where resources are, and how grids and networks are laid out | 2026-10-06 |
+| [building-generation.md](building-generation.md) | Building and interior generation, and real housing data by income | 2026-10-09 |
 
 ### People and bodies
 

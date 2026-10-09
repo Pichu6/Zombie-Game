@@ -190,3 +190,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [world-numbers-capacity](../research/world-numbers-capacity.md): World numbers: how many people can a world hold?
 - [world-numbers-settlement](../research/world-numbers-settlement.md): World numbers: how people spread over land, and how towns and cities arise
 - [persistent-worlds-roles](../research/persistent-worlds-roles.md): Persistent worlds, role-based multiplayer, time and pre-simulated history
+- [building-generation](../research/building-generation.md): Building and interior generation, and real housing data by income
