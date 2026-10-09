@@ -35,7 +35,7 @@ A realistic simulation of a world and the people in it: **Macro** (nations and t
 
 **Designed, not built** (Proposals unless a decision says otherwise): [sandbox parameters](design/sandbox-parameters.md), [world numbers](design/world-numbers.md), [world systems](design/world-systems.md), [zoom continuum](design/zoom-continuum.md), [focus and compression](design/focus-and-compression.md), [layer jumps](design/layer-jumps.md) (rows 18 travel and 19 ownership still a gap), [pop lore and custom pops](design/pop-lore-and-custom-pops.md).
 
-**Decisions** run up to [0061](decisions/0061-the-world-runs-without-the-player.md). **Research** notes carry findings with IDs and confidence, linked both ways with the design docs and checked by `tools/docs/check_research.py` ([0054](decisions/0054-research-notes-findings-and-links.md)); open questions from research sit in each design doc's Open section.
+**Decisions** run up to [0062](decisions/0062-the-game-loop-attention-possession-and-late-starts.md). **Research** notes carry findings with IDs and confidence, linked both ways with the design docs and checked by `tools/docs/check_research.py` ([0054](decisions/0054-research-notes-findings-and-links.md)); open questions from research sit in each design doc's Open section.
 
 ## Next step
 
