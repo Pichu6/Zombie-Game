@@ -21,7 +21,7 @@ std::string setting_names(std::uint8_t settings);
 struct DepositParams {
   // Rule 16: the median size per frequency-24 cell, in each resource's unit, calibrated once on the seed-1 planet so
   // the totals land between today's reserves and resources (coal, oil, gas, iron ore, copper ore, bauxite).
-  double median[resource_count] = {1.34e10, 2.9e9, 2.5e11, 7.3e9, 4.8e9, 6.4e8};
+  double median[resource_count] = {1.34e10, 2.9e9, 2.5e11, 9.5e10, 2.0e9, 1.7e9};
   double sigma = 1.0;
   double pareto_cap = 1000;
   std::uint64_t seed = 1;

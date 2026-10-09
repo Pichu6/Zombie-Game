@@ -16,6 +16,7 @@ namespace zs::gen {
 namespace {
 
 constexpr int kSea = -2, kUnruled = -1;
+constexpr double kCellsAtFrequency24 = 10.0 * 24 * 24 + 2;  // rule 23: the grid the parameters are calibrated on
 constexpr double kCrossingCost = 4.0;     // rule 24 (spec 48 rule 3)
 constexpr double kClimbPerM = 1.0 / 500;  // rule 24 (spec 48 rule 3)
 
@@ -83,7 +84,15 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
   w.core.assign(n, 0.0);
   w.terrain.assign(n, 0.0);
   w.country_of.assign(n, -1);
-  w.periods = p.periods;
+  // Rule 23: the parameters are set for a frequency-24 cell (spacing s0); on a finer grid of spacing s the history
+  // runs s0 / s times as many rounds (a round moves one cell, so it moves less land) and secession scales with the
+  // border's length in km rather than its count of cells, so sizes and counts do not depend on the grid.
+  const double spacing = detmath::sqrt(g.sphere_area_km2() / static_cast<double>(n));
+  const double s0 = detmath::sqrt(g.sphere_area_km2() / kCellsAtFrequency24);
+  const double ratio = s0 / spacing;
+  const int rounds = std::max(1, static_cast<int>(p.periods * ratio + 0.5));
+  const double ring_km = 2.0 * s0 + 1.0;
+  w.periods = rounds;
 
   // Rule 19: core values.
   for (CellId c = 0; c < n; ++c) {
@@ -94,14 +103,17 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
     const double cereal = a + pa > 0 ? a / (a + pa) : 0.0;
     const double river = land.river[c] == 2 ? 1.5 : land.river[c] == 1 ? 1.2 : 1.0;
     const double coast = f.sea_cells[c] <= 1 ? 1.2 : 1.0;
-    std::vector<CellId> ring;
-    for (CellId a1 : g.neighbours(c)) {
-      ring.push_back(a1);
-      for (CellId a2 : g.neighbours(a1))
-        if (a2 != c) ring.push_back(a2);
+    // The cells within two frequency-24 cell spacings (rule 19), found by a walk that stays inside the radius.
+    std::vector<CellId> ring, stack{c};
+    while (!stack.empty()) {
+      const CellId x = stack.back();
+      stack.pop_back();
+      for (CellId nb : g.neighbours(x)) {
+        if (nb == c || g.distance_km(c, nb) > ring_km || std::find(ring.begin(), ring.end(), nb) != ring.end()) continue;
+        ring.push_back(nb);
+        stack.push_back(nb);
+      }
     }
-    std::sort(ring.begin(), ring.end());
-    ring.erase(std::unique(ring.begin(), ring.end()), ring.end());
     int low = 0;
     for (CellId x : ring) low += (f.land(x) ? land.capacity(x) : 0.0) < 0.1 * cap;
     const double circ = ring.empty() ? 0.0 : static_cast<double>(low) / static_cast<double>(ring.size());
@@ -166,7 +178,7 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
   std::vector<double> weight;
   std::vector<CellId> cand;
   std::vector<bool> cand_sea;
-  for (int period = 0; period < p.periods; ++period) {
+  for (int period = 0; period < rounds; ++period) {
     std::vector<char> dirty(pol.size(), 0);
     for (CellId c = 0; c < n; ++c) {
       const int i = owner[c];
@@ -207,7 +219,7 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
     for (CellId c = 0; c < n; ++c) {
       const int i = owner[c];
       if (i < 0 || !is_border[c] || pol[static_cast<std::size_t>(i)].cells <= 1) continue;
-      const double prob = beta * w.terrain[c] * border[static_cast<std::size_t>(i)];
+      const double prob = beta * w.terrain[c] * border[static_cast<std::size_t>(i)] / ratio;  // border length in s0 units
       if (!r.chance(c, field::Secede, prob, static_cast<std::uint32_t>(period))) continue;
       const int ni = static_cast<int>(pol.size());
       pol.push_back({0, c, 0, period + 1, period + 1});
@@ -295,7 +307,7 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
       s.polity = static_cast<int>(i);
       s.capital = pol[i].capital;
       s.founded = pol[i].founded;
-      s.capital_held = p.periods - pol[i].capital_since;
+      s.capital_held = rounds - pol[i].capital_since;
     }
   }
   for (CellId c = 0; c < n; ++c)
@@ -331,7 +343,7 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
       if (owner[c] == kSea || w.country_of[c] >= 0) continue;
       if (reach[c] >= 0 && best[c] <= p.fill_limit) {
         w.country_of[c] = reach[c];
-        w.events.push_back({p.periods, HistoryKind::Fill, c, w.countries[static_cast<std::size_t>(reach[c])].polity, kUnruled});
+        w.events.push_back({rounds, HistoryKind::Fill, c, w.countries[static_cast<std::size_t>(reach[c])].polity, kUnruled});
       } else {
         left.push_back(c);
       }
@@ -341,7 +353,7 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
       if (w.country_of[s] >= 0) continue;
       const int k = static_cast<int>(w.countries.size());
       w.countries.emplace_back();
-      w.countries.back().founded = p.periods;
+      w.countries.back().founded = rounds;
       std::vector<CellId> stack{s};
       w.country_of[s] = k;
       CellId cap = s;

@@ -25,7 +25,7 @@ struct LandParams {
   double river_km2 = 100000, large_river_km2 = 500000;       // RV-9: catchment, so the classes do not depend on cell size
   // Slice 2 (rules 10-12; estimates).
   double game_r = 0.25, fish_r = 0.5;
-  double fish_t_per_km2 = 1, fish_shelf_m = -1500;
+  double fish_t_per_km2 = 0.75, fish_shelf_m = -1500;
 };
 
 struct WorldLand {

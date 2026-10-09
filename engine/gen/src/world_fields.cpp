@@ -8,6 +8,7 @@
 #include <tuple>
 
 #include "fields.h"
+#include "noise.h"
 #include "zs/detmath.h"
 #include "zs/gen/keyed.h"
 
@@ -40,6 +41,20 @@ Biome classify_biome(bool land, double elev, double t, double rain) {
 
 namespace {
 
+// Rules 3b, 3c and 4 (estimates; tuned against the checks in the spec's As built).
+constexpr double kShelfM = -500;          // base height at the continent-ocean contact
+constexpr double kPlainKm = 900;          // from the contact to the continental plate's base height
+constexpr double kSlopeKm = 900;          // from the contact down to the ocean floor
+constexpr double kNoiseM = 1400;          // fractal noise amplitude near the coast
+constexpr double kNoiseInland = 0.25;     // share of it left deep inland
+constexpr double kNoiseFadeKm = 900;
+constexpr double kShapeM = 800;           // the longest waves, which carve continents across plates
+constexpr double kCostContrast = 4.0;     // rule 2: a plate step costs exp(4 n) times its length, n the cost noise
+constexpr double kWarp = 0.25;            // domain warp, in unit-sphere lengths (about 1,600 km on Earth)
+constexpr double kHotspotsAtEarth = 45;   // Earth: about 40-50 hotspots
+constexpr int kHotspotChain = 6;
+constexpr double kHotspotStepKm = 350, kHotspotSigmaKm = 150, kHotspotM = 8000;
+
 struct PlateInfo {
   bool continental = false;
   double base = 0, weight = 1, age = 0;
@@ -70,6 +85,24 @@ Vec3 unit(Vec3 v) {
   return {v.x / l, v.y / l, v.z / l};
 }
 
+// A keyed point uniform on the unit sphere.
+Vec3 random_point(const Keyed& rnd, std::uint64_t id, std::uint32_t fld, std::uint32_t k) {
+  const double z = 2.0 * rnd.u01(id, fld, 2 * k) - 1.0;
+  const double phi = 6.283185307179586 * rnd.u01(id, fld, 2 * k + 1);
+  const double r = detmath::sqrt(std::max(0.0, 1.0 - z * z));
+  return {r * detmath::cos(phi), r * detmath::sin(phi), z};
+}
+
+CellId nearest_cell(const WorldGrid& g, const Vec3& p) {  // ties by the lower id
+  CellId best = 0;
+  double bd = -2;
+  for (CellId i = 0; i < g.size(); ++i) {
+    const double d = dot(g.centre(i), p);
+    if (d > bd) bd = d, best = i;
+  }
+  return best;
+}
+
 }  // namespace
 
 WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
@@ -94,22 +127,26 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
   }
   P = std::max(1, std::min<int>(P, static_cast<int>(N / 40)));
   f.plate_count = P;
-  std::vector<CellId> seeds;
+  // Seeds are keyed points on the sphere (best of 8 candidates for spread), each in the cell nearest it, so the
+  // same seed gives the same plates on any grid.
+  std::vector<Vec3> seed_at;
   for (int p = 0; p < P; ++p) {
-    CellId best = 0;
+    Vec3 best{0, 0, 1};
     double best_gap = -2;
     for (std::uint32_t k = 0; k < 8; ++k) {
-      const CellId c = static_cast<CellId>(rnd.below(static_cast<std::uint64_t>(p), field::PlateSeed, N, k));
-      double nearest = 2;  // smallest chord to an existing seed; larger is better spread
-      for (const CellId s : seeds) {
-        const Vec3 d{g.centre(c).x - g.centre(s).x, g.centre(c).y - g.centre(s).y, g.centre(c).z - g.centre(s).z};
+      const Vec3 c = random_point(rnd, static_cast<std::uint64_t>(p), field::PlatePoint, k);
+      double nearest = 4;  // smallest squared chord to an earlier seed; larger is better spread
+      for (const Vec3& s : seed_at) {
+        const Vec3 d{c.x - s.x, c.y - s.y, c.z - s.z};
         nearest = std::min(nearest, dot(d, d));
       }
-      if (seeds.empty()) nearest = 1;
       if (nearest > best_gap) best_gap = nearest, best = c;
     }
-    seeds.push_back(best);
+    seed_at.push_back(best);
   }
+  std::vector<CellId> seeds;
+  for (const Vec3& s : seed_at) seeds.push_back(nearest_cell(g, s));
+  const noise::Fbm cost_noise{2000, 3, 0.5, 0};  // all three octaves on every grid: plates must not depend on it
   std::vector<PlateInfo> plates(static_cast<std::size_t>(P));
   for (int p = 0; p < P; ++p) {
     PlateInfo& pi = plates[static_cast<std::size_t>(p)];
@@ -135,7 +172,9 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       owner[cell] = p;
       for (const CellId nb : g.neighbours(cell)) {
         if (owner[nb] >= 0) continue;
-        const double step = (1.0 + 0.8 * rnd.u01(nb, field::CellCost)) / plates[static_cast<std::size_t>(p)].weight;
+        // A step costs its length times a noise factor in [0.2, 1.8] (rule 2), so borders wander at any resolution.
+        const double n = noise::fbm(prm.seed, field::NoiseCost, g.centre(nb), g.radius_km(), cost_noise);
+        const double step = g.distance_km(cell, nb) * detmath::exp(kCostContrast * n) / plates[static_cast<std::size_t>(p)].weight;
         if (c + step < cost[nb]) cost[nb] = c + step, q.push({c + step, nb, p});
       }
     }
@@ -165,7 +204,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     for (int p = 0; p < P; ++p) {
       PlateInfo& pi = plates[static_cast<std::size_t>(p)];
       const double off = (rnd.u01(static_cast<std::uint64_t>(p), field::PlateOffset) - 0.5) * 600.0;
-      pi.base = (pi.continental ? 400.0 : -4000.0) + off;
+      pi.base = (pi.continental ? 250.0 : -4000.0) + off;
     }
   }
 
@@ -191,7 +230,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
         else if (A.continental) s = {5000.0 * conv, BoundaryKind::Subduction};
         else if (B.continental) s = {-6000.0 * conv, BoundaryKind::Trench};
         else if (A.age >= B.age) s = {-6000.0 * conv, BoundaryKind::Trench};
-        else s = {3500.0 * conv, BoundaryKind::IslandArc};
+        else s = {5000.0 * conv, BoundaryKind::IslandArc};
       } else {
         const double a = -conv;
         if (!A.continental && !B.continental) s = {1500.0 * a, BoundaryKind::Ridge};
@@ -219,25 +258,81 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     src.swap(next);
   }
 
-  // ---- Elevation (rules 3 and 4): plate base + boundary + roughness, then a little smoothing.
-  std::vector<double> rough(N);
-  for (CellId i = 0; i < N; ++i) rough[i] = rnd.bell(i, field::Rough);
-  for (int it = 0; it < 2; ++it) {
-    std::vector<double> next(N);
-    for (CellId i = 0; i < N; ++i) {
-      double s = rough[i];
-      for (const CellId j : g.neighbours(i)) s += rough[j];
-      next[i] = s / static_cast<double>(1 + g.neighbours(i).size());
+  // ---- Continental margin (rule 3b): signed distance in km to the contact between continental and oceanic crust,
+  // positive inside a continent; the base height rises from the ocean floor over a slope to a shelf at the contact,
+  // then over a coastal plain to the plate's base inland.
+  std::vector<double> margin(N, 1e300);
+  {
+    using Item = std::pair<double, CellId>;
+    std::priority_queue<Item, std::vector<Item>, std::greater<Item>> q;
+    for (CellId i = 0; i < N; ++i)
+      for (const CellId j : g.neighbours(i))
+        if (plates[f.plate[i]].continental != plates[f.plate[j]].continental) {
+          margin[i] = 0.5 * g.distance_km(i, j);
+          q.push({margin[i], i});
+          break;
+        }
+    while (!q.empty()) {
+      const auto [d, c] = q.top();
+      q.pop();
+      if (d > margin[c]) continue;
+      for (const CellId j : g.neighbours(c)) {
+        if (plates[f.plate[j]].continental != plates[f.plate[c]].continental) continue;
+        const double nd = d + g.distance_km(c, j);
+        if (nd < margin[j]) margin[j] = nd, q.push({nd, j});
+      }
     }
-    rough.swap(next);
   }
-  double rms = 0;
-  for (const double r : rough) rms += r * r;
-  rms = detmath::sqrt(rms / static_cast<double>(N));
+  auto margin_base = [&](CellId i) {
+    const PlateInfo& pl = plates[f.plate[i]];
+    const double d = std::min(margin[i], 1e6);
+    if (pl.continental) return kShelfM + (pl.base - kShelfM) * std::min(1.0, d / kPlainKm);
+    return pl.base + (kShelfM - pl.base) * std::max(0.0, 1.0 - d / kSlopeKm);
+  };
+
+  // ---- Hotspots (rule 3c): keyed points on the sphere; each leaves a chain of volcanic bumps trailing against its
+  // plate's motion (Hawaii), full height on oceanic plates, less on continents.
+  std::vector<double> hot(N, 0.0);
+  {
+    const int H = static_cast<int>(kHotspotsAtEarth * g.sphere_area_km2() / 510.1e6 + 0.5);
+    const double sigma = std::max(kHotspotSigmaKm, 0.7 * spacing) / g.radius_km();  // at least one cell wide
+    for (int h = 0; h < H; ++h) {
+      const Vec3 c0 = random_point(rnd, static_cast<std::uint64_t>(h), field::Hotspot, 0);
+      const CellId at = nearest_cell(g, c0);
+      const PlateInfo& pl = plates[f.plate[at]];
+      Vec3 v = cross(pl.omega, c0);
+      const double vl = detmath::sqrt(dot(v, v));
+      v = vl > 1e-12 ? Vec3{v.x / vl, v.y / vl, v.z / vl} : Vec3{0, 0, 0};
+      const double scale = (pl.continental ? 0.15 : 1.0) * (0.6 + 0.8 * rnd.u01(static_cast<std::uint64_t>(h), field::Hotspot, 9));
+      for (int k = 0; k < kHotspotChain; ++k) {
+        const double back = k * kHotspotStepKm / g.radius_km();
+        const Vec3 p = unit({c0.x - v.x * back, c0.y - v.y * back, c0.z - v.z * back});
+        const double height = scale * kHotspotM * detmath::pow(0.7, k);
+        for (CellId i = 0; i < N; ++i) {
+          const Vec3 d{g.centre(i).x - p.x, g.centre(i).y - p.y, g.centre(i).z - p.z};
+          const double r2 = dot(d, d) / (sigma * sigma);
+          if (r2 < 9.0) hot[i] += height * detmath::exp(-r2);
+        }
+      }
+    }
+  }
+
+  // ---- Elevation (rules 3 and 4): margin base + boundary + warped fractal noise + hotspots, then a little smoothing.
+  const noise::Fbm warp_noise{4000, 3, 0.5, 2 * spacing};
+  const noise::Fbm elev_noise{3000, 8, 0.55, 2 * spacing};
+  const noise::Fbm shape_noise{9000, 2, 0.5, 2 * spacing};
   std::vector<double> elev(N);
   for (CellId i = 0; i < N; ++i) {
-    const double rg = rms > 0 ? rough[i] / rms : 0.0;
-    elev[i] = plates[f.plate[i]].base + prm.relief * (src[i].v + 350.0 * rg);
+    const Vec3& c = g.centre(i);
+    const Vec3 w{noise::fbm(prm.seed, field::NoiseWarp * 4 + 0, c, g.radius_km(), warp_noise),
+                 noise::fbm(prm.seed, field::NoiseWarp * 4 + 1, c, g.radius_km(), warp_noise),
+                 noise::fbm(prm.seed, field::NoiseWarp * 4 + 2, c, g.radius_km(), warp_noise)};
+    const Vec3 q{c.x + kWarp * w.x, c.y + kWarp * w.y, c.z + kWarp * w.z};
+    const double n = noise::fbm(prm.seed, field::NoiseElev, q, g.radius_km(), elev_noise);
+    const double inland = plates[f.plate[i]].continental ? std::min(margin[i], 1e6) : 0.0;
+    const double amp = kNoiseM * (kNoiseInland + (1.0 - kNoiseInland) * detmath::exp(-inland / kNoiseFadeKm));
+    const double shape = noise::fbm(prm.seed, field::NoiseElev + 1, q, g.radius_km(), shape_noise);
+    elev[i] = margin_base(i) + kShapeM * shape + prm.relief * (src[i].v + amp * n + hot[i]);
     f.boundary_kind[i] = src[i].k;
   }
   for (int it = 0; it < 2; ++it) {

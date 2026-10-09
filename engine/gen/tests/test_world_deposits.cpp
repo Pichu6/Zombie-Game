@@ -94,5 +94,5 @@ TEST_CASE("deposits: deterministic, golden pinned (A1)") {
     h = mix64(mix64(h, d.cell), mix64(static_cast<std::uint64_t>(d.kind), mix64(a, g)));
   }
   MESSAGE("deposits hash: ", h, ", ", p.deposits.deposits.size(), " deposits");
-  CHECK(h == 8816525478744160566ULL);  // pinned on MSVC, 2026-10-09
+  CHECK(h == 3367494854120222802ULL);  // re-pinned on MSVC, 2026-10-09 (spec 31 terrain revised)
 }

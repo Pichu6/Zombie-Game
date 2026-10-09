@@ -71,8 +71,10 @@ TEST_CASE("fields: same seed same world, another seed another world") {
 
 TEST_CASE("fields: golden hash for n = 8, seed 1, is pinned") {
   const WorldGrid g(8, 6371);
-  // Pinned on Linux (GCC and Clang); Windows must reproduce it.
-  CHECK(fields_hash(make(g, 1)) == 18301206236391817055ull);
+  // Re-pinned on MSVC 2026-10-09 for spec 31's revised terrain (rules 2-4); GCC and Clang must reproduce it.
+  const std::uint64_t h = fields_hash(make(g, 1));
+  MESSAGE("fields hash: " << h);
+  CHECK(h == 7246065031994902308ull);
 }
 
 TEST_CASE("fields: land share is exact to one cell") {
@@ -159,9 +161,10 @@ TEST_CASE("fields: hypsometry sits near Earth's") {
     above += area_share(g, [&](CellId i) { return f.elevation_m[i] > 1000; }) / land_a;
     depth += -mean_where(g, [&](CellId i) { return f.elevation_m[i]; }, [&](CellId i) { return !f.land(i); });
   }
-  CHECK(above / seeds > 0.05);   // Earth about 0.11
+  MESSAGE("land above 1,000 m " << above / seeds << " (Earth about 0.24, MG-24); mean ocean depth " << depth / seeds << " m (3,682, MG-25)");
+  CHECK(above / seeds > 0.05);   // Earth about 0.24 on a 1-degree grid (MG-24)
   CHECK(above / seeds < 0.25);
-  CHECK(depth / seeds > 2500);   // Earth about 3,700 m
+  CHECK(depth / seeds > 2500);   // Earth 3,682 m (MG-25)
   CHECK(depth / seeds < 5000);
 }
 
@@ -265,4 +268,78 @@ TEST_CASE("fields: a finer grid gives a similar biome mix") {
     }
   }
   for (int k = 1; k < biome_count; ++k) CHECK(std::abs(a[k] - b[k]) / seeds < 0.08);
+}
+
+namespace {
+
+// Connected components of cells where `pred` holds; returns the area of each.
+template <class Pred>
+std::vector<double> components(const WorldGrid& g, Pred pred, std::vector<std::size_t>* cells = nullptr) {
+  std::vector<int> comp(g.size(), -1);
+  std::vector<double> area;
+  for (CellId s = 0; s < g.size(); ++s) {
+    if (!pred(s) || comp[s] >= 0) continue;
+    const int k = static_cast<int>(area.size());
+    area.push_back(0);
+    if (cells) cells->push_back(0);
+    std::vector<CellId> stack{s};
+    comp[s] = k;
+    while (!stack.empty()) {
+      const CellId c = stack.back();
+      stack.pop_back();
+      area.back() += g.area_km2(c);
+      if (cells) ++cells->back();
+      for (const CellId nb : g.neighbours(c))
+        if (pred(nb) && comp[nb] < 0) comp[nb] = k, stack.push_back(nb);
+    }
+  }
+  return area;
+}
+
+}  // namespace
+
+TEST_CASE("fields: the same seed gives the same continents on a finer grid (A2)") {
+  const WorldGrid fine(32, 6371);
+  for (const std::uint64_t seed : {1, 2, 3}) {
+    const auto f1 = make(grid16(), seed), f2 = make(fine, seed);
+    double agree = 0, total = 0;
+    for (CellId i = 0; i < grid16().size(); ++i) {
+      const Vec3& c = grid16().centre(i);
+      const double lat = std::asin(std::clamp(c.z, -1.0, 1.0)) * 180.0 / 3.14159265358979323846;
+      const double lon = std::atan2(c.y, c.x) * 180.0 / 3.14159265358979323846;
+      const CellId j = fine.cell_at(lat, lon);
+      agree += (f1.land(i) == f2.land(j)) * grid16().area_km2(i);
+      total += grid16().area_km2(i);
+    }
+    MESSAGE("seed " << seed << ": land agrees on " << agree / total << " of the surface between n = 16 and n = 32");
+    CHECK(agree / total >= 0.85);
+  }
+}
+
+TEST_CASE("fields: land forms continents with islands, not holes (A2)") {
+  const WorldGrid g(24, 6371);
+  double masses = 0, islands = 0, enclosed = 0, island_land = 0;
+  const int seeds = 10;
+  for (int s = 1; s <= seeds; ++s) {
+    const auto f = make(g, static_cast<std::uint64_t>(s));
+    std::vector<std::size_t> cells;
+    const auto land = components(g, [&](CellId i) { return f.land(i); }, &cells);
+    double land_area = 0, small = 0;
+    for (std::size_t k = 0; k < land.size(); ++k) {
+      land_area += land[k];
+      if (cells[k] <= 3) ++islands, small += land[k];
+    }
+    masses += static_cast<double>(land.size());
+    island_land += small / land_area;
+    const auto sea = components(g, [&](CellId i) { return !f.land(i); });
+    double sea_area = 0, biggest = 0;
+    for (double a : sea) sea_area += a, biggest = std::max(biggest, a);
+    enclosed += (sea_area - biggest) / sea_area;
+  }
+  MESSAGE("mean over " << seeds << " seeds at n = 24: " << masses / seeds << " landmasses, " << islands / seeds
+                       << " islands of 1-3 cells holding " << island_land / seeds << " of land; enclosed seas "
+                       << enclosed / seeds << " of the sea");
+  CHECK(masses / seeds >= 8);
+  CHECK(islands / seeds >= 5);
+  CHECK(enclosed / seeds <= 0.02);
 }

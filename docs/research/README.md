@@ -76,6 +76,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [terrain-hydrology-climate.md](terrain-hydrology-climate.md) | Terrain, hydrology and climate: erosion, rivers, inland basins, Koppen, soils, multi-resolution terrain | 2026-10-09 |
 | [city-layout-generation.md](city-layout-generation.md) | City layout generation: streets, districts, blocks and plots, with real urban-form numbers | 2026-10-09 |
 | [country-formation.md](country-formation.md) | How countries form: circumscription, terrain, borders, sizes, wealth, and procedural political maps | 2026-10-09 |
+| [map-generation.md](map-generation.md) | Earth-like land on the world grid: noise, domain warp, margins, island arcs, hotspots, resolution coherence, Earth's hypsometry and islands | 2026-10-09 |
 
 ### People and bodies
 

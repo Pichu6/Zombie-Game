@@ -169,13 +169,13 @@ TEST_CASE("countries: deterministic, golden pinned (A1)") {
   for (CellId c = 0; c < p.grid.size(); ++c) h = mix64(h, static_cast<std::uint64_t>(a.country_of[c] + 2));
   h = mix64(h, a.events.size());
   MESSAGE("countries hash: " << h << ", " << a.countries.size() << " countries, " << a.events.size() << " events");
-  CHECK(h == 17926179500560963951ULL);  // pinned on MSVC, 2026-10-09
+  CHECK(h == 4412980911924084775ULL);  // re-pinned on MSVC, 2026-10-09 (spec 31 terrain revised)
 }
 
 TEST_CASE("countries: calibration sweep (probe)" * doctest::skip()) {
   for (std::uint64_t seed : {1ull, 2ull, 3ull})
-    for (double beta : {1e-4, 3e-4, 1e-3})
-      for (int periods : {100, 200, 400}) {
+    for (double beta : {3e-4, 6e-4, 1e-3, 2e-3})
+      for (int periods : {40, 60, 100}) {
         const Planet& p = planet(seed);
         CountryParams cp;
         cp.beta0 = beta;
