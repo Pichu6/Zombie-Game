@@ -75,6 +75,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [building-generation.md](building-generation.md) | Building and interior generation, and real housing data by income | 2026-10-09 |
 | [terrain-hydrology-climate.md](terrain-hydrology-climate.md) | Terrain, hydrology and climate: erosion, rivers, inland basins, Koppen, soils, multi-resolution terrain | 2026-10-09 |
 | [city-layout-generation.md](city-layout-generation.md) | City layout generation: streets, districts, blocks and plots, with real urban-form numbers | 2026-10-09 |
+| [country-formation.md](country-formation.md) | How countries form: circumscription, terrain, borders, sizes, wealth, and procedural political maps | 2026-10-09 |
 
 ### People and bodies
 
@@ -93,6 +94,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [war-in-other-games.md](war-in-other-games.md) | War in other games, as a reference | 2026-10-06 |
 | [foxhole.md](foxhole.md) | Foxhole, as a reference for war and logistics | 2026-10-06 |
 | [living-disease.md](living-disease.md) | Disease and degradation in crops, forests, livestock, wildlife, fish and soil | 2026-10-09 |
+| [combat-resolutions.md](combat-resolutions.md) | Combat at three resolutions: Lanchester, Dupuy, multi-resolution modelling, games and zombie models | 2026-10-09 |
 
 ### Reference games
 

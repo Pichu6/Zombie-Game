@@ -183,6 +183,18 @@ Cost bands: parameters and presentation (cheap); new module on a humanoid (mediu
 
 ## Open
 
+### From research (combat-resolutions, 2026-10-09)
+
+The note proposes one combat model at three levels (bodies each tick, squads each second, counts each hour), each calibrated by Monte Carlo runs of the level below into a table keyed by situation, coarse levels drawing outcomes rather than averages, handover that carries the full fight state and picks casualties among named pops by keyed draws, an agreement test over a grid of scenarios, breaking as a drawn change of posture (walkers never break), and hordes as counts from the real dead. Alemi's zombie model is Lanchester's linear law with conversion, which gives spec 38 a ready test. Its questions:
+
+- What R3 step suits a horde against a city? Spec 38 steps by day; a fight needs an hour or less. Recommendation: hour by default, shorter when losses in a step pass a share of either side. ([combat-resolutions](../research/combat-resolutions.md))
+- How large is the situation table before it is too costly to calibrate? Recommendation: start with weapon class, cover, light and warning, and add a key only when a test shows it is needed. ([combat-resolutions](../research/combat-resolutions.md))
+- Who decides a squad's posture at R3 when no player commands: the commander pop's AI (0058), or a rule? Recommendation: the commander pop, through the same order record. ([combat-resolutions](../research/combat-resolutions.md))
+- Does a wounded pop picked at handover keep a specific wound (region, depth), drawn from the R1 wound distribution for that weapon? Recommendation: yes, drawn and kept. ([combat-resolutions](../research/combat-resolutions.md))
+- Does a building under siege count as one R2 "squad" (its breach points) or as terrain? Recommendation: breach points as queues (CB-59). ([combat-resolutions](../research/combat-resolutions.md))
+- How many seeds per cell are enough? The spec 38 test used 300 against 60; a grid of many cells may need fewer per cell with a pooled test. ([combat-resolutions](../research/combat-resolutions.md))
+- Brooks' Zombie Survival Guide and similar fiction give no data, only rules of thumb; should any of them be used as design targets? ([combat-resolutions](../research/combat-resolutions.md))
+
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
 - Should audio occlusion come from the sim's noise path loss, so that what the player hears matches what a zombie hears ([ES-46](../research/engine-stack.md))? ([engine-stack](../research/engine-stack.md))
@@ -194,6 +206,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [concept-v2](../research/concept-v2.md): Juego Zombie · Concept v2
 - [project-zomboid](../research/project-zomboid.md): Project Zomboid, as a reference for the Individual layer
 - [engine-stack](../research/engine-stack.md): The engine stack behind decision 0002: licences, versions, determinism, alternatives
+- [combat-resolutions](../research/combat-resolutions.md): Combat at three resolutions: Lanchester, Dupuy, multi-resolution modelling, games and zombie models
 
 ## Prototype sources
 

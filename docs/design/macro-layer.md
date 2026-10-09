@@ -196,6 +196,19 @@ This waits for the world-sim order ([world simulation](world-simulation.md) §14
 
 ## Open
 
+### From research (country-formation, 2026-10-09)
+
+The note proposes a core value per cell (food capacity, grain, rivers and coast, a hemmed-in bonus) and a terrain cost per step, a contest history from small polities in the style of the Fractured-Land model (Fernandez-Villaverde et al. 2023), then the leftover land filled as spec 48 does, wealth from endowment times access times history, a fragmentation slider that sets secession, terrain weight and run length together, checks against Earth (country area slope, the largest 5 % holding 40-60 % of land, 15-35 % of borders on rivers), and the country card with a difficulty in five bands. Its questions:
+
+- Share of world borders on mountain crests and watersheds: not found; needed for a P6 target. ([country-formation](../research/country-formation.md))
+- Earth's country count by landlocked and island status and the median country area: not checked here. ([country-formation](../research/country-formation.md))
+- Should the history step also run tech diffusion from a steppe-like frontier (CF-9), or is productivity plus terrain enough for our purposes (CF-28)? ([country-formation](../research/country-formation.md))
+- How to keep the contest from over-unifying low-density, high-disease regions (CF-29): a malaria-like burden from climate (CF-15), a density threshold, or both? ([country-formation](../research/country-formation.md))
+- Should cultures (Azgaar's cost by culture, CF-38; Alesina and Spolaore's heterogeneity, CF-19) be generated before the history so borders also follow peoples, and partitioned peoples (CF-21) exist? ([country-formation](../research/country-formation.md))
+- Does the landlocked penalty (CF-30) act in our economy as a trade cost through neighbours' routes (CF-32), so it emerges, instead of a fixed 0.6 factor? ([country-formation](../research/country-formation.md))
+- Fragmentation slider range: what end values (one world empire? city states?) are allowed. ([country-formation](../research/country-formation.md))
+- Re-check before use: Popelka and Smith's percentages in the journal article; Faye et al.'s tables; Azgaar's culture factors in current source; whether a Lake and Jarrett paper on country sizes exists. ([country-formation](../research/country-formation.md))
+
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
 - Is the 0028 tech tree a weighted draw of a few options per field, weighted by the researchers actually working on it? ([stellaris](../research/stellaris.md))
@@ -215,3 +228,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [stellaris](../research/stellaris.md): Stellaris, as a reference for the Macro layer
 - [teg](../research/teg.md): TEG, as a reference for the Macro layer
 - [world-systems-factions](../research/world-systems-factions.md): World systems for factions: territory, subjects, expansion, conquest, collapse
+- [country-formation](../research/country-formation.md): How countries form: circumscription, terrain, borders, sizes, wealth, and procedural political maps
