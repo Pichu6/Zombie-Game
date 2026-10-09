@@ -22,7 +22,7 @@ The block has been nowhere: its fridge warmed towards a fixed 20 °C, its day ha
 ## Rules
 
 1. **Choosing the cell** (`zs::gen::choose_place(grid, fields, seed)`): land cells whose biome is temperate forest or grassland, the one whose annual mean is nearest 12 °C (a temperate town like the Tier 0 block's setting); ties by keyed draw on the cell id. If no cell qualifies, the land cell nearest 12 °C. Deterministic from (world parameters, seed).
-2. **The default world** for `zs::gen::make_world(seed)`: frequency 24 (5,762 cells, about 88,500 km² each; fast enough to generate at every start), Earth radius, the world sliders' defaults of [31](31-terrain-climate.md), seed = the run's seed. Earth-size worlds (frequency 101) wait for the world creation screen.
+2. **The default world** for `zs::gen::make_world(seed)`: frequency 101 since [0063](../../decisions/0063-real-size-planet-and-the-zoom-continuum.md) (102,012 cells, about 5,000 km² each; the whole generator pipeline in about 6.4 s), Earth radius, the world sliders' defaults of [31](31-terrain-climate.md), seed = the run's seed. It was frequency 24 (5,762 cells, about 88,500 km² each) until 2026-10-09.
 3. **The default place** for `make_run(seed)` without a planet: a placeholder temperate cell (12 °C mean, 20 °C range, 800 mm rain, northern hemisphere, 40° N).
 4. **Weather.** Outdoor temperature at the current tick is `fields::temperature_c(world_seed, cell, climate, tick)`; today's rain is `fields::rain_day_mm`. The daily mean is cached per game day.
 5. **Indoors.** An unheated building's air is today's outdoor mean plus 3 °C of internal gains (placeholder estimate, unheated dwelling), so it follows the season and the weather's day-to-day swing with no diurnal swing.

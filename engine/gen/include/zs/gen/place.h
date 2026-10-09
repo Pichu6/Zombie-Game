@@ -9,8 +9,9 @@
 
 namespace zs::gen {
 
-// Rule 2: the planet the one world is generated on.
-inline constexpr int kOneWorldFrequency = 24;
+// Rule 2: the planet the one world is generated on: Earth-size cells of about 5,000 km2, 70 km apart (0038, 0063).
+inline constexpr int kOneWorldFrequency = 101;
+inline constexpr int kTestFrequency = 24;  // a coarse planet for fast tests of rules that do not depend on the grid
 
 // Rule 1: a temperate land cell whose annual mean is nearest 12 C; ties by a keyed draw.
 CellId choose_place(const WorldGrid& grid, const WorldFields& fields, std::uint64_t seed);

@@ -19,9 +19,10 @@ enum Setting : std::uint8_t { kArc = 1, kForeland = 2, kRift = 4, kCraton = 8, k
 std::string setting_names(std::uint8_t settings);
 
 struct DepositParams {
-  // Rule 16: the median size per frequency-24 cell, in each resource's unit, calibrated once on the seed-1 planet so
-  // the totals land between today's reserves and resources (coal, oil, gas, iron ore, copper ore, bauxite).
-  double median[resource_count] = {1.34e10, 2.9e9, 2.5e11, 9.5e10, 2.0e9, 1.7e9};
+  // Rule 16: the median size per frequency-24 cell's area, in each resource's unit, calibrated on the seed-1 planet
+  // of the one world's grid (frequency 101, 0063) so the totals land between today's reserves and resources (coal,
+  // oil, gas, iron ore, copper ore, bauxite).
+  double median[resource_count] = {1.34e10, 2.9e9, 2.5e11, 2.3e10, 3.2e9, 8.9e8};
   double sigma = 1.0;
   double pareto_cap = 1000;
   std::uint64_t seed = 1;
@@ -43,7 +44,7 @@ struct WorldDeposits {
   double metal(Resource r) const;      // amount x grade (ores)
 };
 
-std::uint8_t cell_settings(const WorldFields& f, CellId i);
+std::uint8_t cell_settings(const WorldFields& f, CellId i, double km_per_step);  // km_per_step: the cell spacing
 WorldDeposits generate_deposits(const WorldGrid& grid, const WorldFields& fields, const DepositParams& params = {});
 
 }  // namespace zs::gen

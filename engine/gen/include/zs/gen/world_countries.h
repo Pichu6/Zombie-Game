@@ -21,7 +21,7 @@ LandGraph build_land_graph(const WorldGrid& grid, const WorldFields& fields);
 
 struct CountryParams {
   double fragmentation = 0.5;   // rule 23: [0, 1]
-  int periods = 60;             // rule 23: calibrated with beta0 on seeds 1-3 (see the spec)
+  int periods = 85;             // rule 23: in frequency-24 periods; calibrated on the one world's grid, seeds 1-3 (see the spec)
   double beta0 = 3e-4;          // rule 23: secession per border cell at fragmentation 0.5 (calibrated, see the spec)
   double state_density = 25;    // rule 21: people of capacity per km2 to start as a polity
   double sea_weight = 0.1, sea_sigma = 0.33;  // rule 22 (CF-26)

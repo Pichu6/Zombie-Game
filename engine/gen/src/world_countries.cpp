@@ -17,6 +17,7 @@ namespace {
 
 constexpr int kSea = -2, kUnruled = -1;
 constexpr double kCellsAtFrequency24 = 10.0 * 24 * 24 + 2;  // rule 23: the grid the parameters are calibrated on
+constexpr double kSeaReachKm = 330;                          // rule 22: the longest sea crossing (CF-26)
 constexpr double kCrossingCost = 4.0;     // rule 24 (spec 48 rule 3)
 constexpr double kClimbPerM = 1.0 / 500;  // rule 24 (spec 48 rule 3)
 
@@ -58,6 +59,8 @@ const char* history_name(HistoryKind k) {
 LandGraph build_land_graph(const WorldGrid& g, const WorldFields& f) {
   LandGraph lg;
   lg.links.resize(g.size());
+  const double spacing = detmath::sqrt(g.sphere_area_km2() / static_cast<double>(g.size()));
+  const double reach_km = std::max(kSeaReachKm, 2.2 * spacing);  // 2.2: cells vary in size; three steps never fit
   for (CellId c = 0; c < g.size(); ++c) {
     if (!f.land(c)) continue;
     auto& out = lg.links[c];
@@ -68,12 +71,53 @@ LandGraph build_land_graph(const WorldGrid& g, const WorldFields& f) {
         if (l.to == t) return true;
       return false;
     };
-    for (CellId s : g.neighbours(c)) {
-      if (f.land(s)) continue;
-      for (CellId t : g.neighbours(s))
-        if (t != c && f.land(t) && !has(t)) out.push_back({t, true});
+    // Crossings: land reached over sea within max(330 km, two cell spacings), CF-26 (the coarse grid cannot cross
+    // less than one sea cell). A short walk over sea cells, measured in km.
+    // Shortest distances over sea cells (a small Dijkstra), so a crossing from a to b exists exactly when one from b to
+    // a does.
+    std::vector<std::pair<CellId, double>> best;  // sea cell, shortest km so far
+    using Item = std::pair<double, CellId>;
+    std::priority_queue<Item, std::vector<Item>, std::greater<Item>> q;
+    auto relax = [&](CellId s, double d) {
+      for (auto& [cell, km] : best)
+        if (cell == s) {
+          if (d >= km) return;
+          km = d;
+          q.push({d, s});
+          return;
+        }
+      best.push_back({s, d});
+      q.push({d, s});
+    };
+    for (CellId s : g.neighbours(c))
+      if (!f.land(s) && g.distance_km(c, s) <= reach_km) relax(s, g.distance_km(c, s));
+    while (!q.empty()) {
+      const auto [d, s] = q.top();
+      q.pop();
+      bool stale = false;
+      for (const auto& [cell, km] : best) stale = stale || (cell == s && d > km);
+      if (stale) continue;
+      for (CellId t : g.neighbours(s)) {
+        const double nd = d + g.distance_km(s, t);
+        if (nd > reach_km) continue;
+        if (f.land(t)) {
+          if (t != c && !has(t)) out.push_back({t, true});
+        } else {
+          relax(t, nd);
+        }
+      }
     }
   }
+  // Every link both ways (distances are symmetric, but cell sizes and the reach bound can still leave one side short),
+  // then a fixed order: land links first, then crossings, each by cell id.
+  for (CellId c = 0; c < g.size(); ++c)
+    for (std::size_t k = 0; k < lg.links[c].size(); ++k) {
+      const LandLink l = lg.links[c][k];
+      auto& back = lg.links[l.to];
+      if (std::none_of(back.begin(), back.end(), [&](const LandLink& b) { return b.to == c; })) back.push_back({c, l.sea});
+    }
+  for (auto& out : lg.links)
+    std::sort(out.begin(), out.end(), [](const LandLink& a, const LandLink& b) { return a.sea != b.sea ? !a.sea : a.to < b.to; });
   return lg;
 }
 
@@ -92,9 +136,11 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
   const double ratio = s0 / spacing;
   const int rounds = std::max(1, static_cast<int>(p.periods * ratio + 0.5));
   const double ring_km = 2.0 * s0 + 1.0;
+  const double piece_km = 0.57 * s0;  // a disc of about one s0 cell's area; on the coarse grid, the cell alone
   w.periods = rounds;
 
   // Rule 19: core values.
+  std::vector<std::int64_t> seen_by(n, -1);  // the last cell whose ring reached this one
   for (CellId c = 0; c < n; ++c) {
     if (!f.land(c) || f.biome[c] == Biome::Ice) continue;
     const double cap = land.capacity(c);
@@ -105,11 +151,13 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
     const double coast = f.sea_cells[c] <= 1 ? 1.2 : 1.0;
     // The cells within two frequency-24 cell spacings (rule 19), found by a walk that stays inside the radius.
     std::vector<CellId> ring, stack{c};
+    seen_by[c] = static_cast<std::int64_t>(c);
     while (!stack.empty()) {
       const CellId x = stack.back();
       stack.pop_back();
       for (CellId nb : g.neighbours(x)) {
-        if (nb == c || g.distance_km(c, nb) > ring_km || std::find(ring.begin(), ring.end(), nb) != ring.end()) continue;
+        if (seen_by[nb] == static_cast<std::int64_t>(c) || g.distance_km(c, nb) > ring_km) continue;
+        seen_by[nb] = static_cast<std::int64_t>(c);
         ring.push_back(nb);
         stack.push_back(nb);
       }
@@ -218,13 +266,27 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
     }
     for (CellId c = 0; c < n; ++c) {
       const int i = owner[c];
-      if (i < 0 || !is_border[c] || pol[static_cast<std::size_t>(i)].cells <= 1) continue;
-      const double prob = beta * w.terrain[c] * border[static_cast<std::size_t>(i)] / ratio;  // border length in s0 units
+      // Polities born in this pass (a seceded piece reaches cells after c) were not counted: they wait a period.
+      if (i < 0 || static_cast<std::size_t>(i) >= border.size() || !is_border[c] || pol[static_cast<std::size_t>(i)].cells <= 1) continue;
+      // Border length in s0 units (B / ratio), and a piece of about one s0 cell's area per secession, so the odds per
+      // cell fall by ratio squared: the land that secedes per period is the same on any grid.
+      const double prob = beta * w.terrain[c] * border[static_cast<std::size_t>(i)] / (ratio * ratio * ratio);
       if (!r.chance(c, field::Secede, prob, static_cast<std::uint32_t>(period))) continue;
       const int ni = static_cast<int>(pol.size());
       pol.push_back({0, c, 0, period + 1, period + 1});
       dirty.push_back(0);
-      move(c, ni);
+      std::vector<CellId> piece{c}, stack{c};
+      while (!stack.empty()) {  // the polity's own cells within piece_km of c
+        const CellId x = stack.back();
+        stack.pop_back();
+        for (const LandLink& l : lg.links[x])
+          if (!l.sea && owner[l.to] == i && g.distance_km(c, l.to) <= piece_km &&
+              std::find(piece.begin(), piece.end(), l.to) == piece.end() && pol[static_cast<std::size_t>(i)].cells > static_cast<int>(piece.size()) + 1) {
+            piece.push_back(l.to);
+            stack.push_back(l.to);
+          }
+      }
+      for (CellId x : piece) move(x, ni);
       dirty[static_cast<std::size_t>(i)] = 1;
       w.events.push_back({period, HistoryKind::Secede, c, ni, i});
     }
@@ -256,6 +318,7 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
           for (const LandLink& l : lg.links[x]) {
             if (owner[l.to] != static_cast<int>(i)) continue;
             const std::size_t li = index_of(l.to);
+            if (li >= mine.size() || mine[li] != l.to) continue;  // not in this list (cannot happen; see the sliver join)
             if (!seen_local[li]) { seen_local[li] = 1; stack.push_back(l.to); }
           }
         }
@@ -280,6 +343,34 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
       }
       for (std::size_t k = 0; k < parts.size(); ++k) {
         if (k == keep) continue;
+        // A sliver under half an s0 cell's area joins the polity it touches most (an island sliver stays alone).
+        double part_km2 = 0;
+        for (CellId c : parts[k]) part_km2 += g.area_km2(c);
+        if (part_km2 < 0.5 * s0 * s0) {
+          std::vector<std::pair<int, int>> touch;  // (polity, links)
+          for (CellId c : parts[k])
+            for (const LandLink& l : lg.links[c]) {
+              const int o = owner[l.to];
+              if (o < 0 || o == static_cast<int>(i) || l.sea) continue;
+              auto it = std::find_if(touch.begin(), touch.end(), [&](const auto& t) { return t.first == o; });
+              if (it == touch.end()) touch.push_back({o, 1});
+              else ++it->second;
+            }
+          if (!touch.empty()) {
+            auto best = touch.front();
+            for (const auto& t : touch)
+              if (t.second > best.second || (t.second == best.second && t.first < best.first)) best = t;
+            for (CellId c : parts[k]) move(c, best.first);
+            // A polity still waiting in this pass must see the cells it just gained in its list.
+            const auto b = static_cast<std::size_t>(best.first);
+            if (b > i && b < before && dirty[b]) {
+              cells_of[b].insert(cells_of[b].end(), parts[k].begin(), parts[k].end());
+              std::sort(cells_of[b].begin(), cells_of[b].end());
+            }
+            w.events.push_back({period, HistoryKind::Split, parts[k].front(), best.first, static_cast<int>(i)});
+            continue;
+          }
+        }
         const int ni = static_cast<int>(pol.size());
         const CellId cap = best_cell(parts[k]);
         pol.push_back({0, cap, 0, period + 1, period + 1});

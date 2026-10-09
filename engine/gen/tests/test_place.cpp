@@ -25,3 +25,4 @@ TEST_CASE("place: a temperate land cell, the same for the same seed; the one wor
   REQUIRE(t.place);
   CHECK(t.place->place().frequency == kOneWorldFrequency);
 }
+

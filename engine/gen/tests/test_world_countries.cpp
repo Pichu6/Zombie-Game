@@ -10,6 +10,7 @@
 #include "zs/gen/keyed.h"
 #include "zs/gen/place.h"
 #include "zs/gen/world_countries.h"
+#include "zs/world.h"
 
 using namespace zs::gen;
 
@@ -22,40 +23,46 @@ struct Planet {
   LandGraph graph;
 };
 
-const Planet& planet(std::uint64_t seed) {
+// The rule tests (A1) run on the coarse test planet; the size checks against Earth on the one world's grid.
+const Planet& planet(std::uint64_t seed, int frequency = kTestFrequency) {
   static std::vector<std::pair<std::uint64_t, Planet>> cache;
-  for (const auto& [s, p] : cache)
-    if (s == seed) return p;
-  Planet p{WorldGrid(kOneWorldFrequency, 6371.0), {}, {}, {}};
+  const std::uint64_t key = seed * 1000 + static_cast<std::uint64_t>(frequency);
+  for (const auto& [k, p] : cache)
+    if (k == key) return p;
+  Planet p{WorldGrid(frequency, 6371.0), {}, {}, {}};
   WorldParams wp;
   wp.seed = seed;
   p.fields = generate_fields(p.grid, wp);
   p.land = generate_land(p.grid, p.fields);
   p.graph = build_land_graph(p.grid, p.fields);
-  cache.emplace_back(seed, std::move(p));
+  cache.emplace_back(key, std::move(p));
   return cache.back().second;
 }
 
+// Sizes by area, so they read the same on any grid (CF-57: UN members of at least 89,000, 180,000 and 1 million km2).
 struct Sizes {
-  std::size_t count = 0, two_cells = 0, million = 0;
+  std::size_t count = 0, over_89k = 0, over_180k = 0, over_1m = 0;
+  std::size_t small_start = 0, small_later = 0, small_fill = 0, small_cells = 0;  // under 89,000 km2, by origin
   double top10_share = 0, river_edges = 0;
 };
 
 Sizes sizes(const Planet& p, const WorldCountries& w) {
   Sizes s;
   s.count = w.countries.size();
-  double cell = 0, land = 0;
-  std::size_t cells = 0;
+  double land = 0;
   std::vector<double> area;
   for (const CountryShape& c : w.countries) {
     area.push_back(c.area_km2);
     land += c.area_km2;
-    cells += c.cells.size();
-  }
-  cell = land / static_cast<double>(std::max<std::size_t>(1, cells));
-  for (double a : area) {
-    s.two_cells += a >= 1.5 * cell;
-    s.million += a >= 1e6;
+    s.over_89k += c.area_km2 >= 89'000;
+    s.over_180k += c.area_km2 >= 180'000;
+    s.over_1m += c.area_km2 >= 1e6;
+    if (c.area_km2 < 89'000) {
+      s.small_cells += c.cells.size();
+      if (c.polity < 0) ++s.small_fill;
+      else if (c.founded == 0) ++s.small_start;
+      else ++s.small_later;
+    }
   }
   std::sort(area.begin(), area.end(), std::greater<>());
   double top = 0;
@@ -105,9 +112,9 @@ TEST_CASE("countries: every land cell in one country, each country connected (A1
   CHECK(in == land);
 }
 
-TEST_CASE("countries: sizes near Earth's on the default planet; other seeds reported (A2)") {
+TEST_CASE("countries: sizes near Earth's on the one world's grid; other seeds reported (A2)" * doctest::skip(zs::World::kDebugBuild)) {
   for (std::uint64_t seed : {1ull, 2ull, 3ull}) {
-    const Planet& p = planet(seed);
+    const Planet& p = planet(seed, kOneWorldFrequency);
     const WorldCountries w = form_countries(p.grid, p.fields, p.land, p.graph, seed);
     const Sizes s = sizes(p, w);
     std::size_t annex = 0, secede = 0, split = 0, fill = 0;
@@ -117,17 +124,16 @@ TEST_CASE("countries: sizes near Earth's on the default planet; other seeds repo
       split += e.kind == HistoryKind::Split;
       fill += e.kind == HistoryKind::Fill;
     }
-    MESSAGE("seed " << seed << ": " << s.count << " countries (Earth 110 of one cell), " << s.two_cells
-                    << " of two cells (Earth 88), " << s.million << " over 1 million km2 (Earth 29); top 10 hold "
-                    << s.top10_share << " of land (Earth about 0.5); border edges touching a river " << s.river_edges
-                    << "; start polities " << w.start_polities << "; annex " << annex << ", secede " << secede
+    MESSAGE("seed " << seed << ": " << s.count << " countries; " << s.over_89k << " of 89,000 km2 or more (Earth 110), "
+                    << s.over_180k << " of 180,000 (88), " << s.over_1m << " of 1 million (29); top 10 hold " << s.top10_share
+                    << " of land (about 0.5); border edges touching a river " << s.river_edges << "; start polities "
+                    << w.start_polities << ", " << w.periods << " rounds; annex " << annex << ", secede " << secede
                     << ", split " << split << ", fill " << fill);
     if (seed != 1) continue;
-    CHECK(s.count >= 60);
-    CHECK(s.count <= 160);
-    const double want_two = 88.0 / 110.0 * static_cast<double>(s.count);
-    CHECK(static_cast<double>(s.two_cells) >= 0.5 * want_two);
-    CHECK(static_cast<double>(s.two_cells) <= 1.5 * want_two);
+    CHECK(s.over_89k >= 70);
+    CHECK(s.over_89k <= 160);
+    CHECK(s.over_1m >= 15);
+    CHECK(s.over_1m <= 45);
     CHECK(s.top10_share >= 0.35);
     CHECK(s.top10_share <= 0.65);
   }
@@ -169,20 +175,22 @@ TEST_CASE("countries: deterministic, golden pinned (A1)") {
   for (CellId c = 0; c < p.grid.size(); ++c) h = mix64(h, static_cast<std::uint64_t>(a.country_of[c] + 2));
   h = mix64(h, a.events.size());
   MESSAGE("countries hash: " << h << ", " << a.countries.size() << " countries, " << a.events.size() << " events");
-  CHECK(h == 4412980911924084775ULL);  // re-pinned on MSVC, 2026-10-09 (spec 31 terrain revised)
+  CHECK(h == 17827728361262929316ULL);  // re-pinned on MSVC, 2026-10-09 (spec 31 terrain revised; km sea crossings and secession pieces)
 }
 
-TEST_CASE("countries: calibration sweep (probe)" * doctest::skip()) {
+TEST_CASE("countries: calibration sweep on the one world's grid (probe)" * doctest::skip()) {
   for (std::uint64_t seed : {1ull, 2ull, 3ull})
-    for (double beta : {3e-4, 6e-4, 1e-3, 2e-3})
-      for (int periods : {40, 60, 100}) {
-        const Planet& p = planet(seed);
+    for (double beta : {3e-4, 1e-3, 3e-3})
+      for (int periods : {60, 120, 240}) {
+        const Planet& p = planet(seed, kOneWorldFrequency);
         CountryParams cp;
         cp.beta0 = beta;
         cp.periods = periods;
         const WorldCountries w = form_countries(p.grid, p.fields, p.land, p.graph, seed, cp);
         const Sizes s = sizes(p, w);
-        MESSAGE("PROBE seed " << seed << " beta " << beta << " T " << periods << ": " << s.count << " / " << s.two_cells
-                              << " / " << s.million << " top10 " << s.top10_share);
+        MESSAGE("PROBE seed " << seed << " beta " << beta << " T " << periods << ": " << s.count << " / " << s.over_89k
+                              << " / " << s.over_180k << " / " << s.over_1m << " top10 " << s.top10_share << "; small: start "
+                              << s.small_start << ", seceded or split " << s.small_later << ", fill groups " << s.small_fill
+                              << ", " << s.small_cells << " cells");
       }
 }

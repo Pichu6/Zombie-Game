@@ -190,11 +190,15 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
     w.wood_r[i] = fo.r;
     w.game_kg[i] = game_of(b) * grid.area_km2(i) * (w.river[i] ? 1.5 : 1.0);
   }
-  // Rule 12: fish on the shelf; colder and coastal seas are richer.
+  // Rule 12: fish on the shelf; colder and coastal seas (within 300 km of land, on any grid) are richer.
+  std::vector<CellId> land_cells;
+  for (CellId i = 0; i < n; ++i)
+    if (f.land(i)) land_cells.push_back(i);
+  const std::vector<std::uint32_t> to_land = grid.graph_distance(land_cells);
+  const double km_per_step = detmath::sqrt(grid.sphere_area_km2() / static_cast<double>(n));
   for (CellId i = 0; i < n; ++i) {
     if (f.land(i) || f.elevation_m[i] < p.fish_shelf_m) continue;
-    bool coastal = false;
-    for (CellId nb : grid.neighbours(i)) coastal = coastal || f.land(nb);
+    const bool coastal = to_land[i] * km_per_step <= 300.0;
     const double temp = 1.0 + (15.0 - f.temp_mean_c[i]) / 30.0;
     w.fish_catch_t[i] = std::max(0.0, p.fish_t_per_km2 * grid.area_km2(i) * (coastal ? 1.5 : 1.0) * temp);
     w.fish_k_t[i] = 4.0 * w.fish_catch_t[i] / p.fish_r;  // Schaefer: catch = rK/4

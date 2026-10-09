@@ -61,7 +61,7 @@ int gen_main(int argc, char** argv) {
       return 0;
     }
     if (cmd == "world") {
-      const int freq = std::atoi(arg(argc, argv, "--freq", "24").c_str());
+      const int freq = std::atoi(arg(argc, argv, "--freq", "101").c_str());
       const zs::gen::WorldGrid grid(freq, 6371.0);
       zs::gen::WorldParams wp;
       wp.seed = seed;
@@ -157,7 +157,7 @@ int gen_main(int argc, char** argv) {
         static const unsigned char rgb[zs::gen::biome_count][3] = {
             {30, 70, 140}, {240, 245, 250}, {170, 180, 150}, {60, 110, 80},  {40, 140, 60},
             {150, 190, 90}, {225, 200, 130}, {190, 180, 70}, {20, 100, 40},  {130, 120, 110}};
-        const int W = 1024, H = 512;
+        const int W = 2048, H = 1024;
         std::vector<unsigned char> px(static_cast<std::size_t>(W) * H * 3);
         std::vector<zs::gen::CellId> at(static_cast<std::size_t>(W) * H);
         for (int y = 0; y < H; ++y)

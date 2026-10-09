@@ -1,6 +1,6 @@
 # The zoom continuum ("Google Earth effect")
 
-**Status:** Proposal (2026-10-07), from the user's request: infinite zoom from the whole planet down to one person, with the gameplay layers (Macro, City, Individual) sitting along that zoom. Nothing here is Decided until the user confirms; section 5 lists the earlier decisions it touches.
+**Status:** Decided in its main lines by [0063](../decisions/0063-real-size-planet-and-the-zoom-continuum.md) (2026-10-09): a real-size planet stored at frequency 101, one camera from planet to street, the layers by height, generators in km. The details below (band edges, tricks, symbol scale) stay Proposals until built and checked. Originally from the user's request of 2026-10-07: infinite zoom from the whole planet down to one person, with the gameplay layers (Macro, City, Individual) sitting along that zoom; section 5 lists the earlier decisions it touches.
 
 ## 1. The idea in one paragraph
 

@@ -57,16 +57,18 @@ std::string setting_names(std::uint8_t s) {
 }
 
 // Rule 14.
-std::uint8_t cell_settings(const WorldFields& f, CellId i) {
+// Distances in km (graph steps times the cell spacing), so a setting covers the same ground on any grid; the
+// thresholds sit half a frequency-24 step (about 297 km) beyond the old cell counts, so that grid is unchanged.
+std::uint8_t cell_settings(const WorldFields& f, CellId i, double km_per_step) {
   const bool land = f.land(i), shelf = !land && f.elevation_m[i] >= -1500;
   const BoundaryKind k = f.boundary_kind[i];
-  const std::uint32_t d = f.boundary_cells[i];
+  const double d = f.boundary_cells[i] * km_per_step;
   std::uint8_t s = 0;
-  if (land && (k == BoundaryKind::Subduction || k == BoundaryKind::Trench || k == BoundaryKind::IslandArc) && d <= 3) s |= kArc;
-  if (land && k == BoundaryKind::Collision && d >= 2 && d <= 6) s |= kForeland;
-  if ((land || shelf) && k == BoundaryKind::Rift && d <= 3) s |= kRift;
-  if (land && d >= 8) s |= kCraton;
-  if ((land && f.elevation_m[i] < 600 && d >= 3) || shelf) s |= kBasin;
+  if (land && (k == BoundaryKind::Subduction || k == BoundaryKind::Trench || k == BoundaryKind::IslandArc) && d <= 1000) s |= kArc;
+  if (land && k == BoundaryKind::Collision && d >= 450 && d <= 1950) s |= kForeland;
+  if ((land || shelf) && k == BoundaryKind::Rift && d <= 1000) s |= kRift;
+  if (land && d >= 2250) s |= kCraton;
+  if ((land && f.elevation_m[i] < 600 && d >= 750) || shelf) s |= kBasin;
   if (land && f.temp_mean_c[i] >= 20 && f.rain_mm[i] >= 1200 && f.elevation_m[i] < 800) s |= kLaterite;
   return s;
 }
@@ -89,8 +91,9 @@ WorldDeposits generate_deposits(const WorldGrid& grid, const WorldFields& f, con
   const Keyed r(mix64(p.seed, hash_str("deposits")));
   WorldDeposits w;
   w.settings.assign(grid.size(), 0);
+  const double km_per_step = detmath::sqrt(grid.sphere_area_km2() / static_cast<double>(grid.size()));
   for (CellId i = 0; i < grid.size(); ++i) {
-    const std::uint8_t s = cell_settings(f, i);
+    const std::uint8_t s = cell_settings(f, i, km_per_step);
     w.settings[i] = s;
     if (!s) continue;
     for (int k = 0; k < resource_count; ++k) {

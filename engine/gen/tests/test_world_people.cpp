@@ -124,14 +124,18 @@ TEST_CASE("world people: the one world stands in a temperate town of 10,000 to 2
   MESSAGE("the block's town: " << place.town_people << " people, " << place.biome << ", " << place.income << " income");
 }
 
-TEST_CASE("real profiles (spec 49): each country takes a distinct real profile of its own income group") {
+TEST_CASE("real profiles (spec 49): each country takes a real profile of its own income group, with a distinct name") {
   const auto profiles = load_real_profiles(ZS_DATA_DIR);
   REQUIRE(profiles.size() > 150);
   const Planet p = planet(kOneWorldFrequency, 1, profiles);
-  std::set<std::string> taken;
+  std::set<std::string> taken, names;
+  // A profile is used twice only once all are used (an Earth-size world forms more countries than there are profiles).
+  for (const Country& c : p.people.countries) taken.insert(c.profile);
+  const bool all_used = taken.size() == profiles.size();
+  if (!all_used) CHECK(taken.size() == p.people.countries.size());
   for (const Country& c : p.people.countries) {
     REQUIRE_FALSE(c.profile.empty());
-    CHECK(taken.insert(c.profile).second);
+    CHECK(names.insert(c.name).second);
     const auto it = std::find_if(profiles.begin(), profiles.end(), [&](const RealProfile& r) { return r.iso == c.profile; });
     REQUIRE(it != profiles.end());
     // Its own group's profile, unless that group's are all taken.
@@ -141,8 +145,9 @@ TEST_CASE("real profiles (spec 49): each country takes a distinct real profile o
         ++own;
         for (const Country& o : p.people.countries) own_taken += o.profile == r.iso;
       }
-    if (it->income != c.income) CHECK(own_taken == own);
-    CHECK(it->name == c.name);
+    if (it->income != c.income) CHECK(own_taken >= own);  // counts a reused profile once per country
+    CHECK(c.name.size() >= it->name.size());
+    CHECK(c.name.compare(c.name.size() - it->name.size(), it->name.size(), it->name) == 0);  // the name, maybe "New ..."
     MESSAGE(c.name << " (" << c.profile << "), " << kIncomeGroupIds[static_cast<std::size_t>(c.income)] << ", " << c.people / 1e6 << " million");
   }
   const auto t = make_world(1);

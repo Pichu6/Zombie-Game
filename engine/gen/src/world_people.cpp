@@ -163,6 +163,8 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
       w.sectors[s].country = w.formed.country_of[seeds[s]];
     }
     for (CellId c : land_cells) {
+      if (w.sector_of[c] < 0 || w.formed.country_of[c] < 0)
+        throw std::logic_error("populate_world: land cell " + std::to_string(c) + " has no country or sector");
       Sector& sec = w.sectors[static_cast<std::size_t>(w.sector_of[c])];
       sec.cells.push_back(c);
       sec.people += w.people[c];
@@ -255,6 +257,7 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
   // profile's people times this planet's people over Earth's), largest countries first.
   {
     std::vector<bool> used(profiles.size(), false);
+    std::vector<int> reused(profiles.size(), 0);
     std::vector<std::size_t> by_people(w.countries.size());
     std::iota(by_people.begin(), by_people.end(), std::size_t{0});
     std::stable_sort(by_people.begin(), by_people.end(), [&](std::size_t a, std::size_t b) { return w.countries[a].people > w.countries[b].people; });
@@ -272,10 +275,24 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
           if (d < gap) { gap = d; best = static_cast<int>(i); }
         }
       }
-      if (best < 0) continue;
+      // All profiles taken (an Earth-size world forms more countries than Earth's 183 profiles): reuse its own
+      // group's nearest under a derived name, so names stay distinct.
+      std::string prefix;
+      if (best < 0) {
+        double gap = 1e300;
+        for (std::size_t i = 0; i < profiles.size(); ++i) {
+          if (profiles[i].income != c.income) continue;
+          const double d = std::abs(detmath::log(std::max(1.0, c.people)) - detmath::log(profiles[i].population * scale));
+          if (d < gap) { gap = d; best = static_cast<int>(i); }
+        }
+        if (best < 0) continue;
+        static const char* kPrefixes[] = {"New", "North", "South", "East", "West", "Upper", "Lower", "Greater"};
+        const int n_reuse = reused[static_cast<std::size_t>(best)]++;
+        prefix = std::string(kPrefixes[n_reuse % 8]) + (n_reuse >= 8 ? " " + std::to_string(n_reuse / 8 + 1) : "") + " ";
+      }
       used[static_cast<std::size_t>(best)] = true;
       c.profile = profiles[static_cast<std::size_t>(best)].iso;
-      c.name = profiles[static_cast<std::size_t>(best)].name;
+      c.name = prefix + profiles[static_cast<std::size_t>(best)].name;
     }
   }
 

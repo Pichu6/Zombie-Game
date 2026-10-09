@@ -5,6 +5,7 @@
 #include <cstring>
 #include <string>
 
+#include "zs/gen/place.h"
 #include "zs/gen/keyed.h"
 #include "zs/gen/world_deposits.h"
 
@@ -20,7 +21,7 @@ struct Planet {
 
 const Planet& earthlike() {
   static const Planet p = [] {
-    Planet q{WorldGrid(24, 6371.0), {}, {}};
+    Planet q{WorldGrid(kOneWorldFrequency, 6371.0), {}, {}};  // the checks against Earth run on the one world's grid
     WorldParams wp;
     wp.seed = 1;
     q.fields = generate_fields(q.grid, wp);
@@ -94,5 +95,5 @@ TEST_CASE("deposits: deterministic, golden pinned (A1)") {
     h = mix64(mix64(h, d.cell), mix64(static_cast<std::uint64_t>(d.kind), mix64(a, g)));
   }
   MESSAGE("deposits hash: ", h, ", ", p.deposits.deposits.size(), " deposits");
-  CHECK(h == 3367494854120222802ULL);  // re-pinned on MSVC, 2026-10-09 (spec 31 terrain revised)
+  CHECK(h == 1215271471692068136ULL);  // re-pinned on MSVC, 2026-10-09 (the one world's grid, 0063)
 }
