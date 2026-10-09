@@ -277,6 +277,22 @@ Reported, from search summaries; confirm on each publisher's page before shippin
 - **Needs a decision:** OpenStreetMap (ODbL, share-alike; the repo already restricts it to the home region as a separate database, [world simulation](world-simulation.md) §3).
 - **Unchecked or restricted:** IEA, Energy Institute, worldsteel, Eurostat, HYDE's licence (reported CC BY 4.0, not confirmed in the factions note).
 
+## Open
+
+### From research (living-disease, 2026-10-09)
+
+The note proposes one table-driven host-pathogen model for every living stock (S/E/I/R shares per cell and host, spread by neighbour contact, a fat-tailed wind kernel and gravity jumps along movement that bans can cut, fronts with measured speeds where unwatched), soil health as a stock, the links as multipliers tied to findings, and history replays as tests. Its questions:
+
+- Which pathogens ship at world creation, and are they named real diseases or fictional analogues with real rates? ([living-disease](../research/living-disease.md))
+- How many host-pathogen pairs can run per Macro cell before the aggregate step costs too much? Do we cap at a few active outbreaks per region? ([living-disease](../research/living-disease.md))
+- Does each host stock get its own front, or is there one front per pathogen across all hosts it infects? ([living-disease](../research/living-disease.md))
+- How is the wind kernel tied to the weather fields of spec 36: a fixed fat tail, or driven by the day's wind? ([living-disease](../research/living-disease.md))
+- Do people respond on their own (cull, ban movement, burn fields) by a rule, or only through faction decisions? ([living-disease](../research/living-disease.md))
+- How does evolution enter: new races that break resistance (BD-3, BD-5, BD-48) as rare events, or not at all? ([living-disease](../research/living-disease.md))
+- What does the player see: a sick share per cell overlay, a front line, alerts when a stock passes a loss threshold? ([living-disease](../research/living-disease.md))
+- Do soil-borne agents travel with soil moved downhill and in rivers (0059 item 7), or only with plants and animals? ([living-disease](../research/living-disease.md))
+- In the "carriers" option, which species scavenge, and how long does contaminated material stay infectious? ([living-disease](../research/living-disease.md))
+
 ## Research
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
@@ -292,3 +308,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [world-systems-economy](../research/world-systems-economy.md): World systems: how a real economy works in numbers
 - [world-systems-factions](../research/world-systems-factions.md): World systems for factions: territory, subjects, expansion, conquest, collapse
 - [world-systems-resources-networks](../research/world-systems-resources-networks.md): World systems: where resources are, and how grids and networks are laid out
+- [living-disease](../research/living-disease.md): Disease and degradation in crops, forests, livestock, wildlife, fish and soil

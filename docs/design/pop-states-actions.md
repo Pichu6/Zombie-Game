@@ -215,3 +215,4 @@ Answered in [0045](../decisions/0045-open-questions-answered-2.md): bladder and 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
 - [clothing-wrap](../research/clothing-wrap.md): Clothing that follows the body, in our own engine
+- [pop-behaviour](../research/pop-behaviour.md): Pop behaviour from job, skills, traits and state: games and real life

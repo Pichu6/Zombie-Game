@@ -153,6 +153,20 @@ The nine open questions (speed by path, hidden odds, narrow arrival, hidden-bite
 
 ## Open
 
+### From research (persistent-worlds-roles, 2026-10-09)
+
+The note proposes one clock with no pause on a server and the whole world slowed when overloaded (EVE's time dilation), one player per pop with the AI resuming at once on release, orders as messages over each office's channel, succession rules as data per office, and late starts that simulate stocks, vital events, infrastructure, territory and officeholders exactly while aggregating anonymous pops and most fights. Its questions:
+
+- Should a server world allow any pause at all (a vote, an admin pause), or only stopping the process? This note proposes none. ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+- How long is the standing-order window (MP-55), and is it in game time or real time? ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+- Can a player take an office directly on joining in a sandbox server, or only by the world's rules? ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+- What is the dilation floor, and what detail is shed below it? ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+- What does Space Station 13 do when no player picks Captain at round start, and how does job preference work? (tgstation wiki blocked, search budget ran out.) ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+- Do Squad or Hell Let Loose ever put bots in empty seats on live servers? (Not searched.) ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+- Does Barotrauma put bots into empty job slots in multiplayer, and what happens to a disconnected player's character? (Wiki blocked.) ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+- Real timings for Dwarf Fortress history generation by world size and length were not found; a measured table would calibrate MP-58. ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+- How Crusader Kings III handles a player leaving (AI takeover or not) was not found. ([persistent-worlds-roles](../research/persistent-worlds-roles.md))
+
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
 - Adopt the record field groups and generate the population by iterative proportional fitting from census marginals? ([pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md))
@@ -175,3 +189,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [simcity](../research/simcity.md): SimCity, as a reference for the City layer
 - [world-numbers-capacity](../research/world-numbers-capacity.md): World numbers: how many people can a world hold?
 - [world-numbers-settlement](../research/world-numbers-settlement.md): World numbers: how people spread over land, and how towns and cities arise
+- [persistent-worlds-roles](../research/persistent-worlds-roles.md): Persistent worlds, role-based multiplayer, time and pre-simulated history

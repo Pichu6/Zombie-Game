@@ -56,6 +56,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [pop-storage-and-lenses.md](pop-storage-and-lenses.md) | Pop simulation, saving data, and "lenses" across zoom | 2026-10-07 |
 | [sim-scale-in-other-games.md](sim-scale-in-other-games.md) | Simulation scale in other games | 2026-10-06 |
 | [low-resource-city-simulation.md](low-resource-city-simulation.md) | Low-resource city simulation: "ASCII City" and the games that fake or tame big populations | 2026-10-07 |
+| [persistent-worlds-roles.md](persistent-worlds-roles.md) | Persistent worlds, role-based multiplayer, time and pre-simulated history | 2026-10-09 |
 
 ### World: generation, numbers and systems
 
@@ -79,6 +80,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [human-generator-data.md](human-generator-data.md) | The human generator: data, licences and the generation pipeline | 2026-10-07 |
 | [clothing-wrap.md](clothing-wrap.md) | Clothing that follows the body, in our own engine | 2026-10-05 |
 | [second-order-dynamics.md](second-order-dynamics.md) | Second-order dynamics for procedural motion | 2026-10-06 |
+| [pop-behaviour.md](pop-behaviour.md) | Pop behaviour from job, skills, traits and state: games and real life | 2026-10-09 |
 
 ### Outbreak and war
 
@@ -87,6 +89,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [global-sim.md](global-sim.md) | Global outbreak simulation research | 2026-10-05 |
 | [war-in-other-games.md](war-in-other-games.md) | War in other games, as a reference | 2026-10-06 |
 | [foxhole.md](foxhole.md) | Foxhole, as a reference for war and logistics | 2026-10-06 |
+| [living-disease.md](living-disease.md) | Disease and degradation in crops, forests, livestock, wildlife, fish and soil | 2026-10-09 |
 
 ### Reference games
 

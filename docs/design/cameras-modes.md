@@ -154,6 +154,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [renderer](../research/renderer.md): The renderer, at engineering level
 - [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
 - [zoom-and-layer-two](../research/zoom-and-layer-two.md): Zoom from planet to street, and what the City layer plays like
+- [persistent-worlds-roles](../research/persistent-worlds-roles.md): Persistent worlds, role-based multiplayer, time and pre-simulated history
 
 ## Prototype sources
 

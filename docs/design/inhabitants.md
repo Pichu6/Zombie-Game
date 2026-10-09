@@ -174,6 +174,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [gta](../research/gta.md): GTA, as a reference for the Individual layer
 - [inzoi](../research/inzoi.md): inZOI, as a reference for the Individual layer
 - [pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md): Pop simulation, lenses per zoom, and saving the world
+- [pop-behaviour](../research/pop-behaviour.md): Pop behaviour from job, skills, traits and state: games and real life
 
 ## Prototype sources
 
@@ -188,6 +189,19 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - engine-research.txt (engine research)
 
 ## Open
+
+### From research (pop-behaviour, 2026-10-09)
+
+The note proposes a pop record (hidden dispositions shown as trait words with signed effects, skills learned on exponential curves with trade time constants, a job with duties and an action set, attachments, needs, fear and slow stress) and a dual-utility choice with ranks (survival, urgent body, duty, household, needs and helping, wait and see), with pass bands from disaster research (panic under 5 %, police 5-20 % and health staff 20-50 % off duty, evacuation 40-75 %). Its questions:
+
+- How many hidden dispositions: six numbers, full Big Five plus stress traits, or DF-style dozens of facets? Fewer is cheaper to save per pop (pop storage notes). ([pop-behaviour](../research/pop-behaviour.md))
+- Should a player see a stranger's traits at once, or learn them by observing (FM scouting, [PB-23](../research/pop-behaviour.md))? ([pop-behaviour](../research/pop-behaviour.md))
+- Does the player's own character get traits by the same draw, or chosen at creation with points (PZ)? ([pop-behaviour](../research/pop-behaviour.md))
+- Role conflict needs to know where family is: does the AI use the pop's belief (what it knows) or the truth? Spec 24 has no belief store in Tier 0. ([pop-behaviour](../research/pop-behaviour.md))
+- Does stress change dispositions over months (DF memories, [PB-19](../research/pop-behaviour.md))? It would make long play deeper but break the calibration over time. ([pop-behaviour](../research/pop-behaviour.md))
+- Looting and crime: how much comes from need (rare, [PB-49](../research/pop-behaviour.md)) and how much from pre-existing criminals in the census? Needs a crime source. ([pop-behaviour](../research/pop-behaviour.md))
+- Soldier units: do they get unit cohesion as its own number, or is it bonds plus training? ([pop-behaviour](../research/pop-behaviour.md))
+- Short-skill time constants (first aid, firearms, driving) are guesses; they need sources before going to `data/`. ([pop-behaviour](../research/pop-behaviour.md))
 
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
