@@ -9,6 +9,7 @@ Labels: **Decided** (the user confirmed it in the prototype), **Proposal** (not 
 | Rule | Status |
 | --- | --- |
 | Same simulation in every mode; a single combat and damage system. | Proposal |
+| **Views per layer:** only the Individual layer (layer 1) has two views of its own, isometric tactical and third person, switched freely on the same body; the City layer (layer 2) has one view, real-time strategy and management on one map; the Macro layer (layer 3) has one view, the map of fronts and countries ([0060](../decisions/0060-one-fight-three-views-behaviour-from-jobs-and-skills.md)). | Decided (2026-10-09) |
 | The player is independent of the controlled inhabitant. | Decided |
 | Macro orders in management, isometric tactics and immersive direct control. | Decided |
 | NPCs act autonomously when nobody controls them. | Decided |
