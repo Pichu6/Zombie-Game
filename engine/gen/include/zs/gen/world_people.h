@@ -1,12 +1,14 @@
 // People, sectors, countries and towns on the world grid (spec 48): where today's population lives on a generated
-// planet, the sectors it is divided into, the countries those form with an income group each, and towns by rank-size.
-// A pure function of (grid, fields, seed, the global tables).
+// planet, the countries the land forms (spec 52 slice 4), the sectors cut inside them, an income group each from
+// what the land holds, and towns by rank-size. A pure function of (grid, fields, land, deposits, seed, the tables).
 #pragma once
 #include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
 
+#include "zs/gen/world_countries.h"
+#include "zs/gen/world_deposits.h"
 #include "zs/gen/world_fields.h"
 
 namespace zs::gen {
@@ -38,9 +40,12 @@ struct Sector {
 };
 
 struct Country {
-  int capital = 0;              // sector index (rule 4)
+  int capital = 0;              // sector index: the sector holding capital_cell
+  CellId capital_cell = 0;      // spec 52 rule 22
   std::vector<int> sectors;
-  double people = 0, development = 0;
+  double people = 0, area_km2 = 0, development = 0;
+  double endowment = 0;         // spec 52 rule 26, [0, 1]
+  bool landlocked = false;
   int income = 0;               // index into kIncomeGroupIds (rule 5)
   std::string profile, name;    // spec 49: the real profile it takes (ISO3) and its parody name; empty: the base country
 };
@@ -58,6 +63,7 @@ struct WorldPeople {
   std::vector<Sector> sectors;
   std::vector<Country> countries;
   std::vector<Settlement> towns;
+  WorldCountries formed;                     // spec 52 slice 4: the history and the shapes, country i = countries[i]
 };
 
 inline constexpr double kEarthLandKm2 = 148.9e6;
@@ -67,7 +73,8 @@ inline constexpr double kTownMinPeople = 10'000;
 
 double suitability(const WorldFields& f, CellId c);
 // With `profiles`, each country takes one (spec 49).
-WorldPeople populate_world(const WorldGrid& grid, const WorldFields& fields, std::uint64_t seed, const GroupTables& tables,
-                           const std::vector<RealProfile>& profiles = {});
+WorldPeople populate_world(const WorldGrid& grid, const WorldFields& fields, const WorldLand& land, const WorldDeposits& deposits,
+                           std::uint64_t seed, const GroupTables& tables, const std::vector<RealProfile>& profiles = {},
+                           const CountryParams& country_params = {});
 
 }  // namespace zs::gen

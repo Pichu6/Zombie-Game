@@ -17,6 +17,8 @@ enum : std::uint32_t {
   // Spec 47: draws from a country's tables.
   CountrySize = 80, Attainment = 81, LabourForce = 82, Unemployed = 83, OccupationGroup = 84,
   Development = 85,  // spec 48: a country's luck
+  // Spec 52 slice 4: the country history, keyed by cell id and period.
+  Conflict = 86, Opponent = 87, Win = 88, Secede = 89, CountryLuck = 90,
   // World fields (spec 31): keyed by plate index or cell id.
   PlateSeed = 100, PlateType = 101, PlateOmega = 102, PlateWeight = 103, PlateOffset = 104,
   PlateAge = 105, CellCost = 106, Rough = 107,

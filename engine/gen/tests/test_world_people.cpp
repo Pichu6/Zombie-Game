@@ -16,16 +16,22 @@ namespace {
 struct Planet {
   WorldGrid grid;
   WorldFields fields;
+  WorldLand land;
+  WorldDeposits deposits;
   WorldPeople people;
   GroupTables tables;
 };
 
-Planet planet(int frequency, std::uint64_t seed) {
-  Planet p{WorldGrid(frequency, 6371.0), {}, {}, load_group_tables(ZS_DATA_DIR)};
+Planet planet(int frequency, std::uint64_t seed, const std::vector<RealProfile>& profiles = {}) {
+  Planet p{WorldGrid(frequency, 6371.0), {}, {}, {}, {}, load_group_tables(ZS_DATA_DIR)};
   WorldParams wp;
   wp.seed = seed;
   p.fields = generate_fields(p.grid, wp);
-  p.people = populate_world(p.grid, p.fields, seed, p.tables);
+  p.land = generate_land(p.grid, p.fields);
+  DepositParams dp;
+  dp.seed = seed;
+  p.deposits = generate_deposits(p.grid, p.fields, dp);
+  p.people = populate_world(p.grid, p.fields, p.land, p.deposits, seed, p.tables, profiles);
   return p;
 }
 
@@ -40,14 +46,16 @@ TEST_CASE("world people: people add up, live on suitable land, and sectors cover
     std::size_t covered = 0;
     for (CellId c = 0; c < p.grid.size(); ++c) {
       if (!p.fields.land(c) || p.fields.biome[c] == Biome::Ice) CHECK(w.people[c] == 0.0);
-      CHECK((w.sector_of[c] >= 0) == p.fields.land(c));
+      CHECK((w.sector_of[c] >= 0) == (p.fields.land(c) && p.fields.biome[c] != Biome::Ice));  // spec 52 rule 24
       covered += w.sector_of[c] >= 0;
     }
     std::size_t in_sectors = 0;
     for (const Sector& s : w.sectors) in_sectors += s.cells.size();
     CHECK(in_sectors == covered);
-    const double target = w.land_km2 / kSectorTargetKm2;
-    CHECK(std::abs(static_cast<double>(w.sectors.size()) - std::max(1.0, std::round(target))) <= 1.0);
+    // Spec 52 rule 25: sectors are cut inside countries, at least one each, never across a border.
+    CHECK(w.sectors.size() >= w.countries.size());
+    for (const Sector& s : w.sectors)
+      for (CellId c : s.cells) CHECK(w.formed.country_of[c] == s.country);
     MESSAGE("seed " << seed << ": " << w.sectors.size() << " sectors, " << w.countries.size() << " countries, "
                     << w.towns.size() << " towns, " << w.total_people / 1e9 << " billion people");
   }
@@ -119,18 +127,21 @@ TEST_CASE("world people: the one world stands in a temperate town of 10,000 to 2
 TEST_CASE("real profiles (spec 49): each country takes a distinct real profile of its own income group") {
   const auto profiles = load_real_profiles(ZS_DATA_DIR);
   REQUIRE(profiles.size() > 150);
-  Planet p{WorldGrid(kOneWorldFrequency, 6371.0), {}, {}, load_group_tables(ZS_DATA_DIR)};
-  WorldParams wp;
-  wp.seed = 1;
-  p.fields = generate_fields(p.grid, wp);
-  p.people = populate_world(p.grid, p.fields, 1, p.tables, profiles);
+  const Planet p = planet(kOneWorldFrequency, 1, profiles);
   std::set<std::string> taken;
   for (const Country& c : p.people.countries) {
     REQUIRE_FALSE(c.profile.empty());
     CHECK(taken.insert(c.profile).second);
     const auto it = std::find_if(profiles.begin(), profiles.end(), [&](const RealProfile& r) { return r.iso == c.profile; });
     REQUIRE(it != profiles.end());
-    CHECK(it->income == c.income);
+    // Its own group's profile, unless that group's are all taken.
+    std::size_t own = 0, own_taken = 0;
+    for (const RealProfile& r : profiles)
+      if (r.income == c.income) {
+        ++own;
+        for (const Country& o : p.people.countries) own_taken += o.profile == r.iso;
+      }
+    if (it->income != c.income) CHECK(own_taken == own);
     CHECK(it->name == c.name);
     MESSAGE(c.name << " (" << c.profile << "), " << kIncomeGroupIds[static_cast<std::size_t>(c.income)] << ", " << c.people / 1e6 << " million");
   }

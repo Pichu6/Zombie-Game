@@ -7,8 +7,9 @@
 //   zs gen house  [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]
 //                                                  one house with its interior as a site map; prints its plan
 //   zs gen cultures                                list the culture packs
-//   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]
-//                                                  world fields: summary and a text map (spec 31)
+//   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE]
+//                                                  world fields, land, deposits and countries: summary and a text map
+//                                                  (specs 31, 52); --bmp draws rivers and borders, --political a colour per country
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>
@@ -18,11 +19,14 @@
 #include <vector>
 
 #include "zs/gen/dwellings.h"
+#include "zs/gen/keyed.h"
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
 #include "zs/gen/world_fields.h"
 #include "zs/gen/world_deposits.h"
 #include "zs/gen/world_land.h"
+#include "zs/gen/world_people.h"
+#include "zs/tier0.h"
 #include "modes.h"
 
 namespace {
@@ -38,7 +42,7 @@ int usage() {
                "       zs gen names --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]\n"
                "       zs gen houses|house [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]   (spec 51)\n"
                "       zs gen cultures\n"
-               "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]\n";
+               "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE [--political]]\n";
   return 2;
 }
 
@@ -112,6 +116,41 @@ int gen_main(int argc, char** argv) {
                   << zs::gen::resource_unit(r) << ");";
       }
       std::cout << "\n";
+      // Spec 52 slice 4: countries formed from the land.
+      zs::gen::CountryParams cp;
+      cp.fragmentation = std::atof(arg(argc, argv, "--fragmentation", "0.5").c_str());
+      const std::string data = zs::tier0::data_dir();
+      const zs::gen::WorldPeople people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(data),
+                                                                   zs::gen::load_real_profiles(data), cp);
+      {
+        std::vector<std::size_t> order(people.countries.size());
+        for (std::size_t k = 0; k < order.size(); ++k) order[k] = k;
+        std::stable_sort(order.begin(), order.end(),
+                         [&](std::size_t a, std::size_t b) { return people.countries[a].area_km2 > people.countries[b].area_km2; });
+        std::size_t landlocked = 0, two = 0, million = 0;
+        double top10 = 0, held = 0;
+        std::size_t held_cells = 0;
+        for (const auto& s : people.formed.countries) held += s.area_km2, held_cells += s.cells.size();
+        const double cell = held / static_cast<double>(std::max<std::size_t>(1, held_cells));
+        for (std::size_t i = 0; i < order.size(); ++i) {
+          const zs::gen::Country& c = people.countries[order[i]];
+          landlocked += c.landlocked;
+          two += c.area_km2 >= 1.5 * cell;
+          million += c.area_km2 >= 1e6;
+          if (i < 10) top10 += c.area_km2;
+        }
+        std::cout << "countries (spec 52, fragmentation " << cp.fragmentation << "): " << people.countries.size() << " ("
+                  << two << " of two cells or more, " << million << " over 1 million km2, " << landlocked
+                  << " landlocked); the ten largest hold " << 100.0 * top10 / std::max(1.0, held) << "% of the land held (ice is no one's); history: "
+                  << people.formed.start_polities << " start polities, " << people.formed.events.size() << " events\n";
+        for (std::size_t i = 0; i < std::min<std::size_t>(12, order.size()); ++i) {
+          const zs::gen::Country& c = people.countries[order[i]];
+          std::cout << "  " << (c.name.empty() ? "(unnamed)" : c.name) << ": " << c.area_km2 / 1e6 << " million km2, "
+                    << c.people / 1e6 << " million people, " << zs::gen::kIncomeGroupIds[static_cast<std::size_t>(c.income)]
+                    << ", endowment " << c.endowment << (c.landlocked ? ", landlocked" : "") << ", capital held "
+                    << people.formed.countries[order[i]].capital_held << " of " << people.formed.periods << " periods\n";
+        }
+      }
       const std::string bmp = arg(argc, argv, "--bmp", "");
       if (!bmp.empty()) {
         // 2:1 equirectangular map, 24-bit BMP: biome colour shaded by height or depth.
@@ -120,12 +159,19 @@ int gen_main(int argc, char** argv) {
             {150, 190, 90}, {225, 200, 130}, {190, 180, 70}, {20, 100, 40},  {130, 120, 110}};
         const int W = 1024, H = 512;
         std::vector<unsigned char> px(static_cast<std::size_t>(W) * H * 3);
-        zs::gen::CellId hint = 0;
+        std::vector<zs::gen::CellId> at(static_cast<std::size_t>(W) * H);
+        for (int y = 0; y < H; ++y)
+          for (int x = 0; x < W; ++x)
+            at[static_cast<std::size_t>(y) * W + x] = grid.cell_at(90.0 - 180.0 * (y + 0.5) / H, -180.0 + 360.0 * (x + 0.5) / W);
+        const bool political = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--political"; });
+        auto country_at = [&](int x, int y) { return people.formed.country_of[at[static_cast<std::size_t>(y) * W + ((x + W) % W)]]; };
         for (int y = 0; y < H; ++y)
           for (int x = 0; x < W; ++x) {
-            const double lat = 90.0 - 180.0 * (y + 0.5) / H, lon = -180.0 + 360.0 * (x + 0.5) / W;
-            const auto c = grid.cell_at(lat, lon);
-            hint = c;
+            const auto c = at[static_cast<std::size_t>(y) * W + x];
+            // A border (spec 52 slice 4): land whose country differs from the land to its right or below.
+            const int k = country_at(x, y);
+            const bool border = k >= 0 && ((country_at(x + 1, y) >= 0 && country_at(x + 1, y) != k) ||
+                                           (y + 1 < H && country_at(x, y + 1) >= 0 && country_at(x, y + 1) != k));
             double shade = 1.0;
             unsigned char col[3];
             const auto b = static_cast<int>(f.biome[c]);
@@ -138,10 +184,15 @@ int gen_main(int argc, char** argv) {
               col[1] = big ? 150 : 215;
               col[2] = big ? 255 : 255;
             }
+            if (political && k >= 0) {  // one colour per country, keyed by its index
+              const std::uint64_t h = zs::gen::mix64(static_cast<std::uint64_t>(k) + 1);
+              for (int q = 0; q < 3; ++q) col[q] = static_cast<unsigned char>(90 + ((h >> (8 * q)) & 127));
+              shade = 1.0;
+            }
+            if (border) col[0] = col[1] = col[2] = 40, shade = 1.0;
             for (int k = 0; k < 3; ++k)
               px[(static_cast<std::size_t>(y) * W + x) * 3 + k] = static_cast<unsigned char>(col[k] * shade);
           }
-        (void)hint;
         std::ofstream o(bmp, std::ios::binary);
         auto w32 = [&](std::uint32_t v) { for (int i = 0; i < 4; ++i) o.put(static_cast<char>((v >> (8 * i)) & 255)); };
         auto w16 = [&](std::uint16_t v) { o.put(static_cast<char>(v & 255)); o.put(static_cast<char>(v >> 8)); };

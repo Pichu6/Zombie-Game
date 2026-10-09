@@ -2,6 +2,7 @@
 #include "zs/gen/world_people.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <filesystem>
 #include <functional>
@@ -19,58 +20,11 @@ namespace zs::gen {
 namespace {
 
 constexpr double kAlpha = 1.5;            // rule 2: concentration (estimate)
-constexpr double kSeaCost = 4.0;          // rules 3, 4: a sea step costs this times its distance (estimate)
+constexpr double kSeaCost = 4.0;          // rule 3: a sea crossing costs this times its distance (estimate)
 constexpr double kClimbPerM = 1.0 / 500;  // rule 3: a land step costs (1 + |dh| / 500 m) times its distance (estimate)
-constexpr double kSpacing = 0.7;          // rules 3, 4: seeds at least this times the root of the target area apart
-constexpr int kSectorsPerCountry = 3;     // rule 4 (design)
+constexpr double kSpacing = 0.7;          // rule 3: seeds at least this times the root of the target area apart
 
 double dist_km(const WorldGrid& g, const Vec3& a, const Vec3& b) { return angle_between(a, b) * g.radius_km(); }
-
-Vec3 centroid(const WorldGrid& g, const std::vector<CellId>& cells) {
-  Vec3 s;
-  for (CellId c : cells) {
-    const double a = g.area_km2(c);
-    s.x += g.centre(c).x * a;
-    s.y += g.centre(c).y * a;
-    s.z += g.centre(c).z * a;
-  }
-  const double n = detmath::sqrt(dot(s, s));
-  return n > 0 ? Vec3{s.x / n, s.y / n, s.z / n} : Vec3{0, 0, 1};
-}
-
-double step_cost(const WorldGrid& g, const WorldFields& f, CellId a, CellId b) {
-  const double d = g.distance_km(a, b);
-  if (!f.land(a) || !f.land(b)) return kSeaCost * d;
-  return d * (1.0 + std::abs(f.elevation_m[a] - f.elevation_m[b]) * kClimbPerM);
-}
-
-// Multi-source shortest paths over the cells; ties by the lower source index, then the lower cell id.
-std::vector<int> nearest_source(const WorldGrid& g, const WorldFields& f, const std::vector<CellId>& sources) {
-  const std::size_t n = g.size();
-  std::vector<double> best(n, 1e300);
-  std::vector<int> from(n, -1);
-  using Item = std::tuple<double, int, CellId>;
-  std::priority_queue<Item, std::vector<Item>, std::greater<>> q;
-  for (std::size_t s = 0; s < sources.size(); ++s) {
-    best[sources[s]] = 0;
-    from[sources[s]] = static_cast<int>(s);
-    q.emplace(0.0, static_cast<int>(s), sources[s]);
-  }
-  while (!q.empty()) {
-    const auto [d, s, c] = q.top();
-    q.pop();
-    if (d > best[c] || s != from[c]) continue;
-    for (CellId nb : g.neighbours(c)) {
-      const double nd = d + step_cost(g, f, c, nb);
-      if (nd < best[nb] || (nd == best[nb] && s < from[nb])) {
-        best[nb] = nd;
-        from[nb] = s;
-        q.emplace(nd, s, nb);
-      }
-    }
-  }
-  return from;
-}
 
 // Greedy spaced seeds: candidates in order, each at least `spacing` km from the chosen; then fills up without spacing.
 std::vector<std::size_t> spaced(const std::vector<Vec3>& at, const std::vector<std::size_t>& order, std::size_t count,
@@ -133,8 +87,9 @@ std::vector<RealProfile> load_real_profiles(const std::string& data_dir) {
   return out;
 }
 
-WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, std::uint64_t seed, const GroupTables& tables,
-                           const std::vector<RealProfile>& profiles) {
+WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const WorldLand& land, const WorldDeposits& deposits,
+                           std::uint64_t seed, const GroupTables& tables, const std::vector<RealProfile>& profiles,
+                           const CountryParams& country_params) {
   const std::size_t n = g.size();
   WorldPeople w;
   w.suitability.assign(n, 0.0);
@@ -156,128 +111,128 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, std::uint64
     w.total_people += w.people[c];
   }
 
-  // Rule 3: sectors.
-  std::vector<CellId> land;
+  // Spec 52 slice 4: countries from the land, then sectors cut inside each (spec 48 rule 3 per country).
+  std::vector<CellId> land_cells;
   for (CellId c = 0; c < n; ++c)
-    if (f.land(c)) land.push_back(c);
-  if (land.empty()) return w;
-  const std::size_t sector_count = std::max<std::size_t>(1, static_cast<std::size_t>(std::llround(w.land_km2 / kSectorTargetKm2)));
-  std::vector<std::size_t> order(land.size());
-  std::iota(order.begin(), order.end(), std::size_t{0});
-  std::stable_sort(order.begin(), order.end(), [&](std::size_t a, std::size_t b) { return w.people[land[a]] > w.people[land[b]]; });
-  std::vector<Vec3> land_at;
-  for (CellId c : land) land_at.push_back(g.centre(c));
+    if (f.land(c) && f.biome[c] != Biome::Ice) land_cells.push_back(c);  // ice is in no country (spec 52 rule 24)
+  if (land_cells.empty()) return w;
+  const LandGraph graph = build_land_graph(g, f);
+  w.formed = form_countries(g, f, land, graph, seed, country_params);
   const double spacing = kSpacing * detmath::sqrt(kSectorTargetKm2);
-  std::vector<CellId> seeds;
-  for (std::size_t i : spaced(land_at, order, std::min(sector_count, land.size()), spacing, g)) seeds.push_back(land[i]);
-  const std::vector<int> from = nearest_source(g, f, seeds);
-  w.sectors.resize(seeds.size());
-  for (std::size_t s = 0; s < seeds.size(); ++s) w.sectors[s].seed = seeds[s];
-  for (CellId c : land) {
-    const int s = from[c];
-    w.sector_of[c] = s;
-    Sector& sec = w.sectors[static_cast<std::size_t>(s)];
-    sec.cells.push_back(c);
-    sec.people += w.people[c];
-    sec.area_km2 += g.area_km2(c);
-  }
-
-  // Rule 4: countries over the sector graph (land adjacency; an island sector links to its nearest sector by sea).
-  const std::size_t ns = w.sectors.size();
-  std::vector<Vec3> sector_at;
-  for (const Sector& s : w.sectors) sector_at.push_back(centroid(g, s.cells));
-  std::vector<std::vector<std::pair<int, double>>> adj(ns);
-  auto link = [&](int a, int b, double cost) {
-    for (const auto& [x, c] : adj[static_cast<std::size_t>(a)])
-      if (x == b) return;
-    adj[static_cast<std::size_t>(a)].push_back({b, cost});
-    adj[static_cast<std::size_t>(b)].push_back({a, cost});
-  };
-  for (CellId c : land)
-    for (CellId nb : g.neighbours(c))
-      if (f.land(nb) && w.sector_of[nb] != w.sector_of[c])
-        link(w.sector_of[c], w.sector_of[nb], dist_km(g, sector_at[static_cast<std::size_t>(w.sector_of[c])], sector_at[static_cast<std::size_t>(w.sector_of[nb])]));
-  // Join the components: repeatedly link the closest pair of sectors in different components by sea.
-  std::vector<int> comp(ns, -1);
-  auto label = [&]() {
-    std::fill(comp.begin(), comp.end(), -1);
-    int k = 0;
-    for (std::size_t s = 0; s < ns; ++s) {
-      if (comp[s] >= 0) continue;
-      std::vector<std::size_t> stack{s};
-      comp[s] = k;
-      while (!stack.empty()) {
-        const std::size_t x = stack.back();
-        stack.pop_back();
-        for (const auto& [y, c] : adj[x])
-          if (comp[static_cast<std::size_t>(y)] < 0) {
-            comp[static_cast<std::size_t>(y)] = k;
-            stack.push_back(static_cast<std::size_t>(y));
-          }
-      }
-      ++k;
-    }
-    return k;
-  };
-  while (label() > 1) {
-    double best = 1e300;
-    std::pair<int, int> pair{0, 0};
-    for (std::size_t a = 0; a < ns; ++a)
-      for (std::size_t b = a + 1; b < ns; ++b)
-        if (comp[a] != comp[b]) {
-          const double d = dist_km(g, sector_at[a], sector_at[b]);
-          if (d < best) { best = d; pair = {static_cast<int>(a), static_cast<int>(b)}; }
-        }
-    link(pair.first, pair.second, kSeaCost * best);
-  }
-  const std::size_t country_count = std::max<std::size_t>(1, static_cast<std::size_t>(std::llround(static_cast<double>(ns) / kSectorsPerCountry)));
-  std::vector<std::size_t> sector_order(ns);
-  std::iota(sector_order.begin(), sector_order.end(), std::size_t{0});
-  std::stable_sort(sector_order.begin(), sector_order.end(), [&](std::size_t a, std::size_t b) { return w.sectors[a].people > w.sectors[b].people; });
-  const std::vector<std::size_t> capitals = spaced(sector_at, sector_order, country_count, spacing * detmath::sqrt(kSectorsPerCountry), g);
+  w.countries.resize(w.formed.countries.size());
   {
-    std::vector<double> best(ns, 1e300);
-    using Item = std::tuple<double, int, int>;
+    std::vector<CellId> seeds;
+    for (std::size_t k = 0; k < w.formed.countries.size(); ++k) {
+      const CountryShape& shape = w.formed.countries[k];
+      const std::size_t count = std::min(shape.cells.size(),
+                                         std::max<std::size_t>(1, static_cast<std::size_t>(std::llround(shape.area_km2 / kSectorTargetKm2))));
+      std::vector<std::size_t> order(shape.cells.size());
+      std::iota(order.begin(), order.end(), std::size_t{0});
+      std::stable_sort(order.begin(), order.end(), [&](std::size_t a, std::size_t b) { return w.people[shape.cells[a]] > w.people[shape.cells[b]]; });
+      std::vector<Vec3> at;
+      for (CellId c : shape.cells) at.push_back(g.centre(c));
+      for (std::size_t i : spaced(at, order, count, spacing, g)) seeds.push_back(shape.cells[i]);
+    }
+    // Multi-source shortest paths that never cross a border: land steps and one-sea-cell crossings within a country.
+    std::vector<double> best(n, 1e300);
+    using Item = std::tuple<double, int, CellId>;
     std::priority_queue<Item, std::vector<Item>, std::greater<>> q;
-    for (std::size_t k = 0; k < capitals.size(); ++k) {
-      best[capitals[k]] = 0;
-      w.sectors[capitals[k]].country = static_cast<int>(k);
-      q.emplace(0.0, static_cast<int>(k), static_cast<int>(capitals[k]));
+    for (std::size_t s = 0; s < seeds.size(); ++s) {
+      best[seeds[s]] = 0;
+      w.sector_of[seeds[s]] = static_cast<int>(s);
+      q.emplace(0.0, static_cast<int>(s), seeds[s]);
     }
     while (!q.empty()) {
-      const auto [d, k, s] = q.top();
+      const auto [d, s, c] = q.top();
       q.pop();
-      if (d > best[static_cast<std::size_t>(s)] || k != w.sectors[static_cast<std::size_t>(s)].country) continue;
-      for (const auto& [t, c] : adj[static_cast<std::size_t>(s)]) {
-        const double nd = d + c;
-        Sector& to = w.sectors[static_cast<std::size_t>(t)];
-        if (nd < best[static_cast<std::size_t>(t)] || (nd == best[static_cast<std::size_t>(t)] && k < to.country)) {
-          best[static_cast<std::size_t>(t)] = nd;
-          to.country = k;
-          q.emplace(nd, k, t);
+      if (d > best[c] || s != w.sector_of[c]) continue;
+      for (const LandLink& l : graph.links[c]) {
+        if (w.formed.country_of[l.to] != w.formed.country_of[c]) continue;
+        const double dist = g.distance_km(c, l.to);
+        const double nd = d + (l.sea ? kSeaCost * dist : dist * (1.0 + std::abs(f.elevation_m[c] - f.elevation_m[l.to]) * kClimbPerM));
+        if (nd < best[l.to] || (nd == best[l.to] && s < w.sector_of[l.to])) {
+          best[l.to] = nd;
+          w.sector_of[l.to] = s;
+          q.emplace(nd, s, l.to);
         }
       }
     }
-  }
-  w.countries.resize(capitals.size());
-  const Keyed r(seed);
-  for (std::size_t k = 0; k < capitals.size(); ++k) w.countries[k].capital = static_cast<int>(capitals[k]);
-  for (std::size_t s = 0; s < ns; ++s) {
-    Country& c = w.countries[static_cast<std::size_t>(w.sectors[s].country)];
-    c.sectors.push_back(static_cast<int>(s));
-    c.people += w.sectors[s].people;
+    w.sectors.resize(seeds.size());
+    for (std::size_t s = 0; s < seeds.size(); ++s) {
+      w.sectors[s].seed = seeds[s];
+      w.sectors[s].country = w.formed.country_of[seeds[s]];
+    }
+    for (CellId c : land_cells) {
+      Sector& sec = w.sectors[static_cast<std::size_t>(w.sector_of[c])];
+      sec.cells.push_back(c);
+      sec.people += w.people[c];
+      sec.area_km2 += g.area_km2(c);
+    }
+    for (std::size_t s = 0; s < w.sectors.size(); ++s) {
+      Country& c = w.countries[static_cast<std::size_t>(w.sectors[s].country)];
+      c.sectors.push_back(static_cast<int>(s));
+      c.people += w.sectors[s].people;
+    }
+    for (std::size_t k = 0; k < w.countries.size(); ++k) {
+      const CountryShape& shape = w.formed.countries[k];
+      Country& c = w.countries[k];
+      c.capital_cell = shape.capital;
+      c.capital = w.sector_of[shape.capital];
+      c.area_km2 = shape.area_km2;
+      c.landlocked = shape.landlocked;
+    }
   }
 
-  // Rule 5: income groups by development rank, filled to the groups' shares of people.
-  for (std::size_t k = 0; k < w.countries.size(); ++k) {
-    Country& c = w.countries[k];
-    double s_sum = 0, a_sum = 0;
-    for (int s : c.sectors)
-      for (CellId cell : w.sectors[static_cast<std::size_t>(s)].cells) {
-        s_sum += w.suitability[cell] * g.area_km2(cell);
-        a_sum += g.area_km2(cell);
+  // Spec 52 rule 26: wealth = endowment x access x history; income groups filled from it (spec 48 rule 5).
+  {
+    const std::size_t nc = w.countries.size();
+    enum { Food, Water, Energy, Metal, Wood, Fish, Kinds };
+    std::vector<std::array<double, Kinds>> amount(nc, std::array<double, Kinds>{});
+    for (CellId c : land_cells) {
+      auto& a = amount[static_cast<std::size_t>(w.formed.country_of[c])];
+      a[Food] += land.capacity_food[c];
+      a[Water] += land.capacity_water[c];
+      a[Wood] += land.wood_m3[c];
+    }
+    for (const Deposit& d : deposits.deposits) {
+      const int k = w.formed.country_of[d.cell];
+      if (k < 0) continue;  // offshore: no country holds the sea in this slice
+      auto& a = amount[static_cast<std::size_t>(k)];
+      switch (d.kind) {
+        case Resource::Coal: a[Energy] += d.amount * 24.0; break;   // GJ per t
+        case Resource::Oil: a[Energy] += d.amount * 6.1; break;     // GJ per bbl
+        case Resource::Gas: a[Energy] += d.amount * 0.038; break;   // GJ per m3
+        default: a[Metal] += d.amount * d.grade; break;
       }
-    c.development = (a_sum > 0 ? s_sum / a_sum : 0) * (0.5 + r.u01(k, field::Development));
+    }
+    for (CellId c = 0; c < n; ++c) {  // each sea cell's catch, shared by the countries beside it
+      if (f.land(c) || land.fish_catch_t[c] <= 0) continue;
+      std::vector<int> beside;
+      for (CellId nb : g.neighbours(c))
+        if (w.formed.country_of[nb] >= 0) beside.push_back(w.formed.country_of[nb]);  // ice coasts are no one's
+      std::sort(beside.begin(), beside.end());
+      beside.erase(std::unique(beside.begin(), beside.end()), beside.end());
+      for (int k : beside) amount[static_cast<std::size_t>(k)][Fish] += land.fish_catch_t[c] / static_cast<double>(beside.size());
+    }
+    std::vector<double> endow(nc, 0.0);
+    for (int kind = 0; kind < Kinds; ++kind) {
+      std::vector<std::pair<double, std::size_t>> per;
+      for (std::size_t k = 0; k < nc; ++k)
+        per.push_back({amount[k][static_cast<std::size_t>(kind)] / std::max(1.0, w.countries[k].people), k});
+      std::stable_sort(per.begin(), per.end());
+      for (std::size_t i = 0; i < nc; ++i)
+        endow[per[i].second] += (nc > 1 ? static_cast<double>(i) / static_cast<double>(nc - 1) : 1.0) / static_cast<double>(Kinds);
+    }
+    const Keyed r(seed);
+    for (std::size_t k = 0; k < nc; ++k) {
+      Country& c = w.countries[k];
+      const CountryShape& shape = w.formed.countries[k];
+      c.endowment = endow[k];
+      const double access = shape.coast ? 1.0 : 0.6;
+      const double z = r.bell(k, field::CountryLuck) / 0.2887;  // about a unit normal
+      const double age = w.formed.periods > 0 ? static_cast<double>(shape.capital_held) / w.formed.periods : 0.0;
+      c.development = c.endowment * access * detmath::exp(0.25 * z) * (1.0 + 0.25 * age);
+    }
   }
   std::vector<std::size_t> by_dev(w.countries.size());
   std::iota(by_dev.begin(), by_dev.end(), std::size_t{0});
@@ -306,12 +261,16 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, std::uint64
     const double scale = w.total_people / tables.world_population;
     for (std::size_t k : by_people) {
       Country& c = w.countries[k];
+      // Its own group first; when that group's profiles are all taken (spec 52 makes more, smaller countries than
+      // spec 48 did), the nearest group that still has one.
       int best = -1;
-      double gap = 1e300;
-      for (std::size_t i = 0; i < profiles.size(); ++i) {
-        if (used[i] || profiles[i].income != c.income) continue;
-        const double d = std::abs(detmath::log(std::max(1.0, c.people)) - detmath::log(profiles[i].population * scale));
-        if (d < gap) { gap = d; best = static_cast<int>(i); }
+      for (int step = 0; step < kIncomeGroups && best < 0; ++step) {
+        double gap = 1e300;
+        for (std::size_t i = 0; i < profiles.size(); ++i) {
+          if (used[i] || std::abs(profiles[i].income - c.income) != step) continue;
+          const double d = std::abs(detmath::log(std::max(1.0, c.people)) - detmath::log(profiles[i].population * scale));
+          if (d < gap) { gap = d; best = static_cast<int>(i); }
+        }
       }
       if (best < 0) continue;
       used[static_cast<std::size_t>(best)] = true;

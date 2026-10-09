@@ -85,7 +85,11 @@ zs::tier0::Tier0 make_world(std::uint64_t seed) {
   wp.seed = seed;
   const WorldFields f = generate_fields(grid, wp);
   const std::string data = zs::tier0::data_dir();
-  const WorldPeople people = populate_world(grid, f, seed, load_group_tables(data), load_real_profiles(data));
+  const WorldLand land = generate_land(grid, f);
+  DepositParams dp;
+  dp.seed = seed;
+  const WorldDeposits deposits = generate_deposits(grid, f, dp);
+  const WorldPeople people = populate_world(grid, f, land, deposits, seed, load_group_tables(data), load_real_profiles(data));
   const int town = choose_town(f, people, seed);
   const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
   return zs::tier0::make_run(seed, place);
