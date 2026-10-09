@@ -58,6 +58,7 @@ build/release/apps/zs/zs --stage7 [--seed N]  # stage 7: stage 6 with the dead (
 build/release/apps/zs/zs --group [--seed N] [--days D] [--seeds N]  # stage 8: 4 AI pops with the dead; --seeds runs a batch and counts causes
 build/release/apps/zs/zs --run [--seed N] [--seeds N] [--careless]  # stage 9: the 14-day run (found survivors, stranger, radio), death screen and day-by-day chronicle
 build/release/apps/zs/zs gen town --seed 1 [--country base_low]   # content tools: a generated town with every pop's dossier, optionally for a base country (also: census, names, cultures)
+build/release/apps/zs/zs gen houses --seed 1 [--country base_low]   # spec 51: every household's dwelling; gen house --household N --out f.toml writes one house as a site map
 build/release/apps/zs/zs [--seed N] [--watch]   # the window (spec 16), the default with no headless flag; --shot f.bmp [--ticks N] [--menu x,y] [--overlay noise|light] renders offscreen
 # -DZS_BUILD_WINDOW=OFF builds zs without the window (headless modes and generators only)
 # replay viewer: --stage6, --stage7, --group or --run with --trace trace.json, then python3 tools/viewer/embed.py trace.json replay.html [--max-mb 12] (open in a browser; --max-mb thins long runs)

@@ -68,3 +68,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 48 | [People, sectors, countries and towns](48-people-sectors-countries.md) | suitability, population, sectors, countries with income groups, rank-size towns; the block's town and country | decision 0052 |
 | 49 | [Real-country profiles under parody names](49-real-country-profiles.md) | 183 real-data profiles, parody names, matched to the planet's countries | decision 0053 |
 | 50 | [Movement](50-movement.md) | 8-direction paths, blocking furniture, the `Walk` intent (steering), doors on the way | user playtest 2026-10-08 |
+| 51 | [Dwellings](51-dwellings.md) | the dwelling ledger per household, the house plan (corridor, rooms, doors, windows, lot) and its interior from the household | content tools; user request 2026-10-08 |

@@ -3,6 +3,9 @@
 //   zs gen census [--seed N] [--mix FILE]          the pops as a data/tier0/census.toml-style table
 //   zs gen names  --culture ID [--kind K] [--count N] [--seed N]
 //                 kinds: person (default), street, town, province, country
+//   zs gen houses [--seed N] [--mix FILE] [--country ID]        every household's dwelling: address, size, rooms (spec 51)
+//   zs gen house  [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]
+//                                                  one house with its interior as a site map; prints its plan
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]
 //                                                  world fields: summary and a text map (spec 31)
@@ -13,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include "zs/gen/dwellings.h"
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
 #include "zs/gen/world_fields.h"
@@ -29,6 +33,7 @@ std::string arg(int argc, char** argv, const std::string& key, const std::string
 int usage() {
   std::cerr << "usage: zs gen town|census [--seed N] [--mix FILE] [--country ID]   ID: data/setup/nations/<ID>.toml, e.g. base_low\n"
                "       zs gen names --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]\n"
+               "       zs gen houses|house [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]   (spec 51)\n"
                "       zs gen cultures\n"
                "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]\n";
   return 2;
@@ -122,6 +127,39 @@ int gen_main(int argc, char** argv) {
       }
       std::cout << "legend: ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
+      return 0;
+    }
+    if (cmd == "houses" || cmd == "house") {  // spec 51
+      auto mix = zs::gen::load_mix(arg(argc, argv, "--mix", data + "/gen/populations/tier0_block.toml"));
+      if (const std::string c = arg(argc, argv, "--country", ""); !c.empty()) zs::gen::set_country(mix, c, data);
+      auto town = zs::gen::generate_town(cat, mix, seed);
+      const auto rules = zs::gen::load_dwelling_rules(data + "/gen");
+      const std::string income = zs::gen::income_group(mix);
+      const auto dwellings = zs::gen::plan_dwellings(town, rules, income, seed);
+      zs::gen::assign_addresses(town, dwellings);
+      if (cmd == "houses") {
+        std::cout << "Town: " << town.name << " (seed " << seed << "), " << income << " income, " << dwellings.size() << " dwellings\n\n";
+        for (const auto& d : dwellings) {
+          const auto& hh = town.households[static_cast<std::size_t>(d.household)];
+          std::cout << "  " << d.address << ": " << hh.members.size() << (hh.members.size() == 1 ? " person, " : " people, ") << d.floor_area() << " m2 (" << d.width << " x "
+                    << d.depth << "), rooms:";
+          for (const auto& r : d.rooms) std::cout << " " << r.type << (r.occupants ? "(" + std::to_string(r.occupants) + ")" : "");
+          std::cout << "; food " << (d.pantry_kj + d.fridge_kj) / 1000 << " MJ" << (d.fridge ? "" : ", no fridge")
+                    << (d.bathroom ? "" : ", no bathroom") << "\n";
+        }
+        return 0;
+      }
+      const int h = std::atoi(arg(argc, argv, "--household", "1").c_str()) - 1;
+      if (h < 0 || h >= static_cast<int>(dwellings.size())) {
+        std::cerr << "household must be 1.." << dwellings.size() << "\n";
+        return 2;
+      }
+      const std::string toml = zs::gen::house_toml(town, dwellings[static_cast<std::size_t>(h)], rules, seed);
+      if (const std::string out = arg(argc, argv, "--out", ""); !out.empty()) {
+        std::ofstream(out, std::ios::binary) << toml;
+        std::cout << "wrote " << out << "\n";
+      }
+      std::cout << toml;
       return 0;
     }
     if (cmd == "town" || cmd == "census") {

@@ -1,0 +1,61 @@
+// Spec 51: every household's dwelling (the ledger made at town creation), its house plan and its interior, written
+// as a site map (spec 09). The record is the truth; the plan and the furniture are a pure function of it and a seed.
+#pragma once
+#include <cstdint>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "zs/gen/pops.h"
+
+namespace zs::gen {
+
+struct DwellingRules {
+  double min_area_m2 = 24, spread = 0.15, main_room_below_m2 = 36;
+  int max_bedrooms = 4;
+  double food_kj_per_person_day = 10000, fridge_days = 2;
+  std::vector<std::string> no_fridge, no_bathroom;
+  std::map<std::string, double> area_per_person_m2, pantry_days, room_weight;
+  int lot_front = 3, lot_side = 2, lot_back = 5;
+  // Interiors.
+  std::vector<std::string> blocking;
+  std::map<std::string, std::vector<std::string>> kits;  // room type -> furniture in placement order
+};
+// Reads data/gen/dwellings.toml and data/gen/interiors.toml from `gen_dir`.
+DwellingRules load_dwelling_rules(const std::string& gen_dir);
+
+// The town's income group: the country's (spec 49), or the base profile's suffix (base_low -> low); upper_middle
+// without a country.
+std::string income_group(const Mix& mix);
+
+// A room: a rectangle of the footprint (cells), its type and how many sleep in it.
+struct Room {
+  std::string type;  // main, living, kitchen, bath, bedroom
+  int x = 0, y = 0, w = 0, h = 0;
+  int occupants = 0;
+};
+
+struct Dwelling {
+  int household = 0;
+  std::string street, address;
+  int number = 0;
+  std::string income;
+  double target_area_m2 = 0;
+  int width = 0, depth = 0;  // the footprint in 1 m cells; width faces the street
+  int corridor_x = 0;        // the corridor's column inside the footprint
+  int lot_width = 0, lot_depth = 0, house_x = 0, house_y = 0;  // the lot, and the footprint's origin in it
+  std::vector<Room> rooms;
+  bool fridge = true, bathroom = true;
+  std::int64_t pantry_kj = 0, fridge_kj = 0;
+  int floor_area() const { return width * depth; }
+  int beds() const;
+};
+
+// One dwelling per household, in household order (rule 1). Its own keyed draws: the town does not change.
+std::vector<Dwelling> plan_dwellings(const Town& town, const DwellingRules& rules, const std::string& income, std::uint64_t seed);
+// Writes each dwelling's address into its household (rule 1).
+void assign_addresses(Town& town, const std::vector<Dwelling>& dwellings);
+// The house on its lot with its interior, as a site-map TOML (rules 4-8).
+std::string house_toml(const Town& town, const Dwelling& d, const DwellingRules& rules, std::uint64_t seed);
+
+}  // namespace zs::gen

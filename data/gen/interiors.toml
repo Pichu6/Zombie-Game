@@ -1,0 +1,19 @@
+# Spec 51: furniture per room type, placed in this order along the walls; a piece that would cut a free cell of
+# the room off from its door is skipped. Beds (one per occupant) are added to bedrooms first and do not block.
+
+blocking = ["fridge", "stove", "sink", "pantry", "table", "sofa", "wardrobe", "toilet", "bathtub", "hot_plate", "stockpile", "generator"]
+
+[room.main]
+kit = ["pantry", "fridge", "stove", "sink", "table", "sofa", "lamp"]
+
+[room.kitchen]
+kit = ["pantry", "fridge", "stove", "sink", "table", "lamp"]
+
+[room.living]
+kit = ["sofa", "table", "lamp"]
+
+[room.bedroom]
+kit = ["wardrobe", "lamp"]
+
+[room.bath]
+kit = ["toilet", "sink", "bathtub"]
