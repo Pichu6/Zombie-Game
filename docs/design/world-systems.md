@@ -309,3 +309,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [world-systems-factions](../research/world-systems-factions.md): World systems for factions: territory, subjects, expansion, conquest, collapse
 - [world-systems-resources-networks](../research/world-systems-resources-networks.md): World systems: where resources are, and how grids and networks are laid out
 - [living-disease](../research/living-disease.md): Disease and degradation in crops, forests, livestock, wildlife, fish and soil
+- [terrain-hydrology-climate](../research/terrain-hydrology-climate.md): Terrain, hydrology and climate: erosion, rivers, inland basins, Koppen, soils, multi-resolution terrain

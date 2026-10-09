@@ -90,6 +90,22 @@ The note proposes six height bands by visible ground width (street under 150 m, 
 - Does a minimap exist, or does zoom replace it ([ZL-17](../research/zoom-and-layer-two.md))? ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
 - How long may materialising a new place take before it feels like a loading screen? ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
 
+## Open
+
+### From research (terrain-hydrology-climate, 2026-10-09)
+
+The note proposes, in order: endorheic basins with a lake balance (about 18 % of land drains inland), a one-pass steady-state stream power solve on the Priority-Flood order, monthly temperature rebuilt from mean and range plus Koppen classes, biomes from Koppen, fertility from geological setting and climate, multi-resolution rivers with the parent's crossings fixed, and wider river tests (our largest river matches the Orinoco or Congo, not the Amazon). Its questions:
+
+- Is the planet grid allowed to change elevation after spec 31 (erosion changes saved fields and the golden hash), or does erosion only feed new fields? ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- Lake evaporation rate over open water: PET from RV-5 or a separate lake rule? Caspian and Great Salt Lake evaporation numbers were not read. ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- Stream power K, m and the uplift scale: read Cordonnier 2016 and Braun and Willett 2013 for the values they used. ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- Rain seasonality: is a shifted latitude profile good enough for Köppen's s/w letters, or do we need monsoon winds? ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- The combined Ganges-Brahmaputra-Meghna discharge and basin area (probably near 38,000 m³/s and 1.7 M km², unconfirmed). ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- Köppen main-class land shares on Earth: compute from Beck's GeoTIFF in the data pipeline. ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- GAEZ suitability shares by climate zone: needed to turn HY-58 from a total check into a per-class table. ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- Hexagonal child weights for HY-50: do we store explicit child area shares, or move to an aperture that nests exactly? ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- Which classification Songs of the Eons uses. ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+
 ## Research
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
@@ -100,3 +116,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [zoom-and-layer-two](../research/zoom-and-layer-two.md): Zoom from planet to street, and what the City layer plays like
 - [world-generation-prior-art](../research/world-generation-prior-art.md): World generation: prior art
 - [renderer](../research/renderer.md): The renderer, at engineering level
+- [terrain-hydrology-climate](../research/terrain-hydrology-climate.md): Terrain, hydrology and climate: erosion, rivers, inland basins, Koppen, soils, multi-resolution terrain
