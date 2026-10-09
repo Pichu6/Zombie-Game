@@ -81,6 +81,15 @@ A person, a car and a door are real size ([world simulation](world-simulation.md
 - Should ids encode their grid level so parent and child are bit operations, as H3 does? ([pop-storage-and-lenses](../research/pop-storage-and-lenses.md))
 - Which crowd tier does each height band use, and over what distance does the cross-fade run? ([renderer](../research/renderer.md))
 
+### From research (zoom-and-layer-two, 2026-10-09)
+
+The note proposes six height bands by visible ground width (street under 150 m, tactical 150 m-1 km, district 1-5 km, city 5-40 km, region 40-500 km, globe), one continuous camera, and only three hard jumps: taking a body, materialising a new place, opening an office ([ZL-44, ZL-45](../research/zoom-and-layer-two.md)). Its questions:
+
+- Are the band borders right (1920 px screen, 6 px minimum)? Tune by looking once a renderer exists. ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
+- Should the camera tilt automatically coming down, as Google Earth does ([ZL-10](../research/zoom-and-layer-two.md)), and from which band? ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
+- Does a minimap exist, or does zoom replace it ([ZL-17](../research/zoom-and-layer-two.md))? ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
+- How long may materialising a new place take before it feels like a loading screen? ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
+
 ## Research
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
@@ -88,5 +97,6 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
 - [low-resource-city-simulation](../research/low-resource-city-simulation.md): Low-resource city simulation: "ASCII City" and the games that fake or tame big populations
 - [pop-storage-and-lenses](../research/pop-storage-and-lenses.md): Pop simulation, saving data, and "lenses" across zoom
+- [zoom-and-layer-two](../research/zoom-and-layer-two.md): Zoom from planet to street, and what the City layer plays like
 - [world-generation-prior-art](../research/world-generation-prior-art.md): World generation: prior art
 - [renderer](../research/renderer.md): The renderer, at engineering level

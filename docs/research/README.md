@@ -106,6 +106,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [stellaris.md](stellaris.md) | Stellaris, as a reference for the Macro layer | 2026-10-08 |
 | [hearts-of-iron.md](hearts-of-iron.md) | Hearts of Iron IV, as a reference for the Macro layer | 2026-10-08 |
 | [teg.md](teg.md) | TEG, as a reference for the Macro layer | 2026-10-08 |
+| [zoom-and-layer-two.md](zoom-and-layer-two.md) | Zoom from planet to street, and what the City layer plays like (Supreme Commander, Total War, They Are Billions, Manor Lords, RimWorld, Door Kickers) | 2026-10-09 |
 
 ### Engine and rendering
 

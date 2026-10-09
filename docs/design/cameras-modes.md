@@ -152,6 +152,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [world-in-conflict](../research/world-in-conflict.md): World in Conflict, as a reference for command
 - [renderer](../research/renderer.md): The renderer, at engineering level
 - [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
+- [zoom-and-layer-two](../research/zoom-and-layer-two.md): Zoom from planet to street, and what the City layer plays like
 
 ## Prototype sources
 
@@ -164,6 +165,16 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - engine-research.txt
 
 ## Open
+
+### From research (zoom-and-layer-two, 2026-10-09)
+
+The note proposes one continuous camera with explicit tool modes instead of explicit camera modes, and layer 2 as one map, one clock and two tool sets chosen by the selection: a squad gives command verbs, a plot or building gives management verbs ([ZL-43, ZL-46](../research/zoom-and-layer-two.md)). Its questions:
+
+- Does the tactical band (150 m to 1 km) belong to City with command tools, or to a fourth layer? Recommendation: City. ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
+- In single player, may the player pause during a fight in City? Recommendation: yes; never on a server ([ZL-27](../research/zoom-and-layer-two.md)). ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
+- Should a fight anywhere in the city force 1x, or only alert? Default proposed: 1x plus alert, switchable ([ZL-47](../research/zoom-and-layer-two.md); [0056](../decisions/0056-alerts-do-not-pause-by-default.md)). ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
+- Do squad orders from icons use the same order record as orders up close (spec 39)? Recommendation: yes. ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
+- Is a picture-in-picture view of a fight in scope for the first City build ([ZL-50](../research/zoom-and-layer-two.md))? ([zoom-and-layer-two](../research/zoom-and-layer-two.md))
 
 ### From research ([0054](../decisions/0054-research-notes-findings-and-links.md), 2026-10-08)
 
