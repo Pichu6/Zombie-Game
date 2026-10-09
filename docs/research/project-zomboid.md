@@ -24,6 +24,7 @@
 | PZ-14 | Do not take fixed infection chances per wound type: ours come from a dose from the wound (spec 21) | estimate | this note |
 | PZ-15 | Take "This is how you died" as the tone of the death screen and chronicle, and meta-events that move the dead across a whole area; do not respawn the dead to meet a target count | estimate | this note |
 | PZ-16 | Do not take XP bars and book multipliers as abstract numbers; reading should change what a pop knows | estimate | this note |
+| PZ-17 | Timed actions (opening a can, bandaging, barricading) show a small progress bar over the character's head while they run; walking or another order cancels most of them | reported | this note (general knowledge) |
 
 ## What it is
 

@@ -157,7 +157,7 @@ std::optional<Cell> PopAI::safe_cell(const World& w, EntityId body, const std::v
       for (int x = 0; x < map_.width(); ++x) {
         const Cell c{z, x, y};
         const int r = map_.room_of(c);
-        if (r < 0 || !map_.walkable(c) || !map_.rooms()[static_cast<std::size_t>(r)].indoor) continue;
+        if (r < 0 || !map_.passable(c) || !map_.rooms()[static_cast<std::size_t>(r)].indoor) continue;
         rep.try_emplace(r, c);
       }
   std::vector<std::pair<double, Cell>> scored;
@@ -188,7 +188,7 @@ std::optional<EntityId> PopAI::window_to_board(const World& w, const Cell& from,
     for (std::size_t i = 0; i < open.size(); ++i) {
       const Cell c = open[i];
       for (const Cell& nb : {Cell{c.z, c.x + 1, c.y}, Cell{c.z, c.x - 1, c.y}, Cell{c.z, c.x, c.y + 1}, Cell{c.z, c.x, c.y - 1}}) {
-        if (!map_.in_bounds(nb) || at(nb) >= 0 || !map_.walkable(nb) || !is_indoor(map_.floor(nb)) ||
+        if (!map_.in_bounds(nb) || at(nb) >= 0 || !map_.passable(nb) || !is_indoor(map_.floor(nb)) ||
             !map_.can_walk(SiteMap::edge_between(c, nb)))
           continue;
         at(nb) = at(c) + 1;
@@ -384,7 +384,7 @@ bool PopAI::plan_want(World& w, PopMind& m, Doing want) {
         for (int y = 0; y < map_.height() && !bed; ++y)
           for (int x = 0; x < map_.width() && !bed; ++x) {
             const Cell c{z, x, y};
-            if (z > pos.z && map_.walkable(c) && is_indoor(map_.floor(c)) && !map_.find_path(pos, c).empty()) bed = c;
+            if (z > pos.z && map_.passable(c) && is_indoor(map_.floor(c)) && !map_.find_path(pos, c).empty()) bed = c;
           }
       if (bed) move(*bed);
       use("sleep", me);

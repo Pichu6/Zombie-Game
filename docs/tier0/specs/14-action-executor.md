@@ -55,6 +55,8 @@ Pichu's constraint: items will number in the thousands and actions must stay com
 
 1. Five gates decide what an actor sees and can do ([world simulation §9](../../design/world-simulation.md#9-communication-decided-as-intent-model-proposal)): **knowledge** hides an offer; **skill** sets the odds and Q cap; missing **items** or **access** grey it out with the reason; **quality** changes the result; **capability** ([13](13-capabilities.md)) blocks with the reason.
 2. Preview runs the same checks as execution and changes nothing. Execution checks again.
+
+Intents are `MoveTo`, `Use`, `Cancel` and, since 2026-10-08, `Walk` (a heading that walks cell to cell and takes over, [50](50-movement.md) rule 5).
 3. An action is timed: duration = base × work rate × tool and Q factors. It runs in phases (approach → prepare → work → finish). Effects land only in the phase that causes them.
 4. Each phase costs the body (MET level for [11](11-body-composition.md)) and emits its sound ([18](18-noise-field.md)).
 5. Interruptions: death, unconsciousness, lost reach, target changed, capability below need, a slow-down event the actor reacts to. Progress is kept for resumable work (barricading, repairing).

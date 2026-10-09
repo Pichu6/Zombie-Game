@@ -25,7 +25,7 @@ The hand-made Tier 0 block: one 2-floor building with a basement and yard, plus 
 2. Rooms and portals are rebuilt only when an edge changes state (dirty flag), never per tick.
 3. Outdoors is one room per connected outdoor area; the map border connects to the off-map world (census arrivals, [22](22-census.md)).
 4. A closed door or intact wall is still a portal for sound, with that assembly's transmission loss ([18](18-noise-field.md)).
-5. Pathfinding: A* on cells with door costs; doors that are locked or barricaded are blocked for those without the means to open them. Re-planned on edge change.
+5. Pathfinding: A* on cells with door costs; doors that are locked or barricaded are blocked for those without the means to open them. Re-planned on edge change. Eight directions across open corners, and furniture fills its cell ([50](50-movement.md), 2026-10-08).
 
 ## Invariants
 

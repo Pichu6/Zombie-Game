@@ -103,7 +103,14 @@ struct ProcessDef {
 
 // ---- Commands and offers ----
 
-enum class CommandType : std::uint16_t { MoveTo = 1, Use = 2, Cancel = 3 };
+// Walk (spec 50): a = heading 0-7 clockwise from north, or -1 to stop at the next cell.
+enum class CommandType : std::uint16_t { MoveTo = 1, Use = 2, Cancel = 3, Walk = 4 };
+// The step of a heading 0-7 (clockwise from north; y grows southwards).
+inline void heading_step(int heading, int& dx, int& dy) {
+  constexpr int kDx[8] = {0, 1, 1, 1, 0, -1, -1, -1}, kDy[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
+  dx = heading >= 0 && heading < 8 ? kDx[heading] : 0;
+  dy = heading >= 0 && heading < 8 ? kDy[heading] : 0;
+}
 std::int64_t pack_cell(const Cell& c);
 Cell unpack_cell(std::int64_t v);
 
@@ -139,6 +146,7 @@ struct Action {
   EntityId held = 0;      // an item extracted into the hands during the work phase (Take)
   bool close_behind = false;  // a door opened on the way, closed after stepping through
   EdgeRef opened{};
+  bool steering = false;      // a Walk: the path grows one cell at a time from the heading (spec 50 rule 5)
 };
 
 struct Actor {
@@ -151,6 +159,7 @@ struct Actor {
   EventId cause = 0;                              // of the running action
   double carried_kg = 0;                          // cached; recomputed when the hands change
   double noise_db = 0;  // what the current primitive makes (spec 18 reads it)
+  int heading = -1;     // a Walk intent's direction 0-7, or -1 (spec 50)
 };
 
 // ---- The executor ----
@@ -231,6 +240,7 @@ class Actors : public System {
   double work_time(const World& w, const Actor& a, const ProcessDef& p, double tool_factor) const;
 
   void start_next(World& w, Actor& a);
+  void start_steer(World& w, Actor& a);  // spec 50 rule 5
   void start(World& w, Actor& a, const Command& c, EventId cause);
   void recompute_carried(const World& w, Actor& a);
   void interrupt(World& w, Actor& a, Reason why);

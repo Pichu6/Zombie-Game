@@ -40,6 +40,10 @@ class ArchiveReader {
   std::string str();
   bool at_end() const { return pos_ == bytes_.size(); }
 
+  // The save format version being read, set by World::load so a system can read an older layout; 0 = current.
+  std::uint32_t format = 0;
+  bool format_at_least(std::uint32_t v) const { return format == 0 || format >= v; }
+
  private:
   void need(std::size_t n) const {
     if (pos_ + n > bytes_.size()) throw std::runtime_error("save file is truncated");

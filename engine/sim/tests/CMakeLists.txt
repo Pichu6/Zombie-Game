@@ -36,6 +36,7 @@ add_executable(zs_sim_tests
   test_outbreak.cpp
   test_orders.cpp
   test_time.cpp
+  test_movement.cpp
   test_one_world.cpp
   test_global_tables.cpp
 )

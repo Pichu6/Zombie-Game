@@ -207,6 +207,7 @@ void World::load(const std::vector<std::uint8_t>& bytes) {
   const std::uint64_t expected_hash = r.u64();
   const std::vector<std::uint8_t> state(bytes.begin() + 16, bytes.end());
   if (hash_bytes(state) != expected_hash) throw std::runtime_error("save file is corrupt (hash mismatch)");
+  r.format = version;
   load_state(r, version);
   if (!r.at_end()) throw std::runtime_error("save file has trailing data");
 }

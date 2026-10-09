@@ -141,7 +141,7 @@ Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Pl
     for (std::size_t i = 0; i < cells.size() && static_cast<int>(cells.size()) < 4 * group; ++i)
       for (const Cell& nb : {Cell{start.z, cells[i].x + 1, cells[i].y}, Cell{start.z, cells[i].x - 1, cells[i].y},
                              Cell{start.z, cells[i].x, cells[i].y + 1}, Cell{start.z, cells[i].x, cells[i].y - 1}})
-        if (t.map->in_bounds(nb) && t.map->walkable(nb) && t.map->can_walk(SiteMap::edge_between(cells[i], nb)) &&
+        if (t.map->passable(nb) && t.map->can_walk(SiteMap::edge_between(cells[i], nb)) &&
             std::find(cells.begin(), cells.end(), nb) == cells.end())
           cells.push_back(nb);
     const auto slots = t.census->survivors();
@@ -188,7 +188,7 @@ std::optional<EntityId> nearest_window(const Tier0& t) {
     const Cell inner{ref.z, ref.x, ref.y};
     const Cell outer = ref.vertical ? Cell{ref.z, ref.x - 1, ref.y} : Cell{ref.z, ref.x, ref.y - 1};
     for (const Cell& c : {inner, outer}) {
-      if (!t.map->in_bounds(c) || !t.map->walkable(c) || t.map->room_of(c) < 0) continue;
+      if (!t.map->passable(c) || t.map->room_of(c) < 0) continue;
       if (!t.map->rooms()[static_cast<std::size_t>(t.map->room_of(c))].indoor) continue;  // work from inside
       const auto path = t.map->find_path(from, c);
       if (!path.empty() && (!best || path.size() < best_len)) {

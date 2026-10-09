@@ -1,6 +1,7 @@
 #include "zs/site_map.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <functional>
 #include <queue>
 #include <sstream>
@@ -171,6 +172,14 @@ void SiteMap::load_file(World& w, Assemblies& items, const std::string& path) {
           if (auto v = value.value<double>()) mo.amounts.emplace_back(std::string(key.str()), *v);
       objects_.push_back(std::move(mo));
     }
+  // Furniture that fills its cell (spec 50 rule 3).
+  blocking_kinds_.clear();
+  if (const auto* bl = t["blocking"].as_array())
+    for (const auto& k : *bl) blocking_kinds_.push_back(k.value<std::string>().value());
+  blocked_.assign(floors_.size(), false);
+  for (const MapObject& o : objects_)
+    if (in_bounds(o.at) && std::find(blocking_kinds_.begin(), blocking_kinds_.end(), o.kind) != blocking_kinds_.end())
+      blocked_[cell_index(o.at)] = true;
   dirty_ = true;
   ++version_;
 }
@@ -274,9 +283,43 @@ const std::vector<Portal>& SiteMap::portals() const {
   return portals_;
 }
 
+bool SiteMap::blocked(const Cell& c) const { return in_bounds(c) && !blocked_.empty() && blocked_[cell_index(c)]; }
+
+bool SiteMap::passable(const Cell& c) const { return in_bounds(c) && walkable(c) && !blocked(c); }
+
+bool SiteMap::step_allowed(const Cell& from, const Cell& to) const {
+  if (to.z != from.z || !passable(to)) return false;
+  const int dx = to.x - from.x, dy = to.y - from.y;
+  if (std::abs(dx) > 1 || std::abs(dy) > 1 || (dx == 0 && dy == 0)) return false;
+  if (dx == 0 || dy == 0) return can_walk(edge_between(from, to));
+  // A diagonal crosses an open corner only: no wall, door, window, fence or gate on any of its four edges.
+  const Cell ox{from.z, to.x, from.y}, oy{from.z, from.x, to.y};
+  if (!passable(ox) || !passable(oy)) return false;
+  for (const EdgeRef& e : {edge_between(from, ox), edge_between(from, oy), edge_between(ox, to), edge_between(oy, to)})
+    if (edge(e).kind != EdgeKind::None) return false;
+  return true;
+}
+
+std::optional<Cell> SiteMap::steer(const Cell& from, int dx, int dy) const {
+  if (dx == 0 && dy == 0) return std::nullopt;
+  const Cell to{from.z, from.x + dx, from.y + dy};
+  if (step_allowed(from, to)) return to;
+  if (dx != 0 && dy != 0) {
+    const Cell ox{from.z, from.x + dx, from.y}, oy{from.z, from.x, from.y + dy};
+    if (step_allowed(from, ox)) return ox;
+    if (step_allowed(from, oy)) return oy;
+  }
+  return std::nullopt;
+}
+
+double SiteMap::step_length(const Cell& from, const Cell& to) {
+  if (to.z != from.z) return 4.0;  // a flight of stairs, about 4 m of walking (estimate)
+  return from.x != to.x && from.y != to.y ? 1.4142135623730951 : 1.0;
+}
+
 std::vector<Cell> SiteMap::find_path(const Cell& from, const Cell& to) const {
-  if (!walkable(from) || !walkable(to)) return {};
-  constexpr int kStep = 10, kDoor = 20, kStairs = 20;
+  if (!walkable(from) || !passable(to)) return {};
+  constexpr int kStep = 10, kDiagonal = 14, kDoor = 20, kStairs = 20;
   const std::size_t n = floors_.size();
   std::vector<int> cost(n, INT32_MAX);
   std::vector<std::size_t> prev(n, SIZE_MAX);
@@ -302,11 +345,17 @@ std::vector<Cell> SiteMap::find_path(const Cell& from, const Cell& to) const {
     };
     for (int d = 0; d < 4; ++d) {
       const Cell nb{cur.z, cur.x + dx[d], cur.y + dy[d]};
-      if (!walkable(nb)) continue;
+      if (!passable(nb)) continue;
       const EdgeRef e = edge_between(cur, nb);
       if (!can_walk(e)) continue;
       const Edge& ed = edge(e);
       relax(nb, kStep + ((is_openable(ed.kind) && !ed.open && !ed.breached) ? kDoor : 0));
+    }
+    // Diagonals across open corners (spec 50 rule 1), in a fixed order after the straight steps.
+    const int ddx[4] = {1, 1, -1, -1}, ddy[4] = {-1, 1, 1, -1};
+    for (int d = 0; d < 4; ++d) {
+      const Cell nb{cur.z, cur.x + ddx[d], cur.y + ddy[d]};
+      if (in_bounds(nb) && step_allowed(cur, nb)) relax(nb, kDiagonal);
     }
     for (const Stairs& st : stairs_) {
       if (st.a == cur) relax(st.b, kStairs);

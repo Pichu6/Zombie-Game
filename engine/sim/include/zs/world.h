@@ -17,7 +17,7 @@ namespace zs {
 
 // Version history: 1 = stage 1; 2 = adds the entity id counter (stage 2); 3 = adds commands submitted
 // but not yet applied (stage 4 review).
-inline constexpr std::uint32_t kSaveFormatVersion = 3;
+inline constexpr std::uint32_t kSaveFormatVersion = 4;  // 4: actors' heading and steering (spec 50)
 
 // A player intent, applied at the start of the tick it was submitted for. The AI produces the
 // same kind of intents (parity), but only player commands are recorded in the input log.

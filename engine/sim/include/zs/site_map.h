@@ -80,6 +80,9 @@ class SiteMap : public System {
   bool in_bounds(const Cell& c) const;
   Floor floor(const Cell& c) const;
   bool walkable(const Cell& c) const { return floor(c) != Floor::None; }
+  // Walkable floor with no blocking object on it (spec 50 rule 3): where a body may end a step.
+  bool passable(const Cell& c) const;
+  bool blocked(const Cell& c) const;
 
   const Edge& edge(const EdgeRef& e) const;
   Edge& edge(const EdgeRef& e);
@@ -105,8 +108,16 @@ class SiteMap : public System {
   const std::vector<Room>& rooms() const;
   const std::vector<Portal>& portals() const;
 
-  // Shortest walking path (Dijkstra, fixed neighbour order). Empty if unreachable.
+  // Shortest walking path (Dijkstra, fixed neighbour order, 8 directions, spec 50). Empty if unreachable.
   std::vector<Cell> find_path(const Cell& from, const Cell& to) const;
+  // A single step from `from` to an 8-neighbour on its level: the target is passable and the edge (straight) can be
+  // walked, or the corner (diagonal) is open: both orthogonal cells passable, no edge of any kind around it.
+  bool step_allowed(const Cell& from, const Cell& to) const;
+  // Where a heading (dx, dy in -1..1) leads from `from` (spec 50 rule 6): its own neighbour, else for a diagonal the
+  // passable axis, else nothing.
+  std::optional<Cell> steer(const Cell& from, int dx, int dy) const;
+  // Metres walked for one step of a path: 1 straight, sqrt 2 diagonal, 4 for a flight of stairs.
+  static double step_length(const Cell& from, const Cell& to);
 
   const std::vector<Stairs>& stairs() const { return stairs_; }
   const std::vector<MapObject>& objects() const { return objects_; }
@@ -126,6 +137,8 @@ class SiteMap : public System {
   std::vector<Edge> v_edges_;  // per level: height rows x (width + 1)
   std::vector<Stairs> stairs_;
   std::vector<MapObject> objects_;
+  std::vector<std::string> blocking_kinds_;  // spec 50 rule 3
+  std::vector<bool> blocked_;                // per cell, from objects_ and blocking_kinds_
 
   mutable bool dirty_ = true;
   std::uint64_t version_ = 0;

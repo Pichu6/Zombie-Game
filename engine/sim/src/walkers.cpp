@@ -214,13 +214,20 @@ void Walkers::plan_path(WalkerState& z) {
   z.next = 0;
   z.step_m = 0;
   if (z.goal == z.pos || !map_.in_bounds(z.goal) || !map_.walkable(z.goal)) return;
+  // A goal on furniture (a noisy generator) is reached at a free neighbour with nothing between (spec 50 rule 4).
+  const bool goal_blocked = map_.blocked(z.goal);
+  auto beside_goal = [&](const Cell& c) {
+    return c.z == z.goal.z && std::abs(c.x - z.goal.x) + std::abs(c.y - z.goal.y) == 1 &&
+           walker_passes(SiteMap::edge_between(c, z.goal));
+  };
   const std::size_t n = map_.levels().size() * static_cast<std::size_t>(map_.width() * map_.height());
   std::vector<double> cost(n, 1e300);
   std::vector<std::size_t> prev(n, n);
   std::vector<Cell> cells(n);
   using Key = std::tuple<double, std::size_t>;
   std::priority_queue<Key, std::vector<Key>, std::greater<Key>> open;
-  const std::size_t start = cell_index(map_, z.pos), goal = cell_index(map_, z.goal);
+  const std::size_t start = cell_index(map_, z.pos);
+  std::size_t goal = cell_index(map_, z.goal);
   cost[start] = 0;
   cells[start] = z.pos;
   open.emplace(0.0, start);
@@ -229,9 +236,13 @@ void Walkers::plan_path(WalkerState& z) {
     open.pop();
     if (c > cost[i]) continue;
     if (i == goal) break;
+    if (goal_blocked && i != start && beside_goal(cells[i])) {
+      goal = i;
+      break;
+    }
     const Cell at = cells[i];
     auto relax = [&](const Cell& nb, double step) {
-      if (!map_.in_bounds(nb) || !map_.walkable(nb)) return;
+      if (!map_.passable(nb)) return;
       const std::size_t j = cell_index(map_, nb);
       if (c + step < cost[j]) {
         cost[j] = c + step;
@@ -246,12 +257,15 @@ void Walkers::plan_path(WalkerState& z) {
       if (walker_passes(e)) relax(nb, 1);
       else if (openable_or_weak(map_.edge(e).kind)) relax(nb, 1 + kEdgeCost);
     }
+    // Diagonals across open corners, as pops walk (spec 50 rule 1).
+    for (const Cell& nb : {Cell{at.z, at.x + 1, at.y - 1}, Cell{at.z, at.x + 1, at.y + 1}, Cell{at.z, at.x - 1, at.y + 1}, Cell{at.z, at.x - 1, at.y - 1}})
+      if (map_.in_bounds(nb) && map_.step_allowed(at, nb)) relax(nb, 1.4142135623730951);
     for (const Stairs& s : map_.stairs()) {
       if (s.a == at) relax(s.b, 4);
       if (s.b == at) relax(s.a, 4);
     }
   }
-  if (cost[goal] >= 1e299) return;
+  if (cost[goal] >= 1e299 || (goal_blocked && goal == cell_index(map_, z.goal))) return;
   for (std::size_t i = goal; i != start; i = prev[i]) z.path.push_back(cells[i]);
   std::reverse(z.path.begin(), z.path.end());
 }
@@ -327,7 +341,7 @@ void Walkers::think(World& w, WalkerState& z) {
       if (w.rng.uniform01(z.body, Purpose::WalkerMind) < 0.1) {
         const int dir = static_cast<int>(w.rng.uniform_int(z.body, Purpose::WalkerMind, 4));
         const Cell nb{z.pos.z, z.pos.x + (dir == 0) - (dir == 1), z.pos.y + (dir == 2) - (dir == 3)};
-        if (map_.in_bounds(nb) && map_.walkable(nb) && walker_passes(SiteMap::edge_between(z.pos, nb))) z.goal = nb;
+        if (map_.passable(nb) && walker_passes(SiteMap::edge_between(z.pos, nb))) z.goal = nb;
       }
     }
   }
@@ -347,7 +361,12 @@ void Walkers::move(World& w, WalkerState& z) {
   }
   const Cell to = z.path[z.next];
   const bool stairs = to.z != z.pos.z;
-  if (!stairs) {
+  const bool diagonal = !stairs && to.x != z.pos.x && to.y != z.pos.y;
+  if (diagonal && !map_.step_allowed(z.pos, to)) {  // the corner closed: plan again
+    plan_path(z);
+    return;
+  }
+  if (!stairs && !diagonal) {
     const EdgeRef e = SiteMap::edge_between(z.pos, to);
     if (!walker_passes(e)) {
       // Rule 4: blocked between it and a live stimulus: push.
@@ -364,7 +383,7 @@ void Walkers::move(World& w, WalkerState& z) {
   b.activity.speed_mps = speed;
   b.activity.grade_pct = stairs ? 50 : 0;
   z.step_m += speed * kTickSeconds;
-  const double length = stairs ? 4.0 : 1.0;
+  const double length = SiteMap::step_length(z.pos, to);
   if (z.step_m >= length) {
     z.step_m -= length;
     z.pos = to;

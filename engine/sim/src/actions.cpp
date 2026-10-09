@@ -431,7 +431,12 @@ std::vector<Cell> Actors::reach_cells(const World& w, const ProcessDef& p, const
     default: {
       auto c = cell_of(w, target);
       if (!c) return {};
-      return {*c};
+      if (!map_.blocked(*c)) return {*c};
+      // Furniture fills its cell: work at it from a free neighbour with nothing between (spec 50 rule 4).
+      std::vector<Cell> out;
+      for (const Cell& nb : {Cell{c->z, c->x, c->y - 1}, Cell{c->z, c->x + 1, c->y}, Cell{c->z, c->x, c->y + 1}, Cell{c->z, c->x - 1, c->y}})
+        if (map_.passable(nb) && map_.can_walk(SiteMap::edge_between(nb, *c))) out.push_back(nb);
+      return out;
     }
   }
 }
@@ -580,10 +585,45 @@ void Actors::apply_command(World& w, const Command& c, EventId cause) {
   Actor& a = it->second;
   if (static_cast<CommandType>(c.type) == CommandType::Cancel) {
     a.queue.clear();
+    a.heading = -1;
     if (a.action.phase != Phase::Idle) interrupt(w, a, Reason::Interrupted);
     return;
   }
+  if (static_cast<CommandType>(c.type) == CommandType::Walk) {
+    // Spec 50 rule 5: a heading takes over; -1 lets the current step finish.
+    const int heading = c.a >= 0 && c.a < 8 ? static_cast<int>(c.a) : -1;
+    if (heading >= 0) {
+      a.queue.clear();
+      if (a.action.phase != Phase::Idle && !a.action.steering) interrupt(w, a, Reason::Interrupted);
+      a.cause = cause;
+    }
+    a.heading = heading;
+    return;
+  }
+  // Any other order replaces a heading; a steering walk ends at its next cell.
+  a.heading = -1;
   a.queue.emplace_back(c, cause);
+}
+
+void Actors::start_steer(World& w, Actor& a) {
+  // A body that cannot walk drops the heading instead of retrying every tick.
+  const Body& b = bodies_.get(a.body);
+  const Capabilities c = bodies_.capabilities(b, w.clock.tick);
+  if (!b.alive || b.activity.asleep || c.consciousness < 0.3 || c.moving <= 0) {
+    a.heading = -1;
+    return;
+  }
+  int dx = 0, dy = 0;
+  heading_step(a.heading, dx, dy);
+  const auto next = map_.steer(a.pos, dx, dy);
+  if (!next) return;  // against a wall: stays idle with its heading, moves again once the way is open
+  Action act;
+  act.phase = Phase::Approach;
+  act.steering = true;
+  act.goal = *next;
+  act.path = {a.pos, *next};
+  act.path_next = 1;
+  a.action = act;
 }
 
 void Actors::start_next(World& w, Actor& a) {
@@ -667,6 +707,7 @@ void Actors::interrupt(World& w, Actor& a, Reason why) {
   w.emit(EventType::ActionInterrupted, a.body, a.cause, act.process, static_cast<std::int64_t>(why));
   a.action = Action{};
   a.queue.clear();
+  a.heading = -1;
   recompute_carried(w, a);
 }
 
@@ -815,18 +856,23 @@ void Actors::step_move(World& w, Actor& a) {
   if (act.path_next >= act.path.size()) return;
   const Cell next = act.path[act.path_next];
   const bool stairs = next.z != a.pos.z;
-  if (!stairs) {
-    const EdgeRef e = SiteMap::edge_between(a.pos, next);
-    const Edge& ed = map_.edge(e);
-    if (!map_.can_walk(e)) {  // something changed: re-plan once
-      act.path = map_.find_path(a.pos, act.path.back());
-      act.path_next = 1;
-      if (act.path.empty()) interrupt(w, a, Reason::NoRoute);
+  const bool diagonal = !stairs && next.x != a.pos.x && next.y != a.pos.y;
+  if (!stairs && !map_.step_allowed(a.pos, next)) {  // something changed: re-plan once, or stop steering
+    if (act.steering) {
+      a.action = Action{};
       return;
     }
+    act.path = map_.find_path(a.pos, act.path.back());
+    act.path_next = 1;
+    if (act.path.empty()) interrupt(w, a, Reason::NoRoute);
+    return;
+  }
+  if (!stairs && !diagonal) {
+    const EdgeRef e = SiteMap::edge_between(a.pos, next);
+    const Edge& ed = map_.edge(e);
     if (!ed.open && !ed.breached && ed.kind != EdgeKind::None) {
       map_.set_open(e, true);  // closed, unlocked door: open it on the way, close it behind
-      act.door_wait_s = 2.0;   // estimate
+      act.door_wait_s = 0.5;   // a push of the handle while walking (spec 50 rule 7, estimate)
       act.close_behind = true;
       act.opened = e;
       return;
@@ -834,7 +880,7 @@ void Actors::step_move(World& w, Actor& a) {
   }
   const Body& b = bodies_.get(a.body);
   act.step_m += bodies_.walk_speed(b, w.clock.tick) * kTickSeconds;
-  const double length = stairs ? 4.0 : 1.0;  // a flight of stairs ~4 m of walking (estimate)
+  const double length = SiteMap::step_length(a.pos, next);
   if (act.step_m >= length) {
     act.step_m -= length;
     a.pos = next;
@@ -842,6 +888,16 @@ void Actors::step_move(World& w, Actor& a) {
     if (act.close_behind) {
       map_.set_open(act.opened, false);
       act.close_behind = false;
+    }
+    // A steering walk goes on to the next cell of its heading without stopping; the progress carries over.
+    if (act.steering && a.heading >= 0) {
+      int dx = 0, dy = 0;
+      heading_step(a.heading, dx, dy);
+      if (const auto more = map_.steer(a.pos, dx, dy)) {
+        act.path = {a.pos, *more};
+        act.path_next = 1;
+        act.goal = *more;
+      }
     }
   }
 }
@@ -883,7 +939,10 @@ void Actors::update(World& w) {
       continue;
     }
     if (w.clock.is_body_step()) recompute_carried(w, a);  // catches moves made outside the executor
-    if (a.action.phase == Phase::Idle) start_next(w, a);
+    if (a.action.phase == Phase::Idle) {
+      if (a.heading >= 0) start_steer(w, a);
+      else start_next(w, a);
+    }
     Action& act = a.action;
     if (act.phase != Phase::Idle) {
       const ProcessDef* p = act.process >= 0 ? &processes_[static_cast<std::size_t>(act.process)] : nullptr;
@@ -962,6 +1021,8 @@ void Actors::save(ArchiveWriter& w) const {
     w.u64(act.held);
     w.boolean(act.close_behind);
     w.i64(act.opened.z); w.i64(act.opened.x); w.i64(act.opened.y); w.boolean(act.opened.vertical);
+    w.boolean(act.steering);
+    w.i64(a.heading);
     w.u64(a.queue.size());
     for (const auto& [c, cause] : a.queue) {
       w.i64(c.tick); w.u16(c.type); w.u64(c.subject); w.i64(c.a); w.i64(c.b); w.u64(cause);
@@ -1001,6 +1062,12 @@ void Actors::load(ArchiveReader& r) {
     act.opened.x = static_cast<int>(r.i64());
     act.opened.y = static_cast<int>(r.i64());
     act.opened.vertical = r.boolean();
+    if (r.format_at_least(4)) {  // spec 50
+      act.steering = r.boolean();
+      a.heading = static_cast<int>(r.i64());
+    } else {
+      a.heading = -1;
+    }
     a.action = act;
     a.queue.clear();
     for (std::uint64_t n = r.u64(); n > 0; --n) {

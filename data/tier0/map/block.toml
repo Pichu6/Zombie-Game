@@ -2,6 +2,9 @@
 # Spec: docs/tier0/specs/09-site-map.md. Legend: README.md next to this file.
 # First drawn by tools/map/make_tier0_block.py; this file is the source of truth.
 
+# Object kinds that fill their cell: nobody walks through them (spec 50 rule 3). Estimate: furniture.
+blocking = ["fridge", "stove", "hot_plate", "pantry", "sink", "stockpile", "generator"]
+
 [map]
 name = "Tier 0 block"
 width = 32
@@ -216,9 +219,10 @@ gasoline_l = 4
 kind = "power_panel"
 at = [0, 15, 13]
 
+# The kitchen's furniture stands along its top wall and leaves the door at x = 5 free (spec 50).
 [[object]]
 kind = "fridge"
-at = [0, 2, 11]
+at = [0, 2, 10]
 food_kj = 20000
 
 [[object]]
@@ -227,7 +231,7 @@ at = [0, 4, 10]
 
 [[object]]
 kind = "hot_plate"
-at = [0, 6, 10]
+at = [0, 7, 10]
 
 [[object]]
 kind = "radio"
@@ -269,12 +273,12 @@ id = "basement"
 
 [[object]]
 kind = "pantry"
-at = [0, 3, 11]
+at = [0, 3, 10]
 food_kj = 60000
 
 [[object]]
 kind = "sink"
-at = [0, 5, 10]
+at = [0, 6, 10]
 tap_water_l = 10000
 
 [[object]]

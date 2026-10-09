@@ -103,7 +103,7 @@ struct App {
   // Input.
   std::optional<Cell> menu_cell;
   std::optional<Cell> hover_cell;
-  std::int64_t last_move_tick = -1;  // the tick the last WASD move was sent at
+  std::int64_t last_move_tick = -1;  // the tick the last Walk was sent at: one per applied tick
   int face_dx = 0, face_dy = 1;      // the controlled pop's arrow
   std::vector<EdgeRef> flash;        // edges that refused a WASD step
   double flash_until = 0, hint_until = 0, real_s = 0;
@@ -428,6 +428,51 @@ ImVec2 centred(ImVec2 c, const char* text) {
   return {c.x - sz.x / 2, c.y - sz.y / 2};
 }
 
+// What a pop is doing, for its action bar: the name, and the fraction done while at work (spec 16 rule 14).
+struct ActionView {
+  std::string name;
+  double done = -1;  // -1: approaching, no bar
+  double left_s = 0;
+};
+
+std::optional<ActionView> doing_of(const App& a, EntityId id) {
+  if (!a.t.actors->actors().contains(id)) return std::nullopt;
+  const Action& act = a.t.actors->actor(id).action;
+  if (act.phase == Phase::Idle || act.process < 0) return std::nullopt;
+  ActionView d{a.t.actors->processes()[static_cast<std::size_t>(act.process)].name};
+  if (act.phase == Phase::Work && act.total_s > 0) {
+    d.done = std::clamp(act.progress_s / act.total_s, 0.0, 1.0);
+    d.left_s = std::max(0.0, act.total_s - act.progress_s);
+  }
+  return d;
+}
+
+std::string duration_text(double s) {
+  char buf[32];
+  if (s < 60) std::snprintf(buf, sizeof buf, "%.0f s", s);
+  else if (s < 3600) std::snprintf(buf, sizeof buf, "%.0f min", s / 60);
+  else std::snprintf(buf, sizeof buf, "%.1f h", s / 3600);
+  return buf;
+}
+
+void draw_action_bar(const App& a, ImDrawList* d, EntityId id, ImVec2 c, float r) {
+  const auto doing = doing_of(a, id);
+  if (!doing) return;
+  const bool me = id == a.me();
+  const float w = me ? std::max(70.0f, a.cell * 2.2f) : std::max(24.0f, a.cell * 0.9f), h = me ? 7.0f : 4.0f;
+  const ImVec2 p0{c.x - w / 2, c.y - r - h - 6}, p1{c.x + w / 2, c.y - r - 6};
+  if (doing->done >= 0) {
+    d->AddRectFilled({p0.x - 1, p0.y - 1}, {p1.x + 1, p1.y + 1}, rgb(15, 15, 18, 220));
+    d->AddRectFilled(p0, {p0.x + w * static_cast<float>(doing->done), p1.y}, rgb(120, 200, 120));
+  }
+  if (!me) return;
+  const std::string label = doing->done >= 0 ? doing->name + ", " + duration_text(doing->left_s) + " left" : "-> " + doing->name;
+  const ImVec2 sz = ImGui::CalcTextSize(label.c_str());
+  const ImVec2 q{c.x - sz.x / 2, p0.y - sz.y - 2};
+  d->AddRectFilled({q.x - 3, q.y - 1}, {q.x + sz.x + 3, q.y + sz.y + 1}, rgb(15, 15, 18, 200));
+  d->AddText(q, rgb(235, 235, 235), label.c_str());
+}
+
 struct DrawnBody {
   EntityId id;
   V2 p;
@@ -570,6 +615,7 @@ void draw_map(App& a, ImDrawList* d) {
     }
     if (db.id == a.selected && db.id != a.me()) d->AddCircle(c, rr + 5, rgb(255, 230, 120), 0, 2);
     else if (db.id == a.selected) d->AddCircle(c, rr + 7, rgb(255, 230, 120), 0, 1.5f);
+    draw_action_bar(a, d, db.id, c, rr);
   }
   // The state column by the controlled pop (spec 16 rule 10).
   if (const EntityId me = a.me(); me && a.t.bodies->get(me).alive && a.t.actors->actor(me).pos.z == a.level) {
@@ -726,28 +772,25 @@ void context_menu(App& a) {
   }
 }
 
-// A step to a 4-neighbour: the cell is floor and the edge between can be crossed.
-bool can_step(const App& a, const Cell& from, const Cell& to) {
-  return a.t.map->in_bounds(to) && a.t.map->walkable(to) && a.t.map->can_walk(SiteMap::edge_between(from, to));
+// The Walk heading (spec 50: 0-7 clockwise from north) for a key direction, or -1.
+int heading_of(int dx, int dy) {
+  for (int h = 0; h < 8; ++h) {
+    int x = 0, y = 0;
+    heading_step(h, x, y);
+    if (x == dx && y == dy) return h;
+  }
+  return -1;
 }
 
-// WASD (spec 16 rules 5, 6): walls refuse the step; a diagonal needs both orthogonal edges, else the passable axis.
-std::optional<Cell> wasd_target(App& a, const Cell& p, int dx, int dy) {
+// The pop stands against something in its heading: flash what stopped it (spec 16 rule 5). The rule itself is the
+// simulation's (SiteMap::steer); the window only shows it.
+void flash_block(App& a, const Cell& p, int dx, int dy) {
+  if (a.t.map->steer(p, dx, dy) || a.real_s < a.flash_until) return;
   const Cell ox{p.z, p.x + dx, p.y}, oy{p.z, p.x, p.y + dy};
-  if (dx && dy) {
-    const bool okx = can_step(a, p, ox), oky = can_step(a, p, oy);
-    const Cell diag{p.z, p.x + dx, p.y + dy};
-    if (okx && oky && (can_step(a, ox, diag) || can_step(a, oy, diag))) return diag;
-    if (okx) return ox;
-    if (oky) return oy;
-    a.flash = {SiteMap::edge_between(p, ox), SiteMap::edge_between(p, oy)};
-  } else {
-    const Cell to = dx ? ox : oy;
-    if (can_step(a, p, to)) return to;
-    a.flash = {SiteMap::edge_between(p, to)};
-  }
+  a.flash.clear();
+  if (dx) a.flash.push_back(SiteMap::edge_between(p, ox));
+  if (dy) a.flash.push_back(SiteMap::edge_between(p, oy));
   a.flash_until = a.real_s + 0.6;
-  return std::nullopt;
 }
 
 void set_speed(App& a, Pace p) {
@@ -807,28 +850,22 @@ void map_input(App& a) {
   const EntityId me = a.me();
   const bool held = (dx || dy) && me && a.t.bodies->get(me).alive;
   set_caps(a, held);
+  // WASD sends a Walk heading when the keys change, and -1 when they are released (spec 50 rule 5): the simulation
+  // walks cell to cell without stopping and takes over from any other action. One command per applied tick.
+  if (me && a.t.actors->actors().contains(me) && a.t.bodies->get(me).alive) {
+    const Actor& act = a.t.actors->actor(me);
+    const int want = held ? heading_of(dx, dy) : -1;
+    if (want != act.heading && w.clock.tick > a.last_move_tick) {
+      submit(a, CommandType::Walk, want);
+      a.last_move_tick = w.clock.tick;
+    }
+    if (held && act.heading == want && act.action.phase == Phase::Idle) flash_block(a, act.pos, dx, dy);
+  }
   if (held) {
     if (!a.follow) recentre(a);  // any WASD press resumes the follow
     a.face_dx = dx;
     a.face_dy = dy;
-    const bool paused = !a.resting && a.pacer.effective(w.clock.tick) == Pace::Pause;
-    if (paused) {
-      if (pressed) a.hint_until = a.real_s + 2.5;
-    } else {
-      const Actor& act = a.t.actors->actor(me);
-      const Cell p = act.pos;
-      const bool idle = a.t.actors->idle(me);
-      // A fresh press while busy takes over: cancel, then the step (spec 16 rule 6).
-      const bool take_over = pressed && !idle;
-      // One move per applied tick: never a second before the first has run (spec 16 rule 5).
-      if ((idle || take_over) && w.clock.tick > a.last_move_tick) {
-        if (const auto to = wasd_target(a, p, dx, dy)) {
-          if (take_over) submit(a, CommandType::Cancel, 0);
-          submit(a, CommandType::MoveTo, pack_cell(*to));
-          a.last_move_tick = w.clock.tick;
-        }
-      }
-    }
+    if (pressed && !a.resting && a.pacer.effective(w.clock.tick) == Pace::Pause) a.hint_until = a.real_s + 2.5;
   } else if (me && a.t.actors->actors().contains(me)) {
     const Action& act = a.t.actors->actor(me).action;
     if (act.phase == Phase::Approach && act.path_next < act.path.size()) {
@@ -951,6 +988,8 @@ void inspector(App& a) {
                         : a.t.actors->processes()[static_cast<std::size_t>(act.action.process)].name;
     if (act.action.phase == Phase::Approach && act.action.process >= 0) doing = "going to: " + doing;
     ImGui::Text("Doing: %s%s", doing.c_str(), b.activity.asleep ? " (asleep)" : "");
+    if (const auto d = doing_of(a, id); d && d->done >= 0)
+      ImGui::ProgressBar(static_cast<float>(d->done), {-1, 0}, (duration_text(d->left_s) + " left").c_str());
     if (a.t.ai && a.t.ai->minds().contains(id) && id != a.t.ai->possessed())
       ImGui::Text("Mind: %s", to_string(a.t.ai->mind(id).doing));
   }
@@ -1089,7 +1128,7 @@ void log_panel(App& a) {
 void help_line() {
   const ImGuiIO& io = ImGui::GetIO();
   ImGui::GetForegroundDrawList()->AddText({8, io.DisplaySize.y - 18}, IM_COL32(200, 200, 200, 160),
-                                          "WASD walk (a press takes over) | right click: actions | left click: select | wheel: zoom | "
+                                          "WASD walk (takes over what you were doing) | right click: actions | left click: select | wheel: zoom | "
                                           "middle drag: pan, F/Home: follow | Space pause or continue, 1-6 speed | C cancel | "
                                           "F5 save, F9 load | placeholder art");
 }
