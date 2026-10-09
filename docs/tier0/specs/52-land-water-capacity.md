@@ -1,6 +1,6 @@
 # 52 · Land: rivers, water, soil, capacity and natural resources
 
-**Status:** Slice 1 implemented and tested on MSVC (2026-10-09); slices 2-4 Proposal. Written before its code; built in slices. **Slice 1:** runoff, rivers, lakes, fresh water, soil fertility, arable land and carrying capacity. **Slice 2:** forests, game and fish as living stocks on the map ([37](37-flora-and-fauna.md)). **Slice 3:** deposits. **Slice 4:** countries rebuilt on these ([48](48-people-sectors-countries.md) rules 3-5). **Needs:** [30](30-world-grid.md), [31](31-terrain-climate.md). **Decisions:** [0059](../../decisions/0059-countries-from-water-land-and-resources-everything-alive-can-be-sick.md), [0057](../../decisions/0057-country-economy-geography-zones.md). **Design:** [world systems](../../design/world-systems.md) steps 2-3. **Research:** [rivers and runoff](../../research/rivers-and-runoff.md) (RV), [world numbers capacity](../../research/world-numbers-capacity.md) (WNC), [ecology](../../research/world-systems-ecology.md) (WSE), [resources and networks](../../research/world-systems-resources-networks.md) (WSR).
+**Status:** Slices 1 and 2 implemented and tested on MSVC (2026-10-09); slices 3-4 Proposal. Written before its code; built in slices. **Slice 1:** runoff, rivers, lakes, fresh water, soil fertility, arable land and carrying capacity. **Slice 2:** forests, game and fish as living stocks on the map ([37](37-flora-and-fauna.md)). **Slice 3:** deposits. **Slice 4:** countries rebuilt on these ([48](48-people-sectors-countries.md) rules 3-5). **Needs:** [30](30-world-grid.md), [31](31-terrain-climate.md). **Decisions:** [0059](../../decisions/0059-countries-from-water-land-and-resources-everything-alive-can-be-sick.md), [0057](../../decisions/0057-country-economy-geography-zones.md). **Design:** [world systems](../../design/world-systems.md) steps 2-3. **Research:** [rivers and runoff](../../research/rivers-and-runoff.md) (RV), [world numbers capacity](../../research/world-numbers-capacity.md) (WNC), [ecology](../../research/world-systems-ecology.md) (WSE), [resources and networks](../../research/world-systems-resources-networks.md) (WSR).
 
 ## Purpose
 
@@ -35,6 +35,13 @@ Countries must form where water, food and resources are (0059), and everything p
 8. **Water capacity:** (runoff volume + the discharge of a river cell) / 500 m³ per person per year, the absolute-scarcity line (WNC-17); a river's water is counted in every cell it crosses (it is reused downstream).
 9. **Capacity** = min(food, water) (WNC-28). Trade and technology later let a country exceed its own capacity.
 
+## Rules (slice 2: living resources)
+
+10. **Forest** (estimates): forest share of a land cell by biome (tropical forest 0.9, temperate forest 0.8, boreal 0.75, mountain 0.25, savanna 0.2, grassland 0.08, tundra 0.03, desert 0.01, ice 0), and growing stock per hectare of forest (tropical 195, temperate 140, boreal 90, mountain 75, savanna 40, grassland 35, tundra 20, desert 10 m³/ha), calibrated against 31 % of land and 557 billion m³ ([WSE-1](../../research/world-systems-ecology.md), RV-6). Regrowth rate r by biome inside WSE-34's 0.01-0.1 per year (tropical 0.06, temperate 0.04, boreal 0.02, others 0.03). The stock is today's, after the clearing already done.
+11. **Game** (estimates): wild herbivore wet biomass per km² by biome today (savanna 300, grassland 125, temperate forest 75, tropical forest 60, boreal 40, mountain 30, tundra 20, desert 5 kg/km²), half again on a river cell, calibrated so the land's total is a part of RV-10's 47 Mt; r = 0.25 per year (estimate).
+12. **Fish** (estimates): sea cells shallower than 1,500 m on the coarse grid (the map's shelf) carry a sustainable catch of 1 t per km² per year, times 1.5 within one cell of land and times (1 + (15 − T) / 30) for water temperature T (colder and coastal seas are richer), at least 0; r = 0.5 per year and K = 4 × catch / r (Schaefer, [WSE-15](../../research/world-systems-ecology.md)); the ocean's total is checked against RV-11.
+13. These are the carrying capacities of spec 37's stocks per cell; spec 37's populations take them when the world is populated (slice 4).
+
 ## Invariants
 
 - Every land cell drains to the sea by a finite chain of downstream steps.
@@ -55,6 +62,8 @@ Countries must form where water, food and resources are (0059), and everything p
 - `zs gen world` prints the land summary and draws rivers (light blue) and large rivers (bright blue) on its `--bmp` map; the text map marks large rivers `~`.
 - `engine/gen/tests/test_world_land.cpp`: 5 cases; golden pinned on MSVC.
 - **Measured** (seed 1, frequency 24, default sliders): runoff 31,019 km³ a year, 34.2 % of the land's 90,762 km³ of rain (RV-1: 35 %; PET calibrated by a sweep, RV-5); largest river 39,168 m³/s (the Amazon carries about 200,000: the coarse grid and the generated continents make smaller basins); 610 river cells and 95 large-river cells of 1,673 land cells; 87 lake cells; arable land 17.6 % of land (Earth's cropland is about 11 %, WNC-3, and more could be cropped); capacity 16.9 billion people, 2.1 times today's population scaled to the planet's land.
+
+- **Slice 2** (living resources, 2026-10-09): `WorldLand` gains `forest_share`, `wood_m3`, `wood_r`, `game_kg`, `fish_catch_t`, `fish_k_t`; they are the capacities spec 37's stocks will take (not yet wired). **Measured** (seed 1): forest 29.8 % of land (WSE-1: 31 %), wood 536 billion m³ (RV-6: 557 on Earth's land), wild herbivores 21 Mt (RV-10: 47 Mt of wild mammals on land and sea), sustainable fish catch 111 Mt a year (RV-11: 90-110). The first estimates gave forest 25 %, game 42 Mt and fish 442 Mt (the coarse shelf is wide); the tables were scaled once to these.
 
 ## Not in this spec (slice 1)
 

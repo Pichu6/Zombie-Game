@@ -23,6 +23,9 @@ struct LandParams {
   double water_m3_per_person = 500;    // absolute scarcity (WNC-17)
   double river_m3s = 100, large_river_m3s = 1000;            // RV-9, on the water from upstream
   double river_km2 = 100000, large_river_km2 = 500000;       // RV-9: catchment, so the classes do not depend on cell size
+  // Slice 2 (rules 10-12; estimates).
+  double game_r = 0.25, fish_r = 0.5;
+  double fish_t_per_km2 = 1, fish_shelf_m = -1500;
 };
 
 struct WorldLand {
@@ -34,6 +37,10 @@ struct WorldLand {
   std::vector<std::uint8_t> lake;       // a filled depression
   std::vector<double> fertility, arable_share, pasture_share;
   std::vector<double> capacity_food, capacity_water;  // people
+  // Slice 2: living resources, today's stocks (rules 10-12). On land: forest and game; at sea: fish.
+  std::vector<double> forest_share, wood_m3, wood_r;  // growing stock in m3; regrowth per year
+  std::vector<double> game_kg;                         // wild herbivore wet biomass
+  std::vector<double> fish_catch_t, fish_k_t;          // sustainable catch per year, and the stock's capacity
   double capacity(CellId i) const { return capacity_food[i] < capacity_water[i] ? capacity_food[i] : capacity_water[i]; }
   // Totals for the checks.
   double land_rain_km3 = 0, runoff_km3 = 0, sea_inflow_m3s = 0;

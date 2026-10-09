@@ -91,6 +91,30 @@ TEST_CASE("land: arable share and capacity in realistic bands (A2)") {
   CHECK(capacity <= 5.0 * people_today);
 }
 
+TEST_CASE("land: forests, game and fish against today's world (A2)") {
+  const Planet& p = earthlike();
+  double land_km2 = 0, forest_km2 = 0, wood = 0, game = 0, fish = 0;
+  for (CellId i = 0; i < p.grid.size(); ++i) {
+    fish += p.land.fish_catch_t[i];
+    if (!p.fields.land(i)) continue;
+    land_km2 += p.grid.area_km2(i);
+    forest_km2 += p.land.forest_share[i] * p.grid.area_km2(i);
+    wood += p.land.wood_m3[i];
+    game += p.land.game_kg[i];
+    CHECK(p.land.wood_r[i] <= 0.1);  // WSE-34
+  }
+  const double scale = land_km2 / 148.94e6;  // this planet's land against Earth's (WNC-1)
+  MESSAGE("forest ", forest_km2 / land_km2, " of land; wood ", wood / 1e9, " billion m3; game ", game / 1e9, " Mt; fish ", fish / 1e6, " Mt/yr");
+  CHECK(forest_km2 / land_km2 >= 0.25);  // WSE-1: 31 %
+  CHECK(forest_km2 / land_km2 <= 0.40);
+  CHECK(wood >= 0.6 * 557e9 * scale);  // RV-6
+  CHECK(wood <= 1.6 * 557e9 * scale);
+  CHECK(game >= 0.2 * 47e9 * scale);  // RV-10: land and sea together weigh 47 Mt
+  CHECK(game <= 1.0 * 47e9 * scale);
+  CHECK(fish >= 50e6);  // RV-11
+  CHECK(fish <= 150e6);
+}
+
 TEST_CASE("land: a river through a desert feeds more people than the desert beside it (A1)") {
   const Planet& p = earthlike();
   int compared = 0;
@@ -117,8 +141,11 @@ TEST_CASE("land: deterministic, golden pinned (A1)") {
     mix_in(p.land.runoff_mm[i]);
     mix_in(p.land.discharge_m3s[i]);
     mix_in(p.land.capacity(i));
+    mix_in(p.land.wood_m3[i]);
+    mix_in(p.land.game_kg[i]);
+    mix_in(p.land.fish_catch_t[i]);
     h = mix64(h, p.land.downstream[i]);
   }
   MESSAGE("land hash: ", h);
-  CHECK(h == 17690974680140480831ULL);  // pinned on MSVC, 2026-10-09
+  CHECK(h == 8347828370111059165ULL);  // pinned on MSVC, 2026-10-09
 }

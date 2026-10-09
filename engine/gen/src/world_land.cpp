@@ -44,6 +44,39 @@ std::pair<double, double> shares_of(Biome b) {
   }
 }
 
+// Rule 10 (estimates): {forest share, growing stock m3/ha of forest, regrowth r}.
+struct ForestOf {
+  double share, m3_per_ha, r;
+};
+ForestOf forest_of(Biome b) {
+  switch (b) {
+    case Biome::TropicalForest: return {0.9, 195, 0.06};
+    case Biome::TemperateForest: return {0.8, 140, 0.04};
+    case Biome::BorealForest: return {0.75, 90, 0.02};
+    case Biome::Mountain: return {0.25, 75, 0.03};
+    case Biome::Savanna: return {0.2, 40, 0.03};
+    case Biome::Grassland: return {0.08, 35, 0.03};
+    case Biome::Tundra: return {0.03, 20, 0.03};
+    case Biome::Desert: return {0.01, 10, 0.03};
+    default: return {0, 0, 0};
+  }
+}
+
+// Rule 11 (estimates): wild herbivore wet biomass today, kg per km2.
+double game_of(Biome b) {
+  switch (b) {
+    case Biome::Savanna: return 300;
+    case Biome::Grassland: return 125;
+    case Biome::TemperateForest: return 75;
+    case Biome::TropicalForest: return 60;
+    case Biome::BorealForest: return 40;
+    case Biome::Mountain: return 30;
+    case Biome::Tundra: return 20;
+    case Biome::Desert: return 5;
+    default: return 0;
+  }
+}
+
 // Rule 1: P - E, with E from Fu's equation and PET from the annual mean temperature (RV-3, RV-5).
 double runoff_mm(double rain_mm, double temp_c, const LandParams& p) {
   const double omega = p.fu_omega;
@@ -70,6 +103,12 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
   w.pasture_share.assign(n, 0);
   w.capacity_food.assign(n, 0);
   w.capacity_water.assign(n, 0);
+  w.forest_share.assign(n, 0);
+  w.wood_m3.assign(n, 0);
+  w.wood_r.assign(n, 0);
+  w.game_kg.assign(n, 0);
+  w.fish_catch_t.assign(n, 0);
+  w.fish_k_t.assign(n, 0);
   for (CellId i = 0; i < n; ++i) {
     if (!f.land(i)) continue;
     w.runoff_mm[i] = runoff_mm(f.rain_mm[i], f.temp_mean_c[i], p);
@@ -144,6 +183,21 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
     w.capacity_food[i] = kcal / (365.0 * p.kcal_per_person_day);
     const double water_m3 = w.runoff_mm[i] * 1e-3 * grid.area_km2(i) * 1e6 + (w.river[i] ? w.discharge_m3s[i] * kSecondsPerYear : 0.0);
     w.capacity_water[i] = water_m3 / p.water_m3_per_person;
+    // Rules 10-11: forest and game.
+    const ForestOf fo = forest_of(b);
+    w.forest_share[i] = fo.share;
+    w.wood_m3[i] = fo.share * ha * fo.m3_per_ha;
+    w.wood_r[i] = fo.r;
+    w.game_kg[i] = game_of(b) * grid.area_km2(i) * (w.river[i] ? 1.5 : 1.0);
+  }
+  // Rule 12: fish on the shelf; colder and coastal seas are richer.
+  for (CellId i = 0; i < n; ++i) {
+    if (f.land(i) || f.elevation_m[i] < p.fish_shelf_m) continue;
+    bool coastal = false;
+    for (CellId nb : grid.neighbours(i)) coastal = coastal || f.land(nb);
+    const double temp = 1.0 + (15.0 - f.temp_mean_c[i]) / 30.0;
+    w.fish_catch_t[i] = std::max(0.0, p.fish_t_per_km2 * grid.area_km2(i) * (coastal ? 1.5 : 1.0) * temp);
+    w.fish_k_t[i] = 4.0 * w.fish_catch_t[i] / p.fish_r;  // Schaefer: catch = rK/4
   }
   return w;
 }

@@ -17,6 +17,8 @@ The generator needs rivers that carry a believable share of the rain, a rule tha
 | RV-7 | The mean growing stock is about 137 m³ per hectare of forest. | derived | RV-6: 557e9 / 4.06e9 |
 | RV-8 | Shares of forest area by climatic domain: tropical 45 %, boreal 27 %, temperate 16 %, subtropical 11 %. | reported | https://en.wikipedia.org/wiki/Global_Forest_Resources_Assessment |
 | RV-9 | A river class for the map: a cell is a river when at least 100 m³/s and a catchment of 100,000 km² pass through it, a large, navigable river at 1,000 m³/s and 500,000 km² (for scale: the Rhine drains about 185,000 km² and carries about 2,300 m³/s at its mouth, the Danube about 800,000 km², the Mississippi about 3.2 million). The catchment keeps the classes independent of the grid's cell size. Thresholds and the scale figures are not from a read source. | estimate | this note |
+| RV-10 | Wild mammals alive today weigh about 47 Mt (wet mass, land and sea together): 0.007 Gt C against humans' 0.06 Gt C, and 8 billion people of about 50 kg mean mass weigh about 400 Mt, so wild mammals are about 0.117 of that. The land and sea split is not in our sources. | derived | [WSE-14](world-systems-ecology.md); the 50 kg mean is an estimate |
+| RV-11 | Capture fisheries land about half of the aquatic animals produced (aquaculture is 51 %, [WSE-20](world-systems-ecology.md)), on the order of 90-110 Mt a year; a generated ocean's sustainable catch should be of that order. | estimate | [WSE-20](world-systems-ecology.md) |
 
 ## How the generator uses them
 
