@@ -9,6 +9,7 @@
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M]
 //                                                  world fields: summary and a text map (spec 31)
+#include <algorithm>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
@@ -20,6 +21,7 @@
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
 #include "zs/gen/world_fields.h"
+#include "zs/gen/world_land.h"
 #include "modes.h"
 
 namespace {
@@ -80,6 +82,22 @@ int gen_main(int argc, char** argv) {
       std::cout << "land " << 100.0 * land_area / grid.sphere_area_km2() << "% of the surface; biomes (% of land):\n";
       for (int b = 1; b < zs::gen::biome_count; ++b)
         std::cout << "  " << zs::gen::biome_name(static_cast<zs::gen::Biome>(b)) << " " << 100.0 * share[b] / land_area << "\n";
+      // Spec 52: where the rain goes and what the land can feed.
+      const zs::gen::WorldLand land = zs::gen::generate_land(grid, f);
+      int rivers = 0, large = 0, lakes = 0;
+      double arable = 0, capacity = 0, largest = 0;
+      for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+        if (!f.land(i)) continue;
+        rivers += land.river[i] == 1;
+        large += land.river[i] == 2;
+        lakes += land.lake[i];
+        arable += land.arable_share[i] * grid.area_km2(i);
+        capacity += land.capacity(i);
+        largest = std::max(largest, land.discharge_m3s[i]);
+      }
+      std::cout << "land (spec 52): runoff " << 100.0 * land.runoff_km3 / land.land_rain_km3 << "% of land rain (" << land.runoff_km3
+                << " km3/yr); river cells " << rivers << ", large " << large << ", largest " << largest << " m3/s; lake cells " << lakes
+                << "; arable " << 100.0 * arable / land_area << "% of land; capacity " << capacity / 1e9 << " billion people\n";
       const std::string bmp = arg(argc, argv, "--bmp", "");
       if (!bmp.empty()) {
         // 2:1 equirectangular map, 24-bit BMP: biome colour shaded by height or depth.
@@ -100,6 +118,12 @@ int gen_main(int argc, char** argv) {
             for (int k = 0; k < 3; ++k) col[k] = rgb[b][k];
             if (f.land(c)) shade = 0.85 + 0.15 * std::min(1.0, f.elevation_m[c] / 4000.0);
             else shade = 0.55 + 0.45 * std::max(0.0, 1.0 + f.elevation_m[c] / 6000.0);
+            if (f.land(c) && (land.river[c] || land.lake[c])) {  // rivers and lakes in blue (spec 52)
+              const bool big = land.river[c] == 2;
+              col[0] = big ? 0 : 110;
+              col[1] = big ? 150 : 215;
+              col[2] = big ? 255 : 255;
+            }
             for (int k = 0; k < 3; ++k)
               px[(static_cast<std::size_t>(y) * W + x) * 3 + k] = static_cast<unsigned char>(col[k] * shade);
           }
@@ -121,11 +145,11 @@ int gen_main(int argc, char** argv) {
         const double lat = 87.5 - 5.0 * row;
         for (int col = 0; col < 96; ++col) {
           const auto c = grid.cell_at(lat, -180.0 + 3.75 * (col + 0.5));
-          std::cout << (f.land(c) ? glyph[static_cast<int>(f.biome[c])] : (f.elevation_m[c] > -1500 ? '.' : ' '));
+          std::cout << (f.land(c) ? (land.river[c] == 2 ? '~' : glyph[static_cast<int>(f.biome[c])]) : (f.elevation_m[c] > -1500 ? '.' : ' '));
         }
         std::cout << "\n";
       }
-      std::cout << "legend: ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
+      std::cout << "legend: '~' large river, ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
       return 0;
     }

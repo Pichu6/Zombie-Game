@@ -281,6 +281,7 @@ Reported, from search summaries; confirm on each publisher's page before shippin
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
+- [rivers-and-runoff](../research/rivers-and-runoff.md): Rivers, runoff and wood stock: numbers for the land generator
 - [cities-skylines](../research/cities-skylines.md): Cities: Skylines, as a reference for the City layer
 - [foxhole](../research/foxhole.md): Foxhole, as a reference for war and logistics
 - [hearts-of-iron](../research/hearts-of-iron.md): Hearts of Iron IV, as a reference for the Macro layer

@@ -62,6 +62,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | Note | Title | Date |
 | --- | --- | --- |
 | [world-generation-prior-art.md](world-generation-prior-art.md) | World generation: prior art | 2026-10-07 |
+| [rivers-and-runoff.md](rivers-and-runoff.md) | Rivers, runoff and wood stock: numbers for the land generator | 2026-10-09 |
 | [world-numbers-capacity.md](world-numbers-capacity.md) | World numbers: how many people can a world hold? | 2026-10-06 |
 | [world-numbers-demography.md](world-numbers-demography.md) | World numbers: demography, structure, education, labour, inequality, production | 2026-10-06 |
 | [world-numbers-nations.md](world-numbers-nations.md) | World numbers for nations: how they arise, how big they are, what they can do | 2026-10-06 |

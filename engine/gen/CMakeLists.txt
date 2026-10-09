@@ -10,6 +10,7 @@ add_library(zs_gen
   src/place.cpp
   src/world_people.cpp
   src/dwellings.cpp
+  src/world_land.cpp
 )
 target_include_directories(zs_gen PUBLIC include)
 target_include_directories(zs_gen PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)
