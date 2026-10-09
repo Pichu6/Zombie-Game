@@ -99,6 +99,7 @@ struct App {
   std::size_t seen = 0;  // events already turned into log lines
   char filter[64] = "";
   bool show[kCategories] = {true, true, true, true};
+  bool pause_on_alerts = false;  // a sandbox option, off by default: watching lets the simulation run (decision 0056)
   bool only_selected = false;
   std::vector<AlertLine> alerts;
   std::map<EntityId, std::int64_t> sighted;  // walker -> last tick a group member saw it
@@ -216,7 +217,7 @@ const char* compass(double dx, double dy) {
 
 void raise_alert(App& a, const std::string& text) {
   const std::int64_t now = a.t.world->clock.tick;
-  a.pacer.alert(text, now);
+  if (a.pause_on_alerts) a.pacer.alert(text, now);  // otherwise the alert is only shown, time runs on
   a.alerts.push_back({now, text});
   if (a.alerts.size() > 20) a.alerts.erase(a.alerts.begin());
   a.resting = false;
@@ -742,7 +743,7 @@ void map_notes(App& a, ImDrawList* d) {
     if (w.clock.tick - it->tick > 60 * kGameMinute) break;
     const std::string s = time_text(it->tick).substr(time_text(it->tick).size() - 5) + "  " + it->text;
     const float wdt = ImGui::CalcTextSize(s.c_str()).x;
-    note({a.view_max.x - wdt - 10, y}, shown == 0 && a.pacer.alerted() ? rgb(255, 120, 120) : rgb(230, 200, 160), s);
+    note({a.view_max.x - wdt - 10, y}, shown == 0 && w.clock.tick - it->tick < 2 * kGameMinute ? rgb(255, 120, 120) : rgb(230, 200, 160), s);
     y += 20;
   }
 }
@@ -1038,6 +1039,10 @@ void time_bar(App& a) {
     if (ImGui::RadioButton(label.c_str(), a.pacer.requested() == kSpeeds[i] && !a.resting)) set_speed(a, kSpeeds[i]);
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", pace_meaning(kSpeeds[i]));
   }
+  ImGui::SameLine();
+  ImGui::Checkbox("Pause on alerts", &a.pause_on_alerts);
+  if (ImGui::IsItemHovered())
+    ImGui::SetTooltip("Off: alerts are shown at the top right and time keeps running.\nOn: a walker in sight, a bite or someone down pauses the game.");
   ImGui::SameLine();
   if (ImGui::Button(a.resting ? "Stop resting" : "Rest until something happens")) {
     a.resting = !a.resting;
