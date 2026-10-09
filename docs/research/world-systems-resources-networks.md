@@ -42,6 +42,12 @@
 | WSR-34 | Lay grids, roads and rail as a minimum spanning tree on terrain cost, then add loops where cheap relative to the detour saved; transmission meshed, distribution radial from each substation | estimate | this note |
 | WSR-35 | Grid losses and non-revenue water are outcomes of maintenance spending, felt by pops as blackouts and dry taps | estimate | this note |
 | WSR-36 | Data licences: USGS and Natural Earth are public domain, the WRI power plant database and some IRENA datasets are CC BY 4.0; OpenStreetMap (ODbL share-alike) and the Energy Institute review need a decision before use | reported | https://old-datasets.wri.org/dataset/globalpowerplantdatabase |
+| WSR-37 | World proved oil reserves at the end of 2020: 1,732 billion barrels (BP) or 1,549 (OPEC); estimates for 2020 ranged between the two. | reported | https://www.bp.com/content/dam/bp/business-sites/en/global/corporate/pdfs/energy-economics/statistical-review/bp-stats-review-2021-oil.pdf ; https://www.sciencedirect.com/science/article/pii/S2666049022000524 |
+| WSR-38 | World proven natural gas reserves at the end of 2020: 206.7 trillion m³ (OPEC). | reported | https://spglobal.com/commodity-insights/en/news-research/latest-news/crude-oil/093021-world-proven-crude-reserves-rose-02-in-2020-gas-reserves-fell-04-opec-report |
+| WSR-39 | World coal reserves about 1,074 billion tonnes (Energy Institute, 2020 values). | reported | https://ourworldindata.org/grapher/coal-proved-reserves?tab=table |
+| WSR-40 | World iron ore reserves 180 billion t of crude ore holding 85 billion t of iron (USGS 2022); resources over 900 billion t of ore holding over 260 billion t of iron. | reported | https://pubs.usgs.gov/periodicals/mcs2022/mcs2022-iron-ore.pdf |
+| WSR-41 | World bauxite reserves about 30 billion t (USGS, older summaries; a 2025 compilation gives 23.2); resources 55-75 billion t. | reported | https://pubs.usgs.gov/periodicals/mcs2020/mcs2020-bauxite-alumina.pdf |
+| WSR-42 | Coal forms in foreland basins in front of rising mountain belts (the Variscan foreland of the Ruhr and Belgium, the Appalachian basin) and in intracratonic basins and rifts (the Karoo); the share of world coal by basin type was not found. | reported | https://ncs-old.naturalsciences.be/node/1671 ; https://gsa.confex.com/gsa/2001AM/webprogram/Paper27876.html |
 
 ## 1. Numbers
 

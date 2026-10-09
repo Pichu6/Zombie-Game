@@ -21,6 +21,7 @@
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
 #include "zs/gen/world_fields.h"
+#include "zs/gen/world_deposits.h"
 #include "zs/gen/world_land.h"
 #include "modes.h"
 
@@ -98,6 +99,19 @@ int gen_main(int argc, char** argv) {
       std::cout << "land (spec 52): runoff " << 100.0 * land.runoff_km3 / land.land_rain_km3 << "% of land rain (" << land.runoff_km3
                 << " km3/yr); river cells " << rivers << ", large " << large << ", largest " << largest << " m3/s; lake cells " << lakes
                 << "; arable " << 100.0 * arable / land_area << "% of land; capacity " << capacity / 1e9 << " billion people\n";
+      // Spec 52 slice 3: deposits, with their totals.
+      zs::gen::DepositParams dp;
+      dp.seed = seed;
+      const zs::gen::WorldDeposits deposits = zs::gen::generate_deposits(grid, f, dp);
+      std::cout << "deposits (spec 52):";
+      for (int k = 0; k < zs::gen::resource_count; ++k) {
+        const auto r = static_cast<zs::gen::Resource>(k);
+        int count = 0;
+        for (const auto& d : deposits.deposits) count += d.kind == r;
+        std::cout << " " << zs::gen::resource_name(r) << " " << count << " (" << deposits.total(r) / 1e9 << " billion "
+                  << zs::gen::resource_unit(r) << ");";
+      }
+      std::cout << "\n";
       const std::string bmp = arg(argc, argv, "--bmp", "");
       if (!bmp.empty()) {
         // 2:1 equirectangular map, 24-bit BMP: biome colour shaded by height or depth.
