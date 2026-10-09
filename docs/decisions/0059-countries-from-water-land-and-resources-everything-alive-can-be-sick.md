@@ -1,0 +1,20 @@
+# 0059 · Countries form from water, land and resources; starts are chosen by geography; everything alive can be sick
+
+- **Date:** 2026-10-09
+- **Status:** Decided by the user on 2026-10-08/09, with the defaults marked as taken by Claude ([0052](0052-one-executable-one-simulation.md) item 6). The user: countries form "alongside resources and water"; a custom start should give different difficulties, "surviving as a country in a low-resources area, or a rich one"; wildlife, nature and woods "count as resources too"; soil, fauna and flora should be able to get sick or infected "like in real life"; the zombie pathogen in animals: "default, no", as an option.
+- **Builds on:** [0036](0036-worlds-start-with-nations-and-everything-follows-logic.md), [0057](0057-country-economy-geography-zones.md), [spec 48](../tier0/specs/48-people-sectors-countries.md) (people, sectors, countries today), [spec 37](../tier0/specs/37-flora-and-fauna.md) (living stocks), [spec 38](../tier0/specs/38-outbreak.md) (compartments across levels), [world systems](../design/world-systems.md) steps 2-3, research [WSE-15, WSE-27..29, WSE-37, WSE-38](../research/world-systems-ecology.md).
+
+## Decision
+
+1. **Resources are of two kinds.** Renewable: fresh water, soil fertility, forests, game, fish (they regrow, and collapse when overused; recovery takes decades). Finite: coal, oil, gas, metal ores, stone (from the geology; they run out). Both are generated from the world's own fields, never painted at random.
+2. **Countries form where water, food and resources are.** Rivers come from the terrain and rain; early cores sit on water and good land; territory spreads by reach; mountains, deserts, seas and large rivers make the natural borders. A country's wealth comes from what its land holds (food, water, energy, minerals, coast, navigable rivers) plus a small share of luck for history, replacing spec 48's suitability-times-luck score.
+3. **How many countries and how big** follows the land and a world-creation setting for political fragmentation (default taken by Claude: middle), instead of a fixed three sectors per country; sizes come out unequal, as on Earth.
+4. **Starts are chosen by geography.** The player picks any country from its card (food, water, energy, minerals, coast, neighbours, a difficulty worked out from them) or a start type the generator finds a region for: river valley, mineral rich, arid and landlocked, island, between giants, rich and coveted, forest frontier (list: default taken by Claude). The difficulty is the land, never a modifier.
+5. **Everything alive can be sick.** Crops, forests, livestock, wildlife and fish are hosts: at a distance a living stock carries shares of sick and recovered (the compartments of spec 38); up close an animal or tree can be sick (as a wound in spec 21). Soil is not infected but degrades (erosion, salt, contamination, soil-borne pests) and recovers slowly. The links are kept: clearing forest raises wildlife contact, dense livestock raises spillover, a failed harvest weakens people, abandoned farms let pests spread.
+6. **The zombie pathogen does not reach animals by default.** A world-creation option offers: none (default), carriers (scavengers spread contaminated material but do not turn), animals turn. Animals always keep their own ordinary diseases.
+7. **Spatial spread uses local grid rules** (fire, disease between cells, forest regrowth from the edge, water and soil moving downhill), cellular-automaton style but with real rates, stepped only where watched and run on coarse steps or aggregate forms elsewhere (the jump rule of spec 40). Conway's rules themselves are not used.
+
+## Consequences
+
+- The next generator spec makes rivers, capacity per region, forests, game, fish, soil health and deposits on the world grid, then rebuilds country formation and wealth on them, then the starts and the country card.
+- Spec 48's income-group score and fixed sector-per-country ratio are replaced when that spec lands; its goldens will be re-pinned.
