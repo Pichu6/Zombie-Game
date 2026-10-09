@@ -67,6 +67,7 @@ A work list for a **local session on Windows** (MSVC), built from six research n
 
 ## 4. Save format 4 and zstd
 
+- [ ] **Library ready 2026-10-09; the save code is not written.** zstd 1.5.7 is vendored in `third_party/zstd` (the official release tarball, checksum checked, library only), built as `zs_zstd` single-threaded without the assembly decoder; `engine/sim/tests/test_zstd.cpp` round-trips a save at levels 1, 3 and 19 and refuses a corrupted frame. Still to do: save format version 5 (spec 06 rule 16; version 4 went to spec 50), writing and reading compressed saves, the autosave history of rule 18.
 - [ ] **Spec first** (written 2026-10-08: spec 06 rules 15-20): [spec 06](specs/06-save-replay.md): format version 4 header (codec, uncompressed size, binary hash, data hash, seed, settings); zstd levels and frame rules (0055 §4); one full save per game day plus deltas in the autosave history; goldens hash uncompressed bytes.
 - Vendor zstd (a pinned release, BSD licence) in `third_party/` and list it in `third_party/README.md`.
 - `engine/sim/src/world.cpp:164-175` — write the version 4 header; keep the version 3 reader.
@@ -80,6 +81,7 @@ A work list for a **local session on Windows** (MSVC), built from six research n
 
 ## 6. Library pins and notices
 
+- [x] **Implemented 2026-10-09** with the user's permission to download: SDL release-3.4.18 (`829a65d7`), Dear ImGui v1.92.9b (`f1cc2ae1`), doctest 2.5.3 vendored; `third_party/README.md` lists the vendored and the fetched libraries with their licences, ready for a notices file. Validated: release and debug `ctest` on MSVC (see the commit). The notices file itself is not generated yet.
 - [ ] `apps/zs/CMakeLists.txt:16` — SDL `release-3.4.8` to `release-3.4.18` (GPU, D3D12 and Vulkan renderer fixes). ([ES](../research/engine-stack.md))
 - `apps/zs/CMakeLists.txt:20` — ImGui `v1.92.9` to `v1.92.9b` (two regressions fixed). (ES-37)
 - `third_party/README.md` — doctest 2.4.11 to 2.5.3 when convenient; list the fetched SDL3 and ImGui with their licences, so a notices file can be generated (0055 §1.8).

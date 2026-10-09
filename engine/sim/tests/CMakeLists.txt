@@ -37,10 +37,11 @@ add_executable(zs_sim_tests
   test_orders.cpp
   test_time.cpp
   test_movement.cpp
+  test_zstd.cpp
   test_one_world.cpp
   test_global_tables.cpp
 )
 target_include_directories(zs_sim_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)
-target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck)
+target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck zs_zstd)
 target_compile_definitions(zs_sim_tests PRIVATE ZS_FIXTURES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/fixtures")
 add_test(NAME zs_sim_tests COMMAND zs_sim_tests)

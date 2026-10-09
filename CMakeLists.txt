@@ -31,6 +31,7 @@ else()
   endif()
 endif()
 
+add_subdirectory(third_party/zstd)
 add_subdirectory(engine/sim)
 add_subdirectory(engine/gen)
 add_subdirectory(apps/zs)

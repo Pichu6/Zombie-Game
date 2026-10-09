@@ -13,11 +13,11 @@ if(ZS_BUILD_WINDOW)
   set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
   FetchContent_Declare(sdl3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-    GIT_TAG d9d5536704d585616d4db3c8ba3c4ff6fc2757e1  # release-3.4.8
+    GIT_TAG 829a65d769d935c4852f8159e964312c0957260a  # release-3.4.18
     GIT_SHALLOW FALSE)
   FetchContent_Declare(imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG 01380c579715e62fb9a8d6ec0502c4ea83bfde6e  # v1.92.9
+    GIT_TAG f1cc2ae15e53a861a874c3034aae6798fde194ab  # v1.92.9b
     GIT_SHALLOW FALSE)
   FetchContent_MakeAvailable(sdl3 imgui)
 
