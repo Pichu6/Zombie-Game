@@ -48,11 +48,18 @@ constexpr double kMild = 0.33, kBad = 0.6, kSevere = 0.85;
 
 enum class Overlay { None, Noise, Light };
 
+// Log categories, each with a filter checkbox (spec 16 rule 12).
+enum Category { kActions = 0, kBody = 1, kDanger = 2, kWorld = 3, kCategories = 4 };
+const char* const kCategoryNames[kCategories] = {"Actions", "Body", "Danger", "World"};
+
 struct LogLine {
   std::int64_t tick;       // first occurrence
   std::int64_t last_tick;  // last repeat, for coalescing within a game minute
   std::string text;
   const char* kind;
+  int category = kWorld;
+  EntityId subject = 0;
+  EventId event = 0;       // the last occurrence: its cause chain shows on hover
   int count = 1;
 };
 
@@ -91,6 +98,8 @@ struct App {
   std::vector<LogLine> log;
   std::size_t seen = 0;  // events already turned into log lines
   char filter[64] = "";
+  bool show[kCategories] = {true, true, true, true};
+  bool only_selected = false;
   std::vector<AlertLine> alerts;
   std::map<EntityId, std::int64_t> sighted;  // walker -> last tick a group member saw it
   std::int64_t sight_tick = -1;
@@ -242,6 +251,72 @@ void check_sight(App& a) {
   }
 }
 
+const char* const kHeadingNames[8] = {"north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"};
+
+std::string process_name(const App& a, std::int64_t p) {
+  const auto& procs = a.t.actors->processes();
+  return p >= 0 && static_cast<std::size_t>(p) < procs.size() ? procs[static_cast<std::size_t>(p)].name : std::string("walking");
+}
+
+std::string where(const App& a, const Cell& c) {
+  const int r = a.t.map->room_of(c);
+  const bool indoor = r >= 0 && a.t.map->rooms()[static_cast<std::size_t>(r)].indoor;
+  const char* level = c.z < 0 ? "the basement" : c.z == 0 ? "the ground floor" : "upstairs";
+  return std::string(indoor ? "indoors on " : "outdoors on ") + level + " (" + std::to_string(c.x) + ", " + std::to_string(c.y) + ")";
+}
+
+struct Described {
+  std::string text;
+  const char* kind;  // colour: alert, dead, body, done
+  int category;
+};
+
+// One event in words, with its context (spec 16 rule 12). The chronicle's own lines (tier0::event_line, shared with the
+// headless app) stay as they are; the window adds the everyday ones: orders, actions done or stopped, sleep, wounds.
+std::optional<Described> describe(const App& a, const Event& e) {
+  const auto nm = [&](EntityId b) { return a.name(b); };
+  switch (e.type) {
+    case EventType::Intent: {
+      switch (static_cast<CommandType>(e.a)) {
+        case CommandType::MoveTo: return Described{nm(e.subject) + ": going to a spot " + where(a, unpack_cell(e.b)), "body", kActions};
+        case CommandType::Use: return Described{nm(e.subject) + ": decided to " + process_name(a, e.b), "body", kActions};
+        case CommandType::Cancel: return Described{nm(e.subject) + ": dropped what they were doing", "body", kActions};
+        case CommandType::Walk:
+          if (e.b < 0 || e.b > 7) return std::nullopt;  // releasing the keys says nothing new
+          return Described{nm(e.subject) + ": walking " + kHeadingNames[e.b], "body", kActions};
+      }
+      return std::nullopt;
+    }
+    case EventType::ActionDone:
+      if (e.a < 0) return std::nullopt;
+      return Described{nm(e.subject) + ": finished \"" + process_name(a, e.a) + "\"", "done", kActions};
+    case EventType::ActionInterrupted:
+      return Described{nm(e.subject) + ": stopped " + (e.a < 0 ? std::string("walking") : "\"" + process_name(a, e.a) + "\"") +
+                       " (" + to_string(static_cast<Reason>(e.b)) + ")", "body", kActions};
+    case EventType::ActionRefused:
+      return Described{nm(e.subject) + ": can't " + (e.a < 0 ? std::string("get there") : process_name(a, e.a)) + " (" +
+                       to_string(static_cast<Reason>(e.b)) + ")", "body", kActions};
+    case EventType::FellAsleep: return Described{nm(e.subject) + " fell asleep", "body", kBody};
+    case EventType::WokeUp: return Described{nm(e.subject) + " woke up", "body", kBody};
+    case EventType::NewWound:
+      return Described{nm(e.subject) + " got a wound (" + to_string(static_cast<Region>(e.b)) + ")", "dead", kBody};
+    case EventType::InfectionVisible: return Described{nm(e.subject) + "'s wound looks infected", "alert", kBody};
+    case EventType::WoundHealed: return Described{nm(e.subject) + "'s wound healed", "done", kBody};
+    case EventType::Grabbed: return Described{"A walker grabbed " + nm(static_cast<EntityId>(e.a)), "dead", kDanger};
+    case EventType::GeneratorStalled: return Described{"The generator stalled", "alert", kWorld};
+    case EventType::BreakerTripped: return Described{"A breaker tripped", "alert", kWorld};
+    case EventType::PartFailed: return Described{"A part gave way", "alert", kDanger};
+    default: break;
+  }
+  if (auto l = event_line(a.t, e)) {
+    const bool danger = std::strcmp(l->kind, "dead") == 0 || e.type == EventType::Bite || e.type == EventType::EdgeBreached ||
+                        e.type == EventType::Panicked;
+    const int cat = danger ? kDanger : std::strcmp(l->kind, "body") == 0 ? kBody : std::strcmp(l->kind, "done") == 0 ? kActions : kWorld;
+    return Described{l->text, l->kind, cat};
+  }
+  return std::nullopt;
+}
+
 void read_events(App& a) {
   const auto& all = a.t.world->log.all();
   for (; a.seen < all.size(); ++a.seen) {
@@ -250,15 +325,16 @@ void read_events(App& a) {
     if (e.type == EventType::Bite && a.in_group(static_cast<EntityId>(e.a)))
       raise_alert(a, a.name(e.subject) + " bit " + a.name(static_cast<EntityId>(e.a)));
     else if (e.type == EventType::Death && a.in_group(e.subject))
-      raise_alert(a, a.name(e.subject) + " is down");
-    if (auto l = event_line(a.t, e)) {
+      raise_alert(a, a.name(e.subject) == "You" ? std::string("You are down") : a.name(e.subject) + " is down");
+    if (auto l = describe(a, e)) {
       if (a.resting && (std::strcmp(l->kind, "alert") == 0 || std::strcmp(l->kind, "dead") == 0)) a.resting = false;
       // Identical lines within a game minute coalesce as "x N" (spec 16 rule 12).
       if (!a.log.empty() && a.log.back().text == l->text && e.tick - a.log.back().last_tick <= kGameMinute) {
         ++a.log.back().count;
         a.log.back().last_tick = e.tick;
+        a.log.back().event = e.id;
       } else {
-        a.log.push_back({e.tick, e.tick, l->text, l->kind});
+        a.log.push_back({e.tick, e.tick, l->text, l->kind, l->category, e.subject, e.id});
       }
     }
   }
@@ -902,43 +978,81 @@ void map_input(App& a) {
 
 // ---- Panels ----
 
+// What a speed means, in words (spec 16 rule 4).
+const char* pace_meaning(Pace p) {
+  switch (p) {
+    case Pace::Real: return "real time: one second is one second";
+    case Pace::X3: return "3x: one real second is three game seconds";
+    case Pace::X10: return "10x: one real second is ten game seconds";
+    case Pace::DayPerHour: return "one real hour is one game day (24x)";
+    case Pace::X60: return "60x: one real second is a game minute";
+    case Pace::X360: return "360x: one real second is six game minutes";
+    default: return pace_name(p);
+  }
+}
+
+std::string run_time(std::int64_t ticks) {
+  const std::int64_t s = static_cast<std::int64_t>(static_cast<double>(ticks) * kTickSeconds);
+  char buf[48];
+  std::snprintf(buf, sizeof buf, "%lld d %02lld:%02lld", static_cast<long long>(s / 86400), static_cast<long long>(s / 3600 % 24),
+                static_cast<long long>(s / 60 % 60));
+  return buf;
+}
+
 void time_bar(App& a) {
   const World& w = *a.t.world;
   const Power& p = *a.t.power;
+  const std::int64_t now = w.clock.tick;
   ImGui::SetNextWindowPos({8, 8}, ImGuiCond_FirstUseEver);
   ImGui::Begin("Time", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
-  ImGui::Text("%s", time_text(w.clock.tick).c_str());
-  for (int i = 0; i < 7; ++i) {
-    ImGui::SameLine();
-    const std::string label = (i == 0 ? std::string("Pause") : std::string(pace_name(kSpeeds[i]))) + "##s" + std::to_string(i);
-    if (ImGui::RadioButton(label.c_str(), a.pacer.requested() == kSpeeds[i] && !a.resting)) set_speed(a, kSpeeds[i]);
+  // 1. The state, in one plain line: is time running, how fast, and why it is not.
+  const Pace eff = a.pacer.effective(now);
+  if (a.pacer.alerted()) {
+    ImGui::TextColored({1, 0.45f, 0.45f, 1}, "PAUSED by an alert: %s.  Press Space to continue.", a.pacer.alert_text().c_str());
+  } else if (a.resting) {
+    ImGui::TextColored({0.6f, 0.8f, 1, 1}, "RESTING: skipping time until something happens or %s.", time_text(a.rest_until).c_str());
+  } else if (eff == Pace::Pause) {
+    ImGui::TextColored({1, 0.85f, 0.4f, 1}, "PAUSED.  Press Space (or the button) to continue.");
+  } else if (const std::string* who = a.pacer.limiting(now)) {
+    ImGui::TextColored({0.55f, 0.9f, 0.55f, 1}, "RUNNING at %s - slowed from %s while \"%s\".", pace_meaning(eff), pace_name(a.pacer.requested()),
+                       who->c_str());
+  } else {
+    ImGui::TextColored({0.55f, 0.9f, 0.55f, 1}, "RUNNING at %s.", pace_meaning(eff));
+  }
+  // 2. The clocks: the game's date and hour, how long the run has lasted, how long you have played.
+  const int played = static_cast<int>(a.real_s);
+  ImGui::Text("Now: %s   |   run so far: %s   |   played: %d:%02d", time_text(now).c_str(), run_time(now).c_str(), played / 60,
+              played % 60);
+  // 3. The controls.
+  const bool running = a.pacer.requested() != Pace::Pause || a.resting;
+  if (ImGui::Button(a.pacer.alerted() ? "Continue (Space)" : running ? "Pause (Space)" : "Continue (Space)", {130, 0})) {
+    if (a.pacer.alerted()) a.pacer.acknowledge();
+    else set_speed(a, running ? Pace::Pause : a.resume);
+    a.resting = false;
   }
   ImGui::SameLine();
-  if (ImGui::Button(a.resting ? "Resting..." : "Rest until something happens")) {
+  ImGui::TextDisabled("Speed:");
+  for (int i = 1; i < 7; ++i) {
+    ImGui::SameLine();
+    const std::string label = std::string(i == 4 ? "1h = 1 day" : pace_name(kSpeeds[i])) + " (" + std::to_string(i) + ")##s" + std::to_string(i);
+    if (ImGui::RadioButton(label.c_str(), a.pacer.requested() == kSpeeds[i] && !a.resting)) set_speed(a, kSpeeds[i]);
+    if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", pace_meaning(kSpeeds[i]));
+  }
+  ImGui::SameLine();
+  if (ImGui::Button(a.resting ? "Stop resting" : "Rest until something happens")) {
     a.resting = !a.resting;
-    a.rest_until = w.clock.tick + 8 * kTicksPerGameHour;
+    a.rest_until = now + 8 * kTicksPerGameHour;
     if (a.resting) a.pacer.acknowledge();
   }
-  // What actually runs, and why if it is slower than asked (spec 16 rule 4).
-  if (a.pacer.alerted()) {
-    ImGui::TextColored({1, 0.45f, 0.45f, 1}, "ALERT: %s  (Space to continue)", a.pacer.alert_text().c_str());
-  } else if (a.resting) {
-    ImGui::TextDisabled("Resting: as fast as the machine allows, until an alert or %s", time_text(a.rest_until).c_str());
-  } else if (const std::string* who = a.pacer.limiting(w.clock.tick)) {
-    ImGui::TextColored({1, 0.85f, 0.4f, 1}, "Running at %s: held by \"%s\"", pace_name(a.pacer.effective(w.clock.tick)), who->c_str());
-  } else if (a.pacer.effective(w.clock.tick) == Pace::Pause) {
-    ImGui::TextDisabled("Paused: Space to run");
-  } else {
-    ImGui::TextDisabled("Running at %s", pace_name(a.pacer.effective(w.clock.tick)));
-  }
+  // 4. Where we are and the house's power.
   const double fuel_l = static_cast<double>(p.fuel_ul(w)) / 1e6;
   if (const PlaceSystem* place = a.t.place) {  // spec 42 rule 7
     const Place& at = place->place();
-    ImGui::Text("A town of %.0f in %s, %s income | %s, %.0f %s %.0f %s, %.0f m | outside %.1f C | rain today %.1f mm",
-                at.town_people, at.country_name.empty() ? "a base country" : at.country_name.c_str(),
-                at.income == "upper_middle" ? "upper-middle" : at.income == "lower_middle" ? "lower-middle" : at.income.c_str(),
-                at.biome.c_str(), std::abs(at.lat_deg), at.lat_deg < 0 ? "S" : "N", std::abs(at.lon_deg), at.lon_deg < 0 ? "W" : "E",
-                at.elevation_m, place->outdoor_c(w), place->today_rain_mm(w));
+    ImGui::TextDisabled("A town of %.0f in %s, %s income | %s, %.0f %s %.0f %s, %.0f m | outside %.1f C | rain today %.1f mm",
+                        at.town_people, at.country_name.empty() ? "a base country" : at.country_name.c_str(),
+                        at.income == "upper_middle" ? "upper-middle" : at.income == "lower_middle" ? "lower-middle" : at.income.c_str(),
+                        at.biome.c_str(), std::abs(at.lat_deg), at.lat_deg < 0 ? "S" : "N", std::abs(at.lon_deg), at.lon_deg < 0 ? "W" : "E",
+                        at.elevation_m, place->outdoor_c(w), place->today_rain_mm(w));
   }
   ImGui::Text("Grid %s | generator %s, %.1f L | level %d (PgUp/PgDn)%s | overlay:", p.mains_alive() ? "on" : "DEAD",
               p.generator_running() ? "running" : "off", fuel_l, a.level, a.follow ? "" : " | F: follow again");
@@ -966,48 +1080,83 @@ void bar(const char* label, double v) {
   ImGui::TextUnformatted(label);
 }
 
+// What to do about a state, in a few words.
+const char* state_hint(const std::string& s) {
+  if (s == "thirst") return "drink water";
+  if (s == "hunger") return "eat something";
+  if (s == "fatigue") return "rest or sleep";
+  if (s == "pain") return "treat the wounds, rest";
+  if (s == "bleeding") return "dress the wound now";
+  if (s == "fear") return "get away from walkers, stay with the group";
+  if (s == "sick") return "clean the infected wound";
+  return "";
+}
+
 void inspector(App& a) {
   const ImGuiIO& io = ImGui::GetIO();
   ImGui::SetNextWindowPos({io.DisplaySize.x - 340, 8}, ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowSize({330, 470}, ImGuiCond_FirstUseEver);
-  ImGui::Begin("Inspector");
   const EntityId id = a.selected;
-  if (!id || !a.t.bodies->exists(id)) {
-    ImGui::TextDisabled("Left click a pop or a walker");
+  const bool any = id && a.t.bodies->exists(id);
+  const std::string title = (any ? "Selected: " + a.name(id) : std::string("Selected: nobody")) + "###Inspector";
+  ImGui::Begin(title.c_str());
+  if (!any) {
+    ImGui::TextWrapped("Left click a person or a walker on the map (or a name in the Group panel) to see them here.");
     ImGui::End();
     return;
   }
   const World& w = *a.t.world;
   const Body& b = a.t.bodies->get(id);
-  ImGui::Text("%s, %d%s", a.name(id).c_str(), static_cast<int>(b.spec.age),
-              b.spec.walker ? " (walker)" : !b.alive ? " (dead)" : id == a.me() ? " (controlled)"
-              : a.t.ai && a.t.ai->minds().contains(id) ? " (AI)" : "");
-  if (a.t.actors->actors().contains(id)) {
+  // Who this is, in one line.
+  const char* who = b.spec.walker ? "a walker: a dead person who walks" : !b.alive ? "dead" : id == a.me() ? "you control this person"
+                    : a.t.ai && a.t.ai->minds().contains(id) ? "driven by the AI" : "not in your group yet";
+  ImGui::Text("%s, %d", a.name(id).c_str(), static_cast<int>(b.spec.age));
+  ImGui::TextDisabled("%s", who);
+  if (a.t.actors->actors().contains(id) && b.alive && !b.spec.walker) {
+    ImGui::SeparatorText("Doing");
     const Actor& act = a.t.actors->actor(id);
     std::string doing = act.action.phase == Phase::Idle ? "nothing" : act.action.process < 0 ? "walking"
                         : a.t.actors->processes()[static_cast<std::size_t>(act.action.process)].name;
-    if (act.action.phase == Phase::Approach && act.action.process >= 0) doing = "going to: " + doing;
-    ImGui::Text("Doing: %s%s", doing.c_str(), b.activity.asleep ? " (asleep)" : "");
+    if (act.action.phase == Phase::Approach && act.action.process >= 0) doing = "on the way to: " + doing;
+    ImGui::Text("%s%s", doing.c_str(), b.activity.asleep ? " (asleep)" : "");
     if (const auto d = doing_of(a, id); d && d->done >= 0)
       ImGui::ProgressBar(static_cast<float>(d->done), {-1, 0}, (duration_text(d->left_s) + " left").c_str());
     if (a.t.ai && a.t.ai->minds().contains(id) && id != a.t.ai->possessed())
-      ImGui::Text("Mind: %s", to_string(a.t.ai->mind(id).doing));
+      ImGui::TextDisabled("The AI wants to: %s", to_string(a.t.ai->mind(id).doing));
   }
   if (b.alive && !b.spec.walker) {
-    ImGui::SeparatorText("Body");
-    const Needs n = a.t.bodies->needs(b);
-    bar("thirst", n.thirst);
-    bar("hunger", n.hunger);
-    bar("tiredness", n.tiredness);
-    bar("exhaustion", n.exhaustion);
-    bar("blood lost", std::min(1.0, a.t.bodies->blood_loss_fraction(b) / 0.3));
-    bar("pain", a.t.bodies->pain(b, w.clock.tick));
-    bar("fear", b.fear);
-    bar("low morale", 1 - b.morale);
+    // How they are: only what is wrong, worst first, with what helps; everything else is fine.
+    ImGui::SeparatorText("How they are");
+    const auto states = worst_states(a, id);
+    if (states.empty()) {
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.55f, 0.85f, 0.55f, 1});
+      ImGui::TextWrapped("Fine: not hungry, thirsty, tired, hurt or afraid.");
+      ImGui::PopStyleColor();
+    }
+    for (const State& s : states) {
+      std::string name = s.name;
+      name[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(name[0])));
+      ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(band_colour(s.v)), "%s: %s", name.c_str(), band_word(s.v));
+      ImGui::SameLine();
+      ImGui::TextDisabled("- %s", state_hint(s.name));
+    }
+    if (ImGui::TreeNode("All body values")) {
+      const Needs n = a.t.bodies->needs(b);
+      bar("thirst", n.thirst);
+      bar("hunger", n.hunger);
+      bar("tiredness", n.tiredness);
+      bar("exhaustion", n.exhaustion);
+      bar("blood lost", std::min(1.0, a.t.bodies->blood_loss_fraction(b) / 0.3));
+      bar("pain", a.t.bodies->pain(b, w.clock.tick));
+      bar("fear", b.fear);
+      bar("low morale", 1 - b.morale);
+      ImGui::TextDisabled("Bars fill as things get worse.");
+      ImGui::TreePop();
+    }
   }
   // Wounds grouped by region, with a count (spec 16 rule 12).
   ImGui::SeparatorText("Wounds");
-  if (b.wounds.empty()) ImGui::TextDisabled("none");
+  if (b.wounds.empty()) ImGui::TextDisabled("No wounds.");
   std::map<int, std::vector<const Wound*>> by_region;
   for (const Wound& wd : b.wounds) by_region[static_cast<int>(wd.region)].push_back(&wd);
   for (const auto& [region, list] : by_region) {
@@ -1027,11 +1176,11 @@ void inspector(App& a) {
   if (a.t.actors->actors().contains(id)) {
     ImGui::SeparatorText("Carrying");
     const auto carried = a.t.actors->carried(w, id);
-    if (carried.empty()) ImGui::TextDisabled("nothing");
+    if (carried.empty()) ImGui::TextDisabled("Nothing.");
     for (EntityId it : carried) ImGui::BulletText("%s", a.t.items->def(a.t.items->get(it).def).name.c_str());
   }
   ImGui::Separator();
-  ImGui::Checkbox("Debug: show the truth", &a.truth);
+  ImGui::Checkbox("Debug: show hidden truth (infection)", &a.truth);
   ImGui::End();
 }
 
@@ -1079,22 +1228,62 @@ void group_panel(App& a) {
   ImGui::End();
 }
 
+// One legend row: a sample drawn by `draw` in a 28x18 box, then the words.
+template <typename Draw>
+void legend_row(const char* words, Draw draw) {
+  const ImVec2 p = ImGui::GetCursorScreenPos();
+  draw(ImGui::GetWindowDrawList(), ImVec2{p.x + 14, p.y + 9});
+  ImGui::Dummy({30, 18});
+  ImGui::SameLine();
+  ImGui::TextUnformatted(words);
+}
+
 void map_key(App& a) {
   const ImGuiIO& io = ImGui::GetIO();
   ImGui::SetNextWindowPos({io.DisplaySize.x - 340, 694}, ImGuiCond_FirstUseEver);
-  ImGui::SetNextWindowSize({330, 0}, ImGuiCond_FirstUseEver);
-  ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
-  ImGui::Begin("Map key");
-  ImGui::TextWrapped("Disc: a person (ring: you; arrow: where you head). Diamond: a walker (bright with a line: it is after "
-                     "something). Square: an object. Yellow dot: an item on the floor. Orange line: boards on a door or window. "
-                     "Blue line: a window. Brown: a door. Red flash: a wall that stopped a step.");
+  ImGui::SetNextWindowSize({330, 200}, ImGuiCond_FirstUseEver);
+  ImGui::Begin("Legend: what the map shows###Legend");
+  const auto line = [](ImU32 col, float thick) {
+    return [col, thick](ImDrawList* d, ImVec2 c) { d->AddLine({c.x - 12, c.y}, {c.x + 12, c.y}, col, thick); };
+  };
+  legend_row("you (white ring, arrow: where you head)", [](ImDrawList* d, ImVec2 c) {
+    d->AddCircleFilled(c, 7, kPopColours[0]);
+    d->AddCircle(c, 9, rgb(255, 255, 255), 0, 2.5f);
+  });
+  legend_row("a person of your group", [](ImDrawList* d, ImVec2 c) { d->AddCircleFilled(c, 7, kPopColours[1]); });
+  legend_row("a walker standing still", [](ImDrawList* d, ImVec2 c) {
+    d->AddQuadFilled({c.x, c.y - 8}, {c.x + 8, c.y}, {c.x, c.y + 8}, {c.x - 8, c.y}, kWalkerIdle);
+  });
+  legend_row("a walker after something (line: where it goes)", [](ImDrawList* d, ImVec2 c) {
+    d->AddLine(c, {c.x + 14, c.y - 6}, rgb(238, 102, 119, 160), 1.5f);
+    d->AddQuadFilled({c.x, c.y - 8}, {c.x + 8, c.y}, {c.x, c.y + 8}, {c.x - 8, c.y}, kWalkerActive);
+  });
+  legend_row("an object or furniture (name below)", [](ImDrawList* d, ImVec2 c) {
+    d->AddRectFilled({c.x - 8, c.y - 8}, {c.x + 8, c.y + 8}, rgb(50, 50, 60));
+    d->AddRect({c.x - 8, c.y - 8}, {c.x + 8, c.y + 8}, rgb(200, 200, 210), 0.0f, 0, 1.5f);
+  });
+  legend_row("an item on the floor", [](ImDrawList* d, ImVec2 c) { d->AddCircleFilled(c, 3, rgb(240, 220, 120)); });
+  legend_row("work in progress (fills up)", [](ImDrawList* d, ImVec2 c) {
+    d->AddRectFilled({c.x - 12, c.y - 3}, {c.x + 12, c.y + 3}, rgb(15, 15, 18));
+    d->AddRectFilled({c.x - 12, c.y - 3}, {c.x + 2, c.y + 3}, rgb(120, 200, 120));
+  });
+  legend_row("outside wall", line(rgb(235, 230, 220), 4));
+  legend_row("inside wall", line(rgb(190, 185, 175), 3));
+  legend_row("door", line(rgb(170, 110, 50), 3));
+  legend_row("window", line(rgb(140, 200, 240), 3));
+  legend_row("boards nailed over a door or window", line(rgb(240, 140, 40), 3));
+  legend_row("a wall that stopped your step (flashes)", line(rgb(255, 80, 80), 5));
   ImGui::SeparatorText("Objects");
   std::vector<std::string> kinds;
   for (const MapObject& o : a.t.map->objects())
     if (drawn_object(o) && std::find(kinds.begin(), kinds.end(), o.kind) == kinds.end()) kinds.push_back(o.kind);
   std::sort(kinds.begin(), kinds.end());
-  for (const std::string& k : kinds) ImGui::BulletText("%s  %s", object_label(k).c_str(), k.c_str());
-  ImGui::SeparatorText("States");
+  for (const std::string& k : kinds) {
+    std::string name = k;
+    std::replace(name.begin(), name.end(), '_', ' ');
+    ImGui::BulletText("%-4s %s%s", object_label(k).c_str(), name.c_str(), a.t.map->blocked(*a.t.map->find_object(k)) ? " (blocks the way)" : "");
+  }
+  ImGui::SeparatorText("States (by you on the map and in Group)");
   ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(band_colour(kMild)), "mild");
   ImGui::SameLine();
   ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(band_colour(kBad)), "bad");
@@ -1107,18 +1296,39 @@ void log_panel(App& a) {
   const ImGuiIO& io = ImGui::GetIO();
   ImGui::SetNextWindowPos({8, io.DisplaySize.y - 236}, ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowSize({io.DisplaySize.x - 360, 210}, ImGuiCond_FirstUseEver);
-  ImGui::Begin("Events");
-  ImGui::SetNextItemWidth(200);
-  ImGui::InputTextWithHint("##filter", "filter", a.filter, sizeof a.filter);
+  ImGui::Begin("Events: what happened, and why (hover a line)###Events");
+  for (int c = 0; c < kCategories; ++c) {
+    ImGui::Checkbox(kCategoryNames[c], &a.show[c]);
+    ImGui::SameLine();
+  }
+  ImGui::Checkbox("only the selected person", &a.only_selected);
+  ImGui::SameLine();
+  ImGui::SetNextItemWidth(160);
+  ImGui::InputTextWithHint("##filter", "search", a.filter, sizeof a.filter);
   ImGui::BeginChild("lines");
   for (const LogLine& l : a.log) {
+    if (!a.show[l.category]) continue;
+    if (a.only_selected && l.subject != a.selected) continue;
     if (a.filter[0] && l.text.find(a.filter) == std::string::npos) continue;
     const ImVec4 col = std::strcmp(l.kind, "dead") == 0 ? ImVec4{1, 0.45f, 0.45f, 1}
                        : std::strcmp(l.kind, "body") == 0 ? ImVec4{0.7f, 0.7f, 0.7f, 1}
                        : std::strcmp(l.kind, "done") == 0 ? ImVec4{0.6f, 0.85f, 0.6f, 1}
                                                           : ImVec4{1, 0.85f, 0.4f, 1};
-    if (l.count > 1) ImGui::TextColored(col, "%s  %s  x%d", time_text(l.tick).c_str(), l.text.c_str(), l.count);
-    else ImGui::TextColored(col, "%s  %s", time_text(l.tick).c_str(), l.text.c_str());
+    if (l.count > 1) ImGui::TextColored(col, "%s  [%s]  %s  x%d", time_text(l.tick).c_str(), kCategoryNames[l.category], l.text.c_str(), l.count);
+    else ImGui::TextColored(col, "%s  [%s]  %s", time_text(l.tick).c_str(), kCategoryNames[l.category], l.text.c_str());
+    // The cause chain: what led to this, back to the first cause (spec 16: log lines link to their causes).
+    if (ImGui::IsItemHovered() && l.event) {
+      const auto chain = a.t.world->log.cause_chain(l.event);
+      ImGui::BeginTooltip();
+      ImGui::TextUnformatted("Why this happened:");
+      if (chain.size() <= 1) ImGui::TextDisabled("  nothing recorded before it (it started here)");
+      for (std::size_t i = 1; i < chain.size() && i < 8; ++i) {
+        const auto d = describe(a, chain[i]);
+        ImGui::Text("  %s  %s", time_text(chain[i].tick).c_str(),
+                    d ? d->text.c_str() : (std::string("event type ") + std::to_string(static_cast<int>(chain[i].type))).c_str());
+      }
+      ImGui::EndTooltip();
+    }
   }
   if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY() - 20) ImGui::SetScrollHereY(1.0f);
   ImGui::EndChild();

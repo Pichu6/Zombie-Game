@@ -46,6 +46,7 @@ Rules from the readability research (added 2026-10-08, [0055](../../decisions/00
 12. **Readable log and overlays.** Identical log lines within a game minute coalesce as "x N", wounds group by region; overlays carry a legend with scale and background, say "nothing above background" when empty, and light shows only cells above outdoor ambient. The hovered cell and the menu's cell are outlined; the controlled pop's path is drawn dotted ([VR-25, VR-34..36](../../research/view-readability.md)).
 13. **Map size.** The map fits below the time bar and left of the panels and starts at about 32 px per cell, following ([VR-27](../../research/view-readability.md)).
 14. **Action bar** (added 2026-10-08 after the user's playtest, [PZ-17](../../research/project-zomboid.md), [0049](../../decisions/0049-real-durations-played-as-progress-bars-with-a-speed-ladder.md)). A pop at work shows a bar over its head filled by `progress_s / total_s`; the controlled pop's bar is larger and carries the action's name and the game time left. The Inspector shows the same bar under "Doing". Approaching a job shows the job's name with an arrow, no bar. Read-only: the bar reads the action the simulation already keeps.
+15. **Plain words** (added 2026-10-08 after the user's notes on the screen). The time bar opens with one line that says whether time runs ("RUNNING at one real hour is one game day"), is paused ("PAUSED. Press Space to continue"), is held by an alert or rests, then the clocks: the game's date and hour, how long the run has lasted, how long the player has played. The pause control is a button named with its key; each speed says what it means on hover. The inspector is titled with the selected person, says who they are (controlled, AI, walker, dead), lists only what is wrong with a hint of what helps, and keeps the bars folded under "All body values". The legend draws each shape and line beside its meaning. The event log shows every everyday event (orders, actions finished or stopped and why, sleep, wounds) beside the chronicle's lines, sorted into Actions, Body, Danger and World with a checkbox each, can show only the selected person, and shows the cause chain of a line on hover.
 
 ## Tests
 
@@ -69,7 +70,7 @@ Rules from the readability research (added 2026-10-08, [0055](../../decisions/00
 - Event log: the chronicle lines (`tier0::event_line`, shared with the headless app), coloured by kind, identical lines within a game minute coalesced as "x N", with a text filter.
 - `--shot file.bmp [--ticks N] [--watch] [--menu x,y] [--overlay noise|light]` renders one frame offscreen, for checks without a screen.
 
-**Known gaps:** no perception fog (everything is shown); no body silhouette (wounds are a list); no job board or orders (command mode); log lines do not link to cause chains; the A1 hash check between the window and the headless app is not automated (the window only uses `World::submit`, like the tests).
+**Known gaps:** no perception fog (everything is shown); no body silhouette (wounds are a list); no job board or orders (command mode); log lines show their cause chain on hover but do not jump to it; the A1 hash check between the window and the headless app is not automated (the window only uses `World::submit`, like the tests).
 
 ## Build on Windows
 
