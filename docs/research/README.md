@@ -63,6 +63,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [hordes-sound-sky-and-testing.md](hordes-sound-sky-and-testing.md) | Hordes, city sound, storms and sky, and testing a deterministic world | 2026-10-09 |
 | [star-engine.md](star-engine.md) | Star Engine (Star Citizen): what works across scales | 2026-10-09 |
 | [library-of-babel-and-sacred-geometry.md](library-of-babel-and-sacred-geometry.md) | The Library of Babel, the Babel Image Archives and "sacred geometry": what a library of everything teaches a simulation | 2026-10-09 |
+| [coarse-layers-from-fine-rules.md](coarse-layers-from-fine-rules.md) | Coarse layers from the fine rules: equation-free and multiscale methods for detail levels | 2026-10-10 |
 
 ### World: generation, numbers and systems
 
@@ -118,6 +119,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [foxhole.md](foxhole.md) | Foxhole, as a reference for war and logistics | 2026-10-06 |
 | [living-disease.md](living-disease.md) | Disease and degradation in crops, forests, livestock, wildlife, fish and soil | 2026-10-09 |
 | [combat-resolutions.md](combat-resolutions.md) | Combat at three resolutions: Lanchester, Dupuy, multi-resolution modelling, games and zombie models | 2026-10-09 |
+| [two-contagions.md](two-contagions.md) | Two contagions: the outbreak and what people know about it | 2026-10-10 |
 
 ### Reference games
 

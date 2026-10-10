@@ -100,11 +100,15 @@ Dependencies only; the first two block the most.
 - What is the wake budget K (entities promoted per tick) that guards against chain disaggregation? ([layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md))
 - Should every rule declare itself jumpable or hot-only, with a test that fails when a hot-only rule runs inside advance? ([layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md))
 - What is the long-run record-count budget against pop fragmentation, and how many forced shortcuts (teleport, despawn, auto-resolve) are allowed per run? ([layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md))
+- From [coarse-layers-from-fine-rules](../research/coarse-layers-from-fine-rules.md): should coarse layers be derived from the fine rules by keyed lift–run–restrict bursts, as a hand-written form plus a tabulated residual, for every layer, or only for the outbreak and pop cohorts until EF-test 1 passes? Where do derived tables live (`data/derived/`, versioned by the fine rules' hash), and does CI re-derive them on every rule change or only on release ([EF-8](../research/coarse-layers-from-fine-rules.md), [EF-35](../research/coarse-layers-from-fine-rules.md))?
+- From [two-contagions](../research/two-contagions.md): is fear a separate contagion (spread by zombies, the bitten and the frightened) or only a social input to spec 24's fear state ([TC-8](../research/two-contagions.md), [TC-12](../research/two-contagions.md))? Which information levers does the first build give the player: broadcast and comms only, or also rumour, cover-up and prebunk ([TC-30](../research/two-contagions.md), [TC-31](../research/two-contagions.md))?
 
 ## Research
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
+- [two-contagions](../research/two-contagions.md): Two contagions: the outbreak and what people know about it
+- [coarse-layers-from-fine-rules](../research/coarse-layers-from-fine-rules.md): Coarse layers from the fine rules: equation-free and multiscale methods for detail levels
 - [catch-up-jump-forms](../research/catch-up-jump-forms.md): Catch-up: jump forms for drawn and competing rules
 - [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks
 - [layer-jumps-multiresolution](../research/layer-jumps-multiresolution.md): Layer jumps: what multi-resolution simulation research and games say

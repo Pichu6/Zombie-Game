@@ -175,11 +175,13 @@ The note proposes one clock with no pause on a server and the whole world slowed
 - Health rates come only from NHANES (US), scaled by national mortality. Check national open health surveys (Health Survey for England teaching data, Eurostat aggregates) as additions? ([human-generator-data](../research/human-generator-data.md))
 - ShareAlike sources (UNESCO UIS, INDEC): ship them as separable CC BY-SA files, or use CC BY mirrors (World Bank EdStats)? ([human-generator-data](../research/human-generator-data.md))
 - From [hordes-sound-sky-and-testing](../research/hordes-sound-sky-and-testing.md) §3: the floor-field cell size (0.4 m in the literature) against spec 50's grid (HST-144); RapidCheck with doctest through a wrapper (HST-118).
+- From [two-contagions](../research/two-contagions.md): is fear a separate contagion (spread by zombies, the bitten and the frightened) or only a social input to spec 24's fear state ([TC-8](../research/two-contagions.md), [TC-12](../research/two-contagions.md))? Which information levers does the first build give the player: broadcast and comms only, or also rumour, cover-up and prebunk ([TC-30](../research/two-contagions.md), [TC-31](../research/two-contagions.md))?
 
 ## Research
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
+- [two-contagions](../research/two-contagions.md): Two contagions: the outbreak and what people know about it
 - [concept-pichu-original-vision](../research/concept-pichu-original-vision.md): Pichu's original vision (2026-10-05, verbatim, lightly cleaned)
 - [concept-v2](../research/concept-v2.md): Juego Zombie · Concept v2
 - [detail-levels](../research/detail-levels.md): Detail levels: one simulation, read and run in chunks

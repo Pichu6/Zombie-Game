@@ -203,6 +203,7 @@ The note proposes one combat model at three levels (bodies each tick, squads eac
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
+- [two-contagions](../research/two-contagions.md): Two contagions: the outbreak and what people know about it
 - [concept-v2](../research/concept-v2.md): Juego Zombie · Concept v2
 - [project-zomboid](../research/project-zomboid.md): Project Zomboid, as a reference for the Individual layer
 - [engine-stack](../research/engine-stack.md): The engine stack behind decision 0002: licences, versions, determinism, alternatives
