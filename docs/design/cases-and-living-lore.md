@@ -268,9 +268,68 @@ Many cases in one place can grow into local folklore ("the town where people los
 - whether folklore can become a belief system pops act on (a cult, a ritual);
 - whether players see a dissonance meter before they release a pop.
 
+### Worldviews, reputation and the outside will
+
+**Status:** the user's ideas (2026-10-10), to be refined; the mechanism is a Proposal from [worldviews-and-reputation](../research/worldviews-and-reputation.md) (WV).
+
+> "The pop could start believing in something else completely: that it was aliens, or possession; turn religious, obsessed, gullible, a ufologist or a conspiracy theorist. Some will believe him, others not. A reputation system of some sort, perhaps?"
+>
+> "If the player is careless, in due time there could be cults, myths or beliefs about the player itself: a fourth-wall break, only acknowledging that they understand someone out there exists and acts on their world. Some could tie the knot in due time."
+
+1. **Explanations are data.** The frames: mundane, infection, possession, divine, visitors, a hidden hand, a cursed place, an outside will. Each pop holds a certainty per frame, and latent shares come from country surveys (73 % of US adults hold at least one paranormal belief, [WV-7](../research/worldviews-and-reputation.md)).
+2. **A strange case makes the pop choose one.** The choice is a keyed draw among the frames it can reach: its own, its bonds', its place's folklore, plus mundane and infection. It is scored by:
+   - the prior;
+   - dispositions, with two new ones: absorption, and reflection (thinking things through);
+   - exposure through bonds;
+   - how well the frame fits the traces.
+
+   Exotic frames need repeats and someone who already carries them. At least 15 % of people have had sleep paralysis, yet few conclude they were abducted ([WV-6](../research/worldviews-and-reputation.md)). Religious pops believe more strongly rather than convert ([WV-15](../research/worldviews-and-reputation.md)).
+3. **A worldview filters what comes in** ([two-contagions](../research/two-contagions.md) rules 7–9).
+   - Claims that fit the frame gain confidence and claims that contradict it lose it.
+   - `Seen` always wins, and there is no backfire.
+   - Hidden-agent frames lower trust in official broadcasts.
+   - Compliance effects are small and targeted ([WV-24](../research/worldviews-and-reputation.md)).
+4. **Reputation is what others believe about a pop, not one number.**
+   - Each observer counts good and bad evidence about each person on a few dimensions: kind, honest, sane, sick, able.
+   - Counts spread by gossip, discounted by trust in the teller and by hops, and fade with time (a 90-day half-life, a placeholder). Gossip can outweigh what a listener saw ([WV-28](../research/worldviews-and-reputation.md)).
+   - When he tells his story, listeners who share his frame are drawn to it; the others mark him down on sane and honest ([WV-32](../research/worldviews-and-reputation.md)). Here the sharpest label is "infected".
+5. **Movements grow through bonds:** at least two bonded believers plus time together. Unpredictable shocks raise religiosity for years and conversions for about three ([WV-14, WV-15](../research/worldviews-and-reputation.md)).
+6. **The outside will.** No one starts with it. A pop reaches it only by connecting the dots: at least 3 linked unexplained beliefs plus high pattern perception, and holding it raises pattern perception further ([WV-38](../research/worldviews-and-reputation.md)).
+   - **What makes it arise:**
+     - how many strange cases a careless player causes, and whether they cluster along bonds;
+     - anxiety, which the outbreak supplies;
+     - an early, trusted "prophet";
+     - weak rivals (infection and divine absorb the cases first).
+   - **What makes it last:** a recurring ritual, an identity and fresh evidence, as with John Frum ([WV-44](../research/worldviews-and-reputation.md)). Otherwise it fades like the Vailala movement, gone in under 10 years ([WV-42](../research/worldviews-and-reputation.md)).
+   - **Limits:** pops never learn who the player is. The inspector in free mode shows the truth, and a world setting can remove the frame.
+
+   These pops are right; the game never says so.
+
+## 15. Absence: when a possessed pop misses its life
+
+**Status:** the user's question (2026-10-10); decided as intent in [0070](../decisions/0070-broken-commitments-are-noticed.md). The mechanism and numbers are a Proposal from [absence-and-missing-persons](../research/absence-and-missing-persons.md) (AB).
+
+> "If I take possession of a police officer, it takes him away from his schedule and leaves him in another part of the world. That should be perceived by the pop and by the pops who know him. There must be consequences for a police officer skipping work for several days and turning up somewhere else: people asking about him and looking for him."
+
+1. **Commitments create expectations.** Each commitment in a schedule (shift start, arriving home, a meeting) names who expects it and a tolerance. Only a broken one becomes an event; kept ones cost nothing.
+2. **A call makes it ordinary.** About 3 % of full-time workers are absent in any week ([AB-1](../research/absence-and-missing-persons.md)), so a phoned-in sick day starts nothing. Careful role-play leaves no trace.
+3. **One ladder for everyone who expected him:** phone, ask around (work, friends, hospitals), report, search. There is no waiting period ([AB-42](../research/absence-and-missing-persons.md)).
+4. **The report is a police case with a risk tier.** In England and Wales adults are 31 % high and 58 % medium ([AB-15](../research/absence-and-missing-persons.md)). A national record makes any police check in another city a hit.
+5. **Real people go missing too,** so possession hides among them.
+   - England and Wales: 319,745 incidents involving 156,454 people a year ([AB-10](../research/absence-and-missing-persons.md)).
+   - 88 % are found within 48 hours ([AB-21](../research/absence-and-missing-persons.md)).
+   - 39 % return on their own and 33 % are found by police ([AB-24](../research/absence-and-missing-persons.md)).
+6. **Work.** After N consecutive scheduled days without contact the employer records a separation (US default 3, [AB-5](../research/absence-and-missing-persons.md)). A missing-person report pauses it ([AB-7](../research/absence-and-missing-persons.md)). A police employer opens a conduct case after the return instead.
+7. **Released far away, he tries to get home:** he works out where he is, phones and travels, or a local check returns him.
+8. **The return has three meetings:** police, employer and household. His account follows §14's dissonance. High-dissonance missing time takes the real shape of a dissociative fugue: he comes to in a new place, with shame or fear ([AB-44](../research/absence-and-missing-persons.md)). Others explain it first as mental health or relationship trouble, and in this world as infection.
+
+The full chain with timings is in [absence-and-missing-persons](../research/absence-and-missing-persons.md) §2. Steps with no source (how soon a supervisor calls, a home visit for an officer, the family's first hours) are marked as defaults there.
+
 ## Research
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
+- [worldviews-and-reputation](../research/worldviews-and-reputation.md): Worldviews after strange experiences, conversion, conspiracy belief and reputation
+- [absence-and-missing-persons](../research/absence-and-missing-persons.md): Absence, no-shows and missing persons: how the world notices someone is gone
 - [story-building-blocks](../research/story-building-blocks.md): Story building blocks: how games and story theory build variety from parts
 - [lore-made-and-generated-worlds](../research/lore-made-and-generated-worlds.md): Lore in made and generated worlds: Project Zomboid, other games, and tools outside games

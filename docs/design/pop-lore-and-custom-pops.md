@@ -88,11 +88,22 @@ This is §2's rule applied to a whole session. Whoever the player clicks, anywhe
 4. **Every derived fact leaves residue other views can find** (inhabitants, background residue; cases §6). Examples: the case file at the police office, the affair's traces, the thief's record.
 5. **The knowledge level applies** ([0066](../decisions/0066-player-states-embodied-detached-observer.md)). In knowledge mode the thief's card shows only what the player's side could know, and the link to the case may stay hidden until it is found.
 
-**Defaults taken by Claude** (estimates, to replace with sourced data):
-- A settlement under 20,000 people has no detectives of its own and uses the nearest city's.
-- One detective per 7 police officers, with 20–40 open cases each.
-- Office occupations work Monday to Friday, 08:00–17:00 local, unless the occupation's data says otherwise. The calendar runs from the scenario's start date; country holidays come later.
-- Criminal history is drawn from country base rates (UNODC, to fetch), never above them.
+**From research (2026-10-10), replacing the first guesses** (an under-20,000 cut-off, 20–40 cases per detective, office hours for all):
+- **Jurisdiction** ([SV-10, SV-11, SV-14 to SV-16](../research/services-by-settlement-size.md)). Each country names its policing model:
+  - city departments (United States);
+  - two national forces split by commune size (France, where the 20,000 line decides *which* force covers a commune, not whether it has detectives);
+  - regional forces (England and Wales);
+  - one national police, as the fallback.
+
+  A case goes to the nearest office that covers the place at or above the level its kind needs (patrol, investigation, specialised unit) and has staff with the skill; ties go to the lower office id. About 15 % of officers investigate, so an office of fewer than about 7 officers has no detective. A small town gets the nearest city's detective by staffing arithmetic, not by a size line.
+- **Staffing** ([SV-5, SV-19, SV-21](../research/services-by-settlement-size.md)). Officers per 1,000 residents follow the US size curve (2.3 at 1,000–9,999 residents, 1.6 at 50,000–99,999, 2.3 at a million or more), scaled by the country's police per 100,000.
+- **Caseloads are measured, not set** ([IQ-11, IQ-23](../research/institutions-as-queues.md)). Open cases = arrival rate × mean time open (Little's law).
+  - Arrivals pass a reporting funnel first (US 2024: 48 % of violent and 31 % of property victimisations reported). Unreported crime opens no case and stays hidden lore.
+  - Times to outcome come from data (England and Wales medians: theft 8 days, robbery 35, sexual offences 65).
+- **Schedules** ([TU-15, TU-41](../research/daily-lives-and-time-use.md)). Monday–Friday 08:00–17:00 is the most common office pattern, not the rule.
+  - Each worker draws a pattern at hire. US shares: 85 % regular daytime, 5 % evenings, 3 % nights, the rest rotating, split or irregular; in hospitality, 40 % work outside daytime.
+  - Start times follow the observed distribution: 57 % of US workers leave home between 06:00 and 08:29.
+- **Criminal history** is drawn from country base rates through the same reporting funnel, never above them.
 
 **Tests (added to §6):**
 - **Click order:** resolve the nine answers in 100 random orders; results are identical.

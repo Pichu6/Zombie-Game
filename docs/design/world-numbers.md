@@ -201,6 +201,7 @@ World fields and K per region → settlement generator and the road and trade gr
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
+- [services-by-settlement-size](../research/services-by-settlement-size.md): Which services a place has: settlement size, country and who covers the rest
 - [human-generator-data](../research/human-generator-data.md): The human generator: data, licences and the generation pipeline
 - [war-in-other-games](../research/war-in-other-games.md): War in other games, as a reference
 - [world-numbers-capacity](../research/world-numbers-capacity.md): World numbers: how many people can a world hold?

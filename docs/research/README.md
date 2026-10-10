@@ -75,6 +75,8 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [world-numbers-demography.md](world-numbers-demography.md) | World numbers: demography, structure, education, labour, inequality, production | 2026-10-06 |
 | [world-numbers-nations.md](world-numbers-nations.md) | World numbers for nations: how they arise, how big they are, what they can do | 2026-10-06 |
 | [world-numbers-settlement.md](world-numbers-settlement.md) | World numbers: how people spread over land, and how towns and cities arise | 2026-10-06 |
+| [institutions-as-queues.md](institutions-as-queues.md) | Institutions as queues: how police, hospitals, courts and emergency services process their work | 2026-10-10 |
+| [services-by-settlement-size.md](services-by-settlement-size.md) | Which services a place has: settlement size, country and who covers the rest | 2026-10-10 |
 | [world-systems-ecology.md](world-systems-ecology.md) | World systems: flora, fauna, soils and fisheries in numbers | 2026-10-06 |
 | [world-systems-economy.md](world-systems-economy.md) | World systems: how a real economy works in numbers | 2026-10-06 |
 | [world-systems-factions.md](world-systems-factions.md) | World systems for factions: territory, subjects, expansion, conquest, collapse | 2026-10-06 |
@@ -93,6 +95,8 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [clothing-wrap.md](clothing-wrap.md) | Clothing that follows the body, in our own engine | 2026-10-05 |
 | [second-order-dynamics.md](second-order-dynamics.md) | Second-order dynamics for procedural motion | 2026-10-06 |
 | [pop-behaviour.md](pop-behaviour.md) | Pop behaviour from job, skills, traits and state: games and real life | 2026-10-09 |
+| [absence-and-missing-persons.md](absence-and-missing-persons.md) | Absence, no-shows and missing persons: how the world notices someone is gone | 2026-10-10 |
+| [daily-lives-and-time-use.md](daily-lives-and-time-use.md) | How real people spend their days: time use, working time, commuting and sleep | 2026-10-10 |
 | [playing-knowing-commanding-moving.md](playing-knowing-commanding-moving.md) | Playing, knowing, commanding and moving: player modes, belief on the map, leaders and orders, city traffic | 2026-10-09 |
 
 ### Stories and lore
@@ -102,6 +106,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [procedural-mysteries.md](procedural-mysteries.md) | Procedural mysteries: cases that come from a simulation | 2026-10-09 |
 | [story-building-blocks.md](story-building-blocks.md) | Story building blocks: how games and story theory build variety from parts | 2026-10-09 |
 | [lore-made-and-generated-worlds.md](lore-made-and-generated-worlds.md) | Lore in made and generated worlds: Project Zomboid, other games, and tools outside games | 2026-10-10 |
+| [worldviews-and-reputation.md](worldviews-and-reputation.md) | Worldviews after strange experiences, conversion, conspiracy belief and reputation | 2026-10-10 |
 
 ### The player's mind: choice and learning
 

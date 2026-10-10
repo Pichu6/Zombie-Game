@@ -171,6 +171,9 @@ Proposal (user intent, figures not confirmed): large map, journeys of hours on f
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
 
+- [worldviews-and-reputation](../research/worldviews-and-reputation.md): Worldviews after strange experiences, conversion, conspiracy belief and reputation
+- [absence-and-missing-persons](../research/absence-and-missing-persons.md): Absence, no-shows and missing persons: how the world notices someone is gone
+- [daily-lives-and-time-use](../research/daily-lives-and-time-use.md): How real people spend their days: time use, working time, commuting and sleep
 - [gta](../research/gta.md): GTA, as a reference for the Individual layer
 - [inzoi](../research/inzoi.md): inZOI, as a reference for the Individual layer
 - [pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md): Pop simulation, lenses per zoom, and saving the world
