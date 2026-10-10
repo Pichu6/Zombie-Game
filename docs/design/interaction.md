@@ -179,6 +179,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [the-sims](../research/the-sims.md): The Sims, as a reference for the Individual layer
 - [world-in-conflict](../research/world-in-conflict.md): World in Conflict, as a reference for command
 - [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
+- [cognitive-load](../research/cognitive-load.md): Cognitive load: how much a player can take in, and how deep games teach
 
 ## Prototype sources
 
@@ -200,3 +201,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - When commanding a group, can the player hand a role (scouts, guards, builders) to another pop as a sub-commander? ([world-in-conflict](../research/world-in-conflict.md))
 - Should WASD send a "step in a direction" intent that is refused at a wall, instead of a MoveTo to the neighbour cell (a spec 14 change)? Does a WASD press cancel the current action? ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** MoveTo to a walkable neighbour for now, walls refused; a press cancels the current action.
 - Is a moodle-style state column part of the Tier 0 window (spec 16), with which states and thresholds, and where? ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** yes, 3-5 worst states by the pop and in the Group panel.
+- From [cognitive-load](../research/cognitive-load.md): keep alerts in a reviewable list with repeats merged, since alerts that scroll away are transient information ([CLT-43](../research/cognitive-load.md)); and nested tooltips that link terms to the [glossary](../glossary.md), with lessons that open on the event they explain ([CLT-41](../research/cognitive-load.md)).

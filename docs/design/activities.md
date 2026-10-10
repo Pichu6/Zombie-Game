@@ -49,6 +49,7 @@ Body care, medicine, cooking and food preservation, repair and mechanics, electr
 
 - Is "ask a pop what they know" an Individual-layer action from the start, reading spec 39 beliefs? ([shenmue](../research/shenmue.md))
 - Should a town's establishments show opening hours from their staff rosters? ([shenmue](../research/shenmue.md))
+- From [cognitive-load](../research/cognitive-load.md): the first hands-on run of an activity (0020) as a worked example, then completion (the player does the last steps), then free; faded per player and skipped for anyone who has done it, since guidance hurts the experienced ([CLT-40](../research/cognitive-load.md), [CLT-17](../research/cognitive-load.md)).
 
 ## Research
 
@@ -56,3 +57,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 
 - [gta](../research/gta.md): GTA, as a reference for the Individual layer
 - [shenmue](../research/shenmue.md): Shenmue, as a reference for the Individual layer
+- [cognitive-load](../research/cognitive-load.md): Cognitive load: how much a player can take in, and how deep games teach

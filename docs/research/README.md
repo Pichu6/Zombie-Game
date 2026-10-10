@@ -117,6 +117,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | Note | Title | Date |
 | --- | --- | --- |
 | [simulation-and-free-will.md](simulation-and-free-will.md) | The simulation argument and free will: what they mean for a world of simulated people | 2026-10-10 |
+| [cognitive-load.md](cognitive-load.md) | Cognitive load: how much a player can take in, and how deep games teach | 2026-10-10 |
 
 ### Outbreak and war
 

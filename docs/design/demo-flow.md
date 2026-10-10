@@ -109,6 +109,8 @@ The demo is deterministic. Once it exists, record it as a replay (start state, s
 - **the order trace and the soldier's card** (PKC-149..PKC-153);
 - **switching between characters and layers** (PKC-1..PKC-35).
 
+[cognitive-load](../research/cognitive-load.md) (CLT) adds how to teach it: start as a fish tank at Individual (one body, a few needs), name the parts before they interact, then City and Macro as their own steps ([CLT-39](../research/cognitive-load.md)); the first found story as a worked example ([CLT-48](../research/cognitive-load.md)); measure each segment with a short effort rating ([CLT-47](../research/cognitive-load.md)).
+
 ## Suggested research to add (done, see above)
 
 Next to the three topics already proposed (moving between characters and layers, showing what you know, how leaders emerge):

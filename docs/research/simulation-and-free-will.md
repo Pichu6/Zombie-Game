@@ -84,6 +84,8 @@ The user shared three videos on whether reality is a simulation and whether we h
 | FW-74 | When autonomy is good, the player's input must still be an interesting decision. Under our parity rule (0061: no player-only lever) the player's edge has to come from what the player knows, plans and wants beyond the pop, not from better reflexes than its AI | estimate | FW-50, FW-65 |
 | FW-75 | "Are you an NPC?" states our premise as a question: player, survivors and zombies share one body and one set of rules, and any NPC can be played; a possible framing for the demo flow | estimate | FW-1, FW-2 |
 | FW-76 | Mind crime does not arise at our fidelity: a pop is a few needs, beliefs and scores updated every few seconds, many orders of magnitude below Bostrom's 10^14 operations per second per mind | estimate | FW-8, FW-63 |
+| FW-77 | Pinned windows count as attention and are computed in detail (0066), while spec 27 rule 7 says detail follows controlled bodies, not the camera. Where detail changes drawn outcomes (A2), whatever raises detail must be an input kept in the replay, or a replay can come out different: either a pin only shows what is already computed, or pinning is logged like an order | derived | FW-67 |
+| FW-78 | Asked whether the run-ahead is like Schrödinger's cat (the user, 2026-10-10): no. Its future is definite and only acting falsifies it (FW-71); unseen derived detail is fixed by the seed before anyone looks (an unread page, not a spinning coin); only drawn outcomes where nobody is in control exist as odds until computed (A2), and once computed they are committed | derived | FW-67, FW-71 |
 
 ## The four videos
 
@@ -92,7 +94,7 @@ The user shared three videos on whether reality is a simulation and whether we h
 | [UebSfjmQNvs](https://www.youtube.com/watch?v=UebSfjmQNvs) | Most likely Kurzgesagt, "Are You an NPC? (Or Do You Have Free Will?)" (2024) | Title from search; argument from two write-ups (FW-1, FW-2) |
 | [LMneQsUw6XI](https://www.youtube.com/watch?v=LMneQsUw6XI) | "The Simulation Hypothesis & Free Will Explained by Brian Greene" | Title only; Greene's views from interviews and reviews (FW-3, FW-12, FW-13, FW-25 to FW-27) |
 | [tlTKTTt47WE](https://www.youtube.com/watch?v=tlTKTTt47WE) | Kurzgesagt, "Is Reality Real? The Simulation Argument" (2017) | Title, date and outline from write-ups (FW-4, FW-5) |
-| [UpA6RdE0aYo](https://www.youtube.com/watch?v=UpA6RdE0aYo) | "Learning Science 101: Cognitive Load Theory" | A different topic: cognitive load (note to come) |
+| [UpA6RdE0aYo](https://www.youtube.com/watch?v=UpA6RdE0aYo) | "Learning Science 101: Cognitive Load Theory" | A different topic: [cognitive load](cognitive-load.md) |
 
 ## What we take
 
@@ -115,6 +117,7 @@ The user shared three videos on whether reality is a simulation and whether we h
 - [Pop states and actions](../design/pop-states-actions.md) §14: should every AI decision store its winning reason and the runner-up, so the inspector and diary can say why in belief-and-want words (FW-68, FW-69)?
 - [Cameras and modes](../design/cameras-modes.md) Open: when a player releases a pop, should it finish the player's current intent before its AI decides again, and for how long (FW-51, FW-70)?
 - [Focus and compression](../design/focus-and-compression.md) Open: forecasts the player sees (weather, trends, advisors) as beliefs from the forecaster's knowledge, never from the run-ahead (FW-71)?
+- [Focus and compression](../design/focus-and-compression.md) Open: do pins raise detail (0066) and so change drawn outcomes? If so, pinning is an input kept in the replay (FW-77).
 
 ## Sources
 
