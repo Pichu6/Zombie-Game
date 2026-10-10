@@ -227,6 +227,47 @@ Each join can be checked, because each sentence is a projection of the same real
 - **Diaries:** pops with a writing habit (a trait) write their beliefs daily.
 - **The outbreak origin is the first great case.** Its grammar is in inhabitants; its traces follow §6.
 
+## 14. Strange cases: missing time and sightings
+
+**Status:** the user's idea (2026-10-10), to be refined; the mechanism below is a Proposal with defaults taken by Claude.
+
+> "Being possessed by a player could generate a small percentage of strange cases or sightings: the pop has missing time, it turned up somewhere else doing something else, like some Lovecraft tales. A real glitch could be perceived by a pop as a glitch in the matrix. Perhaps we read a note that logs a sighting or a strange thing, and it is a bug of the game, or the player messing around."
+
+Nothing supernatural is simulated. Strangeness is what pops believe when their beliefs contradict each other and they lack the true cause. That lack is what gives the Lovecraftian tone. Every strange case has one of three real causes, and the cause trace keeps it:
+
+1. **Possession** ([0062](../decisions/0062-the-game-loop-attention-possession-and-late-starts.md), [0068](../decisions/0068-entering-a-world-the-home-pop-and-pins.md)). While a player drives a pop, the pop's own AI is not choosing ([FW-70](../research/simulation-and-free-will.md)). On release, the pop's **dissonance** for the episode is measured. It is how far the player's acts ranked below what its own AI would have chosen, recomputed by replaying its scores (spec 24). The episode's length adds to it.
+2. **Misperception.** Weak evidence read through a prior (a walker at night taken for a neighbour) and retelling drift (spec 39) leave two beliefs about one person that cannot both be true.
+3. **Engine faults.** A release build that finds a real inconsistency, such as a seam that should have agreed and did not, logs a defect for developers. Pops who saw both states note something they cannot explain. Test builds still fail on it, so a fault is never accepted as content.
+
+**After release, the pop's own account** (inhabitants: fact, memory and account) depends on the dissonance:
+- **Low:** the pop owns the acts and explains them with its own reasons. People defend choices they never made (choice blindness, Johansson and Hall 2005).
+- **Medium:** "I don't know why I did that." The account marks the episode as odd.
+- **High, or by a small chance:** **missing time.** The episode is a gap in the pop's memory; it "comes to" somewhere else, maybe with mud on its boots or a wound it cannot explain. The body keeps everything that really happened. Default chance: 1 % per episode plus 20 % × dissonance, capped at 25 % (an estimate). The draw is keyed by pop and episode, so a replay gives the same cases.
+
+**Sightings.** A pop that saw the possessed pop act out of character, or where others believe it was not ("Pedro was at the radio tower at 3 a.m.; his wife says he was asleep"), records a **strange** belief. A sighting is two `Seen` beliefs about one person that travel time cannot join. Pops find them when they compare stories, and they spread as rumours like any belief (spec 39).
+
+**How pops explain it.** They pick from what they already believe:
+- sleepwalking, drink or lying;
+- "something is wrong with this place";
+- **infection**: in this world, missing time and odd behaviour look like an early symptom. Others may watch, isolate or fear the pop, which is the sharpest consequence.
+
+Many cases in one place can grow into local folklore ("the town where people lose time"). Pops never learn the real cause.
+
+**What the player finds.** Diary lines ("Lost the afternoon. Woke up at the docks."), physical diaries, notes, statements and rumours. They go onto the case board like any other case (§3).
+- **Free mode:** the inspector shows the truth: "possessed by player X from t1 to t2", or "engine fault #N".
+- **Knowledge mode:** the truth stays hidden, so the case stays strange.
+
+**Rules:**
+- **Watching never makes a strange case; only acting does** ([0061](../decisions/0061-the-world-runs-without-the-player.md)). Possession is an input kept in the replay. Careful role-play leaves no trace; careless driving makes the people you drive lose time, become distrusted or be suspected of infection. The world notices how you possess.
+- **Nothing is placed** ([0067](../decisions/0067-stories-are-found-never-written.md)). Every strange case comes from one of the three causes above.
+- **Multiplayer:** a sighting of a pop another player drove reaches you like any belief.
+
+**To refine with the user:**
+- the base chance;
+- whether a pop can sense its own dissonance while possessed (a "this feels wrong" cue);
+- whether folklore can become a belief system pops act on (a cult, a ritual);
+- whether players see a dissonance meter before they release a pop.
+
 ## Research
 
 Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
