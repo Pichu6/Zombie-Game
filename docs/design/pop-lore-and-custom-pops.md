@@ -63,7 +63,43 @@ A **slot** is a link: account, pop id. The pop stays in the registry at any leve
 - Refused hooks leave the world unchanged and report a reason.
 - A slot's pop cannot be evicted while linked; leave before dwell is refused.
 
-## 7. Open
+## 7. Coherence across distance: what must already be true when you click
+
+**Status:** Proposal (2026-10-10), from the user's fourth demo flow ([demo flow](demo-flow.md), fourth flow): a border fight, a robbery in a small town at night, the thief's background, the detective from the nearest city who is investigating him, the detective's marriage, his week and his desk. The user: "all that flow requires a level of procedural generation lore-wise, especially for it to have coherence with the world around it."
+
+This is §2's rule applied to a whole session. Whoever the player clicks, anywhere, the answer must be fixed by the seed and the committed state. It must not depend on who asked first. The flow asks these questions:
+
+| Question at the click | Where the answer comes from | Resolution (§3) |
+| --- | --- | --- |
+| Who fights whom at this border, and why? | The Macro conflict record and its cause trace ([spec 39](../tier0/specs/39-orders-and-belief.md)); forces sized from the country | Link to committed Macro state |
+| Who are these soldiers? | Unit rosters of real pops ([spec 28](../tier0/specs/28-pop-levels.md)) with military lifepaths; roster counts equal Macro strength | Link to the roster; bodies lifted on approach ([EF](../research/coarse-layers-from-fine-rules.md)) |
+| Why is this store open, and whose lights are those? | Opening hours by business kind and culture (data); homes lit by household schedules | A function of (time, establishment, household) |
+| Why did he rob it? | An AI choice under pressure: a motive hook (debt, addiction, need) plus an opportunity | Simulated ([cases](cases-and-living-lore.md) §5); never placed |
+| Has he done it before? | Criminal history as background hooks, drawn from the country's base rates and consistent with his record | Fill, keyed by (seed, pop, hook) |
+| Is someone investigating him? | Each past crime that was reported opened a case at the police office with jurisdiction over the place; a keyed rule assigns it to one of that office's detectives | Link to the office and detective (police exist in the town generator's data); Fill the case record |
+| Which police cover this town? | Jurisdiction from the settlement hierarchy | A function of the settlement map |
+| What is the detective's private life? | Household, marriage bond, hooks (an affair: a secret tie to a real pop of fitting shape, with residue) | Link first, Fill if nothing fits; the affair has a cause in the simulation (long hours, stress) |
+| Where is he now, and what will he do? | His occupation's weekly schedule, the calendar and his commute, plus deviations caused by events (a case, a secret meeting) | A function of (time, pop); deviations are recorded events |
+
+**Rules:**
+1. **Lazy, then committed.** An answer is computed when first needed (a click, a view, or the simulation itself) and is committed from then on ([0048](../decisions/0048-realistic-time-default-commit-on-observation-and-pins.md)). It never depends on who asked first.
+2. **History is derived unless the world was run forward** ([0062](../decisions/0062-the-game-loop-attention-possession-and-late-starts.md) late starts). Derived history obeys base rates and committed records. A hook that cannot meet both stays open.
+3. **Links before fills** (§3). An existing pop, place or record is always preferred, so stories knit into the world instead of adding strangers.
+4. **Every derived fact leaves residue other views can find** (inhabitants, background residue; cases §6). Examples: the case file at the police office, the affair's traces, the thief's record.
+5. **The knowledge level applies** ([0066](../decisions/0066-player-states-embodied-detached-observer.md)). In knowledge mode the thief's card shows only what the player's side could know, and the link to the case may stay hidden until it is found.
+
+**Defaults taken by Claude** (estimates, to replace with sourced data):
+- A settlement under 20,000 people has no detectives of its own and uses the nearest city's.
+- One detective per 7 police officers, with 20–40 open cases each.
+- Office occupations work Monday to Friday, 08:00–17:00 local, unless the occupation's data says otherwise. The calendar runs from the scenario's start date; country holidays come later.
+- Criminal history is drawn from country base rates (UNODC, to fetch), never above them.
+
+**Tests (added to §6):**
+- **Click order:** resolve the nine answers in 100 random orders; results are identical.
+- **Distance coherence:** the thief's case points to a detective whose office has jurisdiction over the place, and that detective's case list contains the thief.
+- **Replay:** the same answers resolved during a replay match the live run.
+
+## 8. Open
 
 1. **How strong are authored facts?** Recommendation: hooks soft by default, user can mark a fact **fixed**, which makes the start or entry point adapt to it (place, time) but still never edits committed state.
 2. **Content format** for the pool (TOML, like `data/gen/`).

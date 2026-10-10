@@ -98,6 +98,61 @@ The user's request (2026-10-09): to navigate the simulated world like Google Ear
 
 Status: chronicle, cause chains and beliefs **Built** (25, 39); threads, ties, scoring and story spots **Missing** (items 46–50 in [improvements-ranked](improvements-ranked.md)).
 
+## Fourth flow: from a border fight to a detective's life
+
+**Date:** 2026-10-10. **Status:** the user's description, turned into a storyboard with a gap list. Not a decision.
+
+> "I'm scrolling the globe and see a fight going on at a border, perhaps two countries fighting. I feel like playing some action, so I go in. First I see what's going on, who is who, and choose where to get involved. I play in RTS, move some units and play as one. After shooting for a few minutes I see I made things somewhat worse, decide 'oops' and move on, so I decouple and keep panning the globe. I pass roads, fields, forests, and arrive at a small town. It's already night; I see a few lights, so I zoom in. It's a store open at night, and I see a robbery near it, the thief running away. I click on the thief and read his background. I learn he is being investigated by a detective from the nearest city, which I hadn't noticed. I select the detective and go to where he is: he's at home, doing his last chores of the day. I read his background and learn he's having an affair and trouble in his marriage. I feel bad for him and decide to try to fix his life: catch the thief and fix his marriage. I go to the isometric view (Project Zomboid style) and check him further: his tasks and itinerary. He goes to work at the police station Monday to Friday, 8 to 5, or whatever is standard for that work. I check the date: it's Sunday night. So I play, finishing the pop's tasks of the day. The next day I go to his office and sit at his desk. It's a station, so I see a city-management view of what a detective could do: pins on the city map for crimes, calls, and so on. I play for a while, get bored, leave the detective, zoom out and keep watching the simulation. All that flow requires a level of procedural generation lore-wise, especially for it to have coherence with the world around it."
+
+**What it shows:**
+- **Every layer and every player state in one session, chosen by curiosity, not by a mission.** The sequence:
+  1. observer at the globe;
+  2. City command (RTS) at the fight, then embodied in one soldier;
+  3. out of the body, panning;
+  4. observer over the town at night;
+  5. selecting the thief, then the detective;
+  6. embodied in isometric view for the detective's evening;
+  7. at a station (the detective's desk);
+  8. observer again.
+
+  The rules for all of this exist: [0062](../decisions/0062-the-game-loop-attention-possession-and-late-starts.md), [0066](../decisions/0066-player-states-embodied-detached-observer.md), [0068](../decisions/0068-entering-a-world-the-home-pop-and-pins.md), [0058](../decisions/0058-offices-open-layers-single-player-is-multiplayer-with-ai.md).
+- **The world never waits.**
+  - The fight goes on, worse for the player's mistake ([0061](../decisions/0061-the-world-runs-without-the-player.md), [0048](../decisions/0048-realistic-time-default-commit-on-observation-and-pins.md)).
+  - The detective's life goes on after the player leaves.
+  - Driving him out of character may leave a strange case ([cases](cases-and-living-lore.md) §14).
+- **The lore was there before the click, coherent across distance.** The thief in the town and the detective in the city were already linked by a case. The rules for that are in [pop lore](pop-lore-and-custom-pops.md) §7.
+
+| # | Beat | Systems needed | Status |
+| --- | --- | --- | --- |
+| 1 | Scrolling the globe, a fight at a border between two countries | War at Macro: fronts, forces, a cause; an attention list | Countries **Built** (47–49, 52); war **Decided** as three views (0060) and **Researched** ([combat-resolutions](../research/combat-resolutions.md), [world-in-conflict](../research/world-in-conflict.md)); fronts and forces **Missing**; the attention list **Missing** (first flow, gap 6) |
+| 2 | Go in: see what is going on, who is who, choose where to join | The front lifted into units and soldiers with names, ranks and sides; unit and side cards | Pop levels **Built** (28); units as rosters of pops with military lifepaths **Missing**; lifting consistent with Macro strength **Researched** ([EF](../research/coarse-layers-from-fine-rules.md)) |
+| 3 | Move units in RTS | The City command view; squad orders | View **Decided** ([cameras and modes](cameras-modes.md), 0060); orders **Built** headless (39); squad orders **Missing** |
+| 4 | Play as one soldier and shoot | Possession; firearms | Possession **Decided** (0062, 0068); firearms **Missing** (spec 20 keeps them out of Tier 0) |
+| 5 | Things got worse: leave and pan on | Detach; the fight continues with the player's mistake in it | **Decided** (0066, 0068, 0061, 0048) |
+| 6 | Pan over roads, fields and forests to a small town | Terrain, land use and roads at map zoom; the renderer | Terrain and land **Built** as data (31, 52); roads **Researched** ([city-layout-generation](../research/city-layout-generation.md)); renderer **Missing** |
+| 7 | Night, a few lights: zoom in | Lights of homes and open businesses, visible from afar; opening hours | Light field **Built** (19); sky **Decided** (0064); hours and shifts named as next in spec 33; lights at map scale **Missing** |
+| 8 | A store open at night, a robbery, the thief runs | Crime as an AI choice under pressure; witnesses; flight | **Proposal** ([cases](cases-and-living-lore.md) §5, §12); robbery **Missing**; running **Built** (50) |
+| 9 | Click the thief: his background | Dossier with lifepath and hooks; names that are links | Dossier and lifepath **Built** (`zs gen town`); hooks **Proposal** ([pop lore](pop-lore-and-custom-pops.md) §3); links **Proposal** ([content tools](content-tools.md) §4.2) |
+| 10 | A detective from the nearest city is investigating him | Police with jurisdiction; case records; derived criminal history; the link from the thief to his case | Police departments and officers **Built** as generator data (`data/gen/`); detectives, jurisdiction and cases **Missing**; rules in [pop lore](pop-lore-and-custom-pops.md) §7 (**Proposal**) |
+| 11 | Go to the detective: at home on Sunday evening, doing chores | Calendar (day of the week); household and dwelling; where a pop is at any time | Households and dwellings **Built** (45, 51); calendar **Missing**; position as a function of time **Missing** (first flow, gap 2; RA-23) |
+| 12 | His background: an affair, a troubled marriage | Bonds; secret ties as hooks with residue | **Proposal** ([inhabitants](inhabitants.md) bonds; [cases](cases-and-living-lore.md) §5); **Missing** in code |
+| 13 | Decide to help: catch the thief, fix the marriage | The player's goals are the player's; the game gives the means | Activities **Decided** (0019, 0020) |
+| 14 | Isometric view: his tasks and itinerary (Monday–Friday, 8–5); it is Sunday night | Isometric view; a weekly schedule per occupation; the date | View **Decided** ([cameras and modes](cameras-modes.md)); schedules and calendar **Missing** |
+| 15 | Play out the rest of his day | Household chores as activities | Tier 0 actions **Built** (14); chores **Missing** |
+| 16 | Next day at his desk: a city view of a detective's work (crime pins, calls) | A station per occupation; the police office's knowledge (reports, calls, open cases) as a map layer | Stations **Decided** (0058); the case board **Proposal** ([cases](cases-and-living-lore.md) §9); beliefs and reports **Built** (39); dispatch and calls **Missing** |
+| 17 | Bored: leave, zoom out, keep watching | Detach; the detective goes on with his life | **Decided** (0066, 0068); strange cases may record it ([cases](cases-and-living-lore.md) §14) |
+
+**Build order** (simulation first, headless, each slice testable):
+1. **Calendar and weekly schedules per occupation.** Where any pop is at any time becomes a function of time and pop. This also closes the first flow's gap 2.
+2. **Police and jurisdiction:** case records and a detective role, built on the town generator's police data.
+3. **Crime under pressure:** a robbery, plus derived criminal history through hooks. This generalises the cases doc's first case ("who took the fuel").
+4. **Bonds and secret ties** (the affair) with residue.
+5. **A headless flow test:** `zs flow --seed N` picks a night robbery and prints the chain (thief → case → detective → household → schedule), then checks the click-order, distance and replay tests ([pop lore](pop-lore-and-custom-pops.md) §7).
+6. **Stations per occupation:** the detective's desk view.
+7. **War:** fronts, forces as rosters of pops, lifting into soldiers. It needs the EF method.
+
+The views (globe, command, isometric) come with the renderer.
+
 ## A testing bonus
 
 The demo is deterministic. Once it exists, record it as a replay (start state, seed, input log; spec 06) and run it in CI. The showcase then doubles as a regression test that walks every detail level, every promotion and demotion, and one possession.
