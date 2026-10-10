@@ -33,16 +33,6 @@ Run `python3 tools/docs/check_research.py` before pushing; CI runs it too.
 ## Sources
 ```
 
-## Videos waiting for a local session
-
-The cloud container's network policy blocks YouTube, so these were researched from their titles and from other sources only (2026-10-10). A local session (which can reach YouTube): fetch each transcript, for example `yt-dlp --skip-download --write-auto-subs --sub-langs en --convert-subs srt <url>`, and keep the transcripts out of the repo (they are the channels' text). Check the findings of the note each video feeds against what the video actually says, upgrade or correct their rows, then delete this section.
-
-| Video | Title (from search) | Feeds |
-| --- | --- | --- |
-| https://www.youtube.com/watch?v=UebSfjmQNvs | "Do You Have a Free Will?", most likely Kurzgesagt's "Are You an NPC? (Or Do You Have Free Will?)" (June 2024; not confirmed) | simulation and free will (FW) |
-| https://www.youtube.com/watch?v=LMneQsUw6XI | "The Simulation Hypothesis & Free Will Explained by Brian Greene" (channel and date unknown) | simulation and free will (FW) |
-| https://www.youtube.com/watch?v=tlTKTTt47WE | Kurzgesagt, "Is Reality Real? The Simulation Argument" (2017; part 2 is on Vsauce3) | simulation and free will (FW) |
-| https://www.youtube.com/watch?v=UpA6RdE0aYo | "Learning Science 101: Cognitive Load Theory" (channel unknown, about 2018) | cognitive load (CLT) |
 
 ## Index
 
