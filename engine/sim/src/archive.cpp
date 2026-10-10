@@ -2,9 +2,15 @@
 
 #include <bit>
 #include <cassert>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+
+#ifndef _WIN32
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 namespace zs {
 
