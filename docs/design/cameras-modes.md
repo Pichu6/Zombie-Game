@@ -17,6 +17,7 @@ Labels: **Decided** (the user confirmed it in the prototype), **Proposal** (not 
 | Tactical and management have different roles; zoom and freedom do not make them equal. | Decided |
 | Inventory, exertion and symptoms persist across changes of control, camera or order. | Decided |
 | Gamepad and keyboard/mouse are both complete, comfortable paths. | Decided |
+| **Entering a world** is with a pop or free cam. With a pop, you start embodied in third person behind your **home** pop; free cam always starts at the world view (Macro). Detaching is shown as leaving the body: the camera rises out of it and sinks back in on return. Every player can pin pops as favourites; the home is always the first pin ([0068](../decisions/0068-entering-a-world-the-home-pop-and-pins.md)). | Decided (2026-10-10) |
 | Start with third person + isometric on one character. | Proposal |
 | Defer commander/RTS mode and city manager. | Proposal |
 
