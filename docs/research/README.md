@@ -57,6 +57,11 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [sim-scale-in-other-games.md](sim-scale-in-other-games.md) | Simulation scale in other games | 2026-10-06 |
 | [low-resource-city-simulation.md](low-resource-city-simulation.md) | Low-resource city simulation: "ASCII City" and the games that fake or tame big populations | 2026-10-07 |
 | [persistent-worlds-roles.md](persistent-worlds-roles.md) | Persistent worlds, role-based multiplayer, time and pre-simulated history | 2026-10-09 |
+| [perception-and-run-ahead.md](perception-and-run-ahead.md) | Perception-driven detail and the simulation running ahead of the view | 2026-10-09 |
+| [borrowed-from-other-fields.md](borrowed-from-other-fields.md) | Borrowed from other fields: nested models, telemetry, tracking and paging | 2026-10-09 |
+| [hordes-sound-sky-and-testing.md](hordes-sound-sky-and-testing.md) | Hordes, city sound, storms and sky, and testing a deterministic world | 2026-10-09 |
+| [star-engine.md](star-engine.md) | Star Engine (Star Citizen): what works across scales | 2026-10-09 |
+| [library-of-babel-and-sacred-geometry.md](library-of-babel-and-sacred-geometry.md) | The Library of Babel, the Babel Image Archives and "sacred geometry": what a library of everything teaches a simulation | 2026-10-09 |
 
 ### World: generation, numbers and systems
 
@@ -86,6 +91,15 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [clothing-wrap.md](clothing-wrap.md) | Clothing that follows the body, in our own engine | 2026-10-05 |
 | [second-order-dynamics.md](second-order-dynamics.md) | Second-order dynamics for procedural motion | 2026-10-06 |
 | [pop-behaviour.md](pop-behaviour.md) | Pop behaviour from job, skills, traits and state: games and real life | 2026-10-09 |
+| [playing-knowing-commanding-moving.md](playing-knowing-commanding-moving.md) | Playing, knowing, commanding and moving: player modes, belief on the map, leaders and orders, city traffic | 2026-10-09 |
+
+### Stories and lore
+
+| Note | Title | Date |
+| --- | --- | --- |
+| [procedural-mysteries.md](procedural-mysteries.md) | Procedural mysteries: cases that come from a simulation | 2026-10-09 |
+| [story-building-blocks.md](story-building-blocks.md) | Story building blocks: how games and story theory build variety from parts | 2026-10-09 |
+| [lore-made-and-generated-worlds.md](lore-made-and-generated-worlds.md) | Lore in made and generated worlds: Project Zomboid, other games, and tools outside games | 2026-10-10 |
 
 ### Outbreak and war
 
@@ -128,6 +142,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [data-compression.md](data-compression.md) | Data compression for saves, replays, traces and pop records | 2026-10-08 |
 | [determinism.md](determinism.md) | Cross-compiler and cross-platform determinism: pitfalls and fixes | 2026-10-08 |
 | [draw-call-and-mesh-optimizations.md](draw-call-and-mesh-optimizations.md) | Draw-call and mesh optimizations, from a voxel-engine video | 2026-10-08 |
+| [vector-graphics.md](vector-graphics.md) | Vector graphics: Battlezone, line rendering today, vector maps, and where lines fit our zoom | 2026-10-09 |
 
 ### The old prototype
 

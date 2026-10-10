@@ -175,6 +175,9 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [inzoi](../research/inzoi.md): inZOI, as a reference for the Individual layer
 - [pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md): Pop simulation, lenses per zoom, and saving the world
 - [pop-behaviour](../research/pop-behaviour.md): Pop behaviour from job, skills, traits and state: games and real life
+- [procedural-mysteries](../research/procedural-mysteries.md): Procedural mysteries: cases that come from a simulation
+- [story-building-blocks](../research/story-building-blocks.md): Story building blocks: how games and story theory build variety from parts
+- [lore-made-and-generated-worlds](../research/lore-made-and-generated-worlds.md): Lore in made and generated worlds: Project Zomboid, other games, and tools outside games
 
 ## Prototype sources
 
@@ -207,3 +210,4 @@ The note proposes a pop record (hidden dispositions shown as trait words with si
 
 - Should the selected pop show a "why" line (current goal, the need behind it, what it believes) to make the window readable? ([inzoi](../research/inzoi.md))
 - Off-screen life changes must be legible and consentable (Sims 3 lesson); records browsable by filters with additive breakdowns. Confirm? ([pop-simulation-and-persistence](../research/pop-simulation-and-persistence.md))
+- From [borrowed-from-other-fields](../research/borrowed-from-other-fields.md) §4: pop knowledge as 16 tracks: enough, which kinds, which half-lives (XD-128, XD-129)? Do pops share bearings to cross-fix sounds, or is that a skill (XD-131)?

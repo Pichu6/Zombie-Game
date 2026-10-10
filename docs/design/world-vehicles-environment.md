@@ -147,6 +147,13 @@ The transition uses a dithered fade. Fog reduces pop-in. Proposal.
 - Persistence: per-sector files written in the background, or an embedded database like SQLite?
 - Does the isometric view allow speeding up time with no threats nearby?
 - Do passengers walk freely inside a moving vehicle from the first slice?
+- From [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md) §3: test that the ballistic IDM is collision-free at 0.5 s in emergency stops (PKC-154).
+
+## Research
+
+Notes that feed this design ([0054](../decisions/0054-research-notes-findings-and-links.md)); cite their findings by ID.
+
+- [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md): Playing, knowing, commanding and moving: player modes, belief on the map, leaders and orders, city traffic
 
 ## Prototype sources
 

@@ -217,6 +217,7 @@ The note proposes a core value per cell (food capacity, grain, rivers and coast,
 - Are pacts explicit agreement records with terms, or only beliefs each side holds about the other? ([teg](../research/teg.md))
 - Is drawing fronts and arrows, carried out by commander pops, the Macro layer's main war verb? ([hearts-of-iron](../research/hearts-of-iron.md))
 - What limits how often a country can change its laws: time, legitimacy as a belief, or the cost of unrest? ([hearts-of-iron](../research/hearts-of-iron.md))
+- Pinned by the user for later (2026-10-10), from [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md) §3: which settlement types start the game: assemblies, brokers, protectors, or all three by place (PKC-147)? Military orders as spec 39 `Edict` records or their own kind (recommendation: their own kind, PKC-149)?
 
 ## Research
 
@@ -229,3 +230,5 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [teg](../research/teg.md): TEG, as a reference for the Macro layer
 - [world-systems-factions](../research/world-systems-factions.md): World systems for factions: territory, subjects, expansion, conquest, collapse
 - [country-formation](../research/country-formation.md): How countries form: circumscription, terrain, borders, sizes, wealth, and procedural political maps
+- [library-of-babel-and-sacred-geometry](../research/library-of-babel-and-sacred-geometry.md): The Library of Babel, the Babel Image Archives and "sacred geometry": what a library of everything teaches a simulation
+- [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md): Playing, knowing, commanding and moving: player modes, belief on the map, leaders and orders, city traffic

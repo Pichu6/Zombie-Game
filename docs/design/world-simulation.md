@@ -174,6 +174,7 @@ The note proposes one clock with no pause on a server and the whole world slowed
 - Name tables have no clean licensed source for China, India, the Arab world and Africa (Wikidata is biased to notable people). What fills those gaps? ([human-generator-data](../research/human-generator-data.md))
 - Health rates come only from NHANES (US), scaled by national mortality. Check national open health surveys (Health Survey for England teaching data, Eurostat aggregates) as additions? ([human-generator-data](../research/human-generator-data.md))
 - ShareAlike sources (UNESCO UIS, INDEC): ship them as separable CC BY-SA files, or use CC BY mirrors (World Bank EdStats)? ([human-generator-data](../research/human-generator-data.md))
+- From [hordes-sound-sky-and-testing](../research/hordes-sound-sky-and-testing.md) §3: the floor-field cell size (0.4 m in the literature) against spec 50's grid (HST-144); RapidCheck with doctest through a wrapper (HST-118).
 
 ## Research
 
@@ -191,3 +192,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [world-numbers-settlement](../research/world-numbers-settlement.md): World numbers: how people spread over land, and how towns and cities arise
 - [persistent-worlds-roles](../research/persistent-worlds-roles.md): Persistent worlds, role-based multiplayer, time and pre-simulated history
 - [building-generation](../research/building-generation.md): Building and interior generation, and real housing data by income
+- [hordes-sound-sky-and-testing](../research/hordes-sound-sky-and-testing.md): Hordes, city sound, storms and sky, and testing a deterministic world

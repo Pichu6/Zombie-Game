@@ -132,6 +132,7 @@ Every long thing is the same kind of record, a **Process**: a plan (inputs, labo
 - Pop records (spec 28): regenerate founder specs from the generator, or store them as compressed columns? Switch the death-year and effect-year doubles to fixed point? ([data-compression](../research/data-compression.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** regenerate; fixed point when the record format next changes.
 - Chronicle (spec 25): after old events are folded into sums, keep the full log compressed in the save or drop it? ([data-compression](../research/data-compression.md))
 - Is a trained dictionary per blob kind worth the upkeep for a 16% gain? ([data-compression](../research/data-compression.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** no, not for now.
+- From [borrowed-from-other-fields](../research/borrowed-from-other-fields.md) §4: a minute level at 60 s between hot and hourly warm, or event coupling (XD-116); the hot set's regrid interval, which sets the buffer width (XD-118).
 
 ## Research
 
@@ -144,3 +145,5 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [pop-storage-and-lenses](../research/pop-storage-and-lenses.md): Pop simulation, saving data, and "lenses" across zoom
 - [ecs-memory-layout](../research/ecs-memory-layout.md): Entity storage and memory layout: archetypes, sparse sets, id sets, profiling
 - [data-compression](../research/data-compression.md): Data compression for saves, replays, traces and pop records
+- [perception-and-run-ahead](../research/perception-and-run-ahead.md): Perception-driven detail and the simulation running ahead of the view
+- [borrowed-from-other-fields](../research/borrowed-from-other-fields.md): Borrowed from other fields: nested models, telemetry, tracking and paging

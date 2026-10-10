@@ -105,6 +105,9 @@ The note proposes, in order: endorheic basins with a lake balance (about 18 % of
 - GAEZ suitability shares by climate zone: needed to turn HY-58 from a total check into a per-class table. ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
 - Hexagonal child weights for HY-50: do we store explicit child area shares, or move to an aperture that nests exactly? ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
 - Which classification Songs of the Eons uses. ([terrain-hydrology-climate](../research/terrain-hydrology-climate.md))
+- From [borrowed-from-other-fields](../research/borrowed-from-other-fields.md) §4: the solar formula and moon phase for spec 19, and the weather-region size for storm records in spec 36 (XD-137, XD-138).
+- From [vector-graphics](../research/vector-graphics.md) §5: map tiles keyed by our grid or a quadtree (recommendation: our grid); the City band as vector or flat extrusions; MSDF or Slug for map text.
+- HY-50 (child weights): [library-of-babel-and-sacred-geometry](../research/library-of-babel-and-sacred-geometry.md) proposes shares for smooth fields and an exact partition for anything counted (LB-40).
 
 ## Research
 
@@ -118,3 +121,8 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [renderer](../research/renderer.md): The renderer, at engineering level
 - [terrain-hydrology-climate](../research/terrain-hydrology-climate.md): Terrain, hydrology and climate: erosion, rivers, inland basins, Koppen, soils, multi-resolution terrain
 - [city-layout-generation](../research/city-layout-generation.md): City layout generation: streets, districts, blocks and plots, with real urban-form numbers
+- [borrowed-from-other-fields](../research/borrowed-from-other-fields.md): Borrowed from other fields: nested models, telemetry, tracking and paging
+- [star-engine](../research/star-engine.md): Star Engine (Star Citizen): what works across scales
+- [vector-graphics](../research/vector-graphics.md): Vector graphics: Battlezone, line rendering today, vector maps, and where lines fit our zoom
+- [library-of-babel-and-sacred-geometry](../research/library-of-babel-and-sacred-geometry.md): The Library of Babel, the Babel Image Archives and "sacred geometry": what a library of everything teaches a simulation
+- [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md): Playing, knowing, commanding and moving: player modes, belief on the map, leaders and orders, city traffic

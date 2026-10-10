@@ -111,3 +111,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [pop-storage-and-lenses](../research/pop-storage-and-lenses.md): Pop simulation, saving data, and "lenses" across zoom
 - [reference-games-by-layer](../research/reference-games-by-layer.md): Reference games by layer: which mechanic, from which game, for which layer
 - [second-life](../research/second-life.md): Second Life, as a reference for ownership
+- [borrowed-from-other-fields](../research/borrowed-from-other-fields.md): Borrowed from other fields: nested models, telemetry, tracking and paging

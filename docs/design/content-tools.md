@@ -95,7 +95,7 @@ Skills are tags for now; the know-how model ([activities](activities.md), [inhab
 
 Any person a text names (a spouse, a business owner, a coworker, a teacher) is a link: clicking the name focuses the camera on that person, or opens their dossier when they are far away.
 
-- **No new people.** A mention always points at a census slot that already exists from the world seed (world simulation §3, lazy census). Clicking it never invents anyone; it reads that slot and promotes it to a record if needed. The world population is fixed at creation, so the cascade is finite by construction.
+- **No new people.** A mention always points at a census slot that already exists from the world seed (world simulation §3, lazy census). Clicking it never invents anyone; it reads that slot. Looking never promotes ([pop continuity](pop-continuity.md)): the person becomes a record only by the stated rules (a meeting, a story tie, an office). The world population is fixed at creation, so the cascade is finite by construction.
 - **Lazy, one step at a time.** Opening a person generates their dossier and lifepath; the people *they* mention stay unopened links (ids) until someone clicks them. Cost grows only with what the player actually looks at.
 - **Through the character's eyes.** In individual play a link shows only what the character knows (world simulation §13 inspector); the god view shows everything.
 - **Needed in the generator:** mentions carry person ids, not just text; business owners, coworkers and schoolmates are picked from existing census slots (in the town or a neighbouring area record), so "Pete's Diner" is owned by a real Pete.
@@ -157,3 +157,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 
 - [building-generation](../research/building-generation.md): Building and interior generation, and real housing data by income
 - [city-layout-generation](../research/city-layout-generation.md): City layout generation: streets, districts, blocks and plots, with real urban-form numbers
+- [library-of-babel-and-sacred-geometry](../research/library-of-babel-and-sacred-geometry.md): The Library of Babel, the Babel Image Archives and "sacred geometry": what a library of everything teaches a simulation
+- [procedural-mysteries](../research/procedural-mysteries.md): Procedural mysteries: cases that come from a simulation
+- [story-building-blocks](../research/story-building-blocks.md): Story building blocks: how games and story theory build variety from parts
+- [lore-made-and-generated-worlds](../research/lore-made-and-generated-worlds.md): Lore in made and generated worlds: Project Zomboid, other games, and tools outside games

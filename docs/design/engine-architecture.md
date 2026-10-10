@@ -120,6 +120,8 @@ If hot work goes over budget, warm and macro slices wait (they have deadlines, n
 - Are only x64 platforms in scope, or also ARM64, where FMA is in the base instruction set? ([determinism](../research/determinism.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** x64 only for now.
 - Should a NaN in saved state be canonicalised, or treated as a bug (spec 06)? ([determinism](../research/determinism.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** a bug; the archive asserts.
 - Where does the floating-point environment guard live once there are worker threads: per step, per job, or per worker at start? ([determinism](../research/determinism.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** per step now, per worker at start later.
+- From [perception-and-run-ahead](../research/perception-and-run-ahead.md) §6: how far ahead at each speed, and the snapshot memory budget; hysteresis numbers for spec 27; hidden hordes in cold chunks as counts or as occupancy plus flow (RA-96); the walker relay speed that sets the rollback cone, now that walkers moan (RA-111, [0064](../decisions/0064-sound-and-sky-defaults.md)).
+- From [borrowed-from-other-fields](../research/borrowed-from-other-fields.md) §4: save format 5 as a daily keyframe with hourly deltas and hash dedup (XD-124)?
 
 ## Research
 
@@ -135,3 +137,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [ecs-memory-layout](../research/ecs-memory-layout.md): Entity storage and memory layout: archetypes, sparse sets, id sets, profiling
 - [determinism](../research/determinism.md): Cross-compiler and cross-platform determinism: pitfalls and fixes
 - [draw-call-and-mesh-optimizations](../research/draw-call-and-mesh-optimizations.md): Draw-call and mesh optimizations, from a voxel-engine video
+- [perception-and-run-ahead](../research/perception-and-run-ahead.md): Perception-driven detail and the simulation running ahead of the view

@@ -155,6 +155,8 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [view-readability](../research/view-readability.md): Readability of the 2D top-down view: state, selection, alerts, overlays, and what our window lacks
 - [zoom-and-layer-two](../research/zoom-and-layer-two.md): Zoom from planet to street, and what the City layer plays like
 - [persistent-worlds-roles](../research/persistent-worlds-roles.md): Persistent worlds, role-based multiplayer, time and pre-simulated history
+- [vector-graphics](../research/vector-graphics.md): Vector graphics: Battlezone, line rendering today, vector maps, and where lines fit our zoom
+- [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md): Playing, knowing, commanding and moving: player modes, belief on the map, leaders and orders, city traffic
 
 ## Prototype sources
 
@@ -184,3 +186,5 @@ The note proposes one continuous camera with explicit tool modes instead of expl
 - Does direct control cap time at 1:1 (1.35 cells per real second) or 3x, and on WASD only or on any approach by the controlled pop? (Today the window's "1x" is 24x game time.) ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** X3 while walking or WASD held, Real in a fight.
 - Does the follow camera hard-lock (OpenTTD, OpenRCT2) or lag with a dead zone (Godot, Mindustry), and which key recentres? ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** smoothed follow (tau 0.1 s) with a 20 % dead zone; F or Home recentres.
 - Which events raise a pausing Pacer alert at normal speed (spec 40)? ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** a walker in sight of a group member, a bite, a group member down.
+- From [vector-graphics](../research/vector-graphics.md) §5: is a radar view of a pop's knowledge a player tool or a debug lens?
+- Pinned by the user for later (2026-10-10), from [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md) §3: achievements or a public integrity mark, or only a private record in the save (PKC-145)? Probability words on beliefs, or only the grade and the age (PKC-39, PKC-46)?

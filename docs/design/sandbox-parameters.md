@@ -427,3 +427,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [project-zomboid](../research/project-zomboid.md): Project Zomboid, as a reference for the Individual layer
 - [war-in-other-games](../research/war-in-other-games.md): War in other games, as a reference
 - [world-systems-economy](../research/world-systems-economy.md): World systems: how a real economy works in numbers
+- [lore-made-and-generated-worlds](../research/lore-made-and-generated-worlds.md): Lore in made and generated worlds: Project Zomboid, other games, and tools outside games
