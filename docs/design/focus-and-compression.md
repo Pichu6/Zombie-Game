@@ -133,6 +133,7 @@ Every long thing is the same kind of record, a **Process**: a plan (inputs, labo
 - Chronicle (spec 25): after old events are folded into sums, keep the full log compressed in the save or drop it? ([data-compression](../research/data-compression.md))
 - Is a trained dictionary per blob kind worth the upkeep for a 16% gain? ([data-compression](../research/data-compression.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** no, not for now.
 - From [borrowed-from-other-fields](../research/borrowed-from-other-fields.md) §4: a minute level at 60 s between hot and hourly warm, or event coupling (XD-116); the hot set's regrid interval, which sets the buffer width (XD-118).
+- From [simulation-and-free-will](../research/simulation-and-free-will.md): forecasts the player sees (weather, trends, an advisor) are beliefs computed from what the forecaster knows, never a read of the run-ahead, because a shown future is falsified by acting on it ([FW-71](../research/simulation-and-free-will.md)). Consistency without rerunning or editing who noticed leaves only §3 rules 2 and 3 ([FW-66](../research/simulation-and-free-will.md), [FW-67](../research/simulation-and-free-will.md)); nothing to change, recorded so it stays that way.
 
 ## Research
 
@@ -147,3 +148,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [data-compression](../research/data-compression.md): Data compression for saves, replays, traces and pop records
 - [perception-and-run-ahead](../research/perception-and-run-ahead.md): Perception-driven detail and the simulation running ahead of the view
 - [borrowed-from-other-fields](../research/borrowed-from-other-fields.md): Borrowed from other fields: nested models, telemetry, tracking and paging
+- [simulation-and-free-will](../research/simulation-and-free-will.md): The simulation argument and free will: what they mean for a world of simulated people

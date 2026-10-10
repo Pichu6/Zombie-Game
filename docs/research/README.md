@@ -112,6 +112,12 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [story-building-blocks.md](story-building-blocks.md) | Story building blocks: how games and story theory build variety from parts | 2026-10-09 |
 | [lore-made-and-generated-worlds.md](lore-made-and-generated-worlds.md) | Lore in made and generated worlds: Project Zomboid, other games, and tools outside games | 2026-10-10 |
 
+### The player's mind: choice and learning
+
+| Note | Title | Date |
+| --- | --- | --- |
+| [simulation-and-free-will.md](simulation-and-free-will.md) | The simulation argument and free will: what they mean for a world of simulated people | 2026-10-10 |
+
 ### Outbreak and war
 
 | Note | Title | Date |

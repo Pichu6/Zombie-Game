@@ -194,3 +194,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [procedural-mysteries](../research/procedural-mysteries.md): Procedural mysteries: cases that come from a simulation
 - [story-building-blocks](../research/story-building-blocks.md): Story building blocks: how games and story theory build variety from parts
 - [lore-made-and-generated-worlds](../research/lore-made-and-generated-worlds.md): Lore in made and generated worlds: Project Zomboid, other games, and tools outside games
+- [simulation-and-free-will](../research/simulation-and-free-will.md): The simulation argument and free will: what they mean for a world of simulated people

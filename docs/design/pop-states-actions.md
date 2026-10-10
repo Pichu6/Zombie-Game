@@ -207,6 +207,7 @@ alive → (unconscious) → dying (infection stage, hidden) → dead → walker 
 
 - Bands and thresholds for every readout (section 9 and 10) are starting values to tune in playtests, each with a source where one exists (sleep: Van Dongen 2003; dehydration: Sawka 2007).
 - Whether "worn down" is a real state or just morale over days.
+- Should every AI decision keep its winning reason and the runner-up, so the inspector and the diary can say why in words of beliefs, wants and feelings rather than scores? Players read a determined agent as choosing when its reasons are shown that way ([FW-68](../research/simulation-and-free-will.md), [FW-69](../research/simulation-and-free-will.md)); arbitrary picks can stay seeded chance ([FW-73](../research/simulation-and-free-will.md)).
 
 Answered in [0045](../decisions/0045-open-questions-answered-2.md): bladder and bowel are automatic for pops and orderable by the player in Individual (Tier 2 with water as a Proposal); fear also widens aim spread and raises work-error odds (nerves, no new number); temperature is suffered by the body in Individual from Tier 1.
 
@@ -216,3 +217,4 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 
 - [clothing-wrap](../research/clothing-wrap.md): Clothing that follows the body, in our own engine
 - [pop-behaviour](../research/pop-behaviour.md): Pop behaviour from job, skills, traits and state: games and real life
+- [simulation-and-free-will](../research/simulation-and-free-will.md): The simulation argument and free will: what they mean for a world of simulated people

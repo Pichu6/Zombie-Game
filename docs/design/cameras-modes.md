@@ -157,6 +157,7 @@ Notes that feed this design ([0054](../decisions/0054-research-notes-findings-an
 - [persistent-worlds-roles](../research/persistent-worlds-roles.md): Persistent worlds, role-based multiplayer, time and pre-simulated history
 - [vector-graphics](../research/vector-graphics.md): Vector graphics: Battlezone, line rendering today, vector maps, and where lines fit our zoom
 - [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md): Playing, knowing, commanding and moving: player modes, belief on the map, leaders and orders, city traffic
+- [simulation-and-free-will](../research/simulation-and-free-will.md): The simulation argument and free will: what they mean for a world of simulated people
 
 ## Prototype sources
 
@@ -188,3 +189,4 @@ The note proposes one continuous camera with explicit tool modes instead of expl
 - Which events raise a pausing Pacer alert at normal speed (spec 40)? ([view-readability](../research/view-readability.md)) **Default in [0055](../decisions/0055-defaults-for-fixes-from-engineering-research.md):** a walker in sight of a group member, a bite, a group member down.
 - From [vector-graphics](../research/vector-graphics.md) §5: is a radar view of a pop's knowledge a player tool or a debug lens?
 - Pinned by the user for later (2026-10-10), from [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md) §3: achievements or a public integrity mark, or only a private record in the save (PKC-145)? Probability words on beliefs, or only the grade and the age (PKC-39, PKC-46)?
+- From [simulation-and-free-will](../research/simulation-and-free-will.md): when a player releases a pop (detached, 0066), should the pop finish the player's current intent before its own AI decides again, and for how long? The Sims 4 hands back after about 5 sim-minutes without input ([FW-51](../research/simulation-and-free-will.md), [FW-70](../research/simulation-and-free-will.md)).
