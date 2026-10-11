@@ -103,6 +103,7 @@ This is §2's rule applied to a whole session. Whoever the player clicks, anywhe
 - **Schedules** ([TU-15, TU-41](../research/daily-lives-and-time-use.md)). Monday–Friday 08:00–17:00 is the most common office pattern, not the rule.
   - Each worker draws a pattern at hire. US shares: 85 % regular daytime, 5 % evenings, 3 % nights, the rest rotating, split or irregular; in hospitality, 40 % work outside daytime.
   - Start times follow the observed distribution: 57 % of US workers leave home between 06:00 and 08:29.
+  - Refined 2026-10-11 ([CK-31, CK-42](../research/calendars-school-and-clock-hours.md)): the first work start on a weekday has a median of 07:48 and bedtime before a weekday a median of 22:05. Where everyone is, hour by hour, is the schedules' test: on a weekday 30 % of people aged 15+ are at their workplace at 10:45, and the share at home bottoms out at 47 % at noon (CK-12, CK-8).
 - **Criminal history** is drawn from country base rates through the same reporting funnel, never above them.
 
 **Tests (added to §6):**

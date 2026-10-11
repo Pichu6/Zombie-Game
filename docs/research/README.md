@@ -97,6 +97,7 @@ Grouped by topic. Each note's header says which design docs, specs and decisions
 | [pop-behaviour.md](pop-behaviour.md) | Pop behaviour from job, skills, traits and state: games and real life | 2026-10-09 |
 | [absence-and-missing-persons.md](absence-and-missing-persons.md) | Absence, no-shows and missing persons: how the world notices someone is gone | 2026-10-10 |
 | [daily-lives-and-time-use.md](daily-lives-and-time-use.md) | How real people spend their days: time use, working time, commuting and sleep | 2026-10-10 |
+| [calendars-school-and-clock-hours.md](calendars-school-and-clock-hours.md) | Calendars, school and clock hours: where people are hour by hour (US ATUS microdata), upper-middle-income diaries, school calendars, weekends and holidays for 183 countries | 2026-10-11 |
 | [playing-knowing-commanding-moving.md](playing-knowing-commanding-moving.md) | Playing, knowing, commanding and moving: player modes, belief on the map, leaders and orders, city traffic | 2026-10-09 |
 
 ### Stories and lore

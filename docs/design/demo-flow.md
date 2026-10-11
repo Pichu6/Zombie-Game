@@ -159,7 +159,7 @@ The demo is deterministic. Once it exists, record it as a replay (start state, s
 
 ## Research done for this flow
 
-For the fourth flow (2026-10-10): [daily-lives-and-time-use](../research/daily-lives-and-time-use.md) (TU, schedules and the calendar), [services-by-settlement-size](../research/services-by-settlement-size.md) (SV, which services and who covers the rest), [institutions-as-queues](../research/institutions-as-queues.md) (IQ, police intake, reporting, times to outcome; the detective's desk) and [absence-and-missing-persons](../research/absence-and-missing-persons.md) (AB, what happens when a possessed pop goes missing).
+For the fourth flow (2026-10-10): [daily-lives-and-time-use](../research/daily-lives-and-time-use.md) (TU, schedules and the calendar), [services-by-settlement-size](../research/services-by-settlement-size.md) (SV, which services and who covers the rest), [institutions-as-queues](../research/institutions-as-queues.md) (IQ, police intake, reporting, times to outcome; the detective's desk) and [absence-and-missing-persons](../research/absence-and-missing-persons.md) (AB, what happens when a possessed pop goes missing). Added 2026-10-11: [calendars-school-and-clock-hours](../research/calendars-school-and-clock-hours.md) (CK: where people are hour by hour, which is the schedule's test; the upper-middle-income diaries; school calendars; weekends and holidays per country).
 
 [playing-knowing-commanding-moving](../research/playing-knowing-commanding-moving.md) (PKC) covers:
 - **the gaps:** vehicles and traffic (PKC-154..PKC-156), daily schedules (PKC-157), delivery contracts (PKC-158), overlays and the attention list (PKC-159, PKC-160);
