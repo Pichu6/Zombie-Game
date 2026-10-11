@@ -122,3 +122,63 @@ run = ["ctest", "--preset", "release", "-R", "zs_gen_tests"]
 kind = "test"
 workshop = true
 added = 2026-10-11
+
+[[try]]
+id = "map"
+part = "individual"
+spec = "09"
+title = "The block's room graph"
+what = "Stage 2: every room of the Tier 0 block and the doors between them, as text."
+run = ["--map"]
+kind = "text"
+added = 2026-10-03
+
+[[try]]
+id = "body-lab"
+part = "individual"
+spec = "11"
+title = "The body calibration scenarios"
+what = "Stage 3: starvation, thirst, cold, a wound, each run against its band from the literature."
+run = ["--body-lab"]
+kind = "text"
+added = 2026-10-04
+
+[[try]]
+id = "scripted-pop"
+part = "individual"
+spec = "14"
+title = "A pop eats, treats a wound, salvages, barricades"
+what = "Stage 4: the action executor on a scripted pop; --ai lets the AI choose instead."
+run = ["--scripted-pop"]
+kind = "text"
+added = 2026-10-05
+
+[[try]]
+id = "stage6"
+part = "city"
+spec = "17"
+title = "The grid fails"
+what = "Stage 6: generator, fuel, fridge, and a night's noise and light snapshot."
+run = ["--stage6", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-05
+
+[[try]]
+id = "stage7"
+part = "threats"
+spec = "21"
+title = "The dead arrive"
+what = "Stage 7: stage 6 with the dead: census, walkers, bites, turning; runs until the pop rises."
+run = ["--stage7", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-06
+
+[[try]]
+id = "town-years"
+part = "simulation"
+spec = "28"
+title = "A generated town as pops, over years"
+what = "A layoff, then years of births and deaths in a town held as pop records."
+run = ["--town", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-07

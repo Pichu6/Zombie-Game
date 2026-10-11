@@ -69,7 +69,7 @@ Rules:
 
 1. **When a session ends with "you can test it", it adds an entry** (or updates one) with the date. The Atlas sorts the Try panel newest first, so the top of the list is what was just built. The hand-off file points at the entry's id.
 2. **Kinds.** `window` opens the window mode in the same process; `text` runs the mode in a worker thread and shows its output in a panel, with the same text the flag prints; `image` runs it and shows the file it wrote; `test` runs `ctest` as a child process and streams the lines, green or red by the result.
-3. **The status table's "Try it" column** (`docs/status.md`) is generated from this file, not the other way round, so the two cannot disagree.
+3. **The status table's "Try it" column** (`docs/status.md`) is generated from this file by `tools/docs/check_tries.py --write` for every row that names a spec, and the same tool checks that every command the table names has an entry; so the two cannot disagree (built 2026-10-11, spec 55 rule 16).
 4. **Seeds and options are editable** in the panel before running, with the entry's values as defaults. Each run is logged with its command line, so a result can be reproduced from the flag.
 5. **Nothing runs on open.** Opening the Atlas costs nothing; the planet is generated when a card or a Try needs it, then cached for the session.
 

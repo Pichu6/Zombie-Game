@@ -134,6 +134,11 @@ struct SimState {
   std::size_t save_bytes = 0;
   double last_s = 0;
   std::string last_action;
+  // What happened (spec 25): the player's event lines as the world moves, and each completed day's summary.
+  std::vector<std::string> lines;
+  std::size_t seen = 0;
+  int days_summarised = 0;
+  std::vector<std::string> days;
   // The cold check.
   std::optional<ColdResult> cold;
   bool cold_running = false;
@@ -148,6 +153,18 @@ struct SimState {
     if (!t) return;
     hash = t->world->state_hash();
     save_bytes = t->world->save().size();
+    const auto& all = t->world->log.all();
+    for (; seen < all.size(); ++seen)
+      if (auto line = zs::tier0::event_line(*t, all[seen])) lines.push_back(zs::tier0::time_text(all[seen].tick) + "  " + line->text);
+    if (lines.size() > 400) lines.erase(lines.begin(), lines.end() - 400);
+    const int day = static_cast<int>(t->world->clock.day());
+    for (; days_summarised < day; ++days_summarised) {
+      std::string s = "Day " + std::to_string(days_summarised + 1) + ": ";
+      const auto notable = zs::tier0::day_summary(*t, days_summarised);
+      if (notable.empty()) s += "quiet";
+      for (std::size_t i = 0; i < notable.size(); ++i) s += (i ? "; " : "") + notable[i];
+      days.push_back(s);
+    }
   }
 
   void open(std::uint64_t s, const gen::WorldSettings& st, const std::string& name) {
@@ -156,6 +173,10 @@ struct SimState {
     t.reset();
     error.clear();
     cold.reset();
+    lines.clear();
+    days.clear();
+    seen = 0;
+    days_summarised = 0;
     seed = s;
     settings = st;
     world_name = name;
@@ -303,6 +324,14 @@ void draw_sim(SimState& st, std::uint64_t seed, const gen::WorldSettings& settin
       const std::int64_t nw = w.next_wake(now);
       return nw <= now ? std::string("now") : "in " + ticks_text(nw - now);
     }().c_str());
+    ImGui::Spacing();
+    ImGui::TextUnformatted("What happened (spec 25: the lines a player reads; a day's five most notable events as its summary):");
+    ImGui::BeginChild("chronicle", ImVec2(0, 200), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
+    for (const auto& d : st.days) ImGui::TextColored({1, 0.95f, 0.8f, 1}, "%s", d.c_str());
+    if (st.lines.empty()) ImGui::TextDisabled("nothing yet: step or jump");
+    for (const auto& l : st.lines) ImGui::TextUnformatted(l.c_str());
+    if (!st.lines.empty()) ImGui::SetScrollHereY(1.0f);
+    ImGui::EndChild();
   }
   ImGui::Spacing();
   ImGui::Separator();
