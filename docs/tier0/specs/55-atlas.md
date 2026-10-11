@@ -21,6 +21,8 @@
 
 11. **The strip (slice 2, 2026-10-11).** An open doc shows its path, the date and subject of the last commit that touched it (`git log -1`, through the same runner; nothing when git is not there) and "linked from": every doc whose text links to it, as buttons. Test entries need the release build next to the repo (`build/release/CMakeCache.txt`), not only the repo.
 
+12. **The cards (slice 3, 2026-10-11).** A Cards page, and a double-click (or "Open its card") on the Tour's planet. Each card is a diff between the design and the build: `data/atlas/cards.toml` lists, per kind (world, country, town, pop, house), the rows the design asks for with the spec that produces each; the card fills a row from the generator's record, shows "not read yet" for a produced row the Atlas does not read, and "lacking" for a row with no producer, and counts the three. Values: the world from the planet's grid, people and history; a country from specs 48, 49 and 52 plus its calendar file (spec 53: rest days, holidays in 2027, the school year); a town from the planet's settlement (people, rank, cell, position) plus a town generated for its country's profile with 120 people (spec 47, seed = the world seed mixed with the cell), its streets, businesses, households and dwellings (spec 51), said on the card to be a stand-in until spec 48's towns carry their own people; a pop from the generated record and its dossier; a house from its dwelling and the site map `house_toml` writes. The simulation card waits for the Atlas to open a world in-process (slice 4 or later). `--card N --pick` with `--shot` selects a country, its first town, first pop and their house for a check.
+
 ## State
 
 The Atlas keeps only view state: the page, the selected world, the Try seed, the running child processes and their output, the loaded textures, the open doc and its history, the tour stop. Worlds live in their folders; the output of a run lives in the child process until it ends.
@@ -36,10 +38,11 @@ The Atlas keeps only view state: the page, the selected world, the Try seed, the
 - `zs --atlas --shot` of every page, of the tour's planet stop, of a `text` Try (`--bench`, 0.2 s, its line shown) and of an `image` Try (`gen world --bmp`, 9.0 s, the map shown) (2026-10-11).
 - The Atlas on screen with the GPU renderer: the planet of seed 7 drawn whole; the generator's own count for seed 7 (348 countries) matches the Atlas's summary line (2026-10-11).
 - The test Try `gen-tests` through the panel: ctest found from the build's cache, 1 of 1 passed in 39 s, its lines shown (2026-10-11, slice 2).
+- Cards page shots: the world card (seed 7: 9 produced, 1 not read, 2 lacking), a country card with its calendar row and towns (11 produced, 0 not read, 5 lacking), and the picked chain down to a house with its site map (2026-10-11, slice 3).
 - `zs gen world --seed 1 --freq 24 --bmp` still writes a 6,291,510-byte file through the shared raster (2026-10-11).
 
 ## Open
 
 - The status table's "Try it" column is still written by hand; the generator from the manifest (atlas design §3 rule 3) is a repo tool to write when that table is next rewritten, so as not to rewrite `status.md` under another session.
-- The cards (country, town, pop, house) are slice 3; the country card here is the planet stop's first version.
+- The simulation card (systems in wake order, next wake tick, save version, hash) needs a world open in-process; it waits for the compute board slice.
 - `imgui_markdown` was not used: our docs lean on tables, which it lacks; the reader is our own and covers what the docs use.

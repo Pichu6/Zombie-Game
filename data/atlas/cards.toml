@@ -1,0 +1,107 @@
+# The cards (atlas design §5, spec 55 slice 3): for each kind of entity, what the design says it needs, row by row,
+# and the spec that produces the row today. A row with no `spec` is lacking: designed, not produced. A row whose
+# producer exists but whose value the Atlas does not read yet shows "not read yet". The card draws the value from the
+# generator's record by `field`; the design doc is where the row is argued.
+
+[[card]]
+id = "world"
+title = "The world"
+design = "design/world-numbers.md"
+rows = [
+  { field = "seed", need = "The seed", spec = "02" },
+  { field = "cells", need = "Grid cells at Earth size", spec = "30" },
+  { field = "land", need = "Land area", spec = "31" },
+  { field = "people", need = "People today", spec = "48" },
+  { field = "countries", need = "Countries formed on the land", spec = "52" },
+  { field = "towns", need = "Towns by rank-size", spec = "48" },
+  { field = "history", need = "The contest history: start polities, periods, events", spec = "52" },
+  { field = "start_date", need = "The start date (default Monday 11 January 2027)", spec = "53" },
+  { field = "sliders", need = "Land share, temperature, relief, moisture, fragmentation", spec = "31" },
+  { field = "fed", need = "People each cell can feed and water", spec = "52" },
+  { field = "", need = "Fields evaluable below a cell (the zoom continuum section 4)" },
+  { field = "", need = "Crust apart from plates, broken island arcs, deeper ocean floor (spec 31 Open)" },
+]
+
+[[card]]
+id = "country"
+title = "A country"
+design = "design/macro-layer.md"
+rows = [
+  { field = "name", need = "A name from its culture (parody of the real profile's)", spec = "49" },
+  { field = "area", need = "Area", spec = "52" },
+  { field = "people", need = "People", spec = "48" },
+  { field = "income", need = "Income group from endowment, access and history", spec = "52" },
+  { field = "endowment", need = "Endowment", spec = "52" },
+  { field = "coast", need = "Coast or landlocked", spec = "52" },
+  { field = "capital", need = "Capital cell and how long it was held", spec = "52" },
+  { field = "sectors", need = "Sectors cut inside the country", spec = "48" },
+  { field = "towns", need = "Towns", spec = "48" },
+  { field = "profile", need = "The real profile it borrows: age, education, work, households", spec = "49" },
+  { field = "calendar", need = "Weekends, holidays, school days", spec = "53" },
+  { field = "", need = "Towns named from the country's culture (status step 3, next)" },
+  { field = "", need = "Capacity, deposits in use and routes (world systems steps 2-4, 6)" },
+  { field = "", need = "Government, politics and starting policies (sandbox parameters §8)" },
+  { field = "", need = "Culture shares and trust in authority (macro layer §6.2)" },
+  { field = "", need = "Provinces inside the country" },
+]
+
+[[card]]
+id = "town"
+title = "A town"
+design = "design/world-simulation.md"
+rows = [
+  { field = "people", need = "People, by rank-size in its country", spec = "48" },
+  { field = "rank", need = "Rank in its country (1 is the capital city)", spec = "48" },
+  { field = "cell", need = "Its cell on the planet", spec = "48" },
+  { field = "name", need = "A name from the country's culture", spec = "47", note = "stand-in: the generated town's name, not yet the planet town's" },
+  { field = "streets", need = "Streets", spec = "47" },
+  { field = "businesses", need = "Businesses and institutions people work at", spec = "47" },
+  { field = "households", need = "Households and people from the country's tables", spec = "47" },
+  { field = "dwellings", need = "A dwelling with an address per household", spec = "51" },
+  { field = "", need = "Streets and plots laid out in the town (status step 5, next)" },
+  { field = "", need = "Zones of spec 48 inside the town" },
+  { field = "", need = "Services by settlement size (research SV)" },
+  { field = "", need = "Business premises from the business records" },
+]
+
+[[card]]
+id = "pop"
+title = "A pop"
+design = "design/inhabitants.md"
+rows = [
+  { field = "name", need = "Name in the culture's order", spec = "47" },
+  { field = "age_sex", need = "Age and sex", spec = "47" },
+  { field = "nationality", need = "Nationality, heritage, birthplace, when they moved", spec = "47" },
+  { field = "household", need = "Household, role and address", spec = "47" },
+  { field = "education", need = "Education from the country's attainment", spec = "47" },
+  { field = "occupation", need = "Occupation, workplace, years in the job, the job before", spec = "47" },
+  { field = "skills", need = "Skills", spec = "47" },
+  { field = "appearance", need = "Skin tone, hair, eyes", spec = "47" },
+  { field = "body_seed", need = "Body seed (the census draws a body from it)", spec = "11" },
+  { field = "lifepath", need = "Lifepath: terms at places that exist", spec = "47" },
+  { field = "", need = "Body from real anthropometry (content tools §2, full human generator)" },
+  { field = "", need = "Health conditions with medicine clocks" },
+  { field = "", need = "Personality and dispositions (0071: they only nudge)" },
+  { field = "", need = "Face genes shared by families; clothes, possessions and keys" },
+  { field = "", need = "Ties: family, household, coworkers, classmates, neighbours (backlog item 47)" },
+  { field = "", need = "Beliefs with source, age and confidence (spec 39: built in the world, not in the generator)" },
+  { field = "", need = "Today's schedule: where they are at any hour (spec 54, next)" },
+  { field = "", need = "A diary (0067)" },
+]
+
+[[card]]
+id = "house"
+title = "A house"
+design = "design/content-tools.md"
+rows = [
+  { field = "address", need = "Address on a street", spec = "51" },
+  { field = "members", need = "Who lives there", spec = "51" },
+  { field = "size", need = "Floor area from members and the country's income", spec = "51" },
+  { field = "rooms", need = "Rooms, every one reachable, who sleeps where", spec = "51" },
+  { field = "food", need = "Food in the pantry and the fridge from the household", spec = "51" },
+  { field = "services", need = "Fridge and bathroom by income", spec = "51" },
+  { field = "map", need = "The house as a site map the simulation can load", spec = "51" },
+  { field = "", need = "Furniture beyond the room kit; loot by the household's jobs (interior generator)" },
+  { field = "", need = "Storeys, facade by grammar, era style (building generator)" },
+  { field = "", need = "A plot on a laid-out street (next)" },
+]

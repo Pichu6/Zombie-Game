@@ -33,7 +33,7 @@ if(ZS_BUILD_WINDOW)
   target_link_libraries(zs_imgui PUBLIC SDL3::SDL3-static)
 
   # The Atlas (spec 55) shares the window stack and runs the modes as child processes.
-  target_sources(zs PRIVATE window.cpp atlas.cpp atlas_md.cpp runner.cpp)
+  target_sources(zs PRIVATE window.cpp atlas.cpp atlas_md.cpp atlas_cards.cpp runner.cpp)
   target_link_libraries(zs PRIVATE zs_imgui)
   target_compile_definitions(zs PRIVATE ZS_WITH_WINDOW)
 else()

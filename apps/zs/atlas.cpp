@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -31,6 +32,7 @@
 #include "zs/gen/world_land.h"
 #include "zs/gen/world_people.h"
 #include "zs/tier0.h"
+#include "atlas_cards.h"
 #include "atlas_md.h"
 #include "modes.h"
 #include "planet_raster.h"
@@ -178,6 +180,8 @@ struct Planet {
   std::mutex mutex;
   PlanetRaster raster;
   std::vector<CountryInfo> countries;
+  std::vector<CountryCard> cards;  // slice 3: the same countries with their towns, for the Cards page
+  WorldCard world_card;
   std::string summary;
   SDL_Texture* texture = nullptr;
   int selected = -1;
@@ -213,9 +217,34 @@ struct Planet {
         set("the picture");
         PlanetRaster r = render_planet(grid, f, land, &people.formed, true, 1024, 512);
         std::vector<CountryInfo> cs;
+        std::vector<CountryCard> cards(people.countries.size());
         std::vector<int> towns(people.countries.size(), 0);
-        for (const auto& t : people.towns)
-          if (t.country >= 0 && t.country < static_cast<int>(towns.size())) ++towns[static_cast<std::size_t>(t.country)];
+        for (std::size_t i = 0; i < people.towns.size(); ++i) {
+          const auto& t = people.towns[i];
+          if (t.country < 0 || t.country >= static_cast<int>(towns.size())) continue;
+          ++towns[static_cast<std::size_t>(t.country)];
+          TownCard tc;
+          tc.index = static_cast<int>(i);
+          tc.country = t.country;
+          tc.rank = t.rank;
+          tc.people = t.people;
+          tc.cell = t.cell;
+          const auto& v = grid.centre(t.cell);
+          tc.lat = std::asin(std::clamp(v.z, -1.0, 1.0)) * 180.0 / 3.14159265358979;
+          tc.lon = std::atan2(v.y, v.x) * 180.0 / 3.14159265358979;
+          cards[static_cast<std::size_t>(t.country)].towns.push_back(tc);
+        }
+        for (auto& c : cards) std::sort(c.towns.begin(), c.towns.end(), [](const TownCard& a, const TownCard& b) { return a.rank < b.rank; });
+        WorldCard wc;
+        wc.seed = seed;
+        wc.cells = static_cast<std::size_t>(grid.size());
+        wc.land_km2 = people.land_km2;
+        wc.people = people.total_people;
+        wc.countries = people.countries.size();
+        wc.towns = people.towns.size();
+        wc.start_polities = people.formed.start_polities;
+        wc.periods = people.formed.periods;
+        wc.events = people.formed.events.size();
         for (std::size_t k = 0; k < people.countries.size(); ++k) {
           const zs::gen::Country& c = people.countries[k];
           CountryInfo ci;
@@ -230,6 +259,17 @@ struct Planet {
           if (k < people.formed.countries.size()) ci.capital_held = people.formed.countries[k].capital_held;
           ci.periods = people.formed.periods;
           cs.push_back(ci);
+          CountryCard& cc = cards[k];
+          cc.name = ci.name;
+          cc.income = ci.income;
+          cc.profile = c.profile;
+          cc.area_km2 = c.area_km2;
+          cc.people = c.people;
+          cc.endowment = c.endowment;
+          cc.landlocked = c.landlocked;
+          cc.capital_held = ci.capital_held;
+          cc.periods = ci.periods;
+          cc.sectors = ci.sectors;
         }
         char buf[256];
         std::snprintf(buf, sizeof buf, "%zu cells, %.0f million km2 of land, %.0f million people, %zu countries, %zu towns",
@@ -238,6 +278,8 @@ struct Planet {
         std::lock_guard<std::mutex> l(mutex);
         raster = std::move(r);
         countries = std::move(cs);
+        this->cards = std::move(cards);
+        world_card = wc;
         summary = buf;
       } catch (const std::exception& ex) {
         std::lock_guard<std::mutex> l(mutex);
@@ -272,7 +314,7 @@ struct Planet {
 
 // ---- The app ----
 
-enum class Page { Worlds, Tour, Parts, Try, Breakthroughs, Status, Docs };
+enum class Page { Worlds, Tour, Cards, Parts, Try, Breakthroughs, Status, Docs };
 
 struct DocView {
   fs::path path;  // relative to the repo
@@ -300,6 +342,8 @@ struct App {
   // Tour
   int stop = 0;
   Planet planet;
+  std::shared_ptr<CardsState> cards;
+  int card_country = -1;  // set by a planet click, read once by the Cards page
   // Try
   int seed = 1;
   std::map<std::string, std::unique_ptr<Run>> runs;
@@ -537,6 +581,10 @@ void draw_planet(App& a) {
     if (hover >= 0 && hover < static_cast<int>(p.countries.size())) {
       ImGui::SetTooltip("%s", p.countries[static_cast<std::size_t>(hover)].name.c_str());
       if (ImGui::IsItemClicked()) p.selected = hover;
+      if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
+        a.card_country = hover;
+        a.page = Page::Cards;
+      }
     } else if (ImGui::IsItemClicked()) p.selected = -1;
   }
   if (p.selected >= 0 && p.selected < static_cast<int>(p.countries.size())) {
@@ -571,9 +619,27 @@ void draw_planet(App& a) {
       ImGui::EndTable();
     }
     ImGui::Spacing();
-    ImGui::TextDisabled("From specs 48, 49 and 52. The calendar, the\ntables and the towns' names are the next rows.");
+    if (ImGui::SmallButton("Open its card")) {
+      a.card_country = p.selected;
+      a.page = Page::Cards;
+    }
+    ImGui::TextDisabled("Double-click a country for its card:\nits towns, a pop, their house.");
     ImGui::EndChild();
   }
+}
+
+void draw_cards_page(App& a) {
+  Planet& p = a.planet;
+  const zs::worlds::World* w = current_world(a);
+  const std::uint64_t seed = w ? w->seed : 1;
+  if (!p.busy && (!p.ready || p.seed != seed)) p.generate(seed);
+  if (p.busy || !p.ready) {
+    ImGui::Text("Generating the planet of seed %llu...", static_cast<unsigned long long>(seed));
+    return;
+  }
+  if (!a.cards) a.cards = make_cards(a.data_dir);
+  draw_cards(*a.cards, p.world_card, p.cards, a.card_country);
+  a.card_country = -1;
 }
 
 void draw_worlds(App& a) {
@@ -958,6 +1024,7 @@ void draw_nav(App& a) {
   };
   item("Worlds", Page::Worlds);
   item("Tour", Page::Tour);
+  item("Cards", Page::Cards);
   item("Parts", Page::Parts);
   item("Try", Page::Try);
   item("Breakthroughs", Page::Breakthroughs);
@@ -984,12 +1051,15 @@ void draw_nav(App& a) {
 // --shot renders the page without a screen and saves it, for checks (like the window's --shot).
 int atlas_main(int argc, char** argv) {
   std::string shot, page_name, try_id;
-  int stop = 0;
+  int stop = 0, card = -1;
+  bool pick = false;
   for (int i = 1; i < argc; ++i) {
     if (!std::strcmp(argv[i], "--shot") && i + 1 < argc) shot = argv[++i];
     else if (!std::strcmp(argv[i], "--try") && i + 1 < argc) try_id = argv[++i];
     else if (!std::strcmp(argv[i], "--page") && i + 1 < argc) page_name = argv[++i];
     else if (!std::strcmp(argv[i], "--stop") && i + 1 < argc) stop = std::atoi(argv[++i]);
+    else if (!std::strcmp(argv[i], "--card") && i + 1 < argc) card = std::atoi(argv[++i]);
+    else if (!std::strcmp(argv[i], "--pick")) pick = true;
   }
   if (!shot.empty()) SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "offscreen");
   auto fail = [](const char* what) {
@@ -1028,11 +1098,17 @@ int atlas_main(int argc, char** argv) {
   a.page = Page::Tour;
   if (page_name == "worlds") a.page = Page::Worlds;
   else if (page_name == "parts") a.page = Page::Parts;
+  else if (page_name == "cards") a.page = Page::Cards;
   else if (page_name == "try") a.page = Page::Try;
   else if (page_name == "breakthroughs") a.page = Page::Breakthroughs;
   else if (page_name == "docs") a.page = Page::Docs;
   else if (page_name == "status" && !a.repo.empty()) open_doc(a, fs::path("docs") / "status.md");
   a.stop = stop;
+  a.card_country = card;
+  if (pick) {
+    a.cards = make_cards(a.data_dir);
+    cards_autopick(*a.cards, true);
+  }
   // --try ID with --shot: start that Try, wait for it, then shoot the Try page with its output (a check without a click).
   if (!try_id.empty())
     for (const Try& t : a.data.tries)
@@ -1042,7 +1118,7 @@ int atlas_main(int argc, char** argv) {
       }
 
   bool running = true;
-  int frame = 0;
+  int frame = 0, ready_frame = -1;  // the frame the planet became ready, for the shots
   while (running) {
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
@@ -1066,6 +1142,7 @@ int atlas_main(int argc, char** argv) {
     switch (a.page) {
       case Page::Worlds: draw_worlds(a); break;
       case Page::Tour: draw_tour(a); break;
+      case Page::Cards: draw_cards_page(a); break;
       case Page::Parts: draw_parts(a); break;
       case Page::Try: draw_try(a); break;
       case Page::Breakthroughs: draw_breakthroughs(a); break;
@@ -1082,7 +1159,9 @@ int atlas_main(int argc, char** argv) {
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     if (!shot.empty()) {
       // Wait for the planet when the page shows it, then save the frame after it is drawn.
-      bool waiting = a.planet.busy || (a.page == Page::Tour && a.stop == 0 && !a.planet.texture && frame < 2000);
+      if (a.planet.ready && ready_frame < 0) ready_frame = frame;
+      bool waiting = a.planet.busy || ((a.page == Page::Cards || (a.page == Page::Tour && a.stop == 0)) && !a.planet.ready && frame < 2000);
+      if (a.page == Page::Cards && (ready_frame < 0 || frame < ready_frame + 14)) waiting = true;  // frames to draw, pick and scroll
       if (!try_id.empty() && a.runs.count(try_id) && !a.runs[try_id]->done()) waiting = true;
       if (frame >= 3 && !waiting) {
         if (SDL_Surface* s = SDL_RenderReadPixels(renderer, nullptr)) {
