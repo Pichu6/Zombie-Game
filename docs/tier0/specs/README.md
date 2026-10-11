@@ -70,3 +70,4 @@ Agreement levels ([contract rule 11](../../design/world-simulation.md#2-the-simu
 | 50 | [Movement](50-movement.md) | 8-direction paths, blocking furniture, the `Walk` intent (steering), doors on the way | user playtest 2026-10-08 |
 | 51 | [Dwellings](51-dwellings.md) | the dwelling ledger per household, the house plan (corridor, rooms, doors, windows, lot) and its interior from the household | content tools; user request 2026-10-08 |
 | 52 | [Land](52-land-water-capacity.md) | runoff, rivers, lakes, fertility, arable land, capacity (slice 1); forests, game, fish, deposits, countries (slices 2-4) | decision 0059 |
+| 53 | [The calendar](53-calendar.md) | CivilTime (dates from a start date; the weather reads it), CountryCalendar (weekends, short days, holidays, school days), CalendarSystem | decision 0072; fourth demo flow slice 1 |
