@@ -100,6 +100,22 @@ Each field row shows: value for the current seed, the spec that produces it, its
 
 The card is the seed of the sandbox: the same country card, with editing on, is the Nations setup screen (Auto fills it, a preset replaces it, Custom edits a field and marks it with a dot, the validator colours the band). Editing is a later slice (§8), field by field, and only for fields the simulation reads.
 
+## 5a. Worlds: create, open, fork, delete
+
+Decided as intent, [0074](../decisions/0074-worlds-create-save-edit-fork-delete.md). The Worlds page is the first engine page a player meets after the Tour, and the first thing slice 1 builds, because "keep testing on an existing seed" needs it.
+
+| Action | What happens | Where |
+| --- | --- | --- |
+| **New** | name, seed (random shown, or typed), settings Auto, a preset, or cards edited (slice 5); writes `worlds/<name>/world.toml`; nothing generated yet | `zs world new` |
+| **Open** | from the start, or from any save in `worlds/<name>/saves/`; Play and every Try entry run on the open world | `zs --world <name> [--from <save>]` |
+| **Save** | F5 and the daily autosave write into the world's `saves/`, named by game date and tick | spec 06 |
+| **Edit** | name and notes always; sandbox rules always, tagged; setup fields freely until the first save | the cards |
+| **Fork** | a setup edit on a world with saves makes a new world: new name, same seed by default, the edited settings, the original untouched | `zs world fork` |
+| **Compare** | two worlds with the same seed listed side by side with the fields that differ (later slice) | |
+| **Delete** | confirmed, then to the recycle bin | `zs world delete` |
+
+The list shows for each world: name, seed, created, realism tag, touched fields count, last save's game date, and the badge of the build that made it (commit), so a world made by an older build says so. A world made by an older save format loads through spec 06's upgrade steps or says why it cannot.
+
 ## 6. Compute and breakthroughs
 
 Two pages, both read from docs with a fixed table shape so the Atlas can render them as boards rather than prose.
@@ -128,7 +144,7 @@ The first use of the Atlas (user, 2026-10-11): sit a friend down and say "this i
 | --- | --- | --- |
 | 1. **What it is** | one world, one simulation, from the planet to one person's day; with or without an outbreak | `gen world --bmp --political` drawn on screen: the planet with rivers and countries; click a country, its card opens; click its town, a pop, their house |
 | 2. **How it works** | every layer is the same rules seen from farther away; a nation's output is the sum of its pops' establishments; a cold week costs a few steps and gives the same hash as stepping | the Simulation card: systems in wake order; a Try that jumps a week cold and then steps it, both hashes side by side |
-| 3. **Test it now** | pick a seed, press Play, or watch the 14-day run as text | the Try panel's engine entries: Play (`--play --seed N`), the run with its chronicle (`--run`), a town with every dossier (`gen town`) |
+| 3. **Test it now** | make a world with a seed, press Play, or watch the 14-day run as text; reopen it later where it stopped | the Try panel's engine entries: Play (`--play --seed N`), the run with its chronicle (`--run`), a town with every dossier (`gen town`) |
 | 4. **The breakthrough** | cost is attention × speed, not world size; reading a person costs the same at 10 million as at 1 million; coarse layers derived from fine rules; the simulation can run ahead of the view | the Breakthroughs board (§6) with Measure again live on the friend's question: "a million people?" press, 0.4 s |
 | 5. **Where I am** | what is built, what is designed, what is next | the map of parts with its badges and lacking counts per card; the status page's "Next step" (workshop only; the engine version is the badges) |
 
@@ -159,7 +175,7 @@ No new engine code. Fields a card shows that the engine does not expose yet get 
 
 ## 8. Slices, in order
 
-1. **The front door, the Tour and the Try panel.** `zs.exe` opens the Atlas; the map of parts; the Tour's five stops (§6a) over what exists today: the planet drawn on screen with countries clickable, the engine Try entries (`window`, `text`, `image` kinds) and the Breakthroughs board read from its doc; the workshop reader with links, badges and search; the status table's Try column generated. Spec first. Small to medium: the planet on screen and the country click are the only new drawing.
+1. **The front door, the Worlds page, the Tour and the Try panel.** `zs.exe` opens the Atlas; the Worlds page (§5a: list, new with a seed, open from start or save, fork, delete; saves move into the world folder); the map of parts; the Tour's five stops (§6a) over what exists today: the planet drawn on screen with countries clickable, the engine Try entries (`window`, `text`, `image` kinds) and the Breakthroughs board read from its doc; the workshop reader with links, badges and search; the status table's Try column generated. Spec first. Small to medium: the planet on screen and the country click are the only new drawing.
 2. **Tests and the dev strip.** The `test` kind, the Where-it-lives strip with git dates, the build detection (`needs = "build"`). Small.
 3. **Cards, read-only.** Country, town, pop, house, establishment, world, simulation; the lacking rows from the design tables; the question ladder's granular column answered end to end. This is also CF-53, the country card status step 6 already lists. Medium.
 4. **Compute and breakthroughs.** `breakthroughs.md` written; the two boards; Measure again. Small.
