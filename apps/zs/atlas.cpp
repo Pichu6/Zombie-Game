@@ -138,6 +138,19 @@ std::string read_text(const fs::path& p) {
   return ss.str();
 }
 
+// Runs a command to completion and returns its output; empty when it could not run (git missing, no repo).
+std::string capture(const std::vector<std::string>& argv, const std::string& cwd) {
+  Run r(argv, cwd);
+  while (!r.done()) std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  return r.exit_code() == 0 ? r.output() : std::string();
+}
+
+// The release build next to the repo, which the test entries need.
+bool has_build(const fs::path& repo) {
+  std::error_code ec;
+  return !repo.empty() && fs::exists(repo / "build" / "release" / "CMakeCache.txt", ec);
+}
+
 // The ctest the build was configured with, from its cache; "ctest" when there is none.
 std::string ctest_of(const fs::path& repo) {
   std::ifstream in(repo / "build" / "release" / "CMakeCache.txt");
@@ -264,6 +277,10 @@ enum class Page { Worlds, Tour, Parts, Try, Breakthroughs, Status, Docs };
 struct DocView {
   fs::path path;  // relative to the repo
   std::vector<MdBlock> blocks;
+  // The "where it lives" strip (atlas design §4 rule 2, slice 2): the last commit that touched the doc, and the
+  // docs that link to it (decisions that build on it, specs that need it).
+  std::string last_commit;
+  std::vector<fs::path> linked_from;
 };
 
 struct App {
@@ -383,6 +400,14 @@ void open_doc(App& a, const fs::path& rel, bool remember = true) {
   a.doc.blocks = parse_markdown(doc_text(a, rel));
   a.page = Page::Docs;
   a.scroll_top = true;
+  // The strip: git's last commit for the file (date and subject), and every doc whose text links to this file name.
+  std::string line = capture({"git", "log", "-1", "--format=%cs %s", "--", rel.generic_string()}, a.repo.string());
+  while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) line.pop_back();
+  a.doc.last_commit = line;
+  a.doc.linked_from.clear();
+  const std::string name = rel.filename().string();
+  for (const auto& d : a.docs)
+    if (d != rel && doc_text(a, d).find(name + ")") != std::string::npos) a.doc.linked_from.push_back(d);
 }
 
 // A link in a doc: relative paths open in the reader, the web opens in the browser.
@@ -718,7 +743,7 @@ void draw_try(App& a) {
   ImGui::TextDisabled("world: %s", current_world(a) ? current_world(a)->name.c_str() : "(none)");
   ImGui::Separator();
   for (const Try& t : a.data.tries) {
-    if (t.workshop && a.repo.empty()) continue;
+    if (t.workshop && (a.repo.empty() || (t.kind == "test" && !has_build(a.repo)))) continue;
     draw_try_entry(a, t, true);
   }
 }
@@ -757,11 +782,11 @@ void draw_parts(App& a) {
     }
     int tries = 0;
     for (const Try& t : a.data.tries)
-      if (t.part == p.id && !(t.workshop && a.repo.empty())) ++tries;
+      if (t.part == p.id && !(t.workshop && (a.repo.empty() || (t.kind == "test" && !has_build(a.repo))))) ++tries;
     if (tries) {
       ImGui::TextDisabled("Try:");
       for (const Try& t : a.data.tries) {
-        if (t.part != p.id || (t.workshop && a.repo.empty())) continue;
+        if (t.part != p.id || (t.workshop && (a.repo.empty() || (t.kind == "test" && !has_build(a.repo))))) continue;
         ImGui::SameLine();
         ImGui::PushID(t.id.c_str());
         if (ImGui::SmallButton(t.title.c_str())) {
@@ -894,6 +919,27 @@ void draw_docs(App& a) {
   if (!a.doc.path.empty()) {
     ImGui::SameLine();
     ImGui::TextDisabled("%s", a.doc.path.generic_string().c_str());
+    if (!a.doc.last_commit.empty()) {
+      ImGui::SameLine();
+      ImGui::TextDisabled("|  last commit %s", a.doc.last_commit.c_str());
+    }
+    if (!a.doc.linked_from.empty()) {
+      ImGui::TextDisabled("linked from:");
+      for (const auto& d : a.doc.linked_from) {
+        ImGui::SameLine();
+        const std::string label = d.stem().string();
+        const float w = ImGui::CalcTextSize(label.c_str()).x + ImGui::GetStyle().FramePadding.x * 2;
+        if (w > ImGui::GetContentRegionAvail().x) ImGui::NewLine();
+        ImGui::PushID(d.generic_string().c_str());
+        if (ImGui::SmallButton(label.c_str())) {
+          open_doc(a, d);
+          ImGui::PopID();
+          ImGui::EndChild();
+          return;
+        }
+        ImGui::PopID();
+      }
+    }
     ImGui::Separator();
     if (a.scroll_top) ImGui::SetScrollY(0), a.scroll_top = false;
     draw_markdown(a.doc.blocks, [&](const std::string& target) { follow_link(a, target); });

@@ -19,6 +19,8 @@
 9. **One raster for the file and the screen.** `zs gen world --bmp` and the Atlas draw the planet through the same `render_planet`, so what the file shows is what the screen shows.
 10. **Big textures are drawn in tiles** (16 × 8): one textured quad of 1,200 px overflows the software renderer's fixed-point triangle setup used by the offscreen shots, and the tiles cost nothing on a GPU.
 
+11. **The strip (slice 2, 2026-10-11).** An open doc shows its path, the date and subject of the last commit that touched it (`git log -1`, through the same runner; nothing when git is not there) and "linked from": every doc whose text links to it, as buttons. Test entries need the release build next to the repo (`build/release/CMakeCache.txt`), not only the repo.
+
 ## State
 
 The Atlas keeps only view state: the page, the selected world, the Try seed, the running child processes and their output, the loaded textures, the open doc and its history, the tour stop. Worlds live in their folders; the output of a run lives in the child process until it ends.
@@ -33,6 +35,7 @@ The Atlas keeps only view state: the page, the selected world, the Try seed, the
 - `zs --play --world "Test A"` then F5: `worlds/Test A/saves/Mon-11-Jan-2027-08-03-tick436.sav` (152,573 bytes) (2026-10-11).
 - `zs --atlas --shot` of every page, of the tour's planet stop, of a `text` Try (`--bench`, 0.2 s, its line shown) and of an `image` Try (`gen world --bmp`, 9.0 s, the map shown) (2026-10-11).
 - The Atlas on screen with the GPU renderer: the planet of seed 7 drawn whole; the generator's own count for seed 7 (348 countries) matches the Atlas's summary line (2026-10-11).
+- The test Try `gen-tests` through the panel: ctest found from the build's cache, 1 of 1 passed in 39 s, its lines shown (2026-10-11, slice 2).
 - `zs gen world --seed 1 --freq 24 --bmp` still writes a 6,291,510-byte file through the shared raster (2026-10-11).
 
 ## Open
