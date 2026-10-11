@@ -94,7 +94,7 @@ A card is one entity of the world at one layer, shown as **what it has, what it 
 | **Household and house** | a pop, a street | spec 51: address, members, plan, rooms, furniture, food | [content tools](content-tools.md) interior and building rows |
 | **Establishment** | a town, a pop's workplace | spec 33, 34, 35: recipe, staff, power, stalls | [infrastructure](infrastructure.md) |
 | **The world** | home | spec 30, 31, 52: grid size, sliders, land share, runoff, people fed | [world numbers](world-numbers.md) |
-| **The simulation** | the Simulation part | spec 40 and 41: systems in wake order, their next wake tick, the save version, the hash | [engine architecture](engine-architecture.md) |
+| **The simulation** | the Simulation part, the Tour's stop 2 | spec 40 and 41: systems in wake order, their next wake tick, the save version, the hash; built 2026-10-11 ([spec 55](../tier0/specs/55-atlas.md) rule 15) with step, jump and the cold-world check | [engine architecture](engine-architecture.md) |
 
 Each field row shows: value for the current seed, the spec that produces it, its badge, and (later) its sandbox kind. A field in the design table with no producer yet shows as **lacking**, with a link to where it is designed. Counting the lacking rows per card gives an honest "how complete is a country" number nobody has to maintain.
 

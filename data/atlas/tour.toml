@@ -8,8 +8,8 @@ show = "planet"
 
 [[stop]]
 title = "How it works"
-say = "Every layer is the same rules seen from farther away. A nation's output is the sum of what its pops' establishments produce. Every system names its next wake tick, so a cold week jumps in a few steps and ends in the same state, hash for hash, as stepping every tick."
-show = "page:parts"
+say = "Every layer is the same rules seen from farther away. A nation's output is the sum of what its pops' establishments produce. Every system names its next wake tick, so a cold week jumps in a few steps and ends in the same state, hash for hash, as stepping every tick. Open the world here and press the check."
+show = "page:simulation"
 
 [[stop]]
 title = "Test it now"

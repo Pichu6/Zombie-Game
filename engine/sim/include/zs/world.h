@@ -60,6 +60,8 @@ class World {
   Clock clock;
 
   void add_system(std::unique_ptr<System> system);
+  // The systems in update order (spec 55: the Atlas's simulation card lists them with their next wake tick).
+  const std::vector<std::unique_ptr<System>>& systems() const { return systems_; }
   template <class T> T* system() const {
     for (const auto& s : systems_)
       if (auto* t = dynamic_cast<T*>(s.get())) return t;

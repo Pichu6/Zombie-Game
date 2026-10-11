@@ -36,6 +36,7 @@
 #include "zs/tier0.h"
 #include "atlas_cards.h"
 #include "atlas_md.h"
+#include "atlas_sim.h"
 #include "modes.h"
 #include "planet_raster.h"
 #include "runner.h"
@@ -359,7 +360,7 @@ struct Planet {
 
 // ---- The app ----
 
-enum class Page { Worlds, Tour, Cards, Parts, Try, Breakthroughs, Compute, Status, Docs };
+enum class Page { Worlds, Tour, Cards, Simulation, Parts, Try, Breakthroughs, Compute, Status, Docs };
 
 struct DocView {
   fs::path path;  // relative to the repo
@@ -388,6 +389,8 @@ struct App {
   int stop = 0;
   Planet planet;
   std::shared_ptr<CardsState> cards;
+  std::shared_ptr<SimState> sim;
+  bool sim_auto_open = false, sim_auto_cold = false, sim_auto_advance = false;  // check shots
   int card_country = -1;  // set by a planet click, read once by the Cards page
   // Try
   int seed = 1;
@@ -720,6 +723,14 @@ void draw_cards_page(App& a) {
   }
   draw_cards(*a.cards, p.world_card, p.cards, a.card_country, ed.settings ? &ed : nullptr);
   a.card_country = -1;
+}
+
+void draw_sim_page(App& a) {
+  if (!a.sim) a.sim = make_sim();
+  const zs::worlds::World* w = current_world(a);
+  draw_sim(*a.sim, w ? w->seed : 1, w ? w->settings : zs::gen::WorldSettings{}, w ? w->name : "World 1", a.sim_auto_open, a.sim_auto_cold,
+           a.sim_auto_advance);
+  a.sim_auto_open = a.sim_auto_cold = a.sim_auto_advance = false;
 }
 
 void draw_worlds(App& a) {
@@ -1206,6 +1217,7 @@ void draw_tour(App& a) {
   else if (s.show == "page:breakthroughs") draw_breakthroughs(a);
   else if (s.show == "page:compute") draw_compute(a);
   else if (s.show == "page:try") draw_try(a);
+  else if (s.show == "page:simulation") draw_sim_page(a);
   else if (s.show.rfind("try:", 0) == 0) {
     for (const Try& t : a.data.tries)
       if (t.id == s.show.substr(4)) draw_try_entry(a, t, true);
@@ -1290,6 +1302,7 @@ void draw_nav(App& a) {
   item("Worlds", Page::Worlds);
   item("Tour", Page::Tour);
   item("Cards", Page::Cards);
+  item("Simulation", Page::Simulation);
   item("Parts", Page::Parts);
   item("Try", Page::Try);
   item("Breakthroughs", Page::Breakthroughs);
@@ -1318,7 +1331,7 @@ void draw_nav(App& a) {
 int atlas_main(int argc, char** argv) {
   std::string shot, page_name, try_id;
   int stop = 0, card = -1;
-  bool pick = false;
+  bool pick = false, open_world = false, cold = false, advance = false;
   for (int i = 1; i < argc; ++i) {
     if (!std::strcmp(argv[i], "--shot") && i + 1 < argc) shot = argv[++i];
     else if (!std::strcmp(argv[i], "--try") && i + 1 < argc) try_id = argv[++i];
@@ -1326,6 +1339,9 @@ int atlas_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--stop") && i + 1 < argc) stop = std::atoi(argv[++i]);
     else if (!std::strcmp(argv[i], "--card") && i + 1 < argc) card = std::atoi(argv[++i]);
     else if (!std::strcmp(argv[i], "--pick")) pick = true;
+    else if (!std::strcmp(argv[i], "--open")) open_world = true;
+    else if (!std::strcmp(argv[i], "--cold")) cold = true;
+    else if (!std::strcmp(argv[i], "--advance")) advance = true;
   }
   if (!shot.empty()) SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "offscreen");
   auto fail = [](const char* what) {
@@ -1368,10 +1384,14 @@ int atlas_main(int argc, char** argv) {
   else if (page_name == "try") a.page = Page::Try;
   else if (page_name == "breakthroughs") a.page = Page::Breakthroughs;
   else if (page_name == "compute") a.page = Page::Compute;
+  else if (page_name == "simulation") a.page = Page::Simulation;
   else if (page_name == "docs") a.page = Page::Docs;
   else if (page_name == "status" && !a.repo.empty()) open_doc(a, fs::path("docs") / "status.md");
   a.stop = stop;
   a.card_country = card;
+  a.sim_auto_open = open_world;
+  a.sim_auto_cold = cold;
+  a.sim_auto_advance = advance;
   if (pick) {
     a.cards = make_cards(a.data_dir);
     cards_autopick(*a.cards, true);
@@ -1410,6 +1430,7 @@ int atlas_main(int argc, char** argv) {
       case Page::Worlds: draw_worlds(a); break;
       case Page::Tour: draw_tour(a); break;
       case Page::Cards: draw_cards_page(a); break;
+      case Page::Simulation: draw_sim_page(a); break;
       case Page::Parts: draw_parts(a); break;
       case Page::Try: draw_try(a); break;
       case Page::Breakthroughs: draw_breakthroughs(a); break;
@@ -1430,6 +1451,11 @@ int atlas_main(int argc, char** argv) {
       if (a.planet.ready && ready_frame < 0) ready_frame = frame;
       bool waiting = a.planet.busy || ((a.page == Page::Cards || (a.page == Page::Tour && a.stop == 0)) && !a.planet.ready && frame < 2000);
       if (a.page == Page::Cards && (ready_frame < 0 || frame < ready_frame + 14)) waiting = true;  // frames to draw, pick and scroll
+      if (a.page == Page::Simulation) {
+        if (!a.sim || sim_busy(*a.sim) || frame < 4) waiting = true;
+        if (a.sim && !sim_busy(*a.sim) && (open_world || cold) && ready_frame < 0) ready_frame = frame;  // reuse: frames after the sim is idle
+        if (ready_frame >= 0 && frame < ready_frame + (advance ? 40 : 3)) waiting = true;  // the advances run after the open
+      }
       if (!try_id.empty() && a.runs.count(try_id) && !a.runs[try_id]->done()) waiting = true;
       if (frame >= 3 && !waiting) {
         if (SDL_Surface* s = SDL_RenderReadPixels(renderer, nullptr)) {
