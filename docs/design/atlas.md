@@ -120,6 +120,30 @@ Two pages, both read from docs with a fixed table shape so the Atlas can render 
 
 The rows above are a first draft for that doc; the doc owns them from then on, and the "Status" column must agree with the badges the Atlas reads elsewhere.
 
+## 6a. The Tour: showing it to a friend
+
+The first use of the Atlas (user, 2026-10-11): sit a friend down and say "this is what I am doing, this is how it works, here you test its current state, this is my breakthrough and why I think it is new, and this is where I am." The Tour is an engine page, not a workshop page: a player will take the same tour. It is five stops, and every stop is something the app shows or runs, never a slide.
+
+| Stop | The friend hears | The app shows or runs |
+| --- | --- | --- |
+| 1. **What it is** | one world, one simulation, from the planet to one person's day; with or without an outbreak | `gen world --bmp --political` drawn on screen: the planet with rivers and countries; click a country, its card opens; click its town, a pop, their house |
+| 2. **How it works** | every layer is the same rules seen from farther away; a nation's output is the sum of its pops' establishments; a cold week costs a few steps and gives the same hash as stepping | the Simulation card: systems in wake order; a Try that jumps a week cold and then steps it, both hashes side by side |
+| 3. **Test it now** | pick a seed, press Play, or watch the 14-day run as text | the Try panel's engine entries: Play (`--play --seed N`), the run with its chronicle (`--run`), a town with every dossier (`gen town`) |
+| 4. **The breakthrough** | cost is attention × speed, not world size; reading a person costs the same at 10 million as at 1 million; coarse layers derived from fine rules; the simulation can run ahead of the view | the Breakthroughs board (§6) with Measure again live on the friend's question: "a million people?" press, 0.4 s |
+| 5. **Where I am** | what is built, what is designed, what is next | the map of parts with its badges and lacking counts per card; the status page's "Next step" (workshop only; the engine version is the badges) |
+
+**The question ladder.** A friend asks at two heights, and the Tour must answer both from the same screens:
+
+| Broad | Answered by | Granular | Answered by |
+| --- | --- | --- | --- |
+| "How big is the world?" | the world card: 102,012 cells, 70 km apart, 92 countries | "What is this country's income, and why?" | the country card: endowment, access, history (spec 52) |
+| "How do people live?" | the Individual part: body, needs, jobs, the calendar | "What is this pop doing at 3 pm on a Tuesday, and where?" | the pop card's schedule (spec 54 when built; the dossier today) |
+| "What happens in an outbreak?" | the Threats part, spec 38's reproduction number | "Why did this pop die on day 9?" | the run's chronicle and death screen (spec 25, 26), opened from the Try panel |
+| "Is it fast?" | the Compute board, the budget gauge | "How long does one tick take with a million people?" | Measure again on that row |
+| "What is new about it?" | the Breakthroughs board | "Show me the test that proves the week jump matches stepping" | the test entry in the Try panel (workshop), or its two hashes (engine) |
+
+Rule: every granular answer is a card, a run or a measurement, so the friend can push one step further ("and that pop's house?") and the app still answers. If a question has no screen, that is a lacking row, and it goes on the backlog.
+
 ## 7. Where it lives in the code
 
 | What | Where | Note |
@@ -135,9 +159,9 @@ No new engine code. Fields a card shows that the engine does not expose yet get 
 
 ## 8. Slices, in order
 
-1. **The front door and the reader.** `zs.exe` opens the Atlas; the map of parts; the reader with links, badges and search; the Try panel from the manifest with `window`, `text` and `image` kinds; the status table's Try column generated. Spec first. Small.
+1. **The front door, the Tour and the Try panel.** `zs.exe` opens the Atlas; the map of parts; the Tour's five stops (§6a) over what exists today: the planet drawn on screen with countries clickable, the engine Try entries (`window`, `text`, `image` kinds) and the Breakthroughs board read from its doc; the workshop reader with links, badges and search; the status table's Try column generated. Spec first. Small to medium: the planet on screen and the country click are the only new drawing.
 2. **Tests and the dev strip.** The `test` kind, the Where-it-lives strip with git dates, the build detection (`needs = "build"`). Small.
-3. **Cards, read-only.** Country, town, pop, house, establishment, world, simulation; the lacking rows from the design tables. This is also CF-53, the country card status step 6 already lists. Medium.
+3. **Cards, read-only.** Country, town, pop, house, establishment, world, simulation; the lacking rows from the design tables; the question ladder's granular column answered end to end. This is also CF-53, the country card status step 6 already lists. Medium.
 4. **Compute and breakthroughs.** `breakthroughs.md` written; the two boards; Measure again. Small.
 5. **Editing on the cards.** Field by field, under the sandbox rules; a preset saved from an edited card; the validator's bands shown. This is the start of the Sandbox setup screens, and the first slice of the no-outbreak game's settings. Medium, after the simulation reads the fields.
 
