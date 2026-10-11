@@ -2,13 +2,13 @@
 
 What opens when you double-click `zs.exe` with no flags: a map of the project and of the world. One screen to see where everything stands, read what was written, press a button to test what was just built, open any country, town, pop or house and see what it has and what it still lacks, and watch the compute and breakthrough side of the project. The same screens are the first sandbox: once a card can be edited, it is the setup screen for that thing.
 
-Labels: **Decided**, **Proposal**, **Implemented**, **Validated** (see CLAUDE.md). Everything here is a Proposal. Requested by the user on 2026-10-11 ("a visual representation of our project ... I click execute an .exe and there I can test, see docs, research, the game in each part ... the beginning of the sandbox options"). Builds on [0052](../decisions/0052-one-executable-one-simulation.md) (one executable), [sandbox parameters](sandbox-parameters.md) §1.3 (Auto, Preset, Custom), [content tools](content-tools.md) §2 (the tool set), the [compute budget](compute-budget.md) and the [ranked improvements](improvements-ranked.md).
+Labels: **Decided**, **Proposal**, **Implemented**, **Validated** (see CLAUDE.md). What the Atlas is, that it becomes the player's app, and that no build ships the docs are Decided ([0073](../decisions/0073-the-atlas-is-the-front-of-the-engine-no-docs-in-builds.md)); the pages, the manifest and the slices below are Proposals. Requested by the user on 2026-10-11 ("a visual representation of our project ... I click execute an .exe and there I can test, see docs, research, the game in each part ... the beginning of the sandbox options"). Builds on [0052](../decisions/0052-one-executable-one-simulation.md) (one executable), [sandbox parameters](sandbox-parameters.md) §1.3 (Auto, Preset, Custom), [content tools](content-tools.md) §2 (the tool set), the [compute budget](compute-budget.md) and the [ranked improvements](improvements-ranked.md).
 
 ## 1. Rules
 
 1. **Not a second program.** The Atlas is a mode of `zs.exe` ([0052](../decisions/0052-one-executable-one-simulation.md) rule 1) and the default one: `zs.exe` alone opens the Atlas; `zs.exe --play` (or the Play button) opens the Tier 0 window as today. Every flag and `gen` command keeps working, and every one of them is also a button.
 2. **Nothing written for the Atlas.** Everything it shows comes from a file the repo already maintains: `docs/status.md`, `docs/design/`, `docs/decisions/`, `docs/research/`, `docs/tier0/specs/`, `data/`, the generators and the tests. The one new file is the manifest of runnables (§3). If a page would need text written only for the Atlas, that text goes into the doc it belongs to, and the Atlas reads it there. This is what keeps it from rotting: when a doc changes, the Atlas changes.
-3. **Two sources of docs, one reader.** The Atlas reads `docs/` from the repo when `zs.exe` runs next to it (the usual case on this PC), and from a copy shipped under `data/docs/` otherwise (the `play` folder; a later player build). Same files, same reader.
+3. **Engine pages and workshop pages** ([0073](../decisions/0073-the-atlas-is-the-front-of-the-engine-no-docs-in-builds.md)). Engine pages are for everyone and stay: the parts of the world, the cards, the playable modes, setup and creation. Workshop pages (the docs reader, decisions, research, tests, backlog, the breakthrough board) exist only when a repo sits next to the executable, and are expected to go or be replaced as their part is finished. **No build ships the docs:** `docs/` is never copied into `data/`, the `play` folder or a release; without a repo the workshop pages are absent and the engine pages work alone.
 4. **Headless parity.** Every button runs the same code path as a flag, and the text it produces is the text the flag prints. The Atlas is a view over `engine/sim`, `engine/gen` and the modes; it owns no simulation state (CLAUDE.md, the core does not depend on the renderer).
 5. **The labels are real.** Decided, Proposal, Implemented, Validated appear as badges, and each badge is read from the doc (a decision's status line, a spec's state, a `ctest` result), never set by hand in the Atlas.
 6. **Cards before editing.** An entity card (§5) first only shows. Editing arrives field by field, under the sandbox rules (settings change numbers, never rules; Auto, Preset, Custom; one validator), and only once the record it edits is read by the simulation.
@@ -62,7 +62,7 @@ part = "simulation"
 title = "Every simulation test"
 run = ["ctest", "--preset", "release", "-R", "zs_sim_tests"]
 kind = "test"
-needs = "build"           # only shown when a build directory exists next to the exe
+needs = "build"           # workshop entry: only shown when a repo and a build directory exist next to the exe
 ```
 
 Rules:
@@ -126,7 +126,7 @@ The rows above are a first draft for that doc; the doc owns them from then on, a
 | --- | --- | --- |
 | The mode | `apps/zs/atlas.cpp`, entered from `main.cpp` when no flag is given | SDL3 + Dear ImGui as the window today; the 2D window becomes `--play` |
 | The reader | `apps/zs/atlas/markdown.*` | A small renderer; links resolved against `docs/` |
-| The docs | `docs/` when present next to the exe (walk up to the repo root), else `data/docs/` | The build copies `docs/` into `data/docs/` for the `play` folder |
+| The docs | `docs/` when a repo is found next to the exe (walk up to the repo root); otherwise no workshop pages | Never copied into a build ([0073](../decisions/0073-the-atlas-is-the-front-of-the-engine-no-docs-in-builds.md)) |
 | The manifest | `data/atlas/tries.toml` | Read with tomlplusplus like every pack |
 | Cards | `apps/zs/atlas/cards.*` | Read-only views over `engine/gen` and `engine/sim` records; no state of their own |
 | Runs | `apps/zs/atlas/runner.*` | `text` and `image` in a worker thread in-process; `test` as a child process; every run logged with its command line |
@@ -146,5 +146,4 @@ Slices 1 and 2 need no generator or simulation work and do not re-pin any golden
 ## Open
 
 - Markdown renderer: `imgui_markdown` (single header, MIT) covers headings, links, emphasis and images; tables are not in it. Our docs lean on tables. Either extend it or write our own small one at the spec.
-- Does the shipped `play` folder carry `docs/` (about 3 MB of text) or only the manifest? Default: carry it; a player build decides later.
 - The parts list of §2 is the design docs grouped by hand once. Should the grouping be a front-matter field in each design doc, so the map builds itself? Default: yes, one `part:` line at the top of each design doc, added in slice 1.
