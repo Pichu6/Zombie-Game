@@ -228,7 +228,7 @@ TEST_CASE("stage 9: a run: save/load keeps the hash across a join; golden") {
   run_hours(u, 6);
   CHECK(u.world->world_hash() == t.world->world_hash());
   CHECK(u.run->group() == t.run->group());
-  const std::uint64_t golden = 4177282275543671889ULL;  // re-pinned on MSVC for spec 50 (movement: 8-direction paths, blocking furniture, doors on the way), 2026-10-08
+  const std::uint64_t golden = 13733935305289306329ULL;  // re-pinned on MSVC for spec 53 (the calendar; the weather reads civil time), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 9 golden world hash: " << t.world->world_hash());
 }

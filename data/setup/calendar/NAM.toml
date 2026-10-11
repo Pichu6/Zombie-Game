@@ -1,0 +1,36 @@
+# Calendar of NAM (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "NAM"
+from = "NAM"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG); research note calendars-school-and-clock-hours"
+confidence = "weekend=estimate;workweek=estimate;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for NAM, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "03-21:1", "05-01:2", "05-04:3", "05-25:4", "08-26:5", "12-10:6", "12-25:7", "12-26:8"]
+easter_western = ["-2:9", "1:10", "39:11"]
+easter_orthodox = []
+names = ["New Year", "Independence Day", "Workers' Day", "Cassinga Day", "Africa Day", "Heroes' Day", "Day of the Namibian Women and International Human Rights Day", "Christmas Day", "Family Day", "Good Friday", "Easter Monday", "Ascension Day", "Independence Day observed", "Family Day observed", "Easter Sunday", "Workers' Day observed", "New Year observed", "Day of the Namibian Women and International Human Rights Day observed", "Mourning Day for President Hage Geingob", "Mourning Day for President Hage Geingob observed", "Election Day", "Burial of Sam Nujoma", "Cassinga Day observed", "Africa Day observed", "Genocide Remembrance Day", "Local Election Day", "Ascension Day / Africa Day", "Genocide Remembrance Day observed", "Heroes' Day observed"]
+
+[holidays.dates]
+2021 = ["01-01:0", "03-21:1", "03-22:12", "04-02:9", "04-05:10", "05-01:2", "05-04:3", "05-13:11", "05-25:4", "08-26:5", "12-10:6", "12-25:7", "12-26:8", "12-27:13"]
+2022 = ["01-01:0", "03-21:1", "04-15:9", "04-17:14", "04-18:10", "05-01:2", "05-02:15", "05-04:3", "05-25:4", "05-26:11", "08-26:5", "12-10:6", "12-25:7", "12-26:8"]
+2023 = ["01-01:0", "01-02:16", "03-21:1", "04-07:9", "04-10:10", "05-01:2", "05-04:3", "05-18:11", "05-25:4", "08-26:5", "12-10:6", "12-11:17", "12-25:7", "12-26:8"]
+2024 = ["01-01:0", "02-25:18", "02-26:19", "03-21:1", "03-29:9", "04-01:10", "05-01:2", "05-04:3", "05-09:11", "05-25:4", "08-26:5", "11-27:20", "12-10:6", "12-25:7", "12-26:8"]
+2025 = ["01-01:0", "03-01:21", "03-21:1", "04-18:9", "04-21:10", "05-01:2", "05-04:3", "05-05:22", "05-25:4", "05-26:23", "05-28:24", "05-29:11", "08-26:5", "11-26:25", "12-10:6", "12-25:7", "12-26:8"]
+2026 = ["01-01:0", "03-21:1", "04-03:9", "04-06:10", "05-01:2", "05-04:3", "05-14:11", "05-25:4", "05-28:24", "08-26:5", "12-10:6", "12-25:7", "12-26:8"]
+2027 = ["01-01:0", "03-21:1", "03-22:12", "03-26:9", "03-29:10", "05-01:2", "05-04:3", "05-06:11", "05-25:4", "05-28:24", "08-26:5", "12-10:6", "12-25:7", "12-26:8", "12-27:13"]
+2028 = ["01-01:0", "03-21:1", "04-14:9", "04-17:10", "05-01:2", "05-04:3", "05-25:26", "05-28:24", "05-29:27", "08-26:5", "12-10:6", "12-11:17", "12-25:7", "12-26:8"]
+2029 = ["01-01:0", "03-21:1", "03-30:9", "04-02:10", "05-01:2", "05-04:3", "05-10:11", "05-25:4", "05-28:24", "08-26:5", "08-27:28", "12-10:6", "12-25:7", "12-26:8"]
+2030 = ["01-01:0", "03-21:1", "04-19:9", "04-22:10", "05-01:2", "05-04:3", "05-25:4", "05-28:24", "05-30:11", "08-26:5", "12-10:6", "12-25:7", "12-26:8"]
+2031 = ["01-01:0", "03-21:1", "04-11:9", "04-14:10", "05-01:2", "05-04:3", "05-05:22", "05-22:11", "05-25:4", "05-26:23", "05-28:24", "08-26:5", "12-10:6", "12-25:7", "12-26:8"]
+
+[school]
+first_day = "01-01"
+long_break_weeks = 6.0
+instruction_days = 190
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: est-UIS end and start months adjacent; long break is mid-year or about 6 weeks at the boundary (estimate); week days: estimate (CK school table)"

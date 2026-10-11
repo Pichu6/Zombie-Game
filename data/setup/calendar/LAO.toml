@@ -1,0 +1,36 @@
+# Calendar of LAO (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "LAO"
+from = "LAO"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 6
+source = "CK weekend table (GC;ILO12;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=estimate;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for LAO, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "03-08:1", "05-01:2", "07-20:3", "12-02:4"]
+easter_western = []
+easter_orthodox = []
+names = ["New Year's Day", "International Women's Day", "Labor Day", "Lao Women Union's Day (Women Only)", "National Day", "Lao New Year", "Lao New Year Holiday", "Day off for Labor Day", "Khao Pansa", "Bouk Ok Pansa", "That Luang Festival", "Day off for New Year's Day", "Day off for Bouk Ok Pansa", "Day off for National Day", "Day off for Lao Women Union's Day (Women Only)", "Day off for International Women's Day"]
+
+[holidays.dates]
+2021 = ["01-01:0", "03-08:1", "04-14:5", "04-15:6", "04-16:6", "05-01:2", "05-03:7", "07-20:3", "07-24:8", "10-20:9", "11-26:10", "12-02:4"]
+2022 = ["01-01:0", "03-08:1", "04-13:6", "04-14:5", "04-15:6", "04-16:6", "05-01:2", "05-02:7", "07-20:3", "10-10:9", "11-08:10", "12-02:4"]
+2023 = ["01-01:0", "01-02:11", "03-08:1", "04-12:6", "04-13:6", "04-14:5", "05-01:2", "07-20:3", "10-28:9", "10-30:12", "11-27:10", "12-02:4", "12-04:13"]
+2024 = ["01-01:0", "03-08:1", "04-13:5", "04-14:6", "04-15:6", "05-01:2", "07-20:3", "07-22:14", "12-02:4"]
+2025 = ["01-01:0", "03-08:1", "03-10:15", "04-13:5", "04-14:6", "04-15:6", "05-01:2", "07-20:3", "07-21:14", "12-02:4"]
+2026 = ["01-01:0", "03-08:1", "03-09:15", "04-14:5", "04-15:6", "04-16:6", "05-01:2", "07-20:3", "12-02:4"]
+2027 = ["01-01:0", "03-08:1", "05-01:2", "07-20:3", "12-02:4"]
+2028 = ["01-01:0", "03-08:1", "05-01:2", "07-20:3", "12-02:4", "12-04:13"]
+2029 = ["01-01:0", "03-08:1", "05-01:2", "07-20:3", "12-02:4", "12-03:13"]
+2030 = ["01-01:0", "03-08:1", "05-01:2", "07-20:3", "07-22:14", "12-02:4"]
+2031 = ["01-01:0", "03-08:1", "03-10:15", "05-01:2", "07-20:3", "07-21:14", "12-02:4"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 11.0
+instruction_days = 190
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

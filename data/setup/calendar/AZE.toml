@@ -1,0 +1,31 @@
+# Calendar of AZE (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "AZE"
+from = "AZE"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;W1;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=reported;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for AZE, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "01-02:1", "01-20:2", "03-08:3", "03-20:4", "03-21:5", "03-22:5", "03-23:5", "03-24:5", "05-09:6", "05-28:7", "06-15:8", "06-26:9", "11-08:10", "11-09:11", "12-31:12"]
+easter_western = []
+easter_orthodox = []
+names = ["New Year's Day", "New Year's Holiday", "Martyrs’ Day", "Women's Day", "Nowruz", "Nowruz/Spring Holiday", "Victory Day over Fascism", "Republic Day", "Day of National Salvation of the Azerbaijani People", "Azerbaijan Armed Forces Day", "Victory Day of the Republic of Azerbaijan", "State Flag Day of Azerbaijan", "World Azerbaijanis Solidarity Day", "Day off for New Year's Holiday", "Day off for Victory Day over Fascism", "Ramadan holiday", "Day off for Azerbaijan Armed Forces Day", "Feast of the Sacrifice Holiday", "Feast of the Sacrifice", "Day off for New Year's Day", "Day off for Republic Day", "Day off for Martyrs’ Day", "Presidential Election", "Day off for Day of National Salvation of the Azerbaijani People / Feast of the Sacrifice Holiday", "Day off for Feast of the Sacrifice", "Day off for Feast of the Sacrifice Holiday", "Day off for State Flag Day of Azerbaijan", "COP29 Holiday", "Municipal Elections", "Day off for Nowruz/Spring Holiday", "Day off for Day of National Salvation of the Azerbaijani People", "Day off for Victory Day of the Republic of Azerbaijan", "Day off for Women's Day", "Nowruz / Ramadan holiday", "Nowruz/Spring Holiday / Ramadan holiday", "Republic Day / Feast of the Sacrifice Holiday", "State Flag Day of Azerbaijan / Day off for Victory Day of the Republic of Azerbaijan"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-02:1", "01-04:13", "01-20:2", "03-08:3", "03-20:4", "03-21:5", "03-22:5", "03-23:5", "03-24:5", "03-25:5", "03-26:5", "05-09:6", "05-10:14", "05-13:15", "05-14:15", "05-28:7", "06-15:8", "06-26:9", "06-28:16", "07-18:17", "07-19:17", "07-20:18", "07-21:17", "11-08:10", "11-09:11", "12-31:12"]
+2022 = ["01-01:0", "01-02:1", "01-03:19", "01-04:13", "01-20:2", "03-08:3", "03-20:4", "03-21:5", "03-22:5", "03-23:5", "03-24:5", "05-02:15", "05-03:15", "05-09:6", "05-28:7", "05-30:20", "06-15:8", "06-26:9", "06-27:16", "07-09:18", "07-10:17", "07-11:17", "07-12:17", "11-08:10", "11-09:11", "12-31:12"]
+2023 = ["01-01:0", "01-02:1", "01-03:19", "01-04:13", "01-20:2", "03-08:3", "03-20:4", "03-21:5", "03-22:5", "03-23:5", "03-24:5", "04-21:15", "04-22:15", "04-23:15", "04-24:15", "05-09:6", "05-28:7", "05-29:20", "06-15:8", "06-26:9", "06-28:18", "06-29:17", "11-08:10", "11-09:11", "12-31:12"]
+2024 = ["01-01:0", "01-02:1", "01-03:1", "01-04:1", "01-05:1", "01-20:2", "01-22:21", "02-07:22", "03-08:3", "03-20:4", "03-21:5", "03-22:5", "03-23:5", "03-24:5", "03-25:5", "03-26:5", "04-10:15", "04-11:15", "04-12:15", "05-09:6", "05-28:7", "06-15:8", "06-16:18", "06-17:23", "06-18:24", "06-19:25", "06-26:9", "11-08:10", "11-09:11", "11-11:26", "11-12:27", "11-13:27", "12-30:1", "12-31:12"]
+2025 = ["01-01:0", "01-02:1", "01-03:1", "01-20:2", "01-29:28", "03-08:3", "03-20:4", "03-21:5", "03-22:5", "03-23:5", "03-24:5", "03-25:29", "03-26:29", "03-27:5", "03-28:5", "03-30:15", "03-31:15", "05-09:6", "05-28:7", "06-06:18", "06-07:17", "06-09:25", "06-15:8", "06-16:30", "06-26:9", "11-08:10", "11-09:11", "11-10:31", "11-11:26", "12-31:12"]
+2026 = ["01-01:0", "01-02:1", "01-20:2", "03-08:3", "03-09:32", "03-20:33", "03-21:34", "03-22:5", "03-23:5", "03-24:5", "05-09:6", "05-11:14", "05-27:18", "05-28:35", "05-29:20", "06-15:8", "06-26:9", "11-08:10", "11-09:36", "12-31:12"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 15.4
+instruction_days = 185
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (upper_middle) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

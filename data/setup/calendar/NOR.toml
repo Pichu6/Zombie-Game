@@ -1,0 +1,36 @@
+# Calendar of NOR (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "NOR"
+from = "NOR"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for NOR, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "05-01:1", "05-17:2", "12-25:3", "12-26:4"]
+easter_western = ["-3:5", "-2:6", "0:7", "1:8", "39:9", "49:10", "50:11"]
+easter_orthodox = []
+names = ["New Year's Day", "Labor Day", "17 May Constitution Day (1814)", "Christmas Day", "Boxing Day", "Maundy Thursday", "Good Friday", "Easter Sunday", "Easter Monday", "Ascension Day", "Whit Sunday", "Whit Monday", "17 May Constitution Day (1814) / Whit Monday"]
+
+[holidays.dates]
+2021 = ["01-01:0", "04-01:5", "04-02:6", "04-04:7", "04-05:8", "05-01:1", "05-13:9", "05-17:2", "05-23:10", "05-24:11", "12-25:3", "12-26:4"]
+2022 = ["01-01:0", "04-14:5", "04-15:6", "04-17:7", "04-18:8", "05-01:1", "05-17:2", "05-26:9", "06-05:10", "06-06:11", "12-25:3", "12-26:4"]
+2023 = ["01-01:0", "04-06:5", "04-07:6", "04-09:7", "04-10:8", "05-01:1", "05-17:2", "05-18:9", "05-28:10", "05-29:11", "12-25:3", "12-26:4"]
+2024 = ["01-01:0", "03-28:5", "03-29:6", "03-31:7", "04-01:8", "05-01:1", "05-09:9", "05-17:2", "05-19:10", "05-20:11", "12-25:3", "12-26:4"]
+2025 = ["01-01:0", "04-17:5", "04-18:6", "04-20:7", "04-21:8", "05-01:1", "05-17:2", "05-29:9", "06-08:10", "06-09:11", "12-25:3", "12-26:4"]
+2026 = ["01-01:0", "04-02:5", "04-03:6", "04-05:7", "04-06:8", "05-01:1", "05-14:9", "05-17:2", "05-24:10", "05-25:11", "12-25:3", "12-26:4"]
+2027 = ["01-01:0", "03-25:5", "03-26:6", "03-28:7", "03-29:8", "05-01:1", "05-06:9", "05-16:10", "05-17:12", "12-25:3", "12-26:4"]
+2028 = ["01-01:0", "04-13:5", "04-14:6", "04-16:7", "04-17:8", "05-01:1", "05-17:2", "05-25:9", "06-04:10", "06-05:11", "12-25:3", "12-26:4"]
+2029 = ["01-01:0", "03-29:5", "03-30:6", "04-01:7", "04-02:8", "05-01:1", "05-10:9", "05-17:2", "05-20:10", "05-21:11", "12-25:3", "12-26:4"]
+2030 = ["01-01:0", "04-18:5", "04-19:6", "04-21:7", "04-22:8", "05-01:1", "05-17:2", "05-30:9", "06-09:10", "06-10:11", "12-25:3", "12-26:4"]
+2031 = ["01-01:0", "04-10:5", "04-11:6", "04-13:7", "04-14:8", "05-01:1", "05-17:2", "05-22:9", "06-01:10", "06-02:11", "12-25:3", "12-26:4"]
+
+[school]
+first_day = "08-17"
+long_break_weeks = 8.1
+instruction_days = 190
+week_days = 5
+source = "first day: sourced: Eurydice 2023/24 first day (CK-210); instruction days: OECD-EAG-D1-2025 (sourced); long break: EURY-CAL-2023 end date to same start date next year (derived); week days: estimate (CK school table)"

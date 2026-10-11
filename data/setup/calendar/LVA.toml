@@ -1,0 +1,36 @@
+# Calendar of LVA (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "LVA"
+from = "LVA"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for LVA, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "05-01:1", "05-04:2", "06-23:3", "06-24:4", "11-18:5", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+easter_western = ["-2:10", "0:11", "1:12", "49:13"]
+easter_orthodox = []
+names = ["New Year's Day", "Labour Day/May Day", "Independence Restoration Day", "Midsummer Eve", "Midsummer Day", "Republic of Latvia Proclamation Day", "Christmas Eve", "Christmas Day", "Second Day of Christmas", "New Year's Eve", "Good Friday", "Easter Sunday", "Easter Monday", "Whitsunday", "Constituent Assembly Convocation Day / Labour Day/May Day", "Public Holiday", "Mothers' Day", "Day of the Bronze Medal Win", "Last Day of the Song and Dance Festival", "Republic of Latvia Proclamation Day observed", "Independence Restoration Day observed", "Labour Day/May Day / Constituent Assembly Convocation Day", "Last Day of the Song and Dance Festival observed"]
+
+[holidays.dates]
+2021 = ["01-01:0", "04-02:10", "04-04:11", "04-05:12", "05-01:14", "05-03:15", "05-04:2", "05-09:16", "05-23:13", "06-23:3", "06-24:4", "06-25:15", "11-18:5", "11-19:15", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2022 = ["01-01:0", "04-15:10", "04-17:11", "04-18:12", "05-01:14", "05-04:2", "05-08:16", "06-05:13", "06-23:3", "06-24:4", "11-18:5", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2023 = ["01-01:0", "04-07:10", "04-09:11", "04-10:12", "05-01:14", "05-04:2", "05-05:15", "05-14:16", "05-28:13", "05-29:17", "06-23:3", "06-24:4", "07-09:18", "11-18:5", "11-20:19", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2024 = ["01-01:0", "03-29:10", "03-31:11", "04-01:12", "05-01:14", "05-04:2", "05-06:20", "05-12:16", "05-19:13", "06-23:3", "06-24:4", "11-18:5", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2025 = ["01-01:0", "04-18:10", "04-20:11", "04-21:12", "05-01:14", "05-04:2", "05-05:20", "05-11:16", "06-08:13", "06-23:3", "06-24:4", "11-18:5", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2026 = ["01-01:0", "04-03:10", "04-05:11", "04-06:12", "05-01:21", "05-04:2", "05-10:16", "05-24:13", "06-23:3", "06-24:4", "11-18:5", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2027 = ["01-01:0", "03-26:10", "03-28:11", "03-29:12", "05-01:14", "05-04:2", "05-09:16", "05-16:13", "06-23:3", "06-24:4", "11-18:5", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2028 = ["01-01:0", "04-14:10", "04-16:11", "04-17:12", "05-01:14", "05-04:2", "05-14:16", "06-04:13", "06-23:3", "06-24:4", "07-08:18", "07-10:22", "11-18:5", "11-20:19", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2029 = ["01-01:0", "03-30:10", "04-01:11", "04-02:12", "05-01:21", "05-04:2", "05-13:16", "05-20:13", "06-23:3", "06-24:4", "11-18:5", "11-19:19", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2030 = ["01-01:0", "04-19:10", "04-21:11", "04-22:12", "05-01:14", "05-04:2", "05-06:20", "05-12:16", "06-09:13", "06-23:3", "06-24:4", "11-18:5", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+2031 = ["01-01:0", "04-11:10", "04-13:11", "04-14:12", "05-01:21", "05-04:2", "05-05:20", "05-11:16", "06-01:13", "06-23:3", "06-24:4", "11-18:5", "12-24:6", "12-25:7", "12-26:8", "12-31:9"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 13.3
+instruction_days = 169
+week_days = 5
+source = "first day: sourced: Eurydice 2023/24 first day (CK-210); instruction days: OECD-EAG-D1-2025 (sourced); long break: EURY-CAL-2023 end date to same start date next year (derived); week days: estimate (CK school table)"

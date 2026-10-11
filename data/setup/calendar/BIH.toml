@@ -1,0 +1,36 @@
+# Calendar of BIH (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "BIH"
+from = "BIH"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;NG;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=estimate;workweek=estimate;hours=none;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for BIH, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "01-02:1", "03-01:2", "05-01:3"]
+easter_western = []
+easter_orthodox = []
+names = ["New Year's Day", "New Year's (Day 2)", "Independence Day (Federation of Bosnia and Herzegovina)", "Labor Day", "Labor Day (Day 2)", "New Year Holiday", "Labor Day observed", "Day off for Independence Day (Federation of Bosnia and Herzegovina)"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-02:1", "03-01:2", "05-01:3", "05-03:4"]
+2022 = ["01-01:0", "01-02:1", "01-03:5", "03-01:2", "05-01:3", "05-02:6", "05-03:4"]
+2023 = ["01-01:0", "01-02:1", "03-01:2", "05-01:3", "05-02:4"]
+2024 = ["01-01:0", "01-02:1", "03-01:2", "05-01:3", "05-02:4"]
+2025 = ["01-01:0", "01-02:1", "03-01:2", "05-01:3", "05-02:4"]
+2026 = ["01-01:0", "01-02:1", "03-01:2", "03-02:7", "05-01:3", "05-02:4"]
+2027 = ["01-01:0", "01-02:1", "03-01:2", "05-01:3", "05-03:4"]
+2028 = ["01-01:0", "01-02:1", "01-03:5", "03-01:2", "05-01:3", "05-02:4"]
+2029 = ["01-01:0", "01-02:1", "03-01:2", "05-01:3", "05-02:4"]
+2030 = ["01-01:0", "01-02:1", "03-01:2", "05-01:3", "05-02:4"]
+2031 = ["01-01:0", "01-02:1", "03-01:2", "05-01:3", "05-02:4"]
+
+[school]
+first_day = "09-04"
+long_break_weeks = 11.7
+instruction_days = 186
+week_days = 5
+source = "first day: sourced: Eurydice 2023/24 first day (CK-210); instruction days: EURY-CAL-2023 weekdays start..end minus listed holidays (derived); long break: EURY-CAL-2023 end date to same start date next year (derived); week days: estimate (CK school table)"

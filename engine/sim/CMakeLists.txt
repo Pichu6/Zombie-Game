@@ -6,6 +6,7 @@ add_library(zs_sim
   src/hazard.cpp
   src/events.cpp
   src/clock.cpp
+  src/calendar.cpp
   src/archive.cpp
   src/world.cpp
   src/demo.cpp

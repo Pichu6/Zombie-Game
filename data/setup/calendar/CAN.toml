@@ -1,0 +1,36 @@
+# Calendar of CAN (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "CAN"
+from = "CAN"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for CAN, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "07-01:1", "09-30:2", "11-11:3", "12-25:4", "12-26:5"]
+easter_western = ["-2:6", "1:7"]
+easter_orthodox = []
+names = ["New Year's Day (regional holiday)", "Canada Day (regional holiday)", "National Day for Truth and Reconciliation (regional holiday)", "Remembrance Day (regional holiday)", "Christmas Day (regional holiday)", "Boxing Day", "Good Friday (regional holiday)", "Easter Monday (regional holiday)", "Victoria Day (regional holiday)", "Civic/Provincial Day", "Labour Day (regional holiday)", "Thanksgiving Day (regional holiday)", "Boxing Day / Christmas Holiday (regional holiday)", "New Year's Day Holiday (regional holiday)", "Canada Day Holiday (regional holiday)", "Canada Day Holiday"]
+
+[holidays.dates]
+2021 = ["01-01:0", "04-02:6", "04-05:7", "05-24:8", "07-01:1", "08-02:9", "09-06:10", "09-30:2", "10-11:11", "11-11:3", "12-25:4", "12-26:12", "12-27:12", "12-28:12"]
+2022 = ["01-01:0", "01-03:13", "04-15:6", "04-18:7", "05-23:8", "07-01:1", "08-01:9", "09-05:10", "09-30:2", "10-10:11", "11-11:3", "12-25:4", "12-26:12", "12-27:12"]
+2023 = ["01-01:0", "01-02:13", "04-07:6", "04-10:7", "05-22:8", "07-01:1", "07-03:14", "08-07:9", "09-04:10", "09-30:2", "10-09:11", "11-11:3", "12-25:4", "12-26:12"]
+2024 = ["01-01:0", "03-29:6", "04-01:7", "05-20:8", "07-01:1", "08-05:9", "09-02:10", "09-30:2", "10-14:11", "11-11:3", "12-25:4", "12-26:12"]
+2025 = ["01-01:0", "04-18:6", "04-21:7", "05-19:8", "07-01:1", "08-04:9", "09-01:10", "09-30:2", "10-13:11", "11-11:3", "12-25:4", "12-26:12"]
+2026 = ["01-01:0", "04-03:6", "04-06:7", "05-18:8", "07-01:1", "08-03:9", "09-07:10", "09-30:2", "10-12:11", "11-11:3", "12-25:4", "12-26:12", "12-28:12"]
+2027 = ["01-01:0", "03-26:6", "03-29:7", "05-24:8", "07-01:1", "08-02:9", "09-06:10", "09-30:2", "10-11:11", "11-11:3", "12-25:4", "12-26:12", "12-27:12", "12-28:12"]
+2028 = ["01-01:0", "01-03:13", "04-14:6", "04-17:7", "05-22:8", "07-01:1", "07-03:14", "08-07:9", "09-04:10", "09-30:2", "10-09:11", "11-11:3", "12-25:4", "12-26:12"]
+2029 = ["01-01:0", "03-30:6", "04-02:7", "05-21:8", "07-01:1", "07-02:15", "08-06:9", "09-03:10", "09-30:2", "10-08:11", "11-11:3", "12-25:4", "12-26:12"]
+2030 = ["01-01:0", "04-19:6", "04-22:7", "05-20:8", "07-01:1", "08-05:9", "09-02:10", "09-30:2", "10-14:11", "11-11:3", "12-25:4", "12-26:12"]
+2031 = ["01-01:0", "04-11:6", "04-14:7", "05-19:8", "07-01:1", "08-04:9", "09-01:10", "09-30:2", "10-13:11", "11-11:3", "12-25:4", "12-26:12"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 15.4
+instruction_days = 185
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: OECD-EAG-D1-2025 (sourced); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

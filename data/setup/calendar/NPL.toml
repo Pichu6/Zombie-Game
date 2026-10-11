@@ -1,0 +1,31 @@
+# Calendar of NPL (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "NPL"
+from = "NPL"
+weekend = ["sat", "sun"]
+main_rest_day = "sat"
+short_days = []
+private_week_days = 6
+source = "CK weekend table (GC;ILO12;NEWS-NPL;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=estimate;hours=sourced;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for NPL, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["03-08:0", "05-01:1", "09-19:2"]
+easter_western = []
+easter_orthodox = []
+names = ["Nari Dibas", "Majdoor Divas", "Constitution Day", "Maghe Sankranti", "Maha Shivaratri", "Nepali New Year", "Buddha Jayanti", "Ganatantra Diwas", "Janai Purnima", "Shree Krishna Janamashtami", "Ghatasthapana", "Phulpati (Dashain)", "Astami (Dashain)", "Nawami (Dashain)", "Dashami (Dashain)", "Ekadashi (Dashain)", "Laxmi Puja (Tihar)", "Gobhardan Pujan (Tihar)", "Bhai Tika (Tihar)", "Chhat Parwa", "Christmas Day", "Tamu Lhosar Holiday", "National Democracy Day", "Gyalpo Losar", "Ram Nawami", "Election Day", "Edul Aajaha", "Duwadashi (Dashain)", "National Mourning Day", "Gai Tihar", "General Election Day", "General Election Holiday", "Prithvi Jayanti", "People's War Day", "Maha Shivaratri / Nari Dibas", "Holiday for Emir of Qatar's Visit", "Phulpati (Dashain) / Astami (Dashain)", "Martyrs' Memorial Day / Sonam Losar", "Public Holiday for Extreme Weather", "Tihar Holiday", "Sonam Losar", "Election Holiday", "Civil Service and School Holiday", "Majdoor Divas / Buddha Jayanti", "Gen Z Martyr’s Day"]
+
+[holidays.dates]
+2021 = ["01-14:3", "03-08:0", "03-11:4", "04-14:5", "05-01:1", "05-26:6", "05-29:7", "08-22:8", "08-30:9", "09-19:2", "10-07:10", "10-12:11", "10-13:12", "10-14:13", "10-15:14", "10-16:15", "11-04:16", "11-05:17", "11-06:18", "11-10:19", "12-25:20", "12-29:21"]
+2022 = ["01-15:3", "02-19:22", "03-01:4", "03-03:23", "03-08:0", "04-10:24", "04-14:5", "05-01:1", "05-13:25", "05-16:6", "05-29:7", "07-10:26", "08-12:8", "08-19:9", "09-19:2", "09-26:10", "10-02:11", "10-03:12", "10-04:13", "10-05:14", "10-06:15", "10-07:27", "10-18:28", "10-24:16", "10-25:29", "10-26:17", "10-27:18", "10-30:19", "11-20:30", "11-21:31"]
+2023 = ["01-11:32", "01-15:3", "01-16:28", "02-13:33", "02-18:4", "02-19:22", "03-08:0", "04-14:5", "05-01:1", "05-05:6", "05-29:7", "08-30:8", "09-06:9", "09-14:28", "09-19:2", "10-15:10", "10-21:11", "10-22:12", "10-23:13", "10-24:14", "10-25:15", "11-12:16", "11-14:17", "11-15:18", "11-19:19"]
+2024 = ["01-12:32", "01-15:3", "02-19:22", "03-08:34", "04-13:5", "04-17:24", "04-23:35", "05-01:1", "05-23:6", "05-28:7", "08-19:8", "08-26:9", "09-19:2", "10-03:10", "10-10:36", "10-11:13", "10-12:14", "10-13:15", "11-01:16", "11-02:17", "11-03:18", "11-07:19", "11-18:28"]
+2025 = ["01-11:32", "01-14:3", "01-30:37", "02-19:22", "02-26:4", "03-08:0", "04-06:24", "04-14:5", "05-01:1", "05-12:6", "05-29:7", "06-07:26", "08-09:8", "08-16:9", "09-17:28", "09-19:2", "09-22:10", "09-29:11", "09-30:12", "10-01:13", "10-02:14", "10-03:15", "10-04:27", "10-05:38", "10-06:38", "10-20:16", "10-21:29", "10-22:17", "10-23:18", "10-24:39", "10-27:19"]
+2026 = ["01-15:3", "01-19:40", "02-15:4", "02-19:22", "03-04:41", "03-05:41", "03-06:41", "03-08:0", "04-12:42", "04-14:5", "04-19:42", "04-26:42", "05-01:43", "05-28:26", "05-29:7", "08-28:8", "09-04:9", "09-08:44", "09-19:2", "10-11:10", "10-17:11", "10-19:12", "10-20:13", "10-21:14", "10-22:15", "10-23:27", "11-08:16", "11-09:17", "11-10:18", "11-15:19"]
+
+[school]
+first_day = "07-01"
+long_break_weeks = 11.0
+instruction_days = 190
+week_days = 6
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

@@ -1,0 +1,36 @@
+# Calendar of KGZ (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "KGZ"
+from = "KGZ"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=estimate;workweek=estimate;hours=none;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for KGZ, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "01-07:1", "02-23:2", "03-08:3", "03-21:4", "04-07:5", "05-01:6", "05-05:7", "05-09:8", "08-31:9", "11-07:10", "11-08:11"]
+easter_western = []
+easter_orthodox = []
+names = ["New Year", "Orthodox Christmas Day", "Defender of the Fatherland Day", "International Women's Day", "Nooruz National Holiday", "April People's Revolution Day", "May Day", "Constitution Day of the Kyrgyz Republic", "Victory Day", "Independence Day of the Kyrgyz Republic", "Days of History and Memory of Ancestors", "Days of History and Memory of Ancestors Holiday", "Election Day / New Year Holiday", "Nooruz National Holiday observed", "Orozo Ait", "Public Holiday", "Kurman Ait", "May Day Holiday", "Day off for Days of History and Memory of Ancestors", "Day off for New Year", "New Year Holiday", "Day off for May Day", "Day off for Kurman Ait", "Nooruz Holiday", "Constitution Day Holiday", "Day off for Orozo Ait", "Victory Day Holiday", "Day off for Days of History and Memory of Ancestors Holiday", "International Women's Day observed", "Election Day", "Day off for Victory Day", "Constitution Day of the Kyrgyz Republic / Kurman Ait", "Day off for Orthodox Christmas Day", "Day off for April People's Revolution Day", "Day off for Constitution Day of the Kyrgyz Republic", "Day off for Defender of the Fatherland Day", "Day off for Independence Day of the Kyrgyz Republic"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-07:1", "01-08:12", "02-23:2", "03-08:3", "03-21:4", "03-22:13", "04-07:5", "05-01:6", "05-05:7", "05-09:8", "05-13:14", "07-17:15", "07-18:15", "07-19:15", "07-20:16", "08-30:17", "08-31:9", "11-07:10", "11-08:11", "11-09:18"]
+2022 = ["01-01:0", "01-03:19", "01-04:20", "01-05:20", "01-06:20", "01-07:1", "02-23:2", "03-08:3", "03-21:4", "04-07:5", "05-01:6", "05-02:14", "05-03:21", "05-04:17", "05-05:7", "05-06:17", "05-09:8", "07-09:16", "07-11:22", "08-31:9", "11-07:10", "11-08:11"]
+2023 = ["01-01:0", "01-02:19", "01-03:20", "01-04:20", "01-05:20", "01-06:20", "01-07:1", "02-23:2", "03-08:3", "03-20:23", "03-21:4", "04-07:5", "04-21:14", "05-01:6", "05-05:7", "05-08:24", "05-09:8", "06-28:16", "08-31:9", "11-06:11", "11-07:10", "11-08:11"]
+2024 = ["01-01:0", "01-02:20", "01-03:20", "01-04:20", "01-05:20", "01-06:20", "01-07:1", "02-23:2", "03-08:3", "03-21:4", "03-22:23", "04-07:5", "04-10:14", "05-01:6", "05-02:17", "05-03:17", "05-05:7", "05-09:8", "06-16:16", "08-31:9", "11-07:10", "11-08:11"]
+2025 = ["01-01:0", "01-02:20", "01-03:20", "01-04:20", "01-05:20", "01-06:20", "01-07:1", "02-23:2", "03-08:3", "03-21:4", "03-30:14", "03-31:25", "04-07:5", "05-01:6", "05-02:17", "05-03:17", "05-04:17", "05-05:7", "05-06:24", "05-07:24", "05-08:26", "05-09:8", "06-06:16", "08-31:9", "11-07:10", "11-08:11", "11-10:27"]
+2026 = ["01-01:0", "01-02:20", "01-03:20", "01-04:20", "01-05:20", "01-06:20", "01-07:1", "02-23:2", "03-08:3", "03-09:28", "03-20:14", "03-21:4", "04-07:5", "05-01:6", "05-02:17", "05-03:17", "05-04:17", "05-05:7", "05-06:24", "05-07:24", "05-08:26", "05-09:8", "05-27:16", "08-31:9", "11-07:10", "11-08:11"]
+2027 = ["01-01:0", "01-07:1", "01-27:29", "02-23:2", "03-08:3", "03-10:14", "03-21:4", "03-22:13", "04-07:5", "05-01:6", "05-03:21", "05-05:7", "05-09:8", "05-10:30", "05-17:16", "08-31:9", "11-07:10", "11-08:11", "11-09:18"]
+2028 = ["01-01:0", "01-03:19", "01-07:1", "02-23:2", "02-27:14", "02-28:25", "03-08:3", "03-21:4", "04-07:5", "05-01:6", "05-05:31", "05-09:8", "08-31:9", "11-07:10", "11-08:11"]
+2029 = ["01-01:0", "01-07:1", "01-08:32", "02-15:14", "02-23:2", "03-08:3", "03-21:4", "04-07:5", "04-09:33", "04-24:16", "05-01:6", "05-05:7", "05-07:34", "05-09:8", "08-31:9", "11-07:10", "11-08:11"]
+2030 = ["01-01:0", "01-07:1", "02-05:14", "02-23:2", "02-25:35", "03-08:3", "03-21:4", "04-07:5", "04-08:33", "04-14:16", "04-15:22", "05-01:6", "05-05:7", "05-06:34", "05-09:8", "08-31:9", "09-02:36", "11-07:10", "11-08:11"]
+2031 = ["01-01:0", "01-07:1", "01-25:14", "01-27:25", "02-23:2", "02-24:35", "03-08:3", "03-10:28", "03-21:4", "04-03:16", "04-07:5", "05-01:6", "05-05:7", "05-09:8", "08-31:9", "09-01:36", "11-07:10", "11-08:11", "11-10:27"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 15.4
+instruction_days = 190
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

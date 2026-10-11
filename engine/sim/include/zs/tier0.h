@@ -19,6 +19,7 @@ class PopSystem;
 class EconomySystem;
 class OrdersSystem;
 class GridSystem;
+class CalendarSystem;
 }  // namespace zs
 
 namespace zs::tier0 {
@@ -48,6 +49,7 @@ struct Tier0 {
   OrdersSystem* orders = nullptr;
   GridSystem* grids = nullptr;
   PlaceSystem* place = nullptr;  // spec 42
+  CalendarSystem* calendar = nullptr;  // spec 53
   WorldOwners owners;
   EntityId player = 0;  // the body of the pop at the map's player start
   std::vector<EntityId> group;  // the player first, then survivors who start with it

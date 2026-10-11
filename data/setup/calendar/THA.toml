@@ -1,0 +1,36 @@
+# Calendar of THA (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "THA"
+from = "THA"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 6
+source = "CK weekend table (GC;ILO12;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=estimate;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for THA, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "04-06:1", "04-13:2", "04-14:3", "05-01:4", "05-04:5", "06-03:6", "07-28:7", "08-12:8", "10-13:9", "10-23:10", "12-05:11", "12-10:12", "12-31:13"]
+easter_western = []
+easter_orthodox = []
+names = ["New Year's Day", "Chakri Day", "Songkran", "Songkran Holiday", "Labor Day", "Coronation Day", "Queen Suthida's Birthday", "King Vajiralongkorn's Birthday", "The Queen Mother's Birthday", "Anniversary of the Death of King Bhumibol", "Chulalongkorn Day", "King Bhumibol's Birthday", "Constitution Day", "New Year's Eve", "Chinese New Year's Day", "Makha Bucha", "Labor Day observed", "Royal Ploughing Ceremony Day", "Visakha Bucha", "Asalha Bucha", "Buddhist Lent Day", "Asalha Bucha observed", "Mahidol Day", "Day off for Chulalongkorn Day", "King Bhumibol's Birthday observed", "Day off for New Year's Day", "Day off for Visakha Bucha", "Bridge Public Holiday", "Extra holiday", "Bridge Public holiday", "Substitute Holiday for Constitution Day", "New Year Special Holiday", "Visakha Bucha / Queen Suthida's Birthday", "Day off for Visakha Bucha / Day off for Queen Suthida's Birthday", "Day off for The Queen Mother's Birthday", "Day off for Makha Bucha", "Day off for Chakri Day", "Songkran Observed", "Day off for Coronation Day", "Day off for Asalha Bucha", "Day off for King Vajiralongkorn's Birthday", "Day off for Anniversary of the Death of King Bhumibol", "Day off for Queen Suthida's Birthday"]
+
+[holidays.dates]
+2021 = ["01-01:0", "02-12:14", "02-26:15", "04-06:1", "04-12:3", "04-13:2", "04-14:3", "04-15:3", "05-01:4", "05-03:16", "05-04:5", "05-10:17", "05-26:18", "06-03:6", "07-24:19", "07-25:20", "07-26:21", "07-28:7", "08-12:8", "09-24:22", "10-13:9", "10-22:23", "10-23:10", "12-05:11", "12-06:24", "12-10:12", "12-31:13"]
+2022 = ["01-01:0", "01-03:25", "02-16:15", "04-06:1", "04-13:2", "04-14:3", "04-15:3", "05-01:4", "05-02:16", "05-04:5", "05-13:17", "05-15:18", "05-16:26", "06-03:6", "07-13:19", "07-14:20", "07-15:27", "07-28:7", "07-29:28", "08-12:8", "10-13:9", "10-14:29", "10-23:10", "10-24:23", "12-05:11", "12-10:12", "12-12:30", "12-30:31", "12-31:13"]
+2023 = ["01-01:0", "01-02:25", "03-06:15", "04-06:1", "04-13:2", "04-14:3", "05-01:4", "05-04:5", "05-05:5", "05-17:17", "06-03:32", "06-05:33", "07-28:7", "07-31:27", "08-01:19", "08-12:8", "08-14:34", "10-13:9", "10-23:10", "12-05:11", "12-10:12", "12-11:30", "12-29:31", "12-31:13"]
+2024 = ["01-01:0", "02-24:15", "02-26:35", "04-06:1", "04-08:36", "04-12:3", "04-13:2", "04-14:3", "04-15:3", "04-16:37", "05-01:4", "05-04:5", "05-06:38", "05-10:17", "05-22:18", "06-03:6", "07-20:19", "07-22:39", "07-28:7", "07-29:40", "08-12:8", "10-13:9", "10-14:41", "10-23:10", "12-05:11", "12-10:12", "12-30:31", "12-31:13"]
+2025 = ["01-01:0", "02-12:15", "04-06:1", "04-07:36", "04-13:2", "04-14:3", "04-15:3", "04-16:37", "05-01:4", "05-04:5", "05-05:38", "05-09:17", "05-11:18", "05-12:26", "06-02:27", "06-03:6", "07-10:19", "07-28:7", "08-11:27", "08-12:8", "10-13:9", "10-23:10", "12-05:11", "12-10:12", "12-31:13"]
+2026 = ["01-01:0", "01-02:31", "03-03:15", "04-06:1", "04-13:2", "04-14:3", "04-15:3", "05-01:4", "05-04:5", "05-13:17", "05-31:18", "06-01:26", "06-03:6", "07-28:7", "07-29:19", "08-12:8", "10-13:9", "10-23:10", "12-05:11", "12-07:24", "12-10:12", "12-31:13"]
+2027 = ["01-01:0", "04-06:1", "04-13:2", "04-14:3", "04-15:3", "05-01:4", "05-03:16", "05-04:5", "06-03:6", "07-28:7", "08-12:8", "10-13:9", "10-23:10", "10-25:23", "12-05:11", "12-06:24", "12-10:12", "12-31:13"]
+2028 = ["01-01:0", "01-03:25", "04-06:1", "04-13:2", "04-14:3", "04-15:3", "05-01:4", "05-04:5", "06-03:6", "06-05:42", "07-28:7", "08-11:34", "08-12:8", "10-13:9", "10-23:10", "12-05:11", "12-10:12", "12-11:30", "12-31:13"]
+2029 = ["01-01:0", "04-06:1", "04-13:2", "04-14:3", "04-15:3", "04-16:37", "05-01:4", "05-04:5", "06-03:6", "06-04:42", "07-28:7", "07-30:40", "08-12:8", "08-13:34", "10-13:9", "10-15:41", "10-23:10", "12-05:11", "12-10:12", "12-31:13"]
+2030 = ["01-01:0", "04-06:1", "04-08:36", "04-13:2", "04-14:3", "04-15:3", "04-16:37", "05-01:4", "05-04:5", "05-06:38", "06-03:6", "07-28:7", "07-29:40", "08-12:8", "10-13:9", "10-14:41", "10-23:10", "12-05:11", "12-10:12", "12-31:13"]
+2031 = ["01-01:0", "04-06:1", "04-07:36", "04-13:2", "04-14:3", "04-15:3", "04-16:37", "05-01:4", "05-04:5", "05-05:38", "06-03:6", "07-28:7", "08-12:8", "10-13:9", "10-23:10", "12-05:11", "12-10:12", "12-31:13"]
+
+[school]
+first_day = "05-01"
+long_break_weeks = 6.7
+instruction_days = 185
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (upper_middle) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

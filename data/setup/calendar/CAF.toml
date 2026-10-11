@@ -1,0 +1,36 @@
+# Calendar of CAF (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "CAF"
+from = "CAF"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG); research note calendars-school-and-clock-hours"
+confidence = "weekend=estimate;workweek=estimate;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for CAF, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "03-29:1", "05-01:2", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+easter_western = ["1:9", "39:10", "50:11"]
+easter_orthodox = []
+names = ["New Year", "Commemoration of Boganda", "Labour Day", "National Prayer Day", "Independence Day", "Assumption of Mary", "All Saints' Day", "Republic Day", "Christmas Day", "Easter Monday", "Ascension Day", "Whit Monday", "Investiture Ceremony Day", "Eid al-Fitr / Ascension Day", "Eid al-Adha", "Eid al-Fitr", "Easter Monday / Commemoration of Boganda", "Whit Monday / Eid al-Adha"]
+
+[holidays.dates]
+2021 = ["01-01:0", "03-29:1", "03-30:12", "04-05:9", "05-01:2", "05-13:13", "05-24:11", "06-30:3", "07-20:14", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2022 = ["01-01:0", "03-29:1", "04-18:9", "05-01:2", "05-02:15", "05-26:10", "06-06:11", "06-30:3", "07-09:14", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2023 = ["01-01:0", "03-29:1", "04-10:9", "04-21:15", "05-01:2", "05-18:10", "05-29:11", "06-28:14", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2024 = ["01-01:0", "03-29:1", "04-01:9", "04-10:15", "05-01:2", "05-09:10", "05-20:11", "06-17:14", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2025 = ["01-01:0", "03-29:1", "03-30:15", "04-21:9", "05-01:2", "05-29:10", "06-06:14", "06-09:11", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2026 = ["01-01:0", "03-20:15", "03-29:1", "04-06:9", "05-01:2", "05-14:10", "05-25:11", "05-27:14", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2027 = ["01-01:0", "03-10:15", "03-29:16", "05-01:2", "05-06:10", "05-17:17", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2028 = ["01-01:0", "02-27:15", "03-29:1", "04-17:9", "05-01:2", "05-05:14", "05-25:10", "06-05:11", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2029 = ["01-01:0", "02-15:15", "03-29:1", "04-02:9", "04-24:14", "05-01:2", "05-10:10", "05-21:11", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2030 = ["01-01:0", "02-05:15", "03-29:1", "04-14:14", "04-22:9", "05-01:2", "05-30:10", "06-10:11", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+2031 = ["01-01:0", "01-25:15", "03-29:1", "04-03:14", "04-14:9", "05-01:2", "05-22:10", "06-02:11", "06-30:3", "08-13:4", "08-15:5", "11-01:6", "12-01:7", "12-25:8"]
+
+[school]
+first_day = "10-01"
+long_break_weeks = 11.0
+instruction_days = 180
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (low) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

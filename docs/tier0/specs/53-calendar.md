@@ -1,6 +1,6 @@
 # 53 · The calendar: dates, day kinds, holidays and school days
 
-**Status:** Spec, written before its code (2026-10-11). **Stage:** after Tier 0. It is the first half of the fourth demo flow's slice 1 ([0069](../../decisions/0069-jobs-institutions-and-daily-lives-one-model-depth-bought-by-attention.md) build order 1); daily schedules (spec 54) are the second half. **Needs:** [05](05-clock.md), [36](36-fields-and-weather.md), [40](40-time.md), [42](42-place.md), [49](49-real-country-profiles.md). **Decision:** [0072](../../decisions/0072-the-calendar-real-dates-day-kinds-by-role.md). **Research:** [calendars-school-and-clock-hours](../../research/calendars-school-and-clock-hours.md) (CK), [daily-lives-and-time-use](../../research/daily-lives-and-time-use.md) (TU).
+**Status:** Implemented and tested on MSVC (2026-10-11), written before its code. **Stage:** after Tier 0. It is the first half of the fourth demo flow's slice 1 ([0069](../../decisions/0069-jobs-institutions-and-daily-lives-one-model-depth-bought-by-attention.md) build order 1); daily schedules (spec 54) are the second half. **Needs:** [05](05-clock.md), [36](36-fields-and-weather.md), [40](40-time.md), [42](42-place.md), [49](49-real-country-profiles.md). **Decision:** [0072](../../decisions/0072-the-calendar-real-dates-day-kinds-by-role.md). **Research:** [calendars-school-and-clock-hours](../../research/calendars-school-and-clock-hours.md) (CK), [daily-lives-and-time-use](../../research/daily-lives-and-time-use.md) (TU).
 
 ## Purpose
 
@@ -130,6 +130,32 @@ The tool reads its inputs from `data_raw/` (outside git, CK Evidence) and writes
   - The median number of holiday days in 2025 is within 2 of [CK-275](../../research/calendars-school-and-clock-hours.md)'s 14.
 - **The one world (A1):** `make_run` adds the calendar; save and load keep the start day; the goldens are re-pinned once (the weather's hour and the calendar's save).
 
+## As built
+
+- `engine/sim/include/zs/calendar.h`, `src/calendar.cpp`:
+  - dates: `CivilDate`, `days_from_civil` and `civil_from_days` (Howard Hinnant's algorithms, `constexpr`), `weekday_of`, `is_leap_year`, `day_of_year`, `easter_western`, `easter_orthodox`;
+  - time: `kDefaultStartDay`, `CivilTime`, `civil_time`, `format_civil`, `civil_now`, `start_day_of`;
+  - countries: `CountryCalendar` (`holidays_in`, `holiday_on`, `day_kind`, `survey_day`, `is_school_week_day`, `school_year`, `is_school_day`), `load_country_calendar`, `calendar_path`, `calendar_id`;
+  - `CalendarSystem`, which saves the start day and the country id.
+- The weather: `fields::weather_time(year, day_of_year, leap_year, hour)` gives the weather's day and hour, and `fields::temperature_c` takes that instead of a tick. The tick-based `time_of_year` is gone, so nothing can read the weather 8 hours off again. `rain_between_mm` keeps its own timeline, documented as not the world's clock; only spec 36's partition test uses it.
+- `PlaceSystem` reads `civil_now` and caches the day's weather by civil day number.
+- `make_run` adds the calendar system after the place system; `Tier0::calendar` points to it.
+- The window's "Now:" line shows the date, the day's kind and holiday name, and whether schools are open, followed by the old "day N HH:MM".
+- `tools/data/calendars.py` writes the 187 files (about 900 KB).
+  - Holidays are stored as name indexes: "MM-DD:i" per year, with "h" for a half day.
+  - Five federal countries take one large region: New South Wales (Australia), the Federation (Bosnia and Herzegovina), Ontario (Canada), Zurich (Switzerland), England (United Kingdom). Their 2025 holiday days come out at 12, 5, 12, 9 and 8, as in CK.
+  - Nine feeds stop in 2026 or 2027, because those governments announce holidays year by year: United Arab Emirates, Azerbaijan, Bangladesh, Bhutan, Indonesia, Sri Lanka, Myanmar, Nepal and Pakistan. Their later years use the rules.
+  - Israel and Oman have only moving holidays, so no rule survives beyond the table (Open 1).
+- `engine/sim/tests/test_calendar.cpp`: 8 cases, as listed above.
+  - The day-by-day date check covers 1900–2100, and the Easter windows 1900–2099.
+  - The one-world place test now averages over the civil year 2027, a whole weather year.
+- `test_fields.cpp` calls the new weather signature.
+- The stage 9 golden is re-pinned on MSVC: the weather's hour and the calendar's save. Stages 6–8 have no place system and keep their goldens.
+- Measured:
+  - The median country has 14 full holiday days in 2025 (from 5 to 33).
+  - The United States' 2027 school year starts on Wednesday 25 August 2027 and has exactly its 180 instruction days.
+  - No country's 2027 school year exceeds its instruction days.
+
 ## Not in this spec
 
 - Where pops are: spec 54.
@@ -143,7 +169,7 @@ The tool reads its inputs from `data_raw/` (outside git, CK Evidence) and writes
 
 ## Open
 
-1. **Holidays beyond 2031.** Lunar and lunisolar holidays and substitute days are missing outside the table. The tabular Islamic calendar could fill the Islamic ones, within a day or two. Recommendation: when a scenario starts after 2030.
+1. **Holidays beyond 2031.** Lunar and lunisolar holidays and substitute days are missing outside the table. Israel and Oman have only moving holidays, so they have none at all there. The tabular Islamic calendar could fill the Islamic ones, within a day or two. Recommendation: when a scenario starts after 2030.
 2. **Where the breaks fall.**
    - About 25 countries take the long break in the middle of the school year (Japan, India and others, [CK-214](../../research/calendars-school-and-clock-hours.md)); here it sits at the end.
    - Short breaks are placed by rule. Eurydice holds the real blocks for 37 European systems.

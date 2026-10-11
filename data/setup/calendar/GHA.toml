@@ -1,0 +1,36 @@
+# Calendar of GHA (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "GHA"
+from = "GHA"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for GHA, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "03-06:1", "05-01:2", "09-21:3", "12-25:4", "12-26:5"]
+easter_western = ["-2:6", "1:7"]
+easter_orthodox = []
+names = ["New Year's Day", "Independence Day", "May Day", "Kwame Nkrumah Memorial Day", "Christmas Day", "Boxing Day", "Good Friday", "Easter Monday", "Constitution Day", "Independence Day observed", "May Day observed", "Eid ul-Fitr", "Eid al-Adha", "Founders' Day", "Farmer's Day", "Day off for Christmas Day", "Day off for Boxing Day", "New Year's Day observed", "Day off for Eid al-Adha", "Day off for Constitution Day", "Eid ul-Fitr Holiday", "Founders' Day observed", "Kwame Nkrumah Memorial Day observed", "Election Day", "Republic Day", "Kwame Nkrumah Memorial Day / Founders' Day", "Kwame Nkrumah Memorial Day observed / Founders' Day observed", "Day off for Eid ul-Fitr Holiday", "Day off for Boxing Day / Day off for Christmas Day", "Founders' Day observed / Kwame Nkrumah Memorial Day observed"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-07:8", "03-06:1", "03-08:9", "04-02:6", "04-05:7", "05-01:2", "05-03:10", "05-13:11", "07-20:12", "08-04:13", "09-21:3", "12-03:14", "12-25:4", "12-26:5", "12-27:15", "12-28:16"]
+2022 = ["01-01:0", "01-03:17", "01-07:8", "03-06:1", "03-07:9", "04-15:6", "04-18:7", "05-01:2", "05-02:10", "05-03:11", "07-09:12", "07-11:18", "08-04:13", "09-21:3", "12-02:14", "12-25:4", "12-26:5", "12-27:15"]
+2023 = ["01-01:0", "01-07:8", "01-09:19", "03-06:1", "04-07:6", "04-10:7", "04-22:11", "04-24:20", "05-01:2", "06-28:12", "08-04:13", "09-21:3", "12-01:14", "12-25:4", "12-26:5"]
+2024 = ["01-01:0", "01-07:8", "01-08:19", "03-06:1", "03-29:6", "04-01:7", "04-11:11", "05-01:2", "06-16:12", "06-17:18", "08-04:13", "08-05:21", "09-21:3", "09-23:22", "12-06:14", "12-07:23", "12-25:4", "12-26:5"]
+2025 = ["01-01:0", "03-06:1", "03-31:11", "04-01:20", "04-18:6", "04-21:7", "05-01:2", "06-06:12", "07-01:24", "09-21:25", "09-22:26", "12-05:14", "12-25:4", "12-26:5"]
+2026 = ["01-01:0", "01-07:8", "01-09:19", "03-06:1", "03-20:11", "03-21:20", "03-23:27", "04-03:6", "04-06:7", "05-01:2", "05-27:12", "07-03:24", "09-21:25", "12-04:14", "12-25:4", "12-26:5", "12-28:16"]
+2027 = ["01-01:0", "01-07:8", "03-06:1", "03-08:9", "03-10:11", "03-26:6", "03-29:7", "05-01:2", "05-03:10", "05-17:12", "07-01:24", "09-21:25", "12-03:14", "12-25:4", "12-26:5", "12-27:28"]
+2028 = ["01-01:0", "01-03:17", "01-07:8", "02-27:11", "03-06:1", "04-14:6", "04-17:7", "05-01:2", "05-05:12", "07-01:24", "09-21:25", "12-01:14", "12-25:4", "12-26:5"]
+2029 = ["01-01:0", "01-07:8", "02-15:11", "03-06:1", "03-30:6", "04-02:7", "04-24:12", "05-01:2", "07-01:24", "09-21:25", "12-07:14", "12-25:4", "12-26:5"]
+2030 = ["01-01:0", "01-07:8", "02-05:11", "03-06:1", "04-14:12", "04-19:6", "04-22:7", "05-01:2", "07-01:24", "09-21:25", "09-23:26", "12-06:14", "12-25:4", "12-26:5"]
+2031 = ["01-01:0", "01-07:8", "01-25:11", "03-06:1", "04-03:12", "04-11:6", "04-14:7", "05-01:2", "07-01:24", "09-21:25", "09-22:29", "12-05:14", "12-25:4", "12-26:5"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 6.0
+instruction_days = 190
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: est-UIS end and start months adjacent; long break is mid-year or about 6 weeks at the boundary (estimate); week days: estimate (CK school table)"

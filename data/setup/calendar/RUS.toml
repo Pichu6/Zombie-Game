@@ -1,0 +1,36 @@
+# Calendar of RUS (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "RUS"
+from = "RUS"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for RUS, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "01-07:1", "02-23:2", "03-08:3", "05-01:4", "05-09:5", "06-12:6", "11-04:7"]
+easter_western = []
+easter_orthodox = []
+names = ["New Year's Day", "Orthodox Christmas Day", "Defender of the Fatherland Day", "International Women's Day", "Spring and Labor Day", "Victory Day", "Russia Day", "Unity Day", "New Year Holiday", "Defender of the Fatherland Day Holiday", "Day off for Spring and Labor Day", "Spring and Labor Day Holiday", "Day off for Victory Day", "Day off for Russia Day", "Non-Working Day (COVID-19)", "Unity Day Holiday", "New Year's Eve", "Public Holiday", "Victory Day Holiday", "Day off for Unity Day", "Substitute Holiday for New Year Holiday", "Defender of the Fatherland Day (extra holiday)", "Substitute Holiday for International Women's Day", "Day off for International Women's Day", "Russia Day Weekend", "Day off for Defender of the Fatherland Day"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-04:8", "01-05:8", "01-06:8", "01-07:1", "01-08:8", "02-22:9", "02-23:2", "03-08:3", "05-01:4", "05-03:10", "05-04:11", "05-05:11", "05-06:11", "05-07:11", "05-09:5", "05-10:12", "06-12:6", "06-14:13", "10-30:14", "10-31:14", "11-01:14", "11-02:14", "11-03:14", "11-04:7", "11-05:15", "11-06:14", "11-07:14", "12-31:16"]
+2022 = ["01-01:0", "01-02:8", "01-03:8", "01-04:8", "01-05:8", "01-06:8", "01-07:1", "01-08:8", "01-09:8", "02-23:2", "03-07:17", "03-08:3", "05-01:4", "05-02:10", "05-03:11", "05-09:5", "05-10:18", "06-12:6", "06-13:13", "11-04:7"]
+2023 = ["01-01:0", "01-02:8", "01-03:8", "01-04:8", "01-05:8", "01-06:8", "01-07:1", "01-08:8", "02-23:2", "02-24:17", "03-08:3", "05-01:4", "05-08:11", "05-09:5", "06-12:6", "11-04:7", "11-06:19", "12-30:8", "12-31:16"]
+2024 = ["01-01:0", "01-02:8", "01-03:8", "01-04:8", "01-05:8", "01-06:8", "01-07:1", "01-08:8", "02-23:2", "03-08:3", "04-28:11", "04-29:11", "04-30:11", "05-01:4", "05-09:5", "05-10:18", "06-12:6", "11-03:15", "11-04:7", "12-30:8", "12-31:16"]
+2025 = ["01-01:0", "01-02:8", "01-03:8", "01-06:8", "01-07:1", "01-08:8", "02-23:2", "03-08:3", "05-01:4", "05-02:20", "05-08:21", "05-09:5", "06-12:6", "06-13:22", "11-03:15", "11-04:7", "12-31:20"]
+2026 = ["01-01:0", "01-02:8", "01-05:8", "01-06:8", "01-07:1", "01-08:8", "01-09:20", "02-23:2", "03-08:3", "03-09:23", "05-01:4", "05-09:5", "05-11:12", "06-12:6", "11-04:7", "12-31:20"]
+2027 = ["01-01:0", "01-02:8", "01-03:8", "01-04:8", "01-05:8", "01-06:8", "01-07:1", "01-08:8", "02-22:9", "02-23:2", "03-08:3", "05-01:4", "05-03:10", "05-09:5", "05-10:12", "06-12:6", "06-14:13", "11-04:7", "11-05:20", "12-31:20"]
+2028 = ["01-01:0", "01-03:8", "01-04:8", "01-05:8", "01-06:8", "01-07:1", "02-23:2", "03-08:3", "05-01:4", "05-09:5", "06-12:6", "11-04:7", "11-06:19"]
+2029 = ["01-01:0", "01-02:8", "01-03:8", "01-04:8", "01-05:8", "01-07:1", "01-08:8", "02-23:2", "03-08:3", "04-30:11", "05-01:4", "05-09:5", "06-11:24", "06-12:6", "11-04:7", "11-05:19"]
+2030 = ["01-01:0", "01-02:8", "01-03:8", "01-04:8", "01-07:1", "01-08:8", "02-23:2", "02-25:25", "03-08:3", "05-01:4", "05-02:11", "05-03:11", "05-09:5", "06-12:6", "11-04:7"]
+2031 = ["01-01:0", "01-02:8", "01-03:8", "01-06:8", "01-07:1", "01-08:8", "02-23:2", "02-24:25", "03-08:3", "03-10:23", "05-01:4", "05-09:5", "06-12:6", "06-13:24", "11-04:7"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 11.0
+instruction_days = 182
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (high) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

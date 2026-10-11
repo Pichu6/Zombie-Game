@@ -1,0 +1,36 @@
+# Calendar of TTO (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "TTO"
+from = "TTO"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for TTO, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "03-30:1", "05-30:2", "06-19:3", "08-01:4", "08-31:5", "09-24:6", "12-25:7", "12-26:8"]
+easter_western = ["-48:9", "-47:10", "-2:11", "1:12", "60:13"]
+easter_orthodox = []
+names = ["New Year's Day", "Spiritual Baptist Liberation Day", "Indian Arrival Day", "Labour Day", "African Emancipation Day", "Independence Day", "Republic Day", "Christmas Day", "Boxing Day", "Carnival", "Carnival/Shrove Tuesday", "Good Friday", "Easter Monday", "Corpus Christi", "Eid al-Fitr", "Indian Arrival Day observed", "Emancipation Day", "Emancipation Day observed", "Divali", "Boxing Day observed", "Labour Day observed", "Boxing Day / Christmas Day observed", "New Year's Day observed", "Republic Day observed", "Corpus Christi / Indian Arrival Day", "Holiday for Indian Arrival Day and Corpus Christi", "Spiritual Baptist Liberation Day observed", "Corpus Christi / Labour Day", "Independence Day observed", "Divali Holiday", "African Emancipation Day observed", "Spiritual Baptist Liberation Day / Good Friday"]
+
+[holidays.dates]
+2021 = ["01-01:0", "02-15:9", "02-16:10", "03-30:1", "04-02:11", "04-05:12", "05-13:14", "05-30:2", "05-31:15", "06-03:13", "06-19:3", "08-01:16", "08-02:17", "08-31:5", "09-24:6", "11-04:18", "12-25:7", "12-26:8", "12-27:19"]
+2022 = ["01-01:0", "02-28:9", "03-01:10", "03-30:1", "04-15:11", "04-18:12", "05-02:14", "05-30:2", "06-16:13", "06-19:3", "06-20:20", "08-01:16", "08-31:5", "09-24:6", "10-24:18", "12-25:7", "12-26:21"]
+2023 = ["01-01:0", "01-02:22", "02-20:9", "02-21:10", "03-30:1", "04-07:11", "04-10:12", "04-22:14", "05-30:2", "06-08:13", "06-19:3", "08-01:16", "08-31:5", "09-24:6", "09-25:23", "11-12:18", "12-25:7", "12-26:8"]
+2024 = ["01-01:0", "02-12:9", "02-13:10", "03-29:11", "03-30:1", "04-01:12", "04-10:14", "05-30:24", "05-31:25", "06-19:3", "08-01:4", "08-31:5", "09-24:6", "10-31:18", "12-25:7", "12-26:8"]
+2025 = ["01-01:0", "03-03:9", "03-04:10", "03-30:1", "03-31:14", "04-01:26", "04-18:11", "04-21:12", "05-30:2", "06-19:27", "06-20:20", "08-01:4", "08-31:5", "09-01:28", "09-24:6", "10-20:18", "12-25:7", "12-26:8"]
+2026 = ["01-01:0", "02-16:9", "02-17:10", "03-20:14", "03-30:1", "04-03:11", "04-06:12", "05-30:2", "06-04:13", "06-19:3", "08-01:4", "08-31:5", "09-24:6", "11-08:18", "11-09:29", "12-25:7", "12-26:8"]
+2027 = ["01-01:0", "02-08:9", "02-09:10", "03-10:14", "03-26:11", "03-29:12", "03-30:1", "05-27:13", "05-30:2", "05-31:15", "06-19:3", "08-01:4", "08-02:30", "08-31:5", "09-24:6", "12-25:7", "12-26:8", "12-27:19"]
+2028 = ["01-01:0", "02-27:14", "02-28:9", "02-29:10", "03-30:1", "04-14:11", "04-17:12", "05-30:2", "06-15:13", "06-19:3", "08-01:4", "08-31:5", "09-24:6", "09-25:23", "12-25:7", "12-26:8"]
+2029 = ["01-01:0", "02-12:9", "02-13:10", "02-15:14", "03-30:31", "04-02:12", "05-30:2", "05-31:13", "06-19:3", "08-01:4", "08-31:5", "09-24:6", "12-25:7", "12-26:8"]
+2030 = ["01-01:0", "02-05:14", "03-04:9", "03-05:10", "03-30:1", "04-19:11", "04-22:12", "05-30:2", "06-19:3", "06-20:13", "08-01:4", "08-31:5", "09-24:6", "12-25:7", "12-26:8"]
+2031 = ["01-01:0", "01-25:14", "02-24:9", "02-25:10", "03-30:1", "03-31:26", "04-11:11", "04-14:12", "05-30:2", "06-12:13", "06-19:3", "08-01:4", "08-31:5", "09-01:28", "09-24:6", "12-25:7", "12-26:8"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 6.7
+instruction_days = 182
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (high) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

@@ -2,6 +2,7 @@
 // with the census rows as the registry's founders. Spec: docs/tier0/specs/41-one-world.md
 #include <memory>
 
+#include "zs/calendar.h"
 #include "zs/demographics.h"
 #include "zs/economy_system.h"
 #include "zs/grid_system.h"
@@ -113,12 +114,17 @@ void add_world_systems(Tier0& t, const Place& place) {
   auto where = std::make_unique<PlaceSystem>(place);  // spec 42
   t.place = where.get();
   t.power->attach_place(t.place);
+  // Spec 53 rule 10: the calendar of the place's country, from the default start date (decision 0072).
+  auto calendar = std::make_unique<CalendarSystem>(
+      kDefaultStartDay, load_country_calendar(calendar_path(data_dir(), calendar_id(place.profile, place.income))));
+  t.calendar = calendar.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));
   w.add_system(std::move(orders));
   w.add_system(std::move(grids));
   w.add_system(std::move(where));
+  w.add_system(std::move(calendar));
 }
 
 }  // namespace zs::tier0

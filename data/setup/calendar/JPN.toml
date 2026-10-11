@@ -1,0 +1,36 @@
+# Calendar of JPN (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "JPN"
+from = "JPN"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for JPN, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "02-11:1", "02-23:2", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "11-03:7", "11-23:8"]
+easter_western = []
+easter_orthodox = []
+names = ["New Year's Day", "National Foundation Day", "Emperor's Birthday", "Shōwa Day", "Constitution Memorial Day", "Greenery Day", "Children's Day", "Culture Day", "Labor Thanksgiving Day", "Coming of Age Day", "Spring Equinox", "Sea Day", "Sports Day", "Mountain Day", "Day off for Mountain Day", "Respect for the Aged Day", "Autumn Equinox", "Day off for New Year's Day", "National Foundation Day observed", "Children's Day observed", "Autumn Equinox observed", "Culture Day observed", "Emperor's Birthday observed", "Greenery Day observed", "Labor Thanksgiving Day observed", "Constitution Memorial Day observed", "Bridge Public holiday", "Spring Equinox observed", "Shōwa Day observed"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-11:9", "02-11:1", "02-23:2", "03-20:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "07-22:11", "07-23:12", "08-08:13", "08-09:14", "09-20:15", "09-23:16", "11-03:7", "11-23:8"]
+2022 = ["01-01:0", "01-10:9", "02-11:1", "02-23:2", "03-21:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "07-18:11", "08-11:13", "09-19:15", "09-23:16", "10-10:12", "11-03:7", "11-23:8"]
+2023 = ["01-01:0", "01-02:17", "01-09:9", "02-11:1", "02-23:2", "03-21:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "07-17:11", "08-11:13", "09-18:15", "09-23:16", "10-09:12", "11-03:7", "11-23:8"]
+2024 = ["01-01:0", "01-08:9", "02-11:1", "02-12:18", "02-23:2", "03-20:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "05-06:19", "07-15:11", "08-11:13", "08-12:14", "09-16:15", "09-22:16", "09-23:20", "10-14:12", "11-03:7", "11-04:21", "11-23:8"]
+2025 = ["01-01:0", "01-13:9", "02-11:1", "02-23:2", "02-24:22", "03-20:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "05-06:23", "07-21:11", "08-11:13", "09-15:15", "09-23:16", "10-13:12", "11-03:7", "11-23:8", "11-24:24"]
+2026 = ["01-01:0", "01-12:9", "02-11:1", "02-23:2", "03-20:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "05-06:25", "07-20:11", "08-11:13", "09-21:15", "09-22:26", "09-23:16", "10-12:12", "11-03:7", "11-23:8"]
+2027 = ["01-01:0", "01-11:9", "02-11:1", "02-23:2", "03-21:10", "03-22:27", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "07-19:11", "08-11:13", "09-20:15", "09-23:16", "10-11:12", "11-03:7", "11-23:8"]
+2028 = ["01-01:0", "01-10:9", "02-11:1", "02-23:2", "03-20:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "07-17:11", "08-11:13", "09-18:15", "09-22:16", "10-09:12", "11-03:7", "11-23:8"]
+2029 = ["01-01:0", "01-08:9", "02-11:1", "02-12:18", "02-23:2", "03-20:10", "04-29:3", "04-30:28", "05-03:4", "05-04:5", "05-05:6", "07-16:11", "08-11:13", "09-17:15", "09-23:16", "09-24:20", "10-08:12", "11-03:7", "11-23:8"]
+2030 = ["01-01:0", "01-14:9", "02-11:1", "02-23:2", "03-20:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "05-06:19", "07-15:11", "08-11:13", "08-12:14", "09-16:15", "09-23:16", "10-14:12", "11-03:7", "11-04:21", "11-23:8"]
+2031 = ["01-01:0", "01-13:9", "02-11:1", "02-23:2", "02-24:22", "03-21:10", "04-29:3", "05-03:4", "05-04:5", "05-05:6", "05-06:23", "07-21:11", "08-11:13", "09-15:15", "09-23:16", "10-13:12", "11-03:7", "11-23:8", "11-24:24"]
+
+[school]
+first_day = "04-01"
+long_break_weeks = 6.0
+instruction_days = 202
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: OECD-EAG-D1-2025 (sourced); long break: est-UIS end and start months adjacent; long break is mid-year or about 6 weeks at the boundary (estimate); week days: estimate (CK school table)"

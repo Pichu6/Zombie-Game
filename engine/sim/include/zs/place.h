@@ -38,7 +38,7 @@ class PlaceSystem : public System {
   void load(ArchiveReader& r) override;
 
   const Place& place() const { return place_; }
-  // Rule 4: the outdoor temperature now, and today's rain and mean (cached per game day).
+  // Rule 4: the outdoor temperature now, and today's rain and mean (cached per civil day, spec 53).
   double outdoor_c(const World& w) const;
   double today_mean_c(const World& w) const;
   double today_rain_mm(const World& w) const;
@@ -46,10 +46,11 @@ class PlaceSystem : public System {
   double indoor_c(const World& w) const;
 
  private:
-  void refresh(std::int64_t tick) const;
+  void refresh(const World& w) const;
   Place place_;
   // Derived cache, not saved.
-  mutable std::int64_t cached_day_ = -1;
+  static constexpr std::int64_t kNoDay = INT64_MIN;
+  mutable std::int64_t cached_day_ = kNoDay;  // the civil day number (spec 53)
   mutable double mean_c_ = 0, rain_mm_ = 0;
 };
 

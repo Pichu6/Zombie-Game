@@ -1,0 +1,31 @@
+# Calendar of BGD (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "BGD"
+from = "BGD"
+weekend = ["fri", "sat"]
+main_rest_day = "fri"
+short_days = []
+private_week_days = 6
+source = "CK weekend table (GC;ILO12;NEWS-BGD;NG); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=estimate;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for BGD, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["02-21:0", "03-26:1", "04-14:2", "05-01:3", "12-16:4", "12-25:5"]
+easter_western = []
+easter_orthodox = []
+names = ["Language Martyrs' Day", "Independence Day", "Bengali New Year", "May Day", "Victory Day", "Christmas Day", "Sheikh Mujibur Rahman’s birthday", "Shab e-Barat", "Jumatul Bidah", "Shab-e-qadr", "Eid ul-Fitr", "Eid ul-Fitr Holiday", "Buddha Purnima/Vesak", "Public Holiday", "Eid al-Adha Holiday", "Eid al-Adha", "Muharram", "National Mourning Day", "Ashura", "Janmashtami", "Durga Puja", "Eid e-Milad-un Nabi", "Jumatul Bidah / Shab-e-qadr", "Eid ul-Fitr Holiday / Jumatul Bidah", "Election Day", "Extraordinary Holiday", "Student-People Uprising Day", "Mahanabami", "Election Day Holiday", "Jumatul Bidah / Eid ul-Fitr Holiday", "Chaitra Sankranti", "May Day / Buddha Purnima/Vesak", "Durga Puja Holiday", "National Revolution and Solidarity Day"]
+
+[holidays.dates]
+2021 = ["02-21:0", "03-17:6", "03-26:1", "03-30:7", "04-14:2", "05-01:3", "05-07:8", "05-10:9", "05-14:10", "05-15:11", "05-16:11", "05-26:12", "07-01:13", "07-02:13", "07-03:13", "07-04:13", "07-05:13", "07-06:13", "07-07:13", "07-20:14", "07-21:15", "07-22:14", "08-10:16", "08-15:17", "08-20:18", "08-30:19", "10-15:20", "10-20:21", "12-16:4", "12-25:5"]
+2022 = ["02-21:0", "03-17:6", "03-19:7", "03-26:1", "04-14:2", "04-29:22", "05-01:3", "05-02:11", "05-03:10", "05-04:11", "05-15:12", "07-09:14", "07-10:15", "07-11:14", "08-09:18", "08-15:17", "08-18:19", "10-05:20", "10-09:21", "12-16:4", "12-25:5"]
+2023 = ["02-21:0", "03-08:7", "03-17:6", "03-26:1", "04-14:2", "04-19:9", "04-20:11", "04-21:23", "04-22:10", "04-23:11", "05-01:3", "05-04:12", "06-28:14", "06-29:15", "06-30:14", "07-19:16", "07-29:18", "08-15:17", "09-06:19", "09-28:21", "10-24:20", "12-16:4", "12-25:5"]
+2024 = ["01-07:24", "02-21:0", "02-26:7", "03-17:6", "03-26:1", "04-07:9", "04-10:10", "04-12:11", "04-14:2", "05-01:3", "05-23:12", "06-16:14", "06-17:15", "06-18:14", "07-17:18", "07-21:25", "07-22:25", "07-23:25", "08-05:25", "08-26:19", "09-16:21", "10-13:20", "12-16:4", "12-25:5"]
+2025 = ["02-15:7", "02-21:0", "03-26:1", "03-28:9", "03-29:11", "03-30:11", "03-31:10", "04-01:11", "04-02:11", "04-03:11", "04-14:2", "05-01:3", "05-11:12", "06-05:14", "06-06:14", "06-07:15", "06-08:14", "06-09:14", "06-10:14", "07-06:18", "08-05:26", "08-16:19", "09-06:21", "10-01:27", "10-02:20", "12-16:4", "12-25:5"]
+2026 = ["02-04:7", "02-11:24", "02-12:28", "02-21:0", "03-17:9", "03-19:11", "03-20:29", "03-21:10", "03-22:11", "03-23:11", "03-26:1", "04-13:30", "04-14:2", "05-01:31", "05-25:14", "05-26:14", "05-27:14", "05-28:15", "05-29:14", "05-30:14", "05-31:14", "06-17:16", "06-26:18", "08-05:26", "08-26:21", "09-04:19", "10-20:27", "10-21:20", "10-22:32", "11-07:33", "12-16:4", "12-25:5"]
+
+[school]
+first_day = "01-01"
+long_break_weeks = 6.0
+instruction_days = 190
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: est-UIS end and start months adjacent; long break is mid-year or about 6 weeks at the boundary (estimate); week days: estimate (CK school table)"

@@ -1,0 +1,36 @@
+# Calendar of BDI (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "BDI"
+from = "BDI"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for BDI, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "02-05:1", "04-06:2", "05-01:3", "07-01:4", "08-15:5", "10-13:6", "10-21:7", "11-01:8", "12-25:9"]
+easter_western = ["39:10"]
+easter_orthodox = []
+names = ["New Year", "Unity Day", "President Ntaryamira Day", "Labour Day", "Independence Day", "Assumption of Mary", "Prince Louis Rwagasore Day", "President Ndadaye's Day", "All Saints' Day", "Christmas Day", "Ascension Day", "Eid ul Fitr / Ascension Day", "Eid al-Adha", "Eid ul Fitr / Day off for Labour Day", "President Pierre Nkurunziza Day", "Day off for Christmas Day", "Day off for New Year", "Day off for Unity Day", "Eid ul Fitr", "Day off for Prince Louis Rwagasore Day", "Day off for President Ntaryamira Day", "Election Day", "Day off for President Pierre Nkurunziza Day", "Day off for All Saints' Day", "Day off for Assumption of Mary", "Day off for Independence Day", "Day off for President Ndadaye's Day", "Eid ul Fitr / Unity Day"]
+
+[holidays.dates]
+2021 = ["01-01:0", "02-05:1", "04-06:2", "05-01:3", "05-13:11", "07-01:4", "07-20:12", "08-15:5", "10-13:6", "10-21:7", "11-01:8", "12-25:9"]
+2022 = ["01-01:0", "02-05:1", "04-06:2", "05-01:3", "05-02:13", "05-26:10", "06-08:14", "07-01:4", "07-09:12", "08-15:5", "10-13:6", "10-21:7", "11-01:8", "12-25:9", "12-26:15"]
+2023 = ["01-01:0", "01-02:16", "02-05:1", "02-06:17", "04-06:2", "04-21:18", "05-01:3", "05-18:10", "06-08:14", "06-28:12", "07-01:4", "08-15:5", "10-13:6", "10-21:7", "11-01:8", "12-25:9"]
+2024 = ["01-01:0", "02-05:1", "04-06:2", "04-10:18", "05-01:3", "05-09:10", "06-08:14", "06-16:12", "07-01:4", "08-15:5", "10-13:6", "10-14:19", "10-21:7", "11-01:8", "12-25:9"]
+2025 = ["01-01:0", "02-05:1", "03-30:18", "04-06:2", "04-07:20", "05-01:3", "05-29:10", "06-05:21", "06-06:12", "06-08:14", "06-09:22", "07-01:4", "08-15:5", "08-25:21", "10-13:6", "10-21:7", "11-01:8", "12-25:9"]
+2026 = ["01-01:0", "02-05:1", "03-20:18", "04-06:2", "05-01:3", "05-14:10", "05-27:12", "06-08:14", "07-01:4", "08-15:5", "10-13:6", "10-21:7", "11-01:8", "11-02:23", "12-25:9"]
+2027 = ["01-01:0", "02-05:1", "03-10:18", "04-06:2", "05-01:3", "05-06:10", "05-17:12", "06-08:14", "07-01:4", "08-15:5", "08-16:24", "10-13:6", "10-21:7", "11-01:8", "12-25:9"]
+2028 = ["01-01:0", "02-05:1", "02-27:18", "04-06:2", "05-01:3", "05-05:12", "05-25:10", "06-08:14", "07-01:4", "08-15:5", "10-13:6", "10-21:7", "11-01:8", "12-25:9"]
+2029 = ["01-01:0", "02-05:1", "02-15:18", "04-06:2", "04-24:12", "05-01:3", "05-10:10", "06-08:14", "07-01:4", "07-02:25", "08-15:5", "10-13:6", "10-21:7", "10-22:26", "11-01:8", "12-25:9"]
+2030 = ["01-01:0", "02-05:27", "04-06:2", "04-14:12", "05-01:3", "05-30:10", "06-08:14", "07-01:4", "08-15:5", "10-13:6", "10-14:19", "10-21:7", "11-01:8", "12-25:9"]
+2031 = ["01-01:0", "01-25:18", "02-05:1", "04-03:12", "04-06:2", "04-07:20", "05-01:3", "05-22:10", "06-08:14", "06-09:22", "07-01:4", "08-15:5", "10-13:6", "10-21:7", "11-01:8", "12-25:9"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 6.7
+instruction_days = 180
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (low) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

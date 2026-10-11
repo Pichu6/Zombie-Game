@@ -1,0 +1,36 @@
+# Calendar of RWA (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "RWA"
+from = "RWA"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for RWA, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "01-02:1", "02-01:2", "04-07:3", "05-01:4", "07-01:5", "07-04:6", "08-15:7", "12-25:8", "12-26:9"]
+easter_western = ["-2:10", "1:11"]
+easter_orthodox = []
+names = ["New Year", "Day After New Year's Day", "National Heroes' Day", "Genocide Against the Tutsi Memorial Day", "Labor Day", "Independence Day", "Liberation Day", "Assumption of Mary", "Christmas Day", "Boxing Day", "Good Friday", "Easter Monday", "Day After New Year's Day observed", "Labor Day observed", "Eid al-Fitr", "Liberation Day observed", "Eid al-Adha", "Umuganura Day", "Assumption of Mary observed", "Boxing Day observed / Christmas Day observed", "New Year observed", "Labor Day observed / Eid al-Fitr", "Eid al-Fitr observed", "Day off for Eid al-Adha", "Christmas Day observed", "Good Friday / Genocide Against the Tutsi Memorial Day", "Independence Day observed", "Election Day", "Inauguration Day", "National Heroes' Day observed", "Day off for Eid al-Fitr", "Boxing Day observed", "Day off for Christmas Day", "Day off for Boxing Day", "Day After New Year's Day observed / New Year observed"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-02:1", "01-04:12", "02-01:2", "04-02:10", "04-05:11", "04-07:3", "05-01:4", "05-03:13", "05-13:14", "07-01:5", "07-04:6", "07-05:15", "07-20:16", "08-06:17", "08-15:7", "08-16:18", "12-25:8", "12-26:9", "12-27:19"]
+2022 = ["01-01:0", "01-02:1", "01-03:20", "02-01:2", "04-07:3", "04-15:10", "04-18:11", "05-01:4", "05-02:21", "05-03:22", "07-01:5", "07-04:6", "07-09:16", "07-11:23", "08-05:17", "08-15:7", "12-25:8", "12-26:9", "12-27:24"]
+2023 = ["01-01:0", "01-02:1", "01-03:20", "02-01:2", "04-07:25", "04-10:11", "04-21:14", "05-01:4", "06-28:16", "07-01:5", "07-03:26", "07-04:6", "08-04:17", "08-15:7", "12-25:8", "12-26:9"]
+2024 = ["01-01:0", "01-02:1", "02-01:2", "03-29:10", "04-01:11", "04-07:3", "04-08:3", "04-10:14", "05-01:4", "06-16:16", "07-01:5", "07-04:6", "07-15:27", "07-16:27", "08-02:17", "08-12:28", "08-15:7", "12-25:8", "12-26:9"]
+2025 = ["01-01:0", "01-02:1", "02-01:2", "02-03:29", "03-30:14", "03-31:30", "04-07:3", "04-18:10", "04-21:11", "05-01:4", "06-06:16", "07-01:5", "07-04:6", "08-01:17", "08-15:7", "12-25:8", "12-26:9"]
+2026 = ["01-01:0", "01-02:1", "02-01:2", "02-02:29", "03-20:14", "04-03:10", "04-06:11", "04-07:3", "05-01:4", "05-27:16", "07-01:5", "07-04:6", "07-06:15", "08-07:17", "08-15:7", "08-17:18", "12-25:8", "12-26:9", "12-28:31"]
+2027 = ["01-01:0", "01-02:1", "01-04:12", "02-01:2", "03-10:14", "03-26:10", "03-29:11", "04-07:3", "05-01:4", "05-03:13", "05-17:16", "07-01:5", "07-04:6", "07-05:15", "08-06:17", "08-15:7", "08-16:18", "12-25:8", "12-26:9", "12-27:32", "12-28:33"]
+2028 = ["01-01:0", "01-02:1", "01-03:34", "02-01:2", "02-27:14", "02-28:22", "04-07:3", "04-14:10", "04-17:11", "05-01:4", "05-05:16", "07-01:5", "07-03:26", "07-04:6", "08-04:17", "08-15:7", "12-25:8", "12-26:9"]
+2029 = ["01-01:0", "01-02:1", "02-01:2", "02-15:14", "03-30:10", "04-02:11", "04-07:3", "04-24:16", "05-01:4", "07-01:5", "07-02:26", "07-04:6", "08-03:17", "08-15:7", "12-25:8", "12-26:9"]
+2030 = ["01-01:0", "01-02:1", "02-01:2", "02-05:14", "04-07:3", "04-14:16", "04-19:10", "04-22:11", "05-01:4", "07-01:5", "07-04:6", "08-02:17", "08-15:7", "12-25:8", "12-26:9"]
+2031 = ["01-01:0", "01-02:1", "01-25:14", "01-27:22", "02-01:2", "02-03:29", "04-03:16", "04-07:3", "04-11:10", "04-14:11", "05-01:4", "07-01:5", "07-04:6", "08-01:17", "08-15:7", "12-25:8", "12-26:9"]
+
+[school]
+first_day = "01-01"
+long_break_weeks = 11.0
+instruction_days = 180
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (low) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

@@ -1,0 +1,31 @@
+# Calendar of BTN (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "BTN"
+from = "BTN"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=estimate;workweek=estimate;hours=none;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for BTN, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["02-21:0", "02-22:1", "02-23:1", "05-02:2", "11-01:3", "11-11:4", "12-17:5"]
+easter_western = []
+easter_orthodox = []
+names = ["King's Birthday", "King's Birthday Holiday", "Birth Anniversary of Third Druk Gyalpo", "King Jigme Khesar Namgyel's Coronation", "Birth Anniversary of the Fourth Druk Gyalpo", "National Day", "Winter Solstice (Nyilo)", "Traditional Day of Offerings", "Losar (New Year)", "Losar Holiday", "Death Anniversary of Zhabdrung (Zhabdrung Kuchoe)", "Buddha's Parinirvana", "Birth Anniversary of Guru Rinpoche", "Buddha's First Sermon", "Blessed Rainy Day", "Dashain", "Descending Day of Lord Buddha", "Losar (New Year) / King's Birthday", "Losar Holiday / King's Birthday Holiday", "Election Day", "Descending Day of Lord Buddha / Birth Anniversary of the Fourth Druk Gyalpo", "King Jigme Khesar Namgyel's Coronation / Descending Day of Lord Buddha"]
+
+[holidays.dates]
+2021 = ["01-02:6", "01-14:7", "02-12:8", "02-13:9", "02-21:0", "02-22:1", "02-23:1", "04-22:10", "05-02:2", "05-26:11", "06-20:12", "07-14:13", "09-23:14", "10-15:15", "10-27:16", "11-01:3", "11-11:4", "12-17:5"]
+2022 = ["01-01:6", "02-02:7", "02-21:0", "02-22:1", "02-23:1", "03-03:8", "03-04:9", "05-02:2", "05-11:10", "06-14:11", "07-09:12", "08-01:13", "09-23:14", "10-05:15", "11-01:3", "11-11:4", "11-15:16", "12-17:5"]
+2023 = ["01-02:6", "01-22:7", "02-21:17", "02-22:18", "02-23:1", "04-20:19", "04-30:10", "05-02:2", "06-04:11", "06-28:12", "07-21:13", "09-24:14", "10-24:15", "11-01:3", "11-04:16", "11-11:4", "12-17:5"]
+2024 = ["01-03:6", "01-12:7", "02-10:8", "02-11:9", "02-21:0", "02-22:1", "02-23:1", "04-18:10", "05-02:2", "05-23:11", "06-16:12", "07-10:13", "09-23:14", "10-12:15", "11-01:3", "11-11:4", "11-22:16", "12-17:5"]
+2025 = ["01-02:6", "01-30:7", "02-21:0", "02-22:1", "02-23:1", "02-28:8", "03-01:9", "05-02:2", "05-07:10", "06-11:11", "07-05:12", "07-28:13", "09-23:14", "10-02:15", "11-01:3", "11-11:20", "12-17:5"]
+2026 = ["01-02:6", "01-19:7", "02-18:8", "02-19:9", "02-21:0", "02-22:1", "02-23:1", "04-26:10", "05-02:2", "05-31:11", "06-24:12", "07-18:13", "09-23:14", "10-21:15", "11-01:21", "11-11:4", "12-17:5"]
+
+[school]
+first_day = "03-01"
+long_break_weeks = 11.0
+instruction_days = 190
+week_days = 6
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

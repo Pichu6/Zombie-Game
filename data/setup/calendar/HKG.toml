@@ -1,0 +1,36 @@
+# Calendar of HKG (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "HKG"
+from = "HKG"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 6
+source = "CK weekend table (GC;NG;W1;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=reported;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for HKG, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "05-01:1", "07-01:2", "10-01:3"]
+easter_western = ["-2:4", "-1:5", "1:6"]
+easter_orthodox = []
+names = ["New Year's Day", "Labour Day", "Hong Kong Special Administrative Region Establishment Day", "National Day", "Good Friday", "Holy Saturday", "Easter Monday", "Lunar New Year's Day", "Second Day of Lunar New Year", "Fourth Day of Lunar New Year", "The Day Following Tomb Sweeping Day", "The Day Following Easter Monday", "Buddha's Birthday", "Dragon Boat Festival", "Day after Mid-Autumn Festival", "Chung Yeung Festival", "Christmas Day", "First Weekday After Christmas Day", "Third Day of Lunar New Year", "Tomb Sweeping Day", "Labour Day observed", "Day following Buddha's Birthday", "Second Weekday After Christmas Day", "New Year's Day observed", "National Day observed", "Easter Monday / Day off for Tomb Sweeping Day", "Day off for Easter Monday", "Day off for Chung Yeung Festival", "Hong Kong Special Administrative Region Establishment Day observed"]
+
+[holidays.dates]
+2021 = ["01-01:0", "02-12:7", "02-13:8", "02-15:9", "04-02:4", "04-03:5", "04-05:10", "04-06:11", "05-01:1", "05-19:12", "06-14:13", "07-01:2", "09-22:14", "10-01:3", "10-14:15", "12-25:16", "12-27:17"]
+2022 = ["01-01:0", "02-01:7", "02-02:8", "02-03:18", "04-05:19", "04-15:4", "04-16:5", "04-18:6", "05-01:1", "05-02:20", "05-08:12", "05-09:21", "06-03:13", "07-01:2", "09-12:14", "10-01:3", "10-04:15", "12-26:17", "12-27:22"]
+2023 = ["01-01:0", "01-02:23", "01-22:7", "01-23:8", "01-24:18", "01-25:9", "04-05:19", "04-07:4", "04-08:5", "04-10:6", "05-01:1", "05-26:12", "06-22:13", "07-01:2", "09-30:14", "10-01:3", "10-02:24", "10-23:15", "12-25:16", "12-26:17"]
+2024 = ["01-01:0", "02-10:7", "02-12:18", "02-13:9", "03-29:4", "03-30:5", "04-01:6", "04-04:19", "05-01:1", "05-15:12", "06-10:13", "07-01:2", "09-18:14", "10-01:3", "10-11:15", "12-25:16", "12-26:17"]
+2025 = ["01-01:0", "01-29:7", "01-30:8", "01-31:18", "04-04:19", "04-18:4", "04-19:5", "04-21:6", "05-01:1", "05-05:12", "05-31:13", "07-01:2", "10-01:3", "10-07:14", "10-29:15", "12-25:16", "12-26:17"]
+2026 = ["01-01:0", "02-17:7", "02-18:8", "02-19:18", "04-03:4", "04-04:5", "04-05:19", "04-06:25", "04-07:26", "05-01:1", "05-24:12", "05-25:21", "06-19:13", "07-01:2", "09-26:14", "10-01:3", "10-18:15", "10-19:27", "12-25:16", "12-26:17"]
+2027 = ["01-01:0", "02-06:7", "02-07:8", "02-08:18", "02-09:9", "03-26:4", "03-27:5", "03-29:6", "04-05:19", "05-01:1", "05-13:12", "06-09:13", "07-01:2", "09-16:14", "10-01:3", "10-08:15", "12-25:16", "12-27:17"]
+2028 = ["01-01:0", "01-26:7", "01-27:8", "01-28:18", "04-04:19", "04-14:4", "04-15:5", "04-17:6", "05-01:1", "05-02:12", "05-29:13", "07-01:2", "10-01:3", "10-02:24", "10-04:14", "10-26:15", "12-25:16", "12-26:17"]
+2029 = ["01-01:0", "02-13:7", "02-14:8", "02-15:18", "03-30:4", "03-31:5", "04-02:6", "04-05:19", "05-01:1", "05-20:12", "05-21:21", "06-16:13", "07-01:2", "07-02:28", "09-22:14", "10-01:3", "10-16:15", "12-25:16", "12-26:17"]
+2030 = ["01-01:0", "02-02:7", "02-04:8", "02-05:18", "04-05:19", "04-19:4", "04-20:5", "04-22:6", "05-01:1", "05-09:12", "06-05:13", "07-01:2", "09-13:14", "10-01:3", "10-05:15", "12-25:16", "12-26:17"]
+2031 = ["01-01:0", "01-23:7", "01-24:8", "01-25:18", "04-05:19", "04-11:4", "04-12:5", "04-14:6", "05-01:1", "05-28:12", "06-24:13", "07-01:2", "10-01:3", "10-02:14", "10-24:15", "12-25:16", "12-26:17"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 6.7
+instruction_days = 182
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (high) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

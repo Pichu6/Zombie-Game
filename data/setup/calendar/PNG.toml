@@ -1,0 +1,36 @@
+# Calendar of PNG (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "PNG"
+from = "PNG"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG); research note calendars-school-and-clock-hours"
+confidence = "weekend=estimate;workweek=estimate;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for PNG, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5"]
+easter_western = ["-2:6", "-1:7", "0:8", "1:9"]
+easter_orthodox = []
+names = ["New Year's Day", "National Remembrance Day", "National Day of Repentance", "Independence Day", "Christmas Day", "Boxing Day", "Good Friday", "Holy Saturday", "Easter Sunday", "Easter Monday", "Mourning of Grand Chief Sir Michael Somare", "State funeral of Grand Chief Sir Michael Somare", "Queen Elizabeth II's Birthday", "Day off for Boxing Day", "Day off for National Remembrance Day", "Funeral of Queen Elizabeth II", "Day off for Christmas Day", "Day off for New Year's Day", "Public Holiday", "King's Birthday", "Day off for Independence Day"]
+
+[holidays.dates]
+2021 = ["01-01:0", "03-01:10", "03-12:11", "04-02:6", "04-03:7", "04-04:8", "04-05:9", "06-07:12", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5", "12-27:13"]
+2022 = ["01-01:0", "02-26:1", "02-28:14", "04-15:6", "04-16:7", "04-17:8", "04-18:9", "06-13:12", "07-23:1", "08-26:2", "09-16:3", "09-19:15", "12-25:4", "12-26:5", "12-27:16"]
+2023 = ["01-01:0", "01-02:17", "02-24:14", "02-26:1", "04-07:6", "04-08:7", "04-09:8", "04-10:9", "04-18:18", "06-16:19", "07-23:1", "07-24:14", "08-26:2", "09-15:20", "09-16:3", "12-25:4", "12-26:5"]
+2024 = ["01-01:0", "02-26:1", "03-29:6", "03-30:7", "03-31:8", "04-01:9", "06-17:19", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5"]
+2025 = ["01-01:0", "02-26:1", "04-18:6", "04-19:7", "04-20:8", "04-21:9", "06-17:19", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5"]
+2026 = ["01-01:0", "02-26:1", "04-03:6", "04-04:7", "04-05:8", "04-06:9", "06-17:19", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5"]
+2027 = ["01-01:0", "03-26:6", "03-27:7", "03-28:8", "03-29:9", "06-17:19", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5", "12-27:13"]
+2028 = ["01-01:0", "04-14:6", "04-15:7", "04-16:8", "04-17:9", "06-17:19", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5"]
+2029 = ["01-01:0", "03-30:6", "03-31:7", "04-01:8", "04-02:9", "06-17:19", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5"]
+2030 = ["01-01:0", "04-19:6", "04-20:7", "04-21:8", "04-22:9", "06-17:19", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5"]
+2031 = ["01-01:0", "04-11:6", "04-12:7", "04-13:8", "04-14:9", "06-17:19", "07-23:1", "08-26:2", "09-16:3", "12-25:4", "12-26:5"]
+
+[school]
+first_day = "01-01"
+long_break_weeks = 6.0
+instruction_days = 190
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: est-UIS end and start months adjacent; long break is mid-year or about 6 weeks at the boundary (estimate); week days: estimate (CK school table)"

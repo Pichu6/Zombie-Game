@@ -1,0 +1,36 @@
+# Calendar of MLT (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "MLT"
+from = "MLT"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for MLT, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+easter_western = ["-2:13"]
+easter_orthodox = []
+names = ["New Year's Day", "Feast of Saint Paul's Shipwreck", "Feast of Saint Joseph", "Freedom Day", "Labour Day/May Day", "Sette Giugno", "Feast of Saints Peter and Paul", "The Feast of Mary's Assumption", "Our Lady of Victories", "Independence Day", "Feast of the Immaculate Conception", "Republic Day", "Christmas Day", "Good Friday"]
+
+[holidays.dates]
+2021 = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "04-02:13", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2022 = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "04-15:13", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2023 = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "04-07:13", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2024 = ["01-01:0", "02-10:1", "03-19:2", "03-29:13", "03-31:3", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2025 = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "04-18:13", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2026 = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "04-03:13", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2027 = ["01-01:0", "02-10:1", "03-19:2", "03-26:13", "03-31:3", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2028 = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "04-14:13", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2029 = ["01-01:0", "02-10:1", "03-19:2", "03-30:13", "03-31:3", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2030 = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "04-19:13", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+2031 = ["01-01:0", "02-10:1", "03-19:2", "03-31:3", "04-11:13", "05-01:4", "06-07:5", "06-29:6", "08-15:7", "09-08:8", "09-21:9", "12-08:10", "12-13:11", "12-25:12"]
+
+[school]
+first_day = "09-27"
+long_break_weeks = 13.0
+instruction_days = 168
+week_days = 5
+source = "first day: sourced: Eurydice 2023/24 first day (CK-210); instruction days: EURY-CAL-2023 weekdays start..end minus listed holidays (derived); long break: EURY-CAL-2023 end date to same start date next year (derived); week days: estimate (CK school table)"

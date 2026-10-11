@@ -69,9 +69,8 @@ TEST_CASE("weather: a year's daily means average to the climate's mean exactly; 
   }
   CHECK(near < far);
   // The hour: warmest mid-afternoon, coldest small hours, around the daily mean.
-  const std::int64_t day = 100 * kTicksPerGameDay;
-  const double t03 = temperature_c(5, 1, temperate, day + 3 * kTicksPerGameHour);
-  const double t15 = temperature_c(5, 1, temperate, day + 15 * kTicksPerGameHour);
+  const double t03 = temperature_c(5, 1, temperate, TimeOfYear{0, 100, 3.0});
+  const double t15 = temperature_c(5, 1, temperate, TimeOfYear{0, 100, 15.0});
   const double mean = daily_mean_c(5, 1, temperate, 0, 100);
   CHECK(t15 > mean);
   CHECK(t03 < mean);

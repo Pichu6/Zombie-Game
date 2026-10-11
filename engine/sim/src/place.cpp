@@ -1,6 +1,7 @@
 // The block's place and its weather. Spec: docs/tier0/specs/42-place.md
 #include "zs/place.h"
 
+#include "zs/calendar.h"
 #include "zs/clock.h"
 
 namespace zs {
@@ -49,29 +50,36 @@ void PlaceSystem::load(ArchiveReader& r) {
   place_.income = r.str();
   place_.profile = r.str();
   place_.country_name = r.str();
-  cached_day_ = -1;
+  cached_day_ = kNoDay;
 }
 
-void PlaceSystem::refresh(std::int64_t tick) const {
-  const std::int64_t day = tick / kTicksPerGameDay;
-  if (day == cached_day_) return;
-  const fields::TimeOfYear t = fields::time_of_year(tick);
+namespace {
+// Spec 53 rule 4: the weather reads civil time.
+fields::TimeOfYear weather_now(const CivilTime& t) {
+  return fields::weather_time(t.date.year, t.day_of_year, is_leap_year(t.date.year), t.hour);
+}
+}  // namespace
+
+void PlaceSystem::refresh(const World& w) const {
+  const CivilTime now = civil_now(w);
+  if (now.day_number == cached_day_) return;
+  const fields::TimeOfYear t = weather_now(now);
   mean_c_ = fields::daily_mean_c(place_.world_seed, place_.cell, place_.climate, t.year, t.day);
   rain_mm_ = fields::rain_day_mm(place_.world_seed, place_.cell, place_.climate, t.year, t.day);
-  cached_day_ = day;
+  cached_day_ = now.day_number;
 }
 
 double PlaceSystem::outdoor_c(const World& w) const {
-  return fields::temperature_c(place_.world_seed, place_.cell, place_.climate, w.clock.tick);
+  return fields::temperature_c(place_.world_seed, place_.cell, place_.climate, weather_now(civil_now(w)));
 }
 
 double PlaceSystem::today_mean_c(const World& w) const {
-  refresh(w.clock.tick);
+  refresh(w);
   return mean_c_;
 }
 
 double PlaceSystem::today_rain_mm(const World& w) const {
-  refresh(w.clock.tick);
+  refresh(w);
   return rain_mm_;
 }
 

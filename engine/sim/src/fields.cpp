@@ -49,13 +49,11 @@ double coarsen(std::span<const double> values, std::span<const double> weights) 
 
 // ---- Weather
 
-TimeOfYear time_of_year(std::int64_t tick) {
-  const std::int64_t day_abs = tick / kTicksPerGameDay;
-  const std::int64_t in_day = tick - day_abs * kTicksPerGameDay;
+TimeOfYear weather_time(int year, int day_of_year, bool leap_year, double hour) {
   TimeOfYear t;
-  t.year = day_abs / kDaysPerYear;
-  t.day = static_cast<int>(day_abs - t.year * kDaysPerYear);
-  t.hour = static_cast<double>(in_day) / static_cast<double>(kTicksPerGameHour);
+  t.year = year;
+  t.day = leap_year && day_of_year >= 59 ? day_of_year - 1 : day_of_year;  // 29 February (58) repeats 28 February
+  t.hour = hour;
   return t;
 }
 
@@ -94,8 +92,7 @@ double daily_mean_c(std::uint64_t seed, std::uint64_t cell, const Climate& c, st
   return c.temp_mean_c + seasonal_c(c, day) + a[static_cast<std::size_t>(day)];
 }
 
-double temperature_c(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t tick) {
-  const TimeOfYear t = time_of_year(tick);
+double temperature_c(std::uint64_t seed, std::uint64_t cell, const Climate& c, const TimeOfYear& t) {
   const double diurnal_amp = 0.15 * c.temp_range_c + 2.0;  // placeholder: 2 °C plus a share of the seasonal swing
   const double diurnal = diurnal_amp * detmath::cos(2.0 * detmath::pi * (t.hour - 15.0) / 24.0);  // warmest 15:00, coldest 03:00
   return daily_mean_c(seed, cell, c, t.year, t.day) + diurnal;

@@ -40,7 +40,9 @@ struct TimeOfYear {
   int day;      // 0..364
   double hour;  // 0..24
 };
-TimeOfYear time_of_year(std::int64_t tick);
+// Spec 53 rule 4: the weather's time for a civil date and hour (calendar.h gives them). A weather year is 365 days: in a
+// leap year 29 February repeats 28 February (weather day 58) and later days shift back by one.
+TimeOfYear weather_time(int year, int day_of_year, bool leap_year, double hour);
 
 // Daily mean temperature for a day: seasonal cosine plus a keyed anomaly; the 365 anomalies of a year sum to zero,
 // so the year's mean of daily means equals temp_mean_c exactly (A1). Anomalies are smoothed over neighbouring days
@@ -48,12 +50,13 @@ TimeOfYear time_of_year(std::int64_t tick);
 double daily_mean_c(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t year, int day);
 // Temperature at an hour: the daily mean plus a diurnal cosine (coldest about 03:00, warmest about 15:00), whose
 // amplitude is a share of the seasonal range (the dry-continental swing is wider; a placeholder).
-double temperature_c(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t tick);
+double temperature_c(std::uint64_t seed, std::uint64_t cell, const Climate& c, const TimeOfYear& t);
 
 // Rain on a day: keyed wet days (about a third, wetter cells wetter) with keyed amounts, the whole year normalised
 // so the 365 days sum to rain_mm exactly (A1). Zero if the climate has no rain.
 double rain_day_mm(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t year, int day);
-// Rain between two ticks: each day's rain falls evenly through the day, so any partition sums to the same total.
+// Rain between two ticks of the weather's own timeline (tick 0 is midnight of weather day 0 of weather year 0; it is
+// not the world's clock): each day's rain falls evenly through the day, so any partition sums to the same total.
 double rain_between_mm(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t from_tick, std::int64_t to_tick);
 
 // ---- Ambient noise: sources at a distance summed by energy into one level (spec 18 rule 1 with spherical spreading).

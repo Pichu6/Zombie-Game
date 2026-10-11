@@ -1,0 +1,36 @@
+# Calendar of EGY (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "EGY"
+from = "EGY"
+weekend = ["fri", "sat"]
+main_rest_day = "fri"
+short_days = []
+private_week_days = 6
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=estimate;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for EGY, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-07:0", "01-25:1", "04-25:2", "06-30:3", "10-06:4"]
+easter_western = []
+easter_orthodox = ["1:5"]
+names = ["Coptic Christmas Day", "Revolution Day January 25", "Sinai Liberation Day", "June 30 Revolution", "Armed Forces Day", "Spring Festival", "January 1 Bank Holiday", "Day off for Revolution Day January 25", "Day off for Sinai Liberation Day", "Labor Day", "Eid el Fitr Holiday", "Eid el Fitr", "Day off for June 30 Revolution / July 1 Bank Holiday", "Eid al-Adha Holiday", "Arafat Day", "Eid al-Adha", "Revolution Day July 23 / Eid al-Adha Holiday", "Muharram", "Day off for Armed Forces Day", "Prophet Mohamed's Birthday", "Day off for Coptic Christmas Day", "Spring Festival / Sinai Liberation Day", "Eid al-Adha Public Sector Holiday", "Revolution Day July 23", "Day off for Labor Day", "June 30 Revolution / Eid al-Adha Holiday", "Day off for June 30 Revolution", "Public Holiday", "Day off for Muharram", "Labor Day Holiday", "Day off for Revolution Day July 23", "Grand Egyptian Museum Opening Holiday", "Prophet Mohamed's Birthday Holiday", "Sinai Liberation Day / Eid al-Adha", "Eid el Fitr Holiday / Eid el Fitr", "Revolution Day January 25 / Eid el Fitr", "Day off for June 30 Revolution / Prophet Mohamed's Birthday"]
+
+[holidays.dates]
+2021 = ["01-01:6", "01-07:0", "01-25:1", "01-28:7", "04-25:2", "04-29:8", "05-01:9", "05-03:5", "05-12:10", "05-13:11", "05-14:10", "05-15:10", "05-16:10", "06-30:3", "07-01:12", "07-17:13", "07-18:13", "07-19:14", "07-20:15", "07-21:13", "07-22:13", "07-23:16", "07-24:13", "08-12:17", "10-06:4", "10-07:18", "10-21:19"]
+2022 = ["01-06:20", "01-07:0", "01-25:1", "01-27:7", "04-25:21", "04-30:10", "05-01:9", "05-02:11", "05-03:10", "05-04:10", "05-05:10", "06-30:3", "07-08:14", "07-09:15", "07-10:13", "07-11:13", "07-12:13", "07-13:22", "07-14:22", "07-23:23", "07-30:17", "10-06:4", "10-08:19"]
+2023 = ["01-07:0", "01-25:1", "01-26:7", "04-17:5", "04-20:10", "04-21:11", "04-22:10", "04-23:10", "04-24:10", "04-25:2", "05-01:9", "05-04:24", "06-27:14", "06-28:15", "06-29:13", "06-30:25", "07-01:13", "07-02:26", "07-03:27", "07-19:17", "07-20:28", "07-23:23", "09-28:19", "10-05:18", "10-06:4"]
+2024 = ["01-07:0", "01-25:1", "04-09:10", "04-10:11", "04-11:10", "04-12:10", "04-13:10", "04-14:10", "04-25:2", "05-02:9", "05-05:29", "05-06:5", "06-15:14", "06-16:15", "06-17:13", "06-18:13", "06-19:13", "06-20:13", "06-30:3", "07-11:28", "07-25:30", "09-15:19", "10-06:4"]
+2025 = ["01-07:0", "01-25:1", "03-29:10", "03-30:10", "03-31:11", "04-01:10", "04-02:10", "04-21:5", "04-24:8", "04-25:2", "05-01:9", "06-05:14", "06-06:15", "06-07:13", "06-08:13", "06-09:13", "06-26:17", "06-30:3", "07-03:26", "07-24:30", "09-04:19", "10-06:4", "10-09:18", "11-01:31"]
+2026 = ["01-07:0", "01-25:1", "01-29:7", "03-19:10", "03-20:11", "03-21:10", "03-22:10", "03-23:10", "04-13:5", "04-25:2", "05-01:9", "05-26:14", "05-27:15", "05-28:13", "05-29:13", "05-30:13", "05-31:13", "06-18:28", "06-30:3", "07-02:26", "07-23:23", "08-27:32", "10-06:4", "10-08:18"]
+2027 = ["01-07:0", "01-25:1", "01-28:7", "03-10:11", "03-11:10", "03-12:10", "04-25:2", "05-01:9", "05-03:5", "05-16:14", "05-17:15", "05-18:13", "05-19:13", "06-07:17", "06-30:3", "07-01:26", "07-23:23", "08-15:19", "10-06:4", "10-07:18"]
+2028 = ["01-07:0", "01-25:1", "01-27:7", "02-27:11", "02-28:10", "02-29:10", "04-17:5", "04-25:2", "05-01:9", "05-05:14", "05-06:15", "05-07:13", "05-08:13", "05-26:17", "06-30:3", "07-23:23", "07-27:30", "08-04:19", "10-06:4"]
+2029 = ["01-07:0", "01-25:1", "02-15:11", "02-16:10", "02-17:10", "04-09:5", "04-24:14", "04-25:33", "04-26:13", "04-27:13", "05-01:9", "05-15:17", "06-30:3", "07-23:23", "07-25:19", "07-26:30", "10-06:4"]
+2030 = ["01-07:0", "01-25:1", "02-05:34", "02-07:10", "04-13:14", "04-14:15", "04-15:13", "04-16:13", "04-25:2", "04-29:5", "05-01:9", "05-05:17", "06-30:3", "07-04:26", "07-14:19", "07-25:30", "10-06:4", "10-10:18"]
+2031 = ["01-07:0", "01-25:35", "01-26:10", "01-27:10", "04-02:14", "04-03:15", "04-04:13", "04-05:13", "04-14:5", "04-24:17", "04-25:2", "05-01:9", "06-30:3", "07-03:36", "07-23:23", "07-24:30", "10-06:4", "10-09:18"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 11.0
+instruction_days = 190
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

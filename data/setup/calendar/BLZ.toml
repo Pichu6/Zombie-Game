@@ -1,0 +1,36 @@
+# Calendar of BLZ (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "BLZ"
+from = "BLZ"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG); research note calendars-school-and-clock-hours"
+confidence = "weekend=estimate;workweek=estimate;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for BLZ, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "01-15:1", "03-09:2", "05-01:3", "08-01:4", "09-10:5", "09-21:6", "10-12:7", "11-19:8", "12-25:9", "12-26:10"]
+easter_western = ["-2:11", "-1:12", "1:13"]
+easter_orthodox = []
+names = ["New Year's Day", "George Price Day", "National Heroes and Benefactors Day", "Labor Day", "Emancipation Day", "St. George's Caye Day", "Independence Day", "El Día de la Raza", "Garifuna Settlement Day", "Christmas Day", "Boxing Day", "Good Friday", "Holy Saturday", "Easter Monday", "Day off for National Heroes and Benefactors Day", "Commonwealth Day", "Day off for Emancipation Day", "Day off for El Día de la Raza", "Day off for Boxing Day", "Day off for Labor Day", "Queen Elizabeth II's Funeral Day", "Day off for New Year's Day", "Day off for George Price Day", "Day off for St. George's Caye Day", "Day off for Garifuna Settlement Day", "Day off for Independence Day"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-15:1", "03-08:14", "03-09:2", "04-02:11", "04-03:12", "04-05:13", "05-01:3", "05-24:15", "08-01:4", "08-02:16", "09-10:5", "09-21:6", "10-11:17", "10-12:7", "11-19:8", "12-25:9", "12-26:10", "12-27:18"]
+2022 = ["01-01:0", "01-15:1", "03-07:14", "03-09:2", "04-15:11", "04-16:12", "04-18:13", "05-01:3", "05-02:19", "08-01:4", "09-10:5", "09-19:20", "09-21:6", "10-10:17", "10-12:7", "11-19:8", "12-25:9", "12-26:10"]
+2023 = ["01-01:0", "01-02:21", "01-15:1", "01-16:22", "03-06:14", "03-09:2", "04-07:11", "04-08:12", "04-10:13", "05-01:3", "07-31:16", "08-01:4", "09-10:5", "09-11:23", "09-21:6", "10-09:17", "10-12:7", "11-19:8", "11-20:24", "12-25:9", "12-26:10"]
+2024 = ["01-01:0", "01-15:1", "03-09:2", "03-11:14", "03-29:11", "03-30:12", "04-01:13", "04-29:19", "05-01:3", "08-01:4", "09-10:5", "09-21:6", "10-12:7", "10-14:17", "11-19:8", "12-25:9", "12-26:10"]
+2025 = ["01-01:0", "01-15:1", "03-09:2", "03-10:14", "04-18:11", "04-19:12", "04-21:13", "05-01:3", "08-01:4", "09-10:5", "09-21:6", "09-22:25", "10-12:7", "10-13:17", "11-19:8", "12-25:9", "12-26:10"]
+2026 = ["01-01:0", "01-15:1", "03-09:2", "04-03:11", "04-04:12", "04-06:13", "05-01:3", "08-01:4", "09-10:5", "09-21:6", "10-12:7", "11-19:8", "12-25:9", "12-26:10"]
+2027 = ["01-01:0", "01-15:1", "03-08:14", "03-09:2", "03-26:11", "03-27:12", "03-29:13", "05-01:3", "08-01:4", "08-02:16", "09-10:5", "09-21:6", "10-11:17", "10-12:7", "11-19:8", "12-25:9", "12-26:10", "12-28:18"]
+2028 = ["01-01:0", "01-15:1", "03-06:14", "03-09:2", "04-14:11", "04-15:12", "04-17:13", "05-01:3", "08-01:4", "09-10:5", "09-11:23", "09-21:6", "10-09:17", "10-12:7", "11-19:8", "11-20:24", "12-25:9", "12-26:10"]
+2029 = ["01-01:0", "01-15:1", "03-09:2", "03-12:14", "03-30:11", "03-31:12", "04-02:13", "05-01:3", "08-01:4", "09-10:5", "09-21:6", "10-12:7", "10-15:17", "11-19:8", "12-25:9", "12-26:10"]
+2030 = ["01-01:0", "01-15:1", "03-09:2", "03-11:14", "04-19:11", "04-20:12", "04-22:13", "05-01:3", "08-01:4", "09-10:5", "09-21:6", "10-12:7", "10-14:17", "11-19:8", "12-25:9", "12-26:10"]
+2031 = ["01-01:0", "01-15:1", "03-09:2", "03-10:14", "04-11:11", "04-12:12", "04-14:13", "05-01:3", "08-01:4", "09-10:5", "09-21:6", "09-22:25", "10-12:7", "10-13:17", "11-19:8", "12-25:9", "12-26:10"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 6.0
+instruction_days = 185
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (upper_middle) (estimate); long break: est-UIS end and start months adjacent; long break is mid-year or about 6 weeks at the boundary (estimate); week days: estimate (CK school table)"

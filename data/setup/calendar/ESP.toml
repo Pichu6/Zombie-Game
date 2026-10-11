@@ -1,0 +1,36 @@
+# Calendar of ESP (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "ESP"
+from = "ESP"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for ESP, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-06:0"]
+easter_western = ["-2:1"]
+easter_orthodox = []
+names = ["Epiphany", "Good Friday", "New Year's Day", "Labor Day", "Hispanic Day", "All Saints' Day", "Constitution Day", "Immaculate Conception", "Christmas Day", "Assumption of Mary"]
+
+[holidays.dates]
+2021 = ["01-01:2", "01-06:0", "04-02:1", "05-01:3", "10-12:4", "11-01:5", "12-06:6", "12-08:7", "12-25:8"]
+2022 = ["01-01:2", "01-06:0", "04-15:1", "08-15:9", "10-12:4", "11-01:5", "12-06:6", "12-08:7"]
+2023 = ["01-06:0", "04-07:1", "05-01:3", "08-15:9", "10-12:4", "11-01:5", "12-06:6", "12-08:7", "12-25:8"]
+2024 = ["01-01:2", "01-06:0", "03-29:1", "05-01:3", "08-15:9", "10-12:4", "11-01:5", "12-06:6", "12-25:8"]
+2025 = ["01-01:2", "01-06:0", "04-18:1", "05-01:3", "08-15:9", "11-01:5", "12-06:6", "12-08:7", "12-25:8"]
+2026 = ["01-01:2", "01-06:0", "04-03:1", "05-01:3", "08-15:9", "10-12:4", "12-08:7", "12-25:8"]
+2027 = ["01-01:2", "01-06:0", "03-26:1", "05-01:3", "10-12:4", "11-01:5", "12-06:6", "12-08:7", "12-25:8"]
+2028 = ["01-01:2", "01-06:0", "04-14:1", "05-01:3", "08-15:9", "10-12:4", "11-01:5", "12-06:6", "12-08:7", "12-25:8"]
+2029 = ["01-01:2", "01-06:0", "03-30:1", "05-01:3", "08-15:9", "10-12:4", "11-01:5", "12-06:6", "12-08:7", "12-25:8"]
+2030 = ["01-01:2", "01-06:0", "04-19:1", "05-01:3", "08-15:9", "10-12:4", "11-01:5", "12-06:6", "12-08:7", "12-25:8"]
+2031 = ["01-01:2", "01-06:0", "04-11:1", "05-01:3", "08-15:9", "10-12:4", "11-01:5", "12-06:6", "12-08:7", "12-25:8"]
+
+[school]
+first_day = "09-11"
+long_break_weeks = 11.1
+instruction_days = 175
+week_days = 5
+source = "first day: sourced: Eurydice 2023/24 first day (CK-210); instruction days: OECD-EAG-D1-2025 (sourced); long break: EURY-CAL-2023 end date to same start date next year (derived); week days: estimate (CK school table)"

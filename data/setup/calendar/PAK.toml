@@ -1,0 +1,31 @@
+# Calendar of PAK (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "PAK"
+from = "PAK"
+weekend = ["sun"]
+main_rest_day = "sun"
+short_days = ["sat"]
+private_week_days = 6
+source = "CK weekend table (GC;NEWS-PAK;W1;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=reported;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for PAK, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["02-05:0", "03-23:1", "05-01:2", "08-14:3", "12-25:4"]
+easter_western = []
+easter_orthodox = []
+names = ["Kashmir Day", "Pakistan Day", "Labour Day", "Independence Day", "Christmas Day", "Eid-ul-Fitr Holiday", "Eid-ul-Fitr", "Eid al-Adha Holiday", "Eid al-Adha", "Ashura", "Ashura Holiday", "Eid Milad un-Nabi", "Christmas Day / Quaid-e-Azam Day", "Iqbal Day", "Quaid-e-Azam Day / Christmas Day", "Election Day", "Youm-i-Takbeer", "Chand Raat Holiday", "Pakistan Day / Eid-ul-Fitr Holiday", "Youm-i-Takbeer / Eid al-Adha Holiday"]
+
+[holidays.dates]
+2021 = ["02-05:0", "03-23:1", "05-01:2", "05-10:5", "05-11:5", "05-12:5", "05-13:6", "05-14:5", "05-15:5", "07-20:7", "07-21:8", "07-22:7", "07-23:7", "08-14:3", "08-18:9", "08-19:10", "10-19:11", "12-25:12"]
+2022 = ["02-05:0", "03-23:1", "05-01:2", "05-02:5", "05-03:6", "05-04:5", "05-05:5", "07-08:7", "07-09:7", "07-10:8", "07-11:7", "07-12:7", "08-08:10", "08-09:9", "08-14:3", "10-09:11", "11-09:13", "12-25:14"]
+2023 = ["02-05:0", "03-23:1", "04-21:5", "04-22:6", "04-23:5", "04-24:5", "04-25:5", "05-01:2", "06-29:8", "06-30:7", "07-01:7", "07-28:10", "07-29:9", "08-14:3", "09-29:11", "11-09:13", "12-25:14"]
+2024 = ["02-05:0", "02-08:15", "03-23:1", "04-10:6", "04-11:5", "04-12:5", "04-13:5", "05-01:2", "05-28:16", "06-17:8", "06-18:7", "06-19:7", "07-16:10", "07-17:9", "08-14:3", "09-17:11", "11-09:13", "12-25:14"]
+2025 = ["02-05:0", "03-23:1", "03-31:6", "04-01:5", "04-02:5", "05-01:2", "05-28:16", "06-06:17", "06-07:8", "06-08:7", "06-09:7", "07-05:10", "07-06:9", "08-14:3", "09-06:11", "11-09:13", "12-25:14"]
+2026 = ["02-05:0", "03-20:5", "03-21:6", "03-22:5", "03-23:18", "05-01:2", "05-27:8", "05-28:19", "05-29:7", "06-25:10", "06-26:9", "08-14:3", "08-26:11", "11-09:13", "12-25:14"]
+
+[school]
+first_day = "04-01"
+long_break_weeks = 6.0
+instruction_days = 190
+week_days = 6
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: est-income-group default (lower_middle) (estimate); long break: est-UIS end and start months adjacent; long break is mid-year or about 6 weeks at the boundary (estimate); week days: estimate (CK school table)"

@@ -1,0 +1,36 @@
+# Calendar of CHL (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "CHL"
+from = "CHL"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;MINTRAB-CL;NG;W1); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=sourced"
+
+[holidays]
+source = "Google public holiday calendar feed for CHL, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "05-01:1", "05-21:2", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "11-01:7", "12-25:8"]
+easter_western = ["-2:9", "-1:10"]
+easter_orthodox = []
+names = ["New Year's Day", "Labor Day", "Navy Day", "Our Lady of Mount Carmel", "Assumption of Mary", "National Day", "Army Day", "All Saints' Day", "Christmas Day", "Good Friday", "Holy Saturday", "Local elections", "National Day of Indigenous Peoples", "Saint Peter and Saint Paul", "Presidential Primary Elections", "Day off for National Day", "Day of the Discovery of Two Worlds", "Reformation Day", "Presidential and Parliamentary Elections", "Inmaculate Conception Day", "Second Round Presidential Elections", "Public Holiday (Constitutional Plebiscite)", "Day off for New Year's Day", "Constitutional Council Elections", "Mayors and Governors Primary Elections", "Extended National Day Holiday", "Second Round Local elections", "Saint Peter and Saint Paul / Presidential and Parliamentary Primary Elections", "Extended National Holiday"]
+
+[holidays.dates]
+2021 = ["01-01:0", "04-02:9", "04-03:10", "04-11:11", "05-01:1", "05-21:2", "06-21:12", "06-28:13", "07-16:3", "07-18:14", "08-15:4", "09-17:15", "09-18:5", "09-19:6", "10-11:16", "10-31:17", "11-01:7", "11-21:18", "12-08:19", "12-19:20", "12-25:8"]
+2022 = ["01-01:0", "04-15:9", "04-16:10", "05-01:1", "05-21:2", "06-21:12", "06-27:13", "07-16:3", "08-15:4", "09-04:21", "09-16:15", "09-18:5", "09-19:6", "10-10:16", "10-31:17", "11-01:7", "12-08:19", "12-25:8"]
+2023 = ["01-01:0", "01-02:22", "04-07:9", "04-08:10", "05-01:1", "05-07:23", "05-21:2", "06-21:12", "06-26:13", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "10-09:16", "10-27:17", "11-01:7", "12-08:19", "12-25:8"]
+2024 = ["01-01:0", "03-29:9", "03-30:10", "05-01:1", "05-21:2", "06-09:24", "06-20:12", "06-29:13", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "09-20:25", "10-12:16", "10-27:11", "10-31:17", "11-01:7", "11-24:26", "12-09:19", "12-25:8"]
+2025 = ["01-01:0", "04-18:9", "04-19:10", "05-01:1", "05-21:2", "06-20:12", "06-29:27", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "10-12:16", "10-31:17", "11-01:7", "11-16:18", "12-08:19", "12-25:8"]
+2026 = ["01-01:0", "04-03:9", "04-04:10", "05-01:1", "05-21:2", "06-21:12", "06-29:13", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "10-12:16", "10-31:17", "11-01:7", "12-08:19", "12-25:8"]
+2027 = ["01-01:0", "03-26:9", "03-27:10", "05-01:1", "05-21:2", "06-21:12", "06-28:13", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "10-11:16", "10-31:17", "11-01:7", "12-08:19", "12-25:8"]
+2028 = ["01-01:0", "04-14:9", "04-15:10", "05-01:1", "05-21:2", "06-20:12", "06-26:13", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "10-09:16", "10-27:17", "11-01:7", "12-08:19", "12-25:8"]
+2029 = ["01-01:0", "03-30:9", "03-31:10", "05-01:1", "05-21:2", "06-20:12", "07-02:13", "07-16:3", "08-15:4", "09-17:28", "09-18:5", "09-19:6", "10-15:16", "11-01:7", "11-02:17", "12-08:19", "12-25:8"]
+2030 = ["01-01:0", "04-19:9", "04-20:10", "05-01:1", "05-21:2", "06-21:12", "06-29:13", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "09-20:25", "10-12:16", "10-31:17", "11-01:7", "12-09:19", "12-25:8"]
+2031 = ["01-01:0", "04-11:9", "04-12:10", "05-01:1", "05-21:2", "06-21:12", "06-29:13", "07-16:3", "08-15:4", "09-18:5", "09-19:6", "10-12:16", "10-31:17", "11-01:7", "12-08:19", "12-25:8"]
+
+[school]
+first_day = "03-01"
+long_break_weeks = 11.0
+instruction_days = 183
+week_days = 5
+source = "first day: sourced: first month from UIS-403 (CK-205); day 1 by rule; instruction days: OECD-EAG-D1-2025 (sourced); long break: UIS-403/404 months: (start-end mod 12) x 4.35 - 2 wk (derived); week days: estimate (CK school table)"

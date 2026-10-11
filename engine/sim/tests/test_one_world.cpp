@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "zs/calendar.h"
 #include "zs/economy_system.h"
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
@@ -102,11 +103,13 @@ TEST_CASE("place: the default place; the outdoor temperature over a year average
   const Place& p = t.place->place();
   CHECK(p.frequency == 0);
   CHECK(p.climate.temp_mean_c == 12.0);
-  // Daily means through the system over a whole year (no stepping: the place is a pure read of the tick).
+  // Daily means through the system over the civil year 2027, a whole weather year (spec 53 rule 4; no stepping: the
+  // place is a pure read of the tick, and a probe without a calendar uses the default start date).
   World probe(1);
   double sum = 0;
+  const std::int64_t jan1 = days_from_civil(2027, 1, 1) - kDefaultStartDay;
   for (int d = 0; d < fields::kDaysPerYear; ++d) {
-    probe.clock.tick = static_cast<std::int64_t>(d) * kTicksPerGameDay;
+    probe.clock.tick = (jan1 + d) * kTicksPerGameDay + 4 * kTicksPerGameHour;  // noon (tick 0 is 08:00)
     sum += t.place->today_mean_c(probe);
   }
   CHECK(sum / fields::kDaysPerYear == doctest::Approx(p.climate.temp_mean_c).epsilon(1e-9));

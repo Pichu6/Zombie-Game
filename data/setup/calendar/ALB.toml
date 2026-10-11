@@ -1,0 +1,36 @@
+# Calendar of ALB (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "ALB"
+from = "ALB"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;NG;W1;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=reported;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for ALB, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "01-02:1", "03-14:2", "03-22:3", "05-01:4", "09-05:5", "11-28:6", "11-29:7", "12-08:8", "12-25:9"]
+easter_western = ["0:10", "1:11"]
+easter_orthodox = []
+names = ["New Year's Day", "New Year's Holiday", "Summer Day", "Nevruz Day", "International Worker’s Day", "Mother Teresa Beatification Day", "Flag and Independence Day", "Liberation Day", "National Youth Day", "Christmas Day", "Easter Sunday", "Day off for Easter Sunday", "Day off for New Year's Holiday", "Day off for Summer Day", "Easter Sunday (Orthodox)", "Day off for International Worker’s Day / Day off for Easter Sunday (Orthodox)", "Eid al-Fitr", "Feast of the Sacrifice", "Day off for Mother Teresa Beatification Day", "Day off for Liberation Day / Day off for Flag and Independence Day", "Day off for Christmas Day", "Day off for New Year's Day / Day off for New Year's Holiday", "Public Holiday", "Day off for Easter Sunday (Orthodox)", "Eid al-Fitr / Day off for International Worker’s Day", "Liberation Day / Day off for Flag and Independence Day", "Day off for New Year's Day", "Summer Day Holiday", "Alphabet Day", "Day off for National Youth Day", "Day off for Nevruz Day", "Easter Sunday (Orthodox) / Easter Sunday", "Day off for Easter Sunday (Orthodox) / Day off for Easter Sunday", "Day off for Alphabet Day", "Day off for Liberation Day", "Day off for Flag and Independence Day", "Easter Sunday / Easter Sunday (Orthodox)", "Day off for Easter Sunday / Day off for Easter Sunday (Orthodox)"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-02:1", "01-04:12", "03-14:2", "03-15:13", "03-22:3", "04-04:10", "04-05:11", "05-01:4", "05-02:14", "05-03:15", "05-13:16", "07-20:17", "09-05:5", "09-06:18", "11-28:6", "11-29:7", "11-30:19", "12-08:8", "12-25:9", "12-27:20"]
+2022 = ["01-01:0", "01-02:1", "01-03:21", "03-14:2", "03-21:22", "03-22:3", "04-17:10", "04-18:11", "04-24:14", "04-25:23", "05-01:4", "05-02:24", "07-09:17", "09-05:5", "11-28:6", "11-29:25", "12-08:8", "12-25:9", "12-26:20"]
+2023 = ["01-01:0", "01-02:1", "01-03:26", "03-14:2", "03-22:3", "04-09:10", "04-10:11", "04-16:14", "04-17:23", "04-21:16", "05-01:4", "06-28:17", "09-05:5", "11-28:6", "11-29:7", "12-08:8", "12-25:9"]
+2024 = ["01-01:0", "01-02:1", "03-14:2", "03-15:27", "03-22:3", "03-31:10", "04-01:11", "04-10:16", "05-01:4", "05-05:14", "05-06:23", "06-16:17", "09-05:5", "11-22:28", "11-28:6", "11-29:7", "12-08:8", "12-09:29", "12-25:9"]
+2025 = ["01-01:0", "01-02:1", "03-14:2", "03-22:3", "03-24:30", "03-30:16", "04-20:31", "04-21:32", "05-01:4", "06-06:17", "09-05:5", "11-22:28", "11-24:33", "11-28:6", "11-29:7", "12-01:34", "12-08:8", "12-25:9"]
+2026 = ["01-01:0", "01-02:1", "03-14:2", "03-16:13", "03-20:16", "03-22:3", "03-23:30", "04-05:10", "04-06:11", "04-12:14", "04-13:23", "05-01:4", "05-27:17", "09-05:5", "09-07:18", "11-22:28", "11-23:33", "11-28:6", "11-29:7", "11-30:35", "12-01:34", "12-08:8", "12-25:9"]
+2027 = ["01-01:0", "01-02:1", "01-04:12", "03-10:16", "03-14:2", "03-15:13", "03-22:3", "03-28:10", "03-29:11", "05-01:4", "05-02:14", "05-03:15", "05-17:17", "09-05:5", "09-06:18", "11-22:28", "11-28:6", "11-29:7", "11-30:19", "12-08:8", "12-25:9", "12-27:20"]
+2028 = ["01-01:0", "01-02:1", "01-03:21", "02-27:16", "03-14:2", "03-22:3", "04-16:31", "04-17:32", "05-01:4", "05-05:17", "09-05:5", "11-22:28", "11-28:6", "11-29:7", "12-08:8", "12-25:9"]
+2029 = ["01-01:0", "01-02:1", "02-15:16", "03-14:2", "03-22:3", "04-01:10", "04-02:11", "04-08:14", "04-09:23", "04-24:17", "05-01:4", "09-05:5", "11-22:28", "11-28:6", "11-29:7", "12-08:8", "12-10:29", "12-25:9"]
+2030 = ["01-01:0", "01-02:1", "02-05:16", "03-14:2", "03-22:3", "04-14:17", "04-21:10", "04-22:11", "04-28:14", "04-29:23", "05-01:4", "09-05:5", "11-22:28", "11-28:6", "11-29:7", "12-08:8", "12-09:29", "12-25:9"]
+2031 = ["01-01:0", "01-02:1", "01-25:16", "03-14:2", "03-22:3", "03-24:30", "04-03:17", "04-13:36", "04-14:37", "05-01:4", "09-05:5", "11-22:28", "11-24:33", "11-28:6", "11-29:7", "12-01:34", "12-08:8", "12-25:9"]
+
+[school]
+first_day = "09-11"
+long_break_weeks = 13.7
+instruction_days = 178
+week_days = 5
+source = "first day: sourced: Eurydice 2023/24 first day (CK-210); instruction days: EURY-CAL-2023 weekdays start..end minus listed holidays (derived); long break: EURY-CAL-2023 end date to same start date next year (derived); week days: estimate (CK school table)"

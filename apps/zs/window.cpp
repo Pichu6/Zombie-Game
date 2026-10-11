@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "zs/archive.h"
+#include "zs/calendar.h"
 #include "zs/noise.h"
 #include "zs/pacer.h"
 #include "zs/run.h"
@@ -1022,8 +1023,18 @@ void time_bar(App& a) {
   }
   // 2. The clocks: the game's date and hour, how long the run has lasted, how long you have played.
   const int played = static_cast<int>(a.real_s);
-  ImGui::Text("Now: %s   |   run so far: %s   |   played: %d:%02d", time_text(now).c_str(), run_time(now).c_str(), played / 60,
-              played % 60);
+  const CivilTime civil = civil_now(w);  // spec 53 rule 10
+  std::string day_note;
+  if (const CalendarSystem* cal = a.t.calendar) {
+    const CountryCalendar& cc = cal->calendar();
+    const DayKind kind = cc.day_kind(civil.day_number, Sector::Official);
+    if (const Holiday* h = cc.holiday_on(civil.day_number)) day_note = std::string(h->half ? "  |  Half holiday: " : "  |  Holiday: ") + h->name;
+    else if (kind == DayKind::Rest) day_note = "  |  Rest day";
+    else if (kind == DayKind::ShortDay) day_note = "  |  Short day";
+    day_note += cc.is_school_day(civil.day_number) ? "  |  schools open" : "  |  schools closed";
+  }
+  ImGui::Text("Now: %s (%s)%s   |   run so far: %s   |   played: %d:%02d", format_civil(civil).c_str(), time_text(now).c_str(),
+              day_note.c_str(), run_time(now).c_str(), played / 60, played % 60);
   // 3. The controls.
   const bool running = a.pacer.requested() != Pace::Pause || a.resting;
   if (ImGui::Button(a.pacer.alerted() ? "Continue (Space)" : running ? "Pause (Space)" : "Continue (Space)", {130, 0})) {

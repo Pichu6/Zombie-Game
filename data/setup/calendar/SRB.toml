@@ -1,0 +1,36 @@
+# Calendar of SRB (spec 53, decision 0072). Written by tools/data/calendars.py; do not edit by hand.
+id = "SRB"
+from = "SRB"
+weekend = ["sat", "sun"]
+main_rest_day = "sun"
+short_days = []
+private_week_days = 5
+source = "CK weekend table (GC;ILO12;NG;W1;W2); research note calendars-school-and-clock-hours"
+confidence = "weekend=reported;workweek=reported;hours=sourced;holidays=reported;leave=reported"
+
+[holidays]
+source = "Google public holiday calendar feed for SRB, national public holidays 2021-2031 (CK-274); reported"
+fixed = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "05-01:4", "05-02:5", "11-11:6"]
+easter_western = []
+easter_orthodox = ["-2:7", "-1:8", "0:9", "1:10"]
+names = ["Western New Year's Day", "Second Day of Western New Year's Day", "Christmas Day", "Statehood Day of the Republic of Serbia", "Labor holiday", "Labor Day Holiday", "Armistice Day", "Good Friday", "Holy Saturday", "Easter Day", "Easter Monday", "Statehood Day of the Republic of Serbia (Day 2)", "Labor holiday / Holy Saturday", "Labor Day Holiday / Easter Monday", "Day off for Labor holiday", "Day off for Second Day of Western New Year's Day", "Day off for Western New Year's Day", "Statehood Day of the Republic of Serbia observed", "Holy Saturday / Labor holiday", "Armistice Day observed"]
+
+[holidays.dates]
+2021 = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "02-16:11", "04-30:7", "05-01:12", "05-02:9", "05-03:13", "05-04:14", "11-11:6"]
+2022 = ["01-01:0", "01-02:1", "01-03:15", "01-07:2", "02-15:3", "02-16:11", "04-22:7", "04-23:8", "04-24:9", "04-25:10", "05-01:4", "05-02:14", "05-03:5", "11-11:6"]
+2023 = ["01-01:0", "01-02:1", "01-03:16", "01-07:2", "02-15:3", "02-16:11", "04-14:7", "04-15:8", "04-16:9", "04-17:10", "05-01:4", "05-02:5", "11-11:6"]
+2024 = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "02-16:11", "05-01:4", "05-02:5", "05-03:7", "05-04:8", "05-05:9", "05-06:10", "11-11:6"]
+2025 = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "02-17:11", "04-18:7", "04-19:8", "04-20:9", "04-21:10", "05-01:4", "05-02:5", "11-11:6"]
+2026 = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "02-16:17", "02-17:11", "04-10:7", "04-11:8", "04-12:9", "04-13:10", "05-01:4", "05-02:5", "11-11:6"]
+2027 = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "02-16:11", "04-30:7", "05-01:18", "05-02:9", "05-03:13", "11-11:6"]
+2028 = ["01-01:0", "01-02:1", "01-03:15", "01-07:2", "02-15:3", "02-16:11", "04-14:7", "04-15:8", "04-16:9", "04-17:10", "05-01:4", "05-02:5", "11-11:6"]
+2029 = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "02-16:11", "04-06:7", "04-07:8", "04-08:9", "04-09:10", "05-01:4", "05-02:5", "11-11:6", "11-12:19"]
+2030 = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "02-16:11", "04-26:7", "04-27:8", "04-28:9", "04-29:10", "05-01:4", "05-02:5", "11-11:6"]
+2031 = ["01-01:0", "01-02:1", "01-07:2", "02-15:3", "02-17:11", "04-11:7", "04-12:8", "04-13:9", "04-14:10", "05-01:4", "05-02:5", "11-11:6"]
+
+[school]
+first_day = "09-01"
+long_break_weeks = 11.3
+instruction_days = 170
+week_days = 5
+source = "first day: sourced: Eurydice 2023/24 first day (CK-210); instruction days: EURY-CAL-2023 weekdays start..end minus listed holidays (derived); long break: EURY-CAL-2023 end date to same start date next year (derived); week days: estimate (CK school table)"
