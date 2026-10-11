@@ -1,0 +1,202 @@
+# Time use, India: MoSPI Time Use Survey 2024 (ages 15-59 unless said), a diary of half-hour slots.
+# Findings: TU-24 to TU-29. Rows not covered by the survey's press note borrow the US shape (USA.toml), marked.
+id = "IND"
+source = "MoSPI TUS 2024 press note (28 Mar 2025); ILOSTAT 2023"
+method = "diary"
+population = "ages 15-59 (employment, domestic); 6+ (self-care)"
+weekly_hours_target = 45.82   # ILOSTAT 2023 (TU-37): men 50.22, women 36.24
+women_share_of_employed = 0.25  # TU-25: 25 % of women and 75 % of men work on a day, so about a quarter of the employed are women
+
+# Employment and related activities (TU-25): participation men 75.0 %, women 25.0 % on a day among everyone aged
+# 15-59; 480 / 344 min per participant. The rows below are for the employed: a six-day week (CK rule 3) with the
+# participation of the US employed on weekdays (TU-3) and a Saturday most work; they land on ILOSTAT's 50.2 / 36.2 h.
+[[row]]
+activity = "work"
+who = { employment = "full_time", sex = "m" }
+day = "weekday"
+participation = 0.92
+hours_if_done = 8.5
+finding = "TU-25 (75.0 % all days; 480 min), day split borrowed from TU-3"
+
+[[row]]
+activity = "work"
+who = { employment = "full_time", sex = "m" }
+day = "saturday"
+participation = 0.80
+hours_if_done = 8.0
+finding = "TU-25; India works six days in most sectors (CK rule 3: six-day private week), estimate"
+
+[[row]]
+activity = "work"
+who = { employment = "full_time", sex = "m" }
+day = "sunday_holiday"
+participation = 0.40
+hours_if_done = 6.0
+finding = "TU-25, estimate"
+
+[[row]]
+activity = "work"
+who = { employment = "full_time", sex = "f" }
+day = "weekday"
+participation = 0.88
+hours_if_done = 6.2
+finding = "TU-25 (344 min per participant)"
+
+[[row]]
+activity = "work"
+who = { employment = "full_time", sex = "f" }
+day = "saturday"
+participation = 0.70
+hours_if_done = 5.5
+finding = "TU-25, estimate"
+
+[[row]]
+activity = "work"
+who = { employment = "full_time", sex = "f" }
+day = "sunday_holiday"
+participation = 0.35
+hours_if_done = 4.5
+finding = "TU-25, estimate"
+
+[[row]]
+activity = "work"
+who = { employment = "part_time" }
+day = "any"
+participation = 0.50
+hours_if_done = 4.5
+finding = "estimate from TU-25"
+
+[[row]]
+activity = "study"
+who = { employment = "student" }
+day = "weekday"
+participation = 0.80
+hours_if_done = 6.0
+finding = "estimate (school days of spec 53)"
+
+[[row]]
+activity = "study"
+who = { employment = "student" }
+day = "saturday"
+participation = 0.40
+hours_if_done = 4.0
+finding = "estimate: six-day school week (CK)"
+
+[[row]]
+activity = "study"
+who = { employment = "student" }
+day = "sunday_holiday"
+participation = 0.15
+hours_if_done = 2.0
+finding = "estimate"
+
+# Unpaid domestic services (TU-26, TU-27): men 30.4 % (86 min), women 92.9 % (305 min); normal days vs other days:
+# men 26.4 -> 32.2 %, women 83.1 -> 67.5 %.
+[[row]]
+activity = "household"
+who = { sex = "m" }
+day = "weekday"
+participation = 0.264
+hours_if_done = 1.43
+finding = "TU-26, TU-27"
+
+[[row]]
+activity = "household"
+who = { sex = "m" }
+day = "saturday"
+participation = 0.322
+hours_if_done = 1.43
+finding = "TU-27 (other days)"
+
+[[row]]
+activity = "household"
+who = { sex = "m" }
+day = "sunday_holiday"
+participation = 0.322
+hours_if_done = 1.43
+finding = "TU-27"
+
+[[row]]
+activity = "household"
+who = { sex = "f" }
+day = "weekday"
+participation = 0.831
+hours_if_done = 5.08
+finding = "TU-26, TU-27"
+
+[[row]]
+activity = "household"
+who = { sex = "f" }
+day = "saturday"
+participation = 0.675
+hours_if_done = 5.08
+finding = "TU-27"
+
+[[row]]
+activity = "household"
+who = { sex = "f" }
+day = "sunday_holiday"
+participation = 0.675
+hours_if_done = 5.08
+finding = "TU-27"
+
+[[row]]
+activity = "care"
+who = { sex = "m" }
+day = "any"
+participation = 0.214
+hours_if_done = 1.5
+finding = "TU-26 (participation); hours an estimate"
+
+[[row]]
+activity = "care"
+who = { sex = "f" }
+day = "any"
+participation = 0.410
+hours_if_done = 2.0
+finding = "TU-26 (participation); hours an estimate"
+
+[[row]]
+activity = "shop"
+day = "any"
+participation = 0.30
+hours_if_done = 1.0
+finding = "estimate (not in the press note)"
+
+# Socialising, community and religious practice: about 93 % take part, 135 min (TU-28).
+[[row]]
+activity = "social"
+day = "any"
+participation = 0.93
+hours_if_done = 2.25
+finding = "TU-28 (socialising, community and religion together)"
+
+[[row]]
+activity = "civic"
+day = "any"
+participation = 0.0
+hours_if_done = 0.0
+finding = "folded into social (TU-28)"
+
+[sleep]
+weekday_hours = 8.5           # estimate from TU-28: self-care and maintenance, sleep included, 690 min (11.5 h) per day
+weekend_hours = 9.0
+night_sd_minutes = 70
+bedtime_mean = "22:30"
+bedtime_sd_minutes = 45
+
+[work_pattern]
+day = 0.80
+evening = 0.08
+night = 0.04
+rotating = 0.08
+weekend_workers = 0.30        # six-day weeks (CK); estimate
+
+[departure]
+bins_from = "05:00"
+shares = [0.05, 0.07, 0.09, 0.12, 0.13, 0.12, 0.10, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02, 0.02, 0.02]
+finding = "estimate, the US shape shifted later"
+
+[commute]                     # TU-29: 77 min (men) and 67 min (women) per day; one way about 36 min
+mean_minutes = 36.0
+sigma = 0.70

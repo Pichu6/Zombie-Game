@@ -1,6 +1,7 @@
 add_executable(zs_sim_tests
   main.cpp
   test_quantity.cpp
+  test_schedule.cpp
   test_detmath.cpp
   test_draw.cpp
   test_ledger.cpp

@@ -41,7 +41,7 @@ struct WorldCard {
 struct CardsState;
 std::shared_ptr<CardsState> make_cards(const std::string& data_dir);
 // For checks without a click: pick the first town, then the first pop and their house, as they become available.
-void cards_autopick(CardsState& st, bool on);
+void cards_autopick(CardsState& st, bool on, float scroll_to = -1.0f);  // scroll_to: pixels, -1 = the end
 
 // Editing on the world card (slice 5, decision 0074 rule 4): the world's own settings, edited as a draft and applied
 // to the world (unlocked) or to a fork of it (locked, once it has a save); presets next to the executable.

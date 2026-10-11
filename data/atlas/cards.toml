@@ -85,7 +85,7 @@ rows = [
   { field = "", need = "Face genes shared by families; clothes, possessions and keys" },
   { field = "", need = "Ties: family, household, coworkers, classmates, neighbours (backlog item 47)" },
   { field = "", need = "Beliefs with source, age and confidence (spec 39: built in the world, not in the generator)" },
-  { field = "", need = "Today's schedule: where they are at any hour (spec 54, next)" },
+  { field = "schedule", need = "Today's schedule: where they are at any hour", spec = "54" },
   { field = "", need = "A diary (0067)" },
 ]
 

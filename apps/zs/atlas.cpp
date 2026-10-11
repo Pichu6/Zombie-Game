@@ -1332,6 +1332,7 @@ int atlas_main(int argc, char** argv) {
   std::string shot, page_name, try_id;
   int stop = 0, card = -1;
   bool pick = false, open_world = false, cold = false, advance = false;
+  float scroll_to = -1.0f;
   for (int i = 1; i < argc; ++i) {
     if (!std::strcmp(argv[i], "--shot") && i + 1 < argc) shot = argv[++i];
     else if (!std::strcmp(argv[i], "--try") && i + 1 < argc) try_id = argv[++i];
@@ -1339,6 +1340,7 @@ int atlas_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--stop") && i + 1 < argc) stop = std::atoi(argv[++i]);
     else if (!std::strcmp(argv[i], "--card") && i + 1 < argc) card = std::atoi(argv[++i]);
     else if (!std::strcmp(argv[i], "--pick")) pick = true;
+    else if (!std::strcmp(argv[i], "--scroll") && i + 1 < argc) scroll_to = static_cast<float>(std::atof(argv[++i]));
     else if (!std::strcmp(argv[i], "--open")) open_world = true;
     else if (!std::strcmp(argv[i], "--cold")) cold = true;
     else if (!std::strcmp(argv[i], "--advance")) advance = true;
@@ -1394,7 +1396,7 @@ int atlas_main(int argc, char** argv) {
   a.sim_auto_advance = advance;
   if (pick) {
     a.cards = make_cards(a.data_dir);
-    cards_autopick(*a.cards, true);
+    cards_autopick(*a.cards, true, scroll_to);
   }
   // --try ID with --shot: start that Try, wait for it, then shoot the Try page with its output (a check without a click).
   if (!try_id.empty())

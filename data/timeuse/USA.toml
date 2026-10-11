@@ -1,0 +1,203 @@
+# Time use, United States: BLS American Time Use Survey 2025 (civilian population aged 15+, annual averages).
+# Spec 54 slice 1 (decision 0071): a day is a participation draw, then a duration draw; never population means.
+# Findings: TU-1 to TU-16, TU-40 to TU-42, TU-45 (docs/research/daily-lives-and-time-use.md).
+id = "USA"
+source = "BLS ATUS 2025, Tables 1-4 and news release; ACS 2019 commuting"
+method = "diary"
+population = "civilian 15+"
+weekly_hours_target = 37.80   # ILOSTAT 2023 mean actual weekly hours per employed person, main job (TU-37)
+women_share_of_employed = 0.47  # BLS: women are about 47 % of the employed (estimate from memory, not fetched)
+
+# Activity rows: who = { employment = ... } narrows the row; a row without `who` is for everyone.
+# day: weekday | saturday | sunday_holiday | any. participation in [0, 1]; hours_if_done in hours.
+# employment: full_time | part_time | not_employed | student | retired | child
+
+[[row]]
+activity = "work"
+who = { employment = "full_time" }
+day = "weekday"
+participation = 0.873
+hours_if_done = 8.45
+finding = "TU-4"
+
+[[row]]
+activity = "work"
+who = { employment = "full_time" }
+day = "saturday"
+participation = 0.296
+hours_if_done = 5.49
+finding = "TU-4"
+
+[[row]]
+activity = "work"
+who = { employment = "full_time" }
+day = "sunday_holiday"
+participation = 0.296
+hours_if_done = 5.49
+finding = "TU-4"
+
+[[row]]
+activity = "work"
+who = { employment = "part_time" }
+day = "weekday"
+participation = 0.543
+hours_if_done = 5.42
+finding = "TU-4"
+
+[[row]]
+activity = "work"
+who = { employment = "part_time" }
+day = "saturday"
+participation = 0.330
+hours_if_done = 5.11
+finding = "TU-4"
+
+[[row]]
+activity = "work"
+who = { employment = "part_time" }
+day = "sunday_holiday"
+participation = 0.330
+hours_if_done = 5.11
+finding = "TU-4"
+
+[[row]]
+activity = "study"
+who = { employment = "student" }
+day = "weekday"
+participation = 0.80
+hours_if_done = 6.0
+finding = "estimate: school days of spec 53; HETUS study 4-6 h when done (TU-18)"
+
+[[row]]
+activity = "study"
+who = { employment = "student" }
+day = "saturday"
+participation = 0.15
+hours_if_done = 2.5
+finding = "estimate"
+
+[[row]]
+activity = "study"
+who = { employment = "student" }
+day = "sunday_holiday"
+participation = 0.15
+hours_if_done = 2.5
+finding = "estimate"
+
+[[row]]
+activity = "household"
+day = "weekday"
+participation = 0.809
+hours_if_done = 2.32
+finding = "TU-7 (participation all days; weekday mean 1.88 h over everyone gives 2.32 h when done)"
+
+[[row]]
+activity = "household"
+day = "saturday"
+participation = 0.809
+hours_if_done = 2.79
+finding = "TU-7 (weekend mean 2.26 h over everyone)"
+
+[[row]]
+activity = "household"
+day = "sunday_holiday"
+participation = 0.809
+hours_if_done = 2.79
+finding = "TU-7"
+
+[[row]]
+activity = "shop"
+day = "any"
+participation = 0.397
+hours_if_done = 1.74
+finding = "TU-8"
+
+[[row]]
+activity = "care"
+day = "weekday"
+participation = 0.230
+hours_if_done = 2.23
+finding = "TU-8"
+
+[[row]]
+activity = "care"
+day = "saturday"
+participation = 0.198
+hours_if_done = 2.23
+finding = "TU-8"
+
+[[row]]
+activity = "care"
+day = "sunday_holiday"
+participation = 0.198
+hours_if_done = 2.23
+finding = "TU-8"
+
+[[row]]
+activity = "social"
+day = "weekday"
+participation = 0.284
+hours_if_done = 1.55
+finding = "TU-10"
+
+[[row]]
+activity = "social"
+day = "saturday"
+participation = 0.352
+hours_if_done = 2.62
+finding = "TU-10"
+
+[[row]]
+activity = "social"
+day = "sunday_holiday"
+participation = 0.352
+hours_if_done = 2.62
+finding = "TU-10"
+
+[[row]]
+activity = "civic"
+day = "weekday"
+participation = 0.118
+hours_if_done = 2.49
+finding = "TU-11"
+
+[[row]]
+activity = "civic"
+day = "saturday"
+participation = 0.179
+hours_if_done = 2.49
+finding = "TU-11"
+
+[[row]]
+activity = "civic"
+day = "sunday_holiday"
+participation = 0.179
+hours_if_done = 2.49
+finding = "TU-11"
+
+# Leisure takes what the day leaves (TU-9: 95 % participate, 4.60 h weekdays, 6.48 h weekends over everyone); it is
+# the filler of the template chain, so it has no row.
+
+[sleep]
+weekday_hours = 8.76          # TU-1
+weekend_hours = 9.68          # TU-1
+night_sd_minutes = 70         # TU-45, TU-46: within-person night-to-night SD
+bedtime_mean = "23:00"        # estimate: TU-44 says society governs bedtime; the wake time follows from the hours
+bedtime_sd_minutes = 45       # estimate (drawn once per pop)
+
+[work_pattern]                # TU-15: the main job's pattern, drawn once at hire
+day = 0.85
+evening = 0.05
+night = 0.03
+rotating = 0.07
+weekend_workers = 0.08        # TU-16: usually work Saturday and Sunday
+
+[departure]                   # TU-41, TU-42: when workers leave home, drawn once per pop
+# bins of half an hour from 05:00; the share leaving in each (sums to 1; 57 % between 06:00 and 08:29, peak 07:00-07:29)
+bins_from = "05:00"
+shares = [0.06, 0.08, 0.10, 0.13, 0.141, 0.11, 0.09, 0.07, 0.05, 0.04, 0.03, 0.03, 0.03, 0.03, 0.03]
+finding = "TU-41, TU-42 (the exact B08302 values are not fetched, TU-43: the shape is an estimate around the two sourced points)"
+
+[commute]                     # TU-40: one way, drawn once per pop (home and workplace fixed)
+mean_minutes = 27.6
+sigma = 0.70                  # lognormal spread chosen so that about 10 % are over 60 min and 12 % under 10 min

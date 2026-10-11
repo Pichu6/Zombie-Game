@@ -124,6 +124,16 @@ workshop = true
 added = 2026-10-11
 
 [[try]]
+id = "day"
+part = "individual"
+spec = "54"
+title = "A town's day, hour by hour"
+what = "Spec 54: a generated town of the base high-income country; who is asleep, home, at work, at school or out each hour of a weekday and a Sunday, and three pops' days."
+run = ["--day", "--seed", "{seed}", "--country", "base_high"]
+kind = "text"
+added = 2026-10-11
+
+[[try]]
 id = "map"
 part = "individual"
 spec = "09"

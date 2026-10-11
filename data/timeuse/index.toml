@@ -1,0 +1,18 @@
+# Which time-use table a country reads (spec 54 rule 2). A real country (ISO3) with its own file reads it; otherwise
+# its income group's table. The base countries borrow as the calendar did (0072 rule 5): high from the United States,
+# upper-middle from the United States with its hours scaled to its ILOSTAT target, lower-middle and low from India.
+# Mexico's ENUT is a stylised weekly questionnaire, not a diary (TU-30), so it is not a table here (TU proposal rule 10).
+
+[groups]
+high = "USA"
+upper_middle = "USA"
+lower_middle = "IND"
+low = "IND"
+
+# ILOSTAT 2023 mean actual weekly hours per employed person by income group (TU-36): the work rows of a borrowed table
+# are scaled by target / the table's own target, so a generated country's average lands on its group's row.
+[weekly_hours_by_group]
+high = 34.80
+upper_middle = 42.42
+lower_middle = 43.91
+low = 36.45

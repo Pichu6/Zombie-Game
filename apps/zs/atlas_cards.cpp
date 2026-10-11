@@ -16,6 +16,8 @@
 #include "zs/gen/pops.h"
 #include "zs/calendar.h"
 #include "worlds.h"
+#include "day_mode.h"
+#include "zs/schedule.h"
 
 namespace zs::atlas {
 
@@ -64,7 +66,11 @@ struct CardsState {
   int gen_for_town = -1;
   int gen_for_country = -1;
   bool autopick = false;
+  float scroll_to = -1.0f;
+  const CountryCard* country_card = nullptr;  // the country of the town being drawn (spec 54 needs its table)
   std::map<std::string, std::string> calendars;  // profile id -> one line (spec 53), read once
+  std::map<std::string, TimeUseTable> timeuse;    // profile id -> its table (spec 54), read once
+  std::map<std::string, CountryCalendar> cals;    // profile id -> its calendar, read once
   // Slice 5: the settings and their bands; the draft being edited and the world it belongs to.
   std::vector<SettingBand> bands;
   gen::WorldSettings draft;
@@ -111,7 +117,7 @@ std::shared_ptr<CardsState> make_cards(const std::string& data_dir) {
   return st;
 }
 
-void cards_autopick(CardsState& st, bool on) { st.autopick = on; }
+void cards_autopick(CardsState& st, bool on, float scroll_to) { st.autopick = on; st.scroll_to = scroll_to; }
 
 int cards_country(const CardsState& st) { return st.country; }
 
@@ -441,6 +447,7 @@ void draw_country_card(CardsState& st, const WorldCard& world, const CountryCard
 }
 
 void draw_town_card(CardsState& st, const WorldCard& world, const CountryCard& c, const TownCard& t) {
+  st.country_card = &c;
   ensure_town(st, world, c, t);
   Values v;
   v["people"] = fmt("%.0f thousand", t.people / 1e3);
@@ -515,6 +522,25 @@ void draw_pop_card(CardsState& st) {
     life += std::to_string(t.from) + "-" + std::to_string(t.to) + " " + t.what + (t.where.empty() ? "" : " " + t.where) + "\n";
   if (!life.empty()) life.pop_back();
   v["lifepath"] = life.empty() ? "none" : life;
+  // Spec 54: the pop's day today (the default start date, a Monday), from its country's time-use table and calendar.
+  try {
+    if (!st.country_card) throw std::runtime_error("no country");
+    const CountryCard& c = *st.country_card;
+    const std::string id = c.profile.empty() ? "base_" + c.income : c.profile;
+    if (!st.timeuse.count(id)) st.timeuse.emplace(id, timeuse_for(st.data_dir, c.profile, c.income));
+    if (!st.cals.count(id)) st.cals.emplace(id, load_country_calendar(st.data_dir + "/setup/calendar/" + id + ".toml"));
+    const SchedulePerson sp = schedule_person(p, st.gen_seed);
+    const ScheduleSkeleton sk = skeleton_of(st.timeuse.at(id), sp);
+    const CountryCalendar& cal = st.cals.at(id);
+    const DayPlan plan = plan_day(st.timeuse.at(id), sp, sk, kDefaultStartDay, cal.survey_day(kDefaultStartDay, Sector::Private),
+                                  cal.is_school_day(kDefaultStartDay) ? 1 : 0);
+    std::string day = std::string(employment_name(sp.employment)) + ", " + survey_day_name(plan.day) + " " + zs::worlds::date_text(kDefaultStartDay) + ":\n";
+    for (const auto& line : plan_lines(plan)) day += line + "\n";
+    day.pop_back();
+    v["schedule"] = day;
+  } catch (const std::exception& ex) {
+    v["schedule"] = std::string("no table: ") + ex.what();
+  }
   draw_card(st, "pop", p.full_name, v);
   ImGui::Spacing();
   ImGui::TextDisabled("As the generator prints it (zs gen town):");
@@ -602,7 +628,7 @@ void draw_cards(CardsState& st, const WorldCard& world, const std::vector<Countr
   }
   ImGui::EndChild();
   ImGui::SameLine();
-  if (st.autopick) ImGui::SetNextWindowScroll(ImVec2(-1.0f, 1.0e8f));  // a check shot shows the end of the chain
+  if (st.autopick) ImGui::SetNextWindowScroll(ImVec2(-1.0f, st.scroll_to < 0 ? 1.0e8f : st.scroll_to));  // a check shot: the end of the chain, or a given scroll
   ImGui::BeginChild("cards", ImVec2(0, 0), ImGuiChildFlags_Borders);
   if (st.country < 0 || st.country >= static_cast<int>(countries.size())) {
     draw_world_card(st, world, editor);
