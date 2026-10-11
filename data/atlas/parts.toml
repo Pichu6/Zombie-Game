@@ -62,5 +62,5 @@ id = "sandbox"
 title = "Sandbox"
 line = "Everything a player can set: the world, nations, cultures, pops, businesses, government, the economy, the outbreak. Settings change numbers, never rules."
 today = "The catalogue is designed; the demography preset is built; worlds as folders are the first screen."
-docs = ["design/sandbox-parameters.md", "design/demo-flow.md"]
+docs = ["design/sandbox-parameters.md", "design/stations.md", "design/demo-flow.md"]
 specs = []

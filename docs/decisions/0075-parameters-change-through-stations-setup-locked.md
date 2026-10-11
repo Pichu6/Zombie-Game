@@ -25,7 +25,7 @@
 
 ## Consequences
 
-- [Sandbox parameters](../design/sandbox-parameters.md) gains §1.6 (this decision) and, row by row, a "station" column: which station may set the parameter in play, its cost and its delay; rows with none are setup or sandbox only.
+- [Stations](../design/stations.md) lays the stations out scope by scope (Proposal, 2026-10-11). [Sandbox parameters](../design/sandbox-parameters.md) gains §1.6 (this decision) and, row by row, a "station" column: which station may set the parameter in play, its cost and its delay; rows with none are setup or sandbox only.
 - The commander layer (vision; the XCOM-like layer) is the set of stations the group holds, each exposing its rows. Military orders (pinned question 3 in the hand-off) are a station's parameters like any other.
 - Spec 39's edict record is the first station mechanism; new stations extend it rather than adding a second path.
 - The Atlas's country and pop cards get editing only through this: a card's editable rows are the rows some station exposes, and a player edits them by holding the station, or free and tagged through the sandbox panel ([spec 55](../tier0/specs/55-atlas.md) Open).
