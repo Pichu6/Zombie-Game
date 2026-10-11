@@ -1,0 +1,66 @@
+# The map of parts (spec 55, atlas design §2): the project as the world's parts. Engine data: a player sees it too.
+# `docs` groups the design docs under a part for the workshop reader (only shown when a repo sits next to the exe).
+
+[[part]]
+id = "world"
+title = "World"
+line = "The planet: a grid of 102,012 cells, terrain and climate from sliders and a seed, rivers, soil, deposits, and countries formed by a contest history on the land."
+today = "Grid, terrain, land, deposits and countries built. Towns named from their country's culture, capacity and routes next."
+docs = ["design/world-simulation.md", "design/world-systems.md", "design/world-numbers.md", "design/macro-layer.md", "design/world-survival.md", "design/world-vehicles-environment.md"]
+specs = ["30", "31", "48", "49", "52"]
+
+[[part]]
+id = "city"
+title = "City"
+line = "The middle layer: zones, buildings, establishments and their recipes, projects that build, networks of power and water, dwellings with every room reachable."
+today = "Establishments, projects, networks and dwellings built. Streets and plots laid out in the town next."
+docs = ["design/infrastructure.md", "design/layer-jumps.md", "design/zoom-continuum.md"]
+specs = ["33", "34", "35", "47", "51"]
+
+[[part]]
+id = "individual"
+title = "Individual"
+line = "One person, played: a body with real needs and wounds, actions and items, what they see and hear, the calendar and their day."
+today = "The Tier 0 run and its window; the body; the calendar. Daily schedules (spec 54) next."
+docs = ["design/body.md", "design/body-trauma.md", "design/inhabitants.md", "design/activities.md", "design/interaction.md", "design/items-crafting.md", "design/pop-states-actions.md", "design/cameras-modes.md", "design/sensors-and-soundscape.md", "design/art-direction.md"]
+specs = ["02", "16", "26", "29", "53", "54"]
+
+[[part]]
+id = "simulation"
+title = "Simulation"
+line = "One deterministic world: every system names its next wake tick, a cold week jumps in a few steps with the same hash as stepping, and every run saves, loads and replays exactly."
+today = "One world, wake ticks, the pacer and saves built. Per-tick hashes and the testing harness next."
+docs = ["design/engine-architecture.md", "design/focus-and-compression.md", "design/pop-continuity.md", "design/compute-budget.md"]
+specs = ["05", "06", "28", "40", "41"]
+
+[[part]]
+id = "generators"
+title = "Generators"
+line = "Pure functions of a seed: names, people and their lifepaths, towns, houses, the planet, its land and its countries. Data packs, not code."
+today = "Names, pops, towns, world, land, countries and houses built. Streets, interiors and the full human generator next."
+docs = ["design/content-tools.md", "design/pop-lore-and-custom-pops.md"]
+specs = ["47", "51"]
+
+[[part]]
+id = "stories"
+title = "Stories"
+line = "Stories are found, never written: cases from many sources, blocks for every kind of story, a diary per pop, a world you can navigate to find them."
+today = "Designed. The first slices (a pop's diary, the case of the fuel) are on the backlog."
+docs = ["design/story-explorer.md", "design/cases-and-living-lore.md", "design/story-blocks.md"]
+specs = []
+
+[[part]]
+id = "threats"
+title = "Threats"
+line = "The outbreak as one keyed encounter rule, measured into the rates a region uses, so the aggregate and the entity-level run of the same town agree."
+today = "The outbreak built at both levels; the dead in the Tier 0 run."
+docs = ["design/threats.md"]
+specs = ["38"]
+
+[[part]]
+id = "sandbox"
+title = "Sandbox"
+line = "Everything a player can set: the world, nations, cultures, pops, businesses, government, the economy, the outbreak. Settings change numbers, never rules."
+today = "The catalogue is designed; the demography preset is built; worlds as folders are the first screen."
+docs = ["design/sandbox-parameters.md", "design/demo-flow.md"]
+specs = []

@@ -1,0 +1,124 @@
+# The Try panel (spec 55 rule 4, atlas design §3): everything runnable, newest first in the panel.
+# run: the arguments after zs.exe. {seed} is the panel's seed, {world} the open world's name, {out} a folder for files.
+# kind: window (opens the game window) | text (shows the output) | image (shows the file it wrote) | test (ctest, workshop only).
+# workshop = true: only shown when a repo sits next to the executable (decision 0073).
+
+[[try]]
+id = "play"
+part = "individual"
+spec = "16"
+title = "Play the open world"
+what = "The 14-day run seen from above: walk, act, save with F5. Opens the world selected on the Worlds page."
+run = ["--play", "--world", "{world}"]
+kind = "window"
+added = 2026-10-11
+
+[[try]]
+id = "calendar-window"
+part = "individual"
+spec = "53"
+title = "The calendar in the window"
+what = "The date, the holidays and whether schools are open, in the time line (spec 53, decision 0072)."
+run = ["--play", "--seed", "{seed}"]
+kind = "window"
+added = 2026-10-11
+
+[[try]]
+id = "run-chronicle"
+part = "individual"
+spec = "26"
+title = "The 14-day run, as text"
+what = "The run without a window: the AI drives everyone; the chronicle says who died, when and why."
+run = ["--run", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-08
+
+[[try]]
+id = "world-map"
+part = "world"
+spec = "52"
+title = "The planet with rivers and countries"
+what = "Terrain, land, deposits and the countries formed on it, drawn as a map (one colour per country)."
+run = ["gen", "world", "--seed", "{seed}", "--bmp", "{out}/world.bmp", "--political"]
+kind = "image"
+added = 2026-10-09
+
+[[try]]
+id = "world-text"
+part = "world"
+spec = "52"
+title = "The planet's numbers"
+what = "Biome shares, runoff, people fed, deposits and the twelve largest countries, as the generator prints them."
+run = ["gen", "world", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-09
+
+[[try]]
+id = "town"
+part = "generators"
+spec = "47"
+title = "A town with every pop's dossier"
+what = "Streets, businesses, households and people with their lifepaths, for the base lower-middle-income country."
+run = ["gen", "town", "--seed", "{seed}", "--country", "base_lower_middle"]
+kind = "text"
+added = 2026-10-08
+
+[[try]]
+id = "houses"
+part = "generators"
+spec = "51"
+title = "Every household's house"
+what = "Each household gets an address and a one-storey house sized by its members and the country's income."
+run = ["gen", "houses", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-08
+
+[[try]]
+id = "pop-bench"
+part = "simulation"
+spec = "28"
+title = "A million people, timed"
+what = "Records, lazy pops and promotion: building a million people, reading one at ten million, a layoff of ten thousand."
+run = ["--pop-bench"]
+kind = "text"
+added = 2026-10-07
+
+[[try]]
+id = "bench"
+part = "simulation"
+spec = "11"
+title = "Body cost"
+what = "4 pops and 60 walkers for one game day, timed."
+run = ["--bench"]
+kind = "text"
+added = 2026-10-05
+
+[[try]]
+id = "group"
+part = "threats"
+spec = "23"
+title = "Four pops against the dead, many seeds"
+what = "Stage 8: 4 AI pops with the dead over 20 seeds; counts the causes of death."
+run = ["--group", "--seed", "{seed}", "--seeds", "20"]
+kind = "text"
+added = 2026-10-06
+
+[[try]]
+id = "sim-tests"
+part = "simulation"
+title = "Every simulation test"
+what = "Unit, property and golden tests of the simulation library (ctest, release build)."
+run = ["ctest", "--preset", "release", "-R", "zs_sim_tests"]
+kind = "test"
+workshop = true
+added = 2026-10-11
+
+[[try]]
+id = "gen-tests"
+part = "generators"
+title = "Every generator test"
+what = "The grid, the fields, the land, the countries and the towns (ctest, release build)."
+run = ["ctest", "--preset", "release", "-R", "zs_gen_tests"]
+kind = "test"
+workshop = true
+added = 2026-10-11

@@ -7,3 +7,8 @@ int window_main(int, char**) {
   std::fputs("zs: built without the window (ZS_BUILD_WINDOW=OFF); see zs --help for the headless modes\n", stderr);
   return 2;
 }
+
+int atlas_main(int, char**) {
+  std::fputs("zs: built without the window (ZS_BUILD_WINDOW=OFF); the Atlas needs one\n", stderr);
+  return 2;
+}

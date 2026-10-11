@@ -1,6 +1,10 @@
 # zs: the one executable (decision 0052): the window, the headless modes and the content generators.
-add_executable(zs main.cpp headless.cpp pop_bench.cpp town_demo.cpp gen_cli.cpp)
+add_executable(zs main.cpp headless.cpp pop_bench.cpp town_demo.cpp gen_cli.cpp planet_raster.cpp worlds.cpp)
 target_link_libraries(zs PRIVATE zs_sim zs_gen)
+target_include_directories(zs PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)
+if(WIN32)
+  target_link_libraries(zs PRIVATE shell32)
+endif()
 
 if(ZS_BUILD_WINDOW)
   # The Tier 0 window (spec 16): SDL3 + Dear ImGui, 2D, the SDL renderer (no Vulkan).
@@ -28,7 +32,8 @@ if(ZS_BUILD_WINDOW)
   target_include_directories(zs_imgui PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
   target_link_libraries(zs_imgui PUBLIC SDL3::SDL3-static)
 
-  target_sources(zs PRIVATE window.cpp)
+  # The Atlas (spec 55) shares the window stack and runs the modes as child processes.
+  target_sources(zs PRIVATE window.cpp atlas.cpp atlas_md.cpp runner.cpp)
   target_link_libraries(zs PRIVATE zs_imgui)
   target_compile_definitions(zs PRIVATE ZS_WITH_WINDOW)
 else()

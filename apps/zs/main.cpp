@@ -1,12 +1,16 @@
-// zs: the one executable (decision 0052). No arguments, or window flags, open the window; a headless
-// flag runs without one; "gen" runs the content generators.
+// zs: the one executable (decision 0052). No arguments open the Atlas (spec 55, decision 0073); --play or a window
+// flag opens the game window; a headless flag runs without one; "gen" runs the content generators; "world" manages
+// the world folders (decision 0074).
 //
-//   zs [--seed N] [--watch] [--shot out.bmp ...]   the window
+//   zs [--atlas [--shot out.bmp] [--page P] [--stop N]]   the Atlas: worlds, the tour, parts, try, breakthroughs
+//   zs --play [--world NAME] [--from SAVE] [--seed N] [--watch] [--shot out.bmp ...]   the window
 //   zs --run|--group|--stage6|... [options]         headless (zs --help lists them)
 //   zs gen town|census|names|cultures|world ...     content generators
+//   zs world list|new|fork|delete ...               worlds as folders
 #include <cstring>
 
 #include "modes.h"
+#include "worlds.h"
 
 #ifdef ZS_WITH_WINDOW
 #include <SDL3/SDL_main.h>
@@ -28,6 +32,13 @@ bool headless_flag(const char* a) {
   return false;
 }
 
+bool window_flag(const char* a) {
+  static const char* const kFlags[] = {"--play", "--seed", "--watch", "--shot", "--world", "--from"};
+  for (const char* f : kFlags)
+    if (!std::strcmp(a, f)) return true;
+  return false;
+}
+
 // Opened by a double click, the console belongs to this process alone: hide it, the window is the program.
 void hide_own_console() {
 #ifdef _WIN32
@@ -40,8 +51,13 @@ void hide_own_console() {
 
 int main(int argc, char** argv) {
   if (argc >= 2 && !std::strcmp(argv[1], "gen")) return gen_main(argc - 1, argv + 1);
+  if (argc >= 2 && !std::strcmp(argv[1], "world")) return zs::worlds::cli(argc - 1, argv + 1);
   for (int i = 1; i < argc; ++i)
     if (headless_flag(argv[i])) return headless_main(argc, argv);
   hide_own_console();
-  return window_main(argc, argv);
+  for (int i = 1; i < argc; ++i)
+    if (!std::strcmp(argv[i], "--atlas")) return atlas_main(argc, argv);
+  for (int i = 1; i < argc; ++i)
+    if (window_flag(argv[i])) return window_main(argc, argv);
+  return atlas_main(argc, argv);
 }

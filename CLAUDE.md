@@ -60,11 +60,14 @@ build/release/apps/zs/zs --run [--seed N] [--seeds N] [--careless]  # stage 9: t
 build/release/apps/zs/zs gen town --seed 1 [--country base_low]   # content tools: a generated town with every pop's dossier, optionally for a base country (also: census, names, cultures)
 build/release/apps/zs/zs gen houses --seed 1 [--country base_low]   # spec 51: every household's dwelling; gen house --household N --out f.toml writes one house as a site map
 build/release/apps/zs/zs gen world --seed 1 [--fragmentation 0.5] [--bmp f.bmp [--political]]   # specs 31, 52: terrain, land, deposits, countries; the map with rivers and borders
-build/release/apps/zs/zs [--seed N] [--watch]   # the window (spec 16), the default with no headless flag; --shot f.bmp [--ticks N] [--menu x,y] [--overlay noise|light] renders offscreen
+build/release/apps/zs/zs   # the Atlas (spec 55): worlds, the tour, parts, try, breakthroughs; next to the repo also the docs and tests
+build/release/apps/zs/zs --play [--world NAME] [--from SAVE] [--seed N] [--watch]   # the window (spec 16); --shot f.bmp [--ticks N] [--menu x,y] [--overlay noise|light] renders offscreen
+build/release/apps/zs/zs world list|new NAME [--seed N]|fork NAME NEW|delete NAME   # worlds as folders (decision 0074), next to the executable
+build/release/apps/zs/zs --atlas --shot f.bmp [--page worlds|tour|parts|try|breakthroughs|status] [--stop N] [--try ID]   # the Atlas offscreen, for checks
 # -DZS_BUILD_WINDOW=OFF builds zs without the window (headless modes and generators only)
 # replay viewer: --stage6, --stage7, --group or --run with --trace trace.json, then python3 tools/viewer/embed.py trace.json replay.html [--max-mb 12] (open in a browser; --max-mb thins long runs)
 ```
 
 Work is done locally on Windows ([0052](docs/decisions/0052-one-executable-one-simulation.md)): run these from a "x64 Native Tools Command Prompt for VS 2022". Golden hashes in the tests are pinned on MSVC; other compilers must reproduce them (cross-compiler determinism, [spec 01](docs/tier0/specs/01-quantity.md)); the Windows CI build is an extra check.
 
-Layout: `engine/sim` is the simulation library (no window), `engine/gen` the content generators (names, pops, towns; data in `data/gen/`), `apps/zs` the one executable (`zs`: the window, the headless modes, `zs gen`), `docs/tier0` the plan and specs.
+Layout: `engine/sim` is the simulation library (no window), `engine/gen` the content generators (names, pops, towns; data in `data/gen/`), `apps/zs` the one executable (`zs`: the Atlas, the window, the headless modes, `zs gen`, `zs world`), `docs/tier0` the plan and specs.

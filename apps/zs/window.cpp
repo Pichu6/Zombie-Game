@@ -32,6 +32,7 @@
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
 #include "modes.h"
+#include "worlds.h"
 
 using namespace zs;
 using namespace zs::tier0;
@@ -119,6 +120,7 @@ struct App {
   std::vector<EdgeRef> flash;        // edges that refused a WASD step
   double flash_until = 0, hint_until = 0, real_s = 0;
   std::string status;  // last save/load message
+  std::optional<zs::worlds::World> world;  // decision 0074: the world folder the saves go to (--world)
 
   // The pop the player drives: the possessed one, or nobody while the AI drives everyone.
   EntityId me() const { return t.ai ? t.ai->possessed() : 0; }
@@ -165,7 +167,19 @@ void start(App& a, std::uint64_t seed) {
   a.cam = actor_at(a, a.followed());
 }
 
-std::string save_path(const App& a) { return "sandbox_seed" + std::to_string(a.seed) + ".sav"; }
+// Without a world folder (a bare --seed), the old file beside the program; with one, saves/<date>-tick<N>.sav (0074).
+std::string save_path(const App& a) {
+  if (a.world) return zs::worlds::next_save_path(*a.world, format_civil(civil_now(*a.t.world)), a.t.world->clock.tick).string();
+  return "sandbox_seed" + std::to_string(a.seed) + ".sav";
+}
+// What F9 loads: the newest save of the world, or the old file beside the program.
+std::string load_path(const App& a) {
+  if (a.world) {
+    zs::worlds::World w = zs::worlds::load(a.world->name);  // re-read: F5 may have added one
+    return w.saves.empty() ? "" : w.saves.front().path.string();
+  }
+  return "sandbox_seed" + std::to_string(a.seed) + ".sav";
+}
 
 void save_game(App& a) {
   try {
@@ -176,18 +190,20 @@ void save_game(App& a) {
   }
 }
 
-void load_game(App& a) {
+void load_game(App& a, std::string path = "") {
+  if (path.empty()) path = load_path(a);
   std::vector<std::uint8_t> bytes;
   try {
-    bytes = zs::read_file(save_path(a));
+    if (path.empty()) throw std::runtime_error("none");
+    bytes = zs::read_file(path);
   } catch (const std::exception&) {
-    a.status = "No save for this seed yet (F5 saves)";
+    a.status = a.world ? "No save in this world yet (F5 saves)" : "No save for this seed yet (F5 saves)";
     return;
   }
   try {
     start(a, a.seed);  // the same setup, then the saved state over it
     a.t.world->load(bytes);
-    a.status = "Loaded " + save_path(a);
+    a.status = "Loaded " + path;
   } catch (const std::exception& ex) {
     start(a, a.seed);
     a.status = std::string("Load failed (") + ex.what() + "): started the seed again";
@@ -1376,8 +1392,12 @@ int window_main(int argc, char** argv) {
   std::optional<Cell> shot_menu;
   bool watch = false;
   Overlay overlay = Overlay::None;
+  std::string world_name, from_save;
   for (int i = 1; i < argc; ++i) {
     if (!std::strcmp(argv[i], "--seed") && i + 1 < argc) seed = std::strtoull(argv[++i], nullptr, 10);
+    else if (!std::strcmp(argv[i], "--world") && i + 1 < argc) world_name = argv[++i];
+    else if (!std::strcmp(argv[i], "--from") && i + 1 < argc) from_save = argv[++i];
+    else if (!std::strcmp(argv[i], "--play")) {}
     else if (!std::strcmp(argv[i], "--shot") && i + 1 < argc) shot = argv[++i];
     else if (!std::strcmp(argv[i], "--watch")) watch = true;
     else if (!std::strcmp(argv[i], "--overlay") && i + 1 < argc) {
@@ -1405,7 +1425,19 @@ int window_main(int argc, char** argv) {
     return 1;
   };
   if (!SDL_Init(SDL_INIT_VIDEO)) return fail("SDL_Init failed");
-  SDL_Window* window = SDL_CreateWindow("Juego Zombie - Tier 0 sandbox", 1440, 900, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+  // A world folder (0074): its seed, and its saves folder for F5 and F9.
+  if (!world_name.empty()) {
+    try {
+      a.world = zs::worlds::load(world_name);
+      seed = a.world->seed;
+    } catch (const std::exception& ex) {
+      std::fprintf(stderr, "%s\n", ex.what());
+      SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "zs", ex.what(), nullptr);
+      return 1;
+    }
+  }
+  const std::string title = "Juego Zombie - " + (a.world ? a.world->name : std::string("Tier 0 sandbox"));
+  SDL_Window* window = SDL_CreateWindow(title.c_str(), 1440, 900, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
   SDL_Renderer* renderer = window ? SDL_CreateRenderer(window, nullptr) : nullptr;
   if (!renderer) return fail("Could not open the window");
   SDL_SetRenderVSync(renderer, 1);
@@ -1422,6 +1454,7 @@ int window_main(int argc, char** argv) {
     if (std::filesystem::exists(std::filesystem::path(base) / "data", ec)) std::filesystem::current_path(base, ec);
   }
   start(a, seed);
+  if (!from_save.empty()) load_game(a, from_save);
   if (watch) a.t.ai->release();
   a.overlay = overlay;
   if (shot_ticks > 0) {

@@ -9,7 +9,7 @@ Labels: **Decided**, **Proposal**, **Implemented**, **Validated** (see CLAUDE.md
 1. **Not a second program.** The Atlas is a mode of `zs.exe` ([0052](../decisions/0052-one-executable-one-simulation.md) rule 1) and the default one: `zs.exe` alone opens the Atlas; `zs.exe --play` (or the Play button) opens the Tier 0 window as today. Every flag and `gen` command keeps working, and every one of them is also a button.
 2. **Nothing written for the Atlas.** Everything it shows comes from a file the repo already maintains: `docs/status.md`, `docs/design/`, `docs/decisions/`, `docs/research/`, `docs/tier0/specs/`, `data/`, the generators and the tests. The one new file is the manifest of runnables (§3). If a page would need text written only for the Atlas, that text goes into the doc it belongs to, and the Atlas reads it there. This is what keeps it from rotting: when a doc changes, the Atlas changes.
 3. **Engine pages and workshop pages** ([0073](../decisions/0073-the-atlas-is-the-front-of-the-engine-no-docs-in-builds.md)). Engine pages are for everyone and stay: the parts of the world, the cards, the playable modes, setup and creation. Workshop pages (the docs reader, decisions, research, tests, backlog, the breakthrough board) exist only when a repo sits next to the executable, and are expected to go or be replaced as their part is finished. **No build ships the docs:** `docs/` is never copied into `data/`, the `play` folder or a release; without a repo the workshop pages are absent and the engine pages work alone.
-4. **Headless parity.** Every button runs the same code path as a flag, and the text it produces is the text the flag prints. The Atlas is a view over `engine/sim`, `engine/gen` and the modes; it owns no simulation state (CLAUDE.md, the core does not depend on the renderer).
+4. **Headless parity.** Every button runs the same executable with the same flags a terminal would (a child process whose output is read as it arrives), so the text it shows is the text the flag prints. The Atlas is a view over `engine/sim`, `engine/gen` and the modes; it owns no simulation state (CLAUDE.md, the core does not depend on the renderer).
 5. **The labels are real.** Decided, Proposal, Implemented, Validated appear as badges, and each badge is read from the doc (a decision's status line, a spec's state, a `ctest` result), never set by hand in the Atlas.
 6. **Cards before editing.** An entity card (§5) first only shows. Editing arrives field by field, under the sandbox rules (settings change numbers, never rules; Auto, Preset, Custom; one validator), and only once the record it edits is read by the simulation.
 
@@ -164,18 +164,18 @@ Rule: every granular answer is a card, a run or a measurement, so the friend can
 
 | What | Where | Note |
 | --- | --- | --- |
-| The mode | `apps/zs/atlas.cpp`, entered from `main.cpp` when no flag is given | SDL3 + Dear ImGui as the window today; the 2D window becomes `--play` |
-| The reader | `apps/zs/atlas/markdown.*` | A small renderer; links resolved against `docs/` |
+| The mode | `apps/zs/atlas.cpp`, entered from `main.cpp` when no flag is given | SDL3 + Dear ImGui as the window today; the 2D window is `--play` (built, [spec 55](../tier0/specs/55-atlas.md)) |
+| The reader | `apps/zs/atlas_md.*` | Our own small renderer (headings, lists, tables, code, links); links resolved against `docs/` |
 | The docs | `docs/` when a repo is found next to the exe (walk up to the repo root); otherwise no workshop pages | Never copied into a build ([0073](../decisions/0073-the-atlas-is-the-front-of-the-engine-no-docs-in-builds.md)) |
 | The manifest | `data/atlas/tries.toml` | Read with tomlplusplus like every pack |
-| Cards | `apps/zs/atlas/cards.*` | Read-only views over `engine/gen` and `engine/sim` records; no state of their own |
-| Runs | `apps/zs/atlas/runner.*` | `text` and `image` in a worker thread in-process; `test` as a child process; every run logged with its command line |
+| Cards | `apps/zs/atlas_cards.*` (slice 3) | Read-only views over `engine/gen` and `engine/sim` records; no state of their own |
+| Runs | `apps/zs/runner.*` | every kind as a child process (the executable itself, or `ctest` in the repo), its output read through a pipe; the command line shown with the output |
 
 No new engine code. Fields a card shows that the engine does not expose yet get a small accessor in the engine, specified like any other unit.
 
 ## 8. Slices, in order
 
-1. **The front door, the Worlds page, the Tour and the Try panel.** `zs.exe` opens the Atlas; the Worlds page (§5a: list, new with a seed, open from start or save, fork, delete; saves move into the world folder); the map of parts; the Tour's five stops (§6a) over what exists today: the planet drawn on screen with countries clickable, the engine Try entries (`window`, `text`, `image` kinds) and the Breakthroughs board read from its doc; the workshop reader with links, badges and search; the status table's Try column generated. Spec first. Small to medium: the planet on screen and the country click are the only new drawing.
+1. **Built 2026-10-11 ([spec 55](../tier0/specs/55-atlas.md)). The front door, the Worlds page, the Tour and the Try panel.** `zs.exe` opens the Atlas; the Worlds page (§5a: list, new with a seed, open from start or save, fork, delete; saves move into the world folder); the map of parts; the Tour's five stops (§6a) over what exists today: the planet drawn on screen with countries clickable, the engine Try entries (`window`, `text`, `image` kinds) and the Breakthroughs board read from its doc; the workshop reader with links, badges and search; the status table's Try column generated. Spec first. Small to medium: the planet on screen and the country click are the only new drawing.
 2. **Tests and the dev strip.** The `test` kind, the Where-it-lives strip with git dates, the build detection (`needs = "build"`). Small.
 3. **Cards, read-only.** Country, town, pop, house, establishment, world, simulation; the lacking rows from the design tables; the question ladder's granular column answered end to end. This is also CF-53, the country card status step 6 already lists. Medium.
 4. **Compute and breakthroughs.** `breakthroughs.md` written; the two boards; Measure again. Small.
@@ -186,4 +186,4 @@ Slices 1 and 2 need no generator or simulation work and do not re-pin any golden
 ## Open
 
 - Markdown renderer: `imgui_markdown` (single header, MIT) covers headings, links, emphasis and images; tables are not in it. Our docs lean on tables. Either extend it or write our own small one at the spec.
-- The parts list of §2 is the design docs grouped by hand once. Should the grouping be a front-matter field in each design doc, so the map builds itself? Default: yes, one `part:` line at the top of each design doc, added in slice 1.
+- The parts list of §2 is grouped in `data/atlas/parts.toml` (engine data, so a player sees the parts too), not in the docs' front matter: slice 1 did not touch thirty design docs for it. A `part:` line per doc can replace it later if the data file drifts.

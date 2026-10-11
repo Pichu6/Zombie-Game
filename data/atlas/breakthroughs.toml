@@ -1,0 +1,61 @@
+# The Breakthroughs board (spec 55 rule 7, atlas design §6): one row per claim, with its evidence, its barrier and the
+# next push. `try` names a Try entry whose output is the evidence, so the board can measure again in front of a friend.
+# status: measured | built | built in part | decided | proposal
+
+[[claim]]
+title = "One simulation under three layers"
+claim = "A nation's output is the sum of what its pops' establishments produce, exact. Macro, City and Individual are one set of rules seen from farther away, not three games glued together."
+evidence = "Specs 32-35 and their tests: stocks, establishments, projects and networks; a transfer traces to its edict and the edict sums its effects (spec 39)."
+barrier = "Travel and ownership (layer jumps rows 18 and 19) are still a gap: a pop cannot yet move between towns or own across layers."
+push = "Build rows 18 and 19 on the one world."
+status = "built in part"
+
+[[claim]]
+title = "Cost is attention x speed, not world size"
+claim = "Reading one person costs the same at 10 million people as at 1 million. The world's size does not change the price of looking at one place; what you attend to, and how fast time runs, does."
+evidence = "The pop bench (spec 28): a million records in 0.4 s; one lazy pop read in 1.5 us at 1 million and at 10 million."
+barrier = "Chunks and threads are not built; wake spikes when a cold region warms are unmeasured."
+push = "The compute budget's measurements: a street corner of 1,000 agents, noise against map size, a 10,000-body fight at 1:1."
+status = "measured"
+try = "pop-bench"
+
+[[claim]]
+title = "A week jumps in a few steps, with the same hash as stepping"
+claim = "Every system names its next wake tick and the world steps only those. A cold world jumps a week in a handful of steps and ends in exactly the state stepping every tick would give."
+evidence = "Spec 40 tests: jump equals step, hash for hash; save, load and replay of the one world agree."
+barrier = "No per-tick subsystem hashes yet, so a divergence is hard to find once chunks and threads arrive."
+push = "Per-subsystem hashes every tick in test builds, with a tool that prints the first divergent tick (backlog item 1)."
+status = "built"
+
+[[claim]]
+title = "Coarse layers derived from the fine rules"
+claim = "Each coarse step is derived from keyed bursts of the entity run and kept random, then validated on held-out seeds, so the aggregate never drifts from what the people would have done."
+evidence = "Research notes EF (coarse layers from fine rules) and TC (two contagions); the outbreak already agrees in distribution at both levels (spec 38)."
+barrier = "Not built. The first experiment needs only specs 38 and 39."
+push = "EF-test 1: a district's outbreak-plus-warning day, six cases including a cascade."
+status = "proposal"
+
+[[claim]]
+title = "The simulation runs ahead of the view"
+claim = "Because the world is deterministic and saveable, what is computed ahead stays valid until an input changes it; an order rolls back to its tick and recomputes. Wrong guesses cost time, never truth."
+evidence = "Research note RA (perception and run-ahead) section 5; the run today is one fixed step ahead and the view interpolates."
+barrier = "Needs per-tick hashes, ids per creator and the testing harness first (backlog items 1, 2 and 4)."
+push = "A decision and a spec after those three."
+status = "proposal"
+
+[[claim]]
+title = "Stories are found, never written"
+claim = "Cases, diaries and lore are derived from what happened in the world, never authored. A story is a path through facts the simulation already holds."
+evidence = "Decision 0067; the design docs story explorer, cases and living lore, story blocks."
+barrier = "Nothing built yet."
+push = "A pop's diary from the event log, then the Tier 0 case of the fuel."
+status = "decided"
+
+[[claim]]
+title = "Days from real time-use data, depth bought by attention"
+claim = "Where any pop is at any hour is a function of their role, their country's calendar and real time-use surveys; a pop you watch gets a richer day than one you do not, and nothing else changes."
+evidence = "Decisions 0069, 0071 and 0072; the calendar (spec 53) is built with 187 country calendars."
+barrier = "Daily schedules (spec 54) are not built."
+push = "Spec 54: anchors drawn once, participation then duration per survey day type, commitments with their holders."
+status = "decided"
+try = "calendar-window"

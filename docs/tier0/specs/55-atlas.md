@@ -1,0 +1,42 @@
+# 55 · The Atlas, slice 1: the front door, worlds, the tour, the try panel, the reader
+
+**Status:** Implemented on MSVC (2026-10-11), written with its code; checked by offscreen shots of every page and one on-screen run. **Stage:** after Tier 0; the first slice of the [Atlas](../../design/atlas.md) design. **Needs:** [06](06-save-replay.md), [16](16-view-2d.md), [42](42-place.md), [52](52-land-water-capacity.md). **Decisions:** [0052](../../decisions/0052-one-executable-one-simulation.md), [0073](../../decisions/0073-the-atlas-is-the-front-of-the-engine-no-docs-in-builds.md), [0074](../../decisions/0074-worlds-create-save-edit-fork-delete.md).
+
+## Purpose
+
+`zs.exe` opened the Tier 0 window and nothing else. The Atlas is what opens now with no flags: a place to pick a world, take a friend through the project in five stops, press a button to run what was just built, and, when the repo sits next to the executable, read its docs. It owns no simulation state and writes nothing the engine reads; it is a view over the modes, the generators and the world folders.
+
+## Rules
+
+1. **The front door.** `zs.exe` with no arguments opens the Atlas. `--play`, or any window flag (`--seed`, `--watch`, `--shot`, `--world`, `--from`), opens the Tier 0 window as before. Headless flags and `gen` are unchanged. `zs world list|new|fork|delete` manages world folders from a terminal. `--atlas` opens the Atlas explicitly and takes `--shot out.bmp [--page P] [--stop N] [--try ID]` for checks without a screen.
+2. **No docs in a build; workshop pages only next to a repo** ([0073](../../decisions/0073-the-atlas-is-the-front-of-the-engine-no-docs-in-builds.md)). The Atlas looks for a repo (a folder with `docs/status.md` and `CLAUDE.md`) above the data folder it was built from, then above the executable. With one, the nav shows Status and Docs and the Try panel shows the test entries; without one, those are absent and nothing else changes. `docs/` is never copied anywhere.
+3. **Worlds as folders** ([0074](../../decisions/0074-worlds-create-save-edit-fork-delete.md)). `worlds/<name>/world.toml` next to the executable holds name, seed, created, built (the build's date), notes and `forked_from`; `saves/` holds the saves. A name is letters, digits, spaces, dots, dashes and underscores. The Atlas lists worlds newest first; New takes a name and a seed (random shown); Fork makes a new folder with the same seed and leaves the saves behind; Delete asks once and sends the folder to the recycle bin (to `worlds/_trash/` where there is none). With no world at all, "World 1" with seed 1 is made so nothing waits. The window, opened with `--world NAME`, takes the world's seed, writes F5 saves to `saves/<civil date>-tick<N>.sav` and loads the newest on F9; `--from FILE` loads that save at start.
+4. **The Try panel reads `data/atlas/tries.toml`**: id, part, spec, title, what, `run` (the arguments after the program), `kind` (`window`, `text`, `image`, `test`), `added` and `workshop`. Entries sort newest first. `{seed}` is the panel's seed, `{world}` the selected world's name, `{out}` a folder for files (`atlas_out/` next to the executable). Every entry runs as a child process: the same executable with those arguments for `window`, `text` and `image`; `ctest` (the one the release build was configured with, from its cache) in the repo for `test`. Its output is read through a pipe and shown as it arrives, with the exit code and the seconds; an `image` entry also shows the file it wrote. Nothing runs on open.
+5. **The reader** draws Markdown: headings, paragraphs, bullet and numbered lists with their indents, fenced code, tables, bold, code spans and links. Links between docs open in the reader (relative to the doc, `#anchors` dropped); web links open in the browser. A list of every `.md` under `docs/` with a search over names and contents; a back button. The map of parts links each part's design docs and specs (by number) into the reader.
+6. **The map of parts reads `data/atlas/parts.toml`** (id, title, line, today, docs, specs): engine data, so a player sees the parts too. Grouping docs under parts in data rather than in the docs' front matter keeps this slice from touching thirty design docs.
+7. **The Breakthroughs board reads `data/atlas/breakthroughs.toml`**: title, claim, evidence, barrier, push, status and an optional `try` whose button is "Measure again" (or "Show" for a window). Statuses: measured, built, built in part, decided, proposal.
+8. **The Tour reads `data/atlas/tour.toml`**: stops with a title, what to say and what to show (`planet`, `page:<id>` or `try:<id>`). The planet stop generates the selected world's planet in a thread (grid 101, the generator's defaults, the same `CountryParams` as `zs gen world`), draws it with one colour per country, names the country under the cursor and opens a card on click: area, people, income group, endowment, coast, periods its capital was held, sectors and towns.
+9. **One raster for the file and the screen.** `zs gen world --bmp` and the Atlas draw the planet through the same `render_planet`, so what the file shows is what the screen shows.
+10. **Big textures are drawn in tiles** (16 × 8): one textured quad of 1,200 px overflows the software renderer's fixed-point triangle setup used by the offscreen shots, and the tiles cost nothing on a GPU.
+
+## State
+
+The Atlas keeps only view state: the page, the selected world, the Try seed, the running child processes and their output, the loaded textures, the open doc and its history, the tour stop. Worlds live in their folders; the output of a run lives in the child process until it ends.
+
+## Code
+
+`apps/zs/atlas.cpp` (the window and its pages), `atlas_md.cpp` (the reader), `runner.cpp` (child processes with their output), `worlds.cpp` (the folders and `zs world`), `planet_raster.cpp` (shared with `gen_cli.cpp`); `main.cpp` routes the flags; `window.cpp` takes `--play`, `--world` and `--from` and writes its saves into the world folder. Data: `data/atlas/{parts,tries,breakthroughs,tour}.toml`. Build: `build/msvc_atlas.bat` builds `zs` alone in release.
+
+## Checks
+
+- `zs world new "Test A" --seed 7`, `fork`, `list`, `delete`: the folder, its `world.toml`, the fork's `forked_from`, the recycle bin (2026-10-11).
+- `zs --play --world "Test A"` then F5: `worlds/Test A/saves/Mon-11-Jan-2027-08-03-tick436.sav` (152,573 bytes) (2026-10-11).
+- `zs --atlas --shot` of every page, of the tour's planet stop, of a `text` Try (`--bench`, 0.2 s, its line shown) and of an `image` Try (`gen world --bmp`, 9.0 s, the map shown) (2026-10-11).
+- The Atlas on screen with the GPU renderer: the planet of seed 7 drawn whole; the generator's own count for seed 7 (348 countries) matches the Atlas's summary line (2026-10-11).
+- `zs gen world --seed 1 --freq 24 --bmp` still writes a 6,291,510-byte file through the shared raster (2026-10-11).
+
+## Open
+
+- The status table's "Try it" column is still written by hand; the generator from the manifest (atlas design §3 rule 3) is a repo tool to write when that table is next rewritten, so as not to rewrite `status.md` under another session.
+- The cards (country, town, pop, house) are slice 3; the country card here is the planet stop's first version.
+- `imgui_markdown` was not used: our docs lean on tables, which it lacks; the reader is our own and covers what the docs use.

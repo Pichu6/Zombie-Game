@@ -1,0 +1,27 @@
+# The Tour (atlas design §6a): five stops to show a friend. Each stop says something and shows something.
+# show: planet (the map, countries clickable) | page:<id> (a page of the Atlas) | try:<id> (a Try entry, run on click)
+
+[[stop]]
+title = "What it is"
+say = "One world and one simulation, from the planet down to one person's day, with or without an outbreak. The planet is generated from a seed: terrain, rivers, soil, deposits, and countries that form by a contest history on the land. Click a country."
+show = "planet"
+
+[[stop]]
+title = "How it works"
+say = "Every layer is the same rules seen from farther away. A nation's output is the sum of what its pops' establishments produce. Every system names its next wake tick, so a cold week jumps in a few steps and ends in the same state, hash for hash, as stepping every tick."
+show = "page:parts"
+
+[[stop]]
+title = "Test it now"
+say = "Make a world with a seed and press Play, or watch the 14-day run as text: the AI drives everyone and the chronicle says who died, when and why. Reopen the world later where it stopped."
+show = "page:worlds"
+
+[[stop]]
+title = "The breakthrough"
+say = "Cost is attention times speed, not world size: reading one person costs the same at ten million as at one million. Press Measure again and watch it build a million people on this machine."
+show = "page:breakthroughs"
+
+[[stop]]
+title = "Where it stands"
+say = "What is built, what is designed, what is next, part by part. Every badge is read from the project itself, never typed for this screen."
+show = "page:parts"

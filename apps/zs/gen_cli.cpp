@@ -28,6 +28,7 @@
 #include "zs/gen/world_people.h"
 #include "zs/tier0.h"
 #include "modes.h"
+#include "planet_raster.h"
 
 namespace {
 
@@ -153,56 +154,8 @@ int gen_main(int argc, char** argv) {
       }
       const std::string bmp = arg(argc, argv, "--bmp", "");
       if (!bmp.empty()) {
-        // 2:1 equirectangular map, 24-bit BMP: biome colour shaded by height or depth.
-        static const unsigned char rgb[zs::gen::biome_count][3] = {
-            {30, 70, 140}, {240, 245, 250}, {170, 180, 150}, {60, 110, 80},  {40, 140, 60},
-            {150, 190, 90}, {225, 200, 130}, {190, 180, 70}, {20, 100, 40},  {130, 120, 110}};
-        const int W = 2048, H = 1024;
-        std::vector<unsigned char> px(static_cast<std::size_t>(W) * H * 3);
-        std::vector<zs::gen::CellId> at(static_cast<std::size_t>(W) * H);
-        for (int y = 0; y < H; ++y)
-          for (int x = 0; x < W; ++x)
-            at[static_cast<std::size_t>(y) * W + x] = grid.cell_at(90.0 - 180.0 * (y + 0.5) / H, -180.0 + 360.0 * (x + 0.5) / W);
         const bool political = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--political"; });
-        auto country_at = [&](int x, int y) { return people.formed.country_of[at[static_cast<std::size_t>(y) * W + ((x + W) % W)]]; };
-        for (int y = 0; y < H; ++y)
-          for (int x = 0; x < W; ++x) {
-            const auto c = at[static_cast<std::size_t>(y) * W + x];
-            // A border (spec 52 slice 4): land whose country differs from the land to its right or below.
-            const int k = country_at(x, y);
-            const bool border = k >= 0 && ((country_at(x + 1, y) >= 0 && country_at(x + 1, y) != k) ||
-                                           (y + 1 < H && country_at(x, y + 1) >= 0 && country_at(x, y + 1) != k));
-            double shade = 1.0;
-            unsigned char col[3];
-            const auto b = static_cast<int>(f.biome[c]);
-            for (int k = 0; k < 3; ++k) col[k] = rgb[b][k];
-            if (f.land(c)) shade = 0.85 + 0.15 * std::min(1.0, f.elevation_m[c] / 4000.0);
-            else shade = 0.55 + 0.45 * std::max(0.0, 1.0 + f.elevation_m[c] / 6000.0);
-            if (f.land(c) && (land.river[c] || land.lake[c])) {  // rivers and lakes in blue (spec 52)
-              const bool big = land.river[c] == 2;
-              col[0] = big ? 0 : 110;
-              col[1] = big ? 150 : 215;
-              col[2] = big ? 255 : 255;
-            }
-            if (political && k >= 0) {  // one colour per country, keyed by its index
-              const std::uint64_t h = zs::gen::mix64(static_cast<std::uint64_t>(k) + 1);
-              for (int q = 0; q < 3; ++q) col[q] = static_cast<unsigned char>(90 + ((h >> (8 * q)) & 127));
-              shade = 1.0;
-            }
-            if (border) col[0] = col[1] = col[2] = 40, shade = 1.0;
-            for (int k = 0; k < 3; ++k)
-              px[(static_cast<std::size_t>(y) * W + x) * 3 + k] = static_cast<unsigned char>(col[k] * shade);
-          }
-        std::ofstream o(bmp, std::ios::binary);
-        auto w32 = [&](std::uint32_t v) { for (int i = 0; i < 4; ++i) o.put(static_cast<char>((v >> (8 * i)) & 255)); };
-        auto w16 = [&](std::uint16_t v) { o.put(static_cast<char>(v & 255)); o.put(static_cast<char>(v >> 8)); };
-        o.write("BM", 2); w32(54 + W * H * 3); w32(0); w32(54); w32(40); w32(W); w32(H); w16(1); w16(24);
-        w32(0); w32(W * H * 3); w32(2835); w32(2835); w32(0); w32(0);
-        for (int y = H - 1; y >= 0; --y)
-          for (int x = 0; x < W; ++x) {
-            const auto* p3 = &px[(static_cast<std::size_t>(y) * W + x) * 3];
-            o.put(static_cast<char>(p3[2])); o.put(static_cast<char>(p3[1])); o.put(static_cast<char>(p3[0]));
-          }
+        zs::atlas::write_bmp(bmp, zs::atlas::render_planet(grid, f, land, &people.formed, political));
         std::cout << "wrote " << bmp << "\n";
       }
       static const char glyph[zs::gen::biome_count] = {' ', '*', ',', 'b', 'f', '"', ':', 's', 'T', '^'};
