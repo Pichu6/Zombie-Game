@@ -11,6 +11,7 @@
 #include <stdexcept>
 
 #include "toml.hpp"
+#include "zs/calendar.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -49,6 +50,29 @@ std::string quoted(const std::string& s) {
   return out + "\"";
 }
 
+void write_settings(std::ostream& o, const zs::gen::WorldSettings& s) {
+  o << "\n[settings]\n"
+    << "land_share = " << s.land_share << "\n"
+    << "global_temp_c = " << s.global_temp_c << "\n"
+    << "relief = " << s.relief << "\n"
+    << "moisture = " << s.moisture << "\n"
+    << "fragmentation = " << s.fragmentation << "\n"
+    << "start_date = " << quoted(date_text(s.start_day)) << "\n";
+}
+
+zs::gen::WorldSettings read_settings(const toml::table& t) {
+  zs::gen::WorldSettings s;
+  if (const toml::table* st = t["settings"].as_table()) {
+    s.land_share = (*st)["land_share"].value_or(s.land_share);
+    s.global_temp_c = (*st)["global_temp_c"].value_or(s.global_temp_c);
+    s.relief = (*st)["relief"].value_or(s.relief);
+    s.moisture = (*st)["moisture"].value_or(s.moisture);
+    s.fragmentation = (*st)["fragmentation"].value_or(s.fragmentation);
+    if (auto d = (*st)["start_date"].value<std::string>()) parse_date(*d, s.start_day);
+  }
+  return s;
+}
+
 void write_meta(const World& w) {
   std::ofstream o(w.dir / "world.toml", std::ios::binary);
   if (!o) throw std::runtime_error("cannot write " + (w.dir / "world.toml").string());
@@ -59,6 +83,8 @@ void write_meta(const World& w) {
     << "built = " << quoted(w.built) << "\n"
     << "notes = " << quoted(w.notes) << "\n";
   if (!w.forked_from.empty()) o << "forked_from = " << quoted(w.forked_from) << "\n";
+  if (!w.realism.empty()) o << "realism = " << quoted(w.realism) << "\n";
+  write_settings(o, w.settings);
 }
 
 void read_saves(World& w) {
@@ -85,6 +111,8 @@ World read_world(const std::filesystem::path& dir) {
   w.built = t["built"].value_or("");
   w.notes = t["notes"].value_or("");
   w.forked_from = t["forked_from"].value_or("");
+  w.realism = t["realism"].value_or("");
+  w.settings = read_settings(t);
   read_saves(w);
   return w;
 }
@@ -155,8 +183,51 @@ World create(const std::string& name, std::uint64_t seed, const std::string& not
 World fork(const World& from, const std::string& new_name) {
   World w = create(new_name, from.seed, from.notes);
   w.forked_from = from.name;
+  w.settings = from.settings;
+  w.realism = from.realism;
   write_meta(w);
   return w;
+}
+
+std::filesystem::path presets_root() { return exe_dir() / "presets" / "world"; }
+
+std::vector<std::string> list_presets() {
+  std::vector<std::string> out;
+  std::error_code ec;
+  for (const auto& e : std::filesystem::directory_iterator(presets_root(), ec))
+    if (e.is_regular_file() && e.path().extension() == ".toml") out.push_back(e.path().stem().string());
+  std::sort(out.begin(), out.end());
+  return out;
+}
+
+zs::gen::WorldSettings load_preset(const std::string& name) {
+  return read_settings(toml::parse_file((presets_root() / (name + ".toml")).string()));
+}
+
+void save_preset(const std::string& name, const zs::gen::WorldSettings& s) {
+  if (!valid_name(name)) throw std::runtime_error("a preset name uses letters, digits, spaces, dots, dashes and underscores");
+  std::filesystem::create_directories(presets_root());
+  std::ofstream o(presets_root() / (name + ".toml"), std::ios::binary);
+  if (!o) throw std::runtime_error("cannot write the preset");
+  o << "# A world preset (spec 55 slice 5): the [settings] table of a world.toml.\nname = " << quoted(name) << "\n";
+  write_settings(o, s);
+}
+
+std::string date_text(std::int64_t day) {
+  const zs::CivilDate d = zs::civil_from_days(day);
+  char buf[32];
+  std::snprintf(buf, sizeof buf, "%04d-%02d-%02d", d.year, d.month, d.day);
+  return buf;
+}
+
+bool parse_date(const std::string& text, std::int64_t& day) {
+  int y = 0, m = 0, d = 0;
+  if (std::sscanf(text.c_str(), "%d-%d-%d", &y, &m, &d) != 3) return false;
+  if (y < 1 || y > 9999 || m < 1 || m > 12 || d < 1 || d > 31) return false;
+  const std::int64_t n = zs::days_from_civil(y, m, d);
+  if (zs::civil_from_days(n).day != d) return false;  // 31 February and the like
+  day = n;
+  return true;
 }
 
 World load(const std::string& name) {

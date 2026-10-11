@@ -79,20 +79,26 @@ zs::Place place_of_town(const WorldGrid& grid, const WorldFields& f, const World
   return p;
 }
 
-zs::tier0::Tier0 make_world(std::uint64_t seed) {
+zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   const WorldGrid grid(kOneWorldFrequency, 6371.0);
   WorldParams wp;
   wp.seed = seed;
+  wp.land_share = settings.land_share;
+  wp.global_temp_c = settings.global_temp_c;
+  wp.relief = settings.relief;
+  wp.moisture = settings.moisture;
   const WorldFields f = generate_fields(grid, wp);
   const std::string data = zs::tier0::data_dir();
   const WorldLand land = generate_land(grid, f);
   DepositParams dp;
   dp.seed = seed;
   const WorldDeposits deposits = generate_deposits(grid, f, dp);
-  const WorldPeople people = populate_world(grid, f, land, deposits, seed, load_group_tables(data), load_real_profiles(data));
+  CountryParams cp;
+  cp.fragmentation = settings.fragmentation;
+  const WorldPeople people = populate_world(grid, f, land, deposits, seed, load_group_tables(data), load_real_profiles(data), cp);
   const int town = choose_town(f, people, seed);
   const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
-  return zs::tier0::make_run(seed, place);
+  return zs::tier0::make_run(seed, place, settings.start_day);
 }
 
 }  // namespace zs::gen

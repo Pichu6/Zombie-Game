@@ -105,3 +105,52 @@ rows = [
   { field = "", need = "Storeys, facade by grammar, era style (building generator)" },
   { field = "", need = "A plot on a laid-out street (next)" },
 ]
+
+# The world's settings a player may edit on the world card (spec 55 slice 5; sandbox parameters §1.2 setup kind,
+# §1.4 bands). realistic: calibrated on Earth; sandbox: allowed, tagged as realism-breaking; outside both: rejected
+# (clamped). Values beyond the Earth value mark the world as touched. Proposal: bands are defaults taken by Claude.
+
+[[setting]]
+field = "land_share"
+label = "Land share"
+what = "The share of the sphere above sea level (Earth 0.29)"
+earth = 0.29
+realistic = [0.15, 0.45]
+sandbox = [0.02, 0.95]
+step = 0.01
+
+[[setting]]
+field = "global_temp_c"
+label = "Mean temperature (C)"
+what = "The area-weighted mean sea-level temperature (Earth 14)"
+earth = 14.0
+realistic = [5.0, 25.0]
+sandbox = [-30.0, 60.0]
+step = 0.5
+
+[[setting]]
+field = "relief"
+label = "Relief"
+what = "Scales the spread of elevations (Earth 1)"
+earth = 1.0
+realistic = [0.5, 2.0]
+sandbox = [0.1, 5.0]
+step = 0.05
+
+[[setting]]
+field = "moisture"
+label = "Moisture"
+what = "Scales the rain (Earth 1)"
+earth = 1.0
+realistic = [0.5, 2.0]
+sandbox = [0.1, 5.0]
+step = 0.05
+
+[[setting]]
+field = "fragmentation"
+label = "Fragmentation"
+what = "How readily polities split in the contest history: 0.5 gives Earth's country count (spec 52 rule 23)"
+earth = 0.5
+realistic = [0.3, 0.7]
+sandbox = [0.0, 1.0]
+step = 0.01

@@ -211,6 +211,7 @@ struct CountryInfo {
 
 struct Planet {
   std::uint64_t seed = 0;
+  zs::gen::WorldSettings settings;  // the settings the planet was generated with (slice 5)
   std::thread thread;
   std::atomic<bool> ready{false};
   std::atomic<bool> busy{false};
@@ -225,10 +226,11 @@ struct Planet {
   int selected = -1;
   double seconds = 0;
 
-  void generate(std::uint64_t s) {
+  void generate(std::uint64_t s, const zs::gen::WorldSettings& st = {}) {
     if (busy) return;
     if (thread.joinable()) thread.join();
     seed = s;
+    settings = st;
     ready = false;
     busy = true;
     if (texture) SDL_DestroyTexture(texture), texture = nullptr;
@@ -242,6 +244,10 @@ struct Planet {
         set("terrain and climate");
         zs::gen::WorldParams wp;
         wp.seed = seed;
+        wp.land_share = settings.land_share;
+        wp.global_temp_c = settings.global_temp_c;
+        wp.relief = settings.relief;
+        wp.moisture = settings.moisture;
         const auto f = zs::gen::generate_fields(grid, wp);
         set("rivers, soil and water");
         const zs::gen::WorldLand land = zs::gen::generate_land(grid, f);
@@ -249,7 +255,8 @@ struct Planet {
         const zs::gen::WorldDeposits deposits = zs::gen::generate_deposits(grid, f);
         set("people, sectors and countries");
         const std::string data = zs::tier0::data_dir();
-        const zs::gen::CountryParams cp;  // the defaults, the same as `zs gen world`
+        zs::gen::CountryParams cp;  // the defaults of `zs gen world`, with the world's fragmentation
+        cp.fragmentation = settings.fragmentation;
         const zs::gen::WorldPeople people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(data),
                                                                      zs::gen::load_real_profiles(data), cp);
         set("the picture");
@@ -596,7 +603,8 @@ void draw_planet(App& a) {
   Planet& p = a.planet;
   const zs::worlds::World* w = current_world(a);
   const std::uint64_t seed = w ? w->seed : 1;
-  if (!p.busy && (!p.ready || p.seed != seed)) p.generate(seed);
+  const zs::gen::WorldSettings settings = w ? w->settings : zs::gen::WorldSettings{};
+  if (!p.busy && (!p.ready || p.seed != seed || !(p.settings == settings))) p.generate(seed, settings);
   if (p.busy) {
     std::string stage;
     {
@@ -673,13 +681,44 @@ void draw_cards_page(App& a) {
   Planet& p = a.planet;
   const zs::worlds::World* w = current_world(a);
   const std::uint64_t seed = w ? w->seed : 1;
-  if (!p.busy && (!p.ready || p.seed != seed)) p.generate(seed);
+  const zs::gen::WorldSettings settings = w ? w->settings : zs::gen::WorldSettings{};
+  if (!p.busy && (!p.ready || p.seed != seed || !(p.settings == settings))) p.generate(seed, settings);
   if (p.busy || !p.ready) {
     ImGui::Text("Generating the planet of seed %llu...", static_cast<unsigned long long>(seed));
     return;
   }
   if (!a.cards) a.cards = make_cards(a.data_dir);
-  draw_cards(*a.cards, p.world_card, p.cards, a.card_country);
+  // The editor (slice 5): the world's own record; apply saves it, fork makes a new world with the draft.
+  WorldEditor ed;
+  if (a.world >= 0 && a.world < static_cast<int>(a.worlds.size())) {
+    zs::worlds::World& wr = a.worlds[static_cast<std::size_t>(a.world)];
+    ed.settings = &wr.settings;
+    ed.locked = zs::worlds::settings_locked(wr);
+    ed.world_name = wr.name;
+    ed.apply = [&a, &wr]() {
+      wr.realism = realism_of(*a.cards, wr.settings);
+      try {
+        zs::worlds::save_meta(wr);
+        a.status = "saved the settings of " + wr.name;
+      } catch (const std::exception& ex) {
+        a.status = ex.what();
+      }
+    };
+    ed.fork = [&a, &wr](const std::string& name, const zs::gen::WorldSettings& s) {
+      zs::worlds::World f = zs::worlds::fork(wr, name);
+      f.settings = s;
+      f.realism = realism_of(*a.cards, s);
+      zs::worlds::save_meta(f);
+      refresh_worlds(a);
+      for (std::size_t i = 0; i < a.worlds.size(); ++i)
+        if (a.worlds[i].name == name) a.world = static_cast<int>(i);
+      a.status = "forked " + wr.name + " into " + name;
+    };
+    ed.presets = [] { return zs::worlds::list_presets(); };
+    ed.load_preset = [](const std::string& n) { return zs::worlds::load_preset(n); };
+    ed.save_preset = [](const std::string& n, const zs::gen::WorldSettings& s) { zs::worlds::save_preset(n, s); };
+  }
+  draw_cards(*a.cards, p.world_card, p.cards, a.card_country, ed.settings ? &ed : nullptr);
   a.card_country = -1;
 }
 
@@ -719,11 +758,13 @@ void draw_worlds(App& a) {
     ImGui::EndPopup();
   }
   ImGui::Spacing();
-  if (ImGui::BeginTable("worlds", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+  if (!a.cards) a.cards = make_cards(a.data_dir);
+  if (ImGui::BeginTable("worlds", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
     ImGui::TableSetupColumn("World", 0, 2);
     ImGui::TableSetupColumn("Seed", 0, 1);
     ImGui::TableSetupColumn("Created", 0, 1.5f);
     ImGui::TableSetupColumn("Saves", 0, 0.7f);
+    ImGui::TableSetupColumn("Settings", 0, 1.4f);
     ImGui::TableSetupColumn("Built", 0, 1);
     ImGui::TableSetupColumn("Notes", 0, 3);
     ImGui::TableHeadersRow();
@@ -739,8 +780,14 @@ void draw_worlds(App& a) {
       ImGui::TableSetColumnIndex(3);
       ImGui::Text("%zu", w.saves.size());
       ImGui::TableSetColumnIndex(4);
-      ImGui::TextUnformatted(w.built.c_str());
+      {
+        const int touched = touched_count(*a.cards, w.settings);
+        if (touched == 0) ImGui::TextDisabled("Earth's defaults");
+        else ImGui::Text("%s, %d touched", realism_of(*a.cards, w.settings).c_str(), touched);
+      }
       ImGui::TableSetColumnIndex(5);
+      ImGui::TextUnformatted(w.built.c_str());
+      ImGui::TableSetColumnIndex(6);
       ImGui::TextWrapped("%s%s", w.forked_from.empty() ? "" : ("fork of " + w.forked_from + ". ").c_str(), w.notes.c_str());
     }
     ImGui::EndTable();
@@ -752,6 +799,14 @@ void draw_worlds(App& a) {
   ImGui::Text("%s", w->name.c_str());
   ImGui::PopFont();
   if (ImGui::Button("Play from the start")) play_world(a, *w, nullptr);
+  ImGui::SameLine();
+  if (ImGui::Button("Settings")) {
+    a.card_country = -1;
+    if (a.cards) {
+      // The world card: no country selected.
+      a.page = Page::Cards;
+    } else a.page = Page::Cards;
+  }
   ImGui::SameLine();
   if (ImGui::Button("Fork")) {
     std::snprintf(a.fork_name, sizeof a.fork_name, "%s 2", w->name.c_str());

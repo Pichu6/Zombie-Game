@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "zs/gen/place.h"
+
 namespace zs::worlds {
 
 struct SaveFile {
@@ -20,6 +22,8 @@ struct World {
   std::string built;     // the build that made it (its date), spec 55 rule 6
   std::string notes;
   std::string forked_from;
+  zs::gen::WorldSettings settings;  // spec 55 slice 5: the [settings] table; defaults when absent
+  std::string realism;              // "realistic" or "sandbox", from the bands at the last save
   std::filesystem::path dir;
   std::vector<SaveFile> saves;  // newest first
 };
@@ -38,6 +42,17 @@ World load(const std::string& name);                         // throws when it i
 void save_meta(const World& w);                              // rewrites world.toml (name, notes)
 // To the recycle bin on Windows; to `worlds/_trash/<name>-<time>` elsewhere. Never erased by this code.
 void remove(const World& w);
+// A world's settings are locked once it has a save (decision 0074 rule 4): then a change forks.
+inline bool settings_locked(const World& w) { return !w.saves.empty(); }
+// Presets: `presets/world/<name>.toml` next to the executable, the same [settings] table as world.toml.
+std::filesystem::path presets_root();
+std::vector<std::string> list_presets();
+zs::gen::WorldSettings load_preset(const std::string& name);
+void save_preset(const std::string& name, const zs::gen::WorldSettings& s);
+// "2027-01-11" <-> a day number.
+std::string date_text(std::int64_t day);
+bool parse_date(const std::string& text, std::int64_t& day);
+
 // Where the window writes its next save for a world at a tick: `saves/<game date>-tick<N>.sav`.
 std::filesystem::path next_save_path(const World& w, const std::string& game_date, std::int64_t tick);
 

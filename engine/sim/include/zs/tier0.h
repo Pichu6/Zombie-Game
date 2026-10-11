@@ -10,6 +10,7 @@
 #include "zs/actions.h"
 #include "zs/dead.h"
 #include "zs/grid.h"
+#include "zs/calendar.h"
 #include "zs/place.h"
 #include "zs/pop_ai.h"
 #include "zs/power.h"
@@ -67,10 +68,10 @@ Tier0 make_world(std::uint64_t seed, bool with_dead = false, int group = 0);
 // Spec 41: it is the one world: the census rows are the registry's founders, and the registry, the economy,
 // orders and the grid tree run in it after the Tier 0 systems.
 // Spec 42: `place` is the block's cell on a generated planet (zs::gen::make_world); the default is a placeholder.
-Tier0 make_run(std::uint64_t seed, const Place& place = default_place());
+Tier0 make_run(std::uint64_t seed, const Place& place = default_place(), std::int64_t start_day = kDefaultStartDay);
 
 // Spec 41: adds the world-scale systems to a run under setup (called by make_run; src/one_world.cpp).
-void add_world_systems(Tier0& t, const Place& place);
+void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day = kDefaultStartDay);
 
 // The stage 4 scripted pop (plan: "done when"): drinks, eats, picks up first-aid supplies,
 // disinfects and dresses its wound, takes tools, breaks a chair into planks and nails them across

@@ -13,12 +13,13 @@
 namespace zs::tier0 {
 
 namespace {
-Tier0 build(std::uint64_t seed, bool with_dead, int group, bool run, const Place& place = default_place());
+Tier0 build(std::uint64_t seed, bool with_dead, int group, bool run, const Place& place = default_place(),
+            std::int64_t start_day = kDefaultStartDay);
 }
 
 Tier0 make_world(std::uint64_t seed, bool with_dead, int group) { return build(seed, with_dead, group, false); }
 
-Tier0 make_run(std::uint64_t seed, const Place& place) { return build(seed, true, 1, true, place); }
+Tier0 make_run(std::uint64_t seed, const Place& place, std::int64_t start_day) { return build(seed, true, 1, true, place, start_day); }
 
 namespace {
 void setup_run(Tier0& t, const std::string& path) {
@@ -76,7 +77,7 @@ void setup_run(Tier0& t, const std::string& path) {
   t.run->start(w, t.player, radio, stranger_tick, bitten, broadcast, end);
 }
 
-Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Place& place) {
+Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Place& place, std::int64_t start_day) {
   if (group > 0 && !with_dead) throw std::invalid_argument("make_world: a group needs the census");
   Tier0 t;
   t.world = std::make_unique<World>(seed);
@@ -156,7 +157,7 @@ Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Pl
   }
   if (is_run) {
     setup_run(t, data + "/tier0/run.toml");
-    add_world_systems(t, place);
+    add_world_systems(t, place, start_day);
   }
   w.close_setup();
   return t;

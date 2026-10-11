@@ -149,7 +149,7 @@ V2 actor_at(const App& a, EntityId id) {
 
 void start(App& a, std::uint64_t seed) {
   a.seed = seed;
-  a.t = zs::gen::make_world(seed);  // the one world (specs 41, 42)
+  a.t = zs::gen::make_world(seed, a.world ? a.world->settings : zs::gen::WorldSettings{});  // the one world (specs 41, 42), the world's settings (spec 55)
   a.t.world->check_every_tick = false;
   a.t.ai->possess(a.t.run->controlled());
   a.selected = a.me();

@@ -96,7 +96,7 @@ std::unique_ptr<GridSystem> make_grids(WorldOwners& ids) {
 
 }  // namespace
 
-void add_world_systems(Tier0& t, const Place& place) {
+void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   World& w = *t.world;
   auto pops = make_pops(w, *t.census, place);
   auto econ = make_economy(w, *t.census, t.owners);
@@ -114,9 +114,10 @@ void add_world_systems(Tier0& t, const Place& place) {
   auto where = std::make_unique<PlaceSystem>(place);  // spec 42
   t.place = where.get();
   t.power->attach_place(t.place);
-  // Spec 53 rule 10: the calendar of the place's country, from the default start date (decision 0072).
+  // Spec 53 rule 10: the calendar of the place's country, from the world's start date (decision 0072; the default
+  // unless a world's settings say otherwise, spec 55).
   auto calendar = std::make_unique<CalendarSystem>(
-      kDefaultStartDay, load_country_calendar(calendar_path(data_dir(), calendar_id(place.profile, place.income))));
+      start_day, load_country_calendar(calendar_path(data_dir(), calendar_id(place.profile, place.income))));
   t.calendar = calendar.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));

@@ -24,8 +24,20 @@ int choose_town(const WorldFields& fields, const WorldPeople& people, std::uint6
 // The place of that town: its cell's record plus the town, sector, country and income group.
 zs::Place place_of_town(const WorldGrid& grid, const WorldFields& fields, const WorldPeople& people, int town, std::uint64_t seed);
 
+// A world's settings (spec 55 slice 5, sandbox parameters §1.1: settings change numbers, never rules): the planet's
+// sliders (spec 31), the country fragmentation (spec 52) and the start day (spec 53). The defaults are the one world's.
+struct WorldSettings {
+  double land_share = 0.29;
+  double global_temp_c = 14.0;
+  double relief = 1.0;
+  double moisture = 1.0;
+  double fragmentation = 0.5;
+  std::int64_t start_day = kDefaultStartDay;
+  bool operator==(const WorldSettings&) const = default;
+};
+
 // The one world (decision 0052, specs 41, 42, 48): generates the planet and its people from `seed`, chooses the block's
 // town and builds the run there, with that town's country. What zs.exe opens and plays.
-zs::tier0::Tier0 make_world(std::uint64_t seed);
+zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings = {});
 
 }  // namespace zs::gen
