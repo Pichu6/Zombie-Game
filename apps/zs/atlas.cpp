@@ -18,6 +18,8 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
+#include <regex>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -65,6 +67,19 @@ struct Stop {
   std::string title, say, show;
 };
 
+// A row of the Compute board (spec 55 rule 13): the number the design doc recorded and how to measure it again.
+struct Measure {
+  std::string id, title, what, unit, commit, date, try_id, pattern;
+  double recorded = 0;
+  double per_ticks = 0;  // > 0: the run's seconds over this many ticks, in us per tick
+  bool gauge = false;
+};
+
+struct Speed {
+  std::string name;
+  double ticks_per_s = 0;
+};
+
 std::vector<std::string> strings(const toml::node_view<const toml::node>& n) {
   std::vector<std::string> out;
   if (const toml::array* a = n.as_array())
@@ -86,6 +101,8 @@ struct Data {
   std::vector<Try> tries;
   std::vector<Claim> claims;
   std::vector<Stop> stops;
+  std::vector<Measure> measures;
+  std::vector<Speed> speeds;
   std::string error;
 };
 
@@ -115,6 +132,27 @@ Data load_data(const std::string& dir) {
     });
     const toml::table tour = toml::parse_file(dir + "/tour.toml");
     each_table(tour, "stop", [&](const toml::table& t) { d.stops.push_back({str(t, "title"), str(t, "say"), str(t, "show")}); });
+    const toml::table compute = toml::parse_file(dir + "/compute.toml");
+    each_table(compute, "measure", [&](const toml::table& t) {
+      Measure m;
+      m.id = str(t, "id");
+      m.title = str(t, "title");
+      m.what = str(t, "what");
+      m.unit = str(t, "unit");
+      m.commit = str(t, "commit");
+      m.try_id = str(t, "try");
+      m.pattern = str(t, "pattern");
+      m.recorded = t["recorded"].value_or(0.0);
+      m.per_ticks = t["per_ticks"].value_or(0.0);
+      m.gauge = t["gauge"].value_or(false);
+      if (auto date = t["date"].as_date()) {
+        std::ostringstream o;
+        o << *date;
+        m.date = o.str();
+      }
+      d.measures.push_back(m);
+    });
+    each_table(compute, "speed", [&](const toml::table& t) { d.speeds.push_back({str(t, "name"), t["ticks_per_s"].value_or(0.0)}); });
   } catch (const std::exception& ex) {
     d.error = ex.what();
   }
@@ -314,7 +352,7 @@ struct Planet {
 
 // ---- The app ----
 
-enum class Page { Worlds, Tour, Cards, Parts, Try, Breakthroughs, Status, Docs };
+enum class Page { Worlds, Tour, Cards, Parts, Try, Breakthroughs, Compute, Status, Docs };
 
 struct DocView {
   fs::path path;  // relative to the repo
@@ -350,6 +388,9 @@ struct App {
   std::map<std::string, SDL_Texture*> images;
   std::string open_try;  // whose output shows in the panel
   fs::path out_dir;
+  // Compute
+  std::string build_commit;  // the repo's HEAD when one sits next to the executable; read once
+  bool build_commit_read = false;
   // Docs
   std::vector<fs::path> docs;             // every .md under docs/, relative to the repo
   std::map<fs::path, std::string> texts;  // loaded on demand
@@ -913,6 +954,174 @@ void draw_breakthroughs(App& a) {
   }
 }
 
+// ---- The Compute board (spec 55 rule 13, atlas design §6) ----
+
+const Try* find_try(const App& a, const std::string& id) {
+  for (const Try& t : a.data.tries)
+    if (t.id == id) return &t;
+  return nullptr;
+}
+
+// The new number of a row from its Try's finished run, or nothing while it runs, failed or does not match.
+std::optional<double> measured(App& a, const Measure& m) {
+  auto it = a.runs.find(m.try_id);
+  if (it == a.runs.end() || !it->second->done() || it->second->exit_code() != 0) return std::nullopt;
+  const Run& r = *it->second;
+  if (m.pattern.empty()) {
+    if (m.per_ticks > 0) return r.seconds() * 1e6 / m.per_ticks;
+    return r.seconds();
+  }
+  try {
+    std::smatch got;
+    const std::string out = r.output();
+    if (std::regex_search(out, got, std::regex(m.pattern)) && got.size() > 1) return std::atof(got[1].str().c_str());
+  } catch (const std::regex_error&) {
+  }
+  return std::nullopt;
+}
+
+std::string number(double v) {
+  char buf[32];
+  std::snprintf(buf, sizeof buf, v >= 100 ? "%.0f" : v >= 10 ? "%.1f" : "%.2f", v);
+  return buf;
+}
+
+// A time in microseconds as us, ms or s.
+std::string time_us(double us) {
+  if (us >= 1e6) return number(us / 1e6) + " s";
+  if (us >= 1e3) return number(us / 1e3) + " ms";
+  return number(us) + " us";
+}
+
+void draw_compute(App& a) {
+  if (!a.build_commit_read) {
+    a.build_commit_read = true;
+    if (!a.repo.empty()) {
+      a.build_commit = capture({"git", "rev-parse", "--short", "HEAD"}, a.repo.string());
+      while (!a.build_commit.empty() && (a.build_commit.back() == '\n' || a.build_commit.back() == '\r')) a.build_commit.pop_back();
+    }
+  }
+  const std::string now_commit = a.build_commit.empty() ? "this build" : a.build_commit;
+  ImGui::TextWrapped("What the engine costs, measured: the number the compute budget recorded, and the same benchmark run again on this "
+                     "machine, with the commit each came from. Measure again runs the Try entry whose output holds the number.");
+  ImGui::Separator();
+  // One button per Try entry; the rows that read it follow.
+  std::vector<std::string> order;
+  for (const Measure& m : a.data.measures)
+    if (std::find(order.begin(), order.end(), m.try_id) == order.end()) order.push_back(m.try_id);
+  for (const std::string& try_id : order) {
+    const Try* t = find_try(a, try_id);
+    ImGui::PushID(try_id.c_str());
+    if (t) {
+      const bool running = a.runs.count(t->id) && !a.runs[t->id]->done();
+      ImGui::BeginDisabled(running);
+      if (ImGui::Button("Measure again", ImVec2(120, 0))) start_try(a, *t);
+      ImGui::EndDisabled();
+      ImGui::SameLine();
+      ImGui::TextUnformatted(t->title.c_str());
+      ImGui::SameLine();
+      ImGui::TextDisabled("zs %s", [&] {
+        std::string s;
+        for (const auto& r : t->run) s += (s.empty() ? "" : " ") + r;
+        return s;
+      }().c_str());
+      if (auto it = a.runs.find(t->id); it != a.runs.end()) {
+        ImGui::SameLine();
+        if (!it->second->done()) ImGui::TextColored({0.9f, 0.8f, 0.4f, 1}, "running... %.1f s", it->second->seconds());
+        else if (it->second->exit_code() == 0) ImGui::TextColored({0.55f, 0.9f, 0.55f, 1}, "done in %.1f s", it->second->seconds());
+        else ImGui::TextColored({1, 0.5f, 0.5f, 1}, "exit code %d", it->second->exit_code());
+      }
+    } else {
+      ImGui::TextColored({1, 0.5f, 0.5f, 1}, "no Try entry '%s' in tries.toml", try_id.c_str());
+    }
+    if (ImGui::BeginTable("rows", 4, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp)) {
+      ImGui::TableSetupColumn("What", 0, 5);
+      ImGui::TableSetupColumn("Recorded", 0, 2);
+      ImGui::TableSetupColumn("On this machine", 0, 2);
+      ImGui::TableSetupColumn("Change", 0, 1);
+      ImGui::TableHeadersRow();
+      for (const Measure& m : a.data.measures) {
+        if (m.try_id != try_id) continue;
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::TextUnformatted(m.title.c_str());
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+        ImGui::TextWrapped("%s", m.what.c_str());
+        ImGui::PopStyleColor();
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Text("%s %s", number(m.recorded).c_str(), m.unit.c_str());
+        ImGui::TextDisabled("%s, %s", m.commit.c_str(), m.date.c_str());
+        ImGui::TableSetColumnIndex(2);
+        const auto got = measured(a, m);
+        if (got) {
+          ImGui::Text("%s %s", number(*got).c_str(), m.unit.c_str());
+          ImGui::TextDisabled("%s", now_commit.c_str());
+        } else if (a.runs.count(m.try_id) && a.runs[m.try_id]->done() && a.runs[m.try_id]->exit_code() == 0) {
+          ImGui::TextColored({1, 0.5f, 0.5f, 1}, "not found in the output");
+        } else {
+          ImGui::TextDisabled("-");
+        }
+        ImGui::TableSetColumnIndex(3);
+        if (got && m.recorded > 0) {
+          const double ratio = *got / m.recorded;
+          const ImVec4 colour = ratio > 1.15 ? ImVec4{1, 0.6f, 0.5f, 1} : ratio < 0.87 ? ImVec4{0.55f, 0.9f, 0.55f, 1} : ImVec4{0.8f, 0.8f, 0.8f, 1};
+          ImGui::TextColored(colour, "%+.0f %%", (ratio - 1) * 100);
+        }
+      }
+      ImGui::EndTable();
+    }
+    ImGui::Spacing();
+    ImGui::PopID();
+  }
+  // The gauge: the budget per tick at each speed against what the block costs today.
+  double cost = 0;
+  std::string cost_from;
+  for (const Measure& m : a.data.measures)
+    if (m.gauge) {
+      if (auto got = measured(a, m)) {
+        cost = *got;
+        cost_from = now_commit;
+      } else {
+        cost = m.recorded;
+        cost_from = m.commit + ", recorded";
+      }
+    }
+  ImGui::Separator();
+  ImGui::PushFont(nullptr, ImGui::GetFontSize() * 1.25f);
+  ImGui::TextColored({1, 0.95f, 0.8f, 1}, "The budget per tick");
+  ImGui::PopFont();
+  ImGui::TextWrapped("The clock ticks every 0.5 game s. Each speed sets how many ticks run per real second, so how much CPU a tick may use. "
+                     "The bar is what the Tier 0 block uses of that budget today: %s us per tick (%s). Six cores is the plan once chunks "
+                     "run in parallel (0041); today everything runs on one.",
+                     number(cost).c_str(), cost_from.c_str());
+  if (ImGui::BeginTable("gauge", 4, ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp)) {
+    ImGui::TableSetupColumn("Speed", 0, 3);
+    ImGui::TableSetupColumn("Ticks per real s", 0, 2);
+    ImGui::TableSetupColumn("One core per tick", 0, 3);
+    ImGui::TableSetupColumn("Six cores per tick", 0, 2);
+    ImGui::TableHeadersRow();
+    for (const Speed& s : a.data.speeds) {
+      if (s.ticks_per_s <= 0) continue;
+      const double budget_us = 1e6 / s.ticks_per_s;
+      ImGui::TableNextRow();
+      ImGui::TableSetColumnIndex(0);
+      ImGui::TextUnformatted(s.name.c_str());
+      ImGui::TableSetColumnIndex(1);
+      ImGui::Text("%.0f", s.ticks_per_s);
+      ImGui::TableSetColumnIndex(2);
+      const double used = cost / budget_us;
+      char label[64];
+      std::snprintf(label, sizeof label, "%.3g %% of %s", used * 100, time_us(budget_us).c_str());
+      ImGui::PushStyleColor(ImGuiCol_PlotHistogram, used > 1 ? ImVec4{0.9f, 0.3f, 0.3f, 1} : used > 0.5 ? ImVec4{0.9f, 0.7f, 0.3f, 1} : ImVec4{0.35f, 0.65f, 0.4f, 1});
+      ImGui::ProgressBar(static_cast<float>(std::min(1.0, used)), ImVec2(-1, 0), label);
+      ImGui::PopStyleColor();
+      ImGui::TableSetColumnIndex(3);
+      ImGui::TextUnformatted(time_us(budget_us * 6).c_str());
+    }
+    ImGui::EndTable();
+  }
+}
+
 void draw_tour(App& a) {
   if (a.data.stops.empty()) return;
   a.stop = std::clamp(a.stop, 0, static_cast<int>(a.data.stops.size()) - 1);
@@ -940,6 +1149,7 @@ void draw_tour(App& a) {
   else if (s.show == "page:parts") draw_parts(a);
   else if (s.show == "page:worlds") draw_worlds(a);
   else if (s.show == "page:breakthroughs") draw_breakthroughs(a);
+  else if (s.show == "page:compute") draw_compute(a);
   else if (s.show == "page:try") draw_try(a);
   else if (s.show.rfind("try:", 0) == 0) {
     for (const Try& t : a.data.tries)
@@ -1028,6 +1238,7 @@ void draw_nav(App& a) {
   item("Parts", Page::Parts);
   item("Try", Page::Try);
   item("Breakthroughs", Page::Breakthroughs);
+  item("Compute", Page::Compute);
   if (!a.repo.empty()) {
     ImGui::Spacing();
     ImGui::TextDisabled("Workshop");
@@ -1047,7 +1258,7 @@ void draw_nav(App& a) {
 
 }  // namespace
 
-// zs --atlas [--shot out.bmp] [--page worlds|tour|parts|try|breakthroughs|status|docs] [--stop N]
+// zs --atlas [--shot out.bmp] [--page worlds|tour|parts|try|breakthroughs|compute|status|docs] [--stop N]
 // --shot renders the page without a screen and saves it, for checks (like the window's --shot).
 int atlas_main(int argc, char** argv) {
   std::string shot, page_name, try_id;
@@ -1101,6 +1312,7 @@ int atlas_main(int argc, char** argv) {
   else if (page_name == "cards") a.page = Page::Cards;
   else if (page_name == "try") a.page = Page::Try;
   else if (page_name == "breakthroughs") a.page = Page::Breakthroughs;
+  else if (page_name == "compute") a.page = Page::Compute;
   else if (page_name == "docs") a.page = Page::Docs;
   else if (page_name == "status" && !a.repo.empty()) open_doc(a, fs::path("docs") / "status.md");
   a.stop = stop;
@@ -1114,7 +1326,7 @@ int atlas_main(int argc, char** argv) {
     for (const Try& t : a.data.tries)
       if (t.id == try_id) {
         start_try(a, t);
-        a.page = Page::Try;
+        if (page_name.empty()) a.page = Page::Try;  // with --page compute, the board shows the number it read
       }
 
   bool running = true;
@@ -1146,6 +1358,7 @@ int atlas_main(int argc, char** argv) {
       case Page::Parts: draw_parts(a); break;
       case Page::Try: draw_try(a); break;
       case Page::Breakthroughs: draw_breakthroughs(a); break;
+      case Page::Compute: draw_compute(a); break;
       case Page::Status:
       case Page::Docs: draw_docs(a); break;
     }

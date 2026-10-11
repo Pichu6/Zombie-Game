@@ -22,6 +22,7 @@
 11. **The strip (slice 2, 2026-10-11).** An open doc shows its path, the date and subject of the last commit that touched it (`git log -1`, through the same runner; nothing when git is not there) and "linked from": every doc whose text links to it, as buttons. Test entries need the release build next to the repo (`build/release/CMakeCache.txt`), not only the repo.
 
 12. **The cards (slice 3, 2026-10-11).** A Cards page, and a double-click (or "Open its card") on the Tour's planet. Each card is a diff between the design and the build: `data/atlas/cards.toml` lists, per kind (world, country, town, pop, house), the rows the design asks for with the spec that produces each; the card fills a row from the generator's record, shows "not read yet" for a produced row the Atlas does not read, and "lacking" for a row with no producer, and counts the three. Values: the world from the planet's grid, people and history; a country from specs 48, 49 and 52 plus its calendar file (spec 53: rest days, holidays in 2027, the school year); a town from the planet's settlement (people, rank, cell, position) plus a town generated for its country's profile with 120 people (spec 47, seed = the world seed mixed with the cell), its streets, businesses, households and dwellings (spec 51), said on the card to be a stand-in until spec 48's towns carry their own people; a pop from the generated record and its dossier; a house from its dwelling and the site map `house_toml` writes. The simulation card waits for the Atlas to open a world in-process (slice 4 or later). `--card N --pick` with `--shot` selects a country, its first town, first pop and their house for a check.
+13. **The Compute board (slice 4, 2026-10-11)** reads `data/atlas/compute.toml`: one `measure` per row of the compute budget's table (title, what, the recorded number with its unit, commit and date, the Try entry whose output holds the number, and either a `pattern`, a regular expression whose one group is the number, or none, in which case the number is the run's own wall-clock seconds, divided by `per_ticks` into microseconds per tick when given); and the speed ladder as `speed` rows (name, ticks per real second). The page shows one Measure again button per Try entry, then its rows as recorded against on this machine, the new number labelled with the repo's HEAD (or "this build" without a repo) and the change in percent, coloured past 15 % either way. The gauge takes the row marked `gauge` (the whole block), measured if it has been, recorded otherwise, and fills a bar per speed with its share of one core's budget per tick (a second over the ticks), with the six-core budget beside it. `--page compute --try ID --shot` measures one entry and shoots the board with its numbers.
 
 ## State
 
@@ -29,7 +30,7 @@ The Atlas keeps only view state: the page, the selected world, the Try seed, the
 
 ## Code
 
-`apps/zs/atlas.cpp` (the window and its pages), `atlas_md.cpp` (the reader), `runner.cpp` (child processes with their output), `worlds.cpp` (the folders and `zs world`), `planet_raster.cpp` (shared with `gen_cli.cpp`); `main.cpp` routes the flags; `window.cpp` takes `--play`, `--world` and `--from` and writes its saves into the world folder. Data: `data/atlas/{parts,tries,breakthroughs,tour}.toml`. Build: `build/msvc_atlas.bat` builds `zs` alone in release.
+`apps/zs/atlas.cpp` (the window and its pages), `atlas_md.cpp` (the reader), `runner.cpp` (child processes with their output), `worlds.cpp` (the folders and `zs world`), `planet_raster.cpp` (shared with `gen_cli.cpp`); `main.cpp` routes the flags; `window.cpp` takes `--play`, `--world` and `--from` and writes its saves into the world folder. Data: `data/atlas/{parts,tries,breakthroughs,tour,cards,compute}.toml`. Build: `build/msvc_atlas.bat` builds `zs` alone in release.
 
 ## Checks
 
@@ -40,6 +41,7 @@ The Atlas keeps only view state: the page, the selected world, the Try seed, the
 - The test Try `gen-tests` through the panel: ctest found from the build's cache, 1 of 1 passed in 39 s, its lines shown (2026-10-11, slice 2).
 - Cards page shots: the world card (seed 7: 9 produced, 1 not read, 2 lacking), a country card with its calendar row and towns (11 produced, 0 not read, 5 lacking), and the picked chain down to a house with its site map (2026-10-11, slice 3).
 - `zs gen world --seed 1 --freq 24 --bmp` still writes a 6,291,510-byte file through the shared raster (2026-10-11).
+- Compute board shots: the board alone (every row recorded, nothing measured); after `--try pop-bench` (five rows read from the output: records 0.42 s against 0.40, lazy 1.70 us against 1.70, promotion 0.86 against 0.84, demography 0.55 against 0.52, rosters 0.66 ms against 0.63, all within +5 %); after `--try run-chronicle` (the block 4.03 us per tick against 4.30, -6 %, the gauge then reading 0.29 % of the 1.39 ms budget at 360x) (2026-10-11, slice 4).
 
 ## Open
 

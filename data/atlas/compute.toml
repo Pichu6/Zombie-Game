@@ -1,0 +1,112 @@
+# The Compute board (spec 55 rule 13, atlas design §6): the measurements of the compute budget design doc as rows,
+# each with the number recorded there and the Try entry that measures it again on this machine.
+# recorded: the number in the doc, in `unit`; commit and date: where it was measured.
+# try: the Try entry whose output holds the number. pattern: a regular expression with one group, the new number in
+# that output; no pattern: the number is the run's own wall-clock seconds. per_ticks: the seconds are divided by this
+# many ticks and shown in microseconds per tick (the run has no clock of its own).
+# gauge = true: this row's microseconds per tick fill the budget gauge against the speeds below.
+
+[[measure]]
+id = "block"
+title = "The whole Tier 0 block"
+what = "zs --run, 14 game days: 4 pops, about 60 walkers, generator, fuel, noise, light, AI and the chronicle. 10.3 s real, about 0.74 s per game day, roughly 115,000x real time."
+recorded = 4.3
+unit = "us per tick"
+commit = "bd4707e"
+date = 2026-10-10
+try = "run-chronicle"
+per_ticks = 2419200
+gauge = true
+
+[[measure]]
+id = "bodies"
+title = "Bodies only"
+what = "zs --bench: 4 pops + 60 walkers for one game day. About 0.6 us per tick, 10 ns per body per tick."
+recorded = 0.105
+unit = "s"
+commit = "bd4707e"
+date = 2026-10-10
+try = "bench"
+pattern = "([0-9.]+) s real"
+
+[[measure]]
+id = "records"
+title = "Pop records (B1)"
+what = "A million pop records built; 0.4 us each, 17 bytes each saved."
+recorded = 0.40
+unit = "s"
+commit = "bd4707e"
+date = 2026-10-10
+try = "pop-bench"
+pattern = "B1 records\\s+1000000: build\\s+([0-9.]+) s"
+
+[[measure]]
+id = "lazy"
+title = "Lazy pops (B2)"
+what = "One snapshot of a lazy pop among ten million, with 100 recorded effects. The same at one million: the world's size does not change the cost of reading one person."
+recorded = 1.7
+unit = "us"
+commit = "bd4707e"
+date = 2026-10-10
+try = "pop-bench"
+pattern = "B2 lazy\\s+10000000 pops,\\s+100 effects: one snapshot\\s+([0-9.]+) us"
+
+[[measure]]
+id = "promotion"
+title = "Promotion (B3)"
+what = "A lazy pop promoted to a record."
+recorded = 0.84
+unit = "us"
+commit = "bd4707e"
+date = 2026-10-10
+try = "pop-bench"
+pattern = "lazy->record ([0-9.]+) us"
+
+[[measure]]
+id = "demography"
+title = "Demography (B4)"
+what = "A million founders over 60 years; 0.34 us per person visited."
+recorded = 0.52
+unit = "s"
+commit = "bd4707e"
+date = 2026-10-10
+try = "pop-bench"
+pattern = "B4\\s+1000000 founders over 60 years:\\s+([0-9.]+) s"
+
+[[measure]]
+id = "rosters"
+title = "Rosters (B7)"
+what = "A 10 % layoff of a 10,000-member roster; about 63 ns per member."
+recorded = 0.63
+unit = "ms"
+commit = "bd4707e"
+date = 2026-10-10
+try = "pop-bench"
+pattern = "rosters of 10000: .*one 10% layoff\\s+([0-9.]+) ms"
+
+# The speed ladder (decision 0050, compute budget §2): ticks per real second at each speed. The budget per tick on one
+# core is a second divided by the ticks; six cores is the plan once chunks run in parallel (decision 0041).
+
+[[speed]]
+name = "1:1 (fights, forced)"
+ticks_per_s = 2
+
+[[speed]]
+name = "3x (walking)"
+ticks_per_s = 6
+
+[[speed]]
+name = "10x"
+ticks_per_s = 20
+
+[[speed]]
+name = "1 hour = 1 day (24x)"
+ticks_per_s = 48
+
+[[speed]]
+name = "60x"
+ticks_per_s = 120
+
+[[speed]]
+name = "360x"
+ticks_per_s = 720
