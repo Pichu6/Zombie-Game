@@ -105,7 +105,8 @@ int PoliceCases::rank_of(const Case& c) const {
 
 // Staff are free: the best waiting case gets a search (the ladder's search opens), until the force has none left.
 void PoliceCases::start_searches(World& w) {
-  while (active_searches() < params_.searches_at_once) {
+  const int cap = capacity(w);
+  while (active_searches() < cap) {
     Case* best = nullptr;
     for (Case& c : cases_)
       if (!c.searching && (!best || rank_of(c) < rank_of(*best))) best = &c;
@@ -113,6 +114,36 @@ void PoliceCases::start_searches(World& w) {
     best->searching = true;
     exp_->start_search(w, best->pop);
   }
+}
+
+// The staff changed (a shift began or ended, an officer went absent or came back): searches the force can no longer run go back
+// to waiting (the lowest risk and newest first), then the free staff take the best cases waiting.
+void PoliceCases::reevaluate(World& w) {
+  if (cases_.empty()) return;
+  const int cap = capacity(w);
+  while (active_searches() > cap) {
+    Case* worst = nullptr;
+    for (Case& c : cases_)
+      if (c.searching && (!worst || c.tier > worst->tier || (c.tier == worst->tier && c.opened > worst->opened))) worst = &c;
+    if (!worst) break;
+    worst->searching = false;
+    exp_->suspend_search(worst->pop);
+    w.emit(EventType::SearchSuspended, worst->pop, 0, cap, active_searches());
+  }
+  start_searches(w);
+  next_eval_ = next_change_ ? next_change_(w, w.clock.tick) : System::kNever;  // the staff cannot change before this
+}
+
+// Called every tick, looks only when the staff may have changed (a shift began or ended): the listeners cover absences.
+void PoliceCases::update(World& w) {
+  if (!cases_.empty() && w.clock.tick >= next_eval_) reevaluate(w);
+}
+
+void PoliceCases::on_absence_begun(World& w, const Expectations::Case&, EventId) { reevaluate(w); }
+
+std::int64_t PoliceCases::next_wake(const World& w, std::int64_t now) const {
+  if (cases_.empty() || !next_change_) return kNever;
+  return std::max(now, next_eval_);
 }
 
 void PoliceCases::on_reported(World& w, const Expectations::Case& c, EventId reported) {
@@ -123,10 +154,10 @@ void PoliceCases::on_reported(World& w, const Expectations::Case& c, EventId rep
   k.serial = opened_total_++;
   k.tier = draw_tier(w, c, k.serial);
   cases_.push_back(k);
-  const int free_slot = active_searches() < params_.searches_at_once ? 1 : 0;
+  const int free_slot = active_searches() < capacity(w) ? 1 : 0;
   const int rank = rank_of(cases_.back());
   w.emit(EventType::PoliceCaseOpened, c.pop, reported, static_cast<std::int64_t>(k.tier), free_slot && rank == 1 ? 0 : rank);
-  start_searches(w);
+  reevaluate(w);
 }
 
 void PoliceCases::on_absence_ended(World& w, const Expectations::Case& c, EventId ended) {

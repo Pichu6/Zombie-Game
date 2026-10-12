@@ -36,9 +36,20 @@ class PoliceCases : public System, public Expectations::Listener {
 
   void on_reported(World& w, const Expectations::Case& c, EventId reported) override;
   void on_absence_ended(World& w, const Expectations::Case& c, EventId ended) override;
+  void on_absence_begun(World& w, const Expectations::Case& c, EventId began) override;
 
-  void update(World&) override {}
-  std::int64_t next_wake(const World&, std::int64_t) const override { return kNever; }
+  // Spec 65: staff. `capacity` is how many searches the force can run now (its officers on duty and present); `next_change`
+  // is the next tick after `now` it may change. Without them the force runs the table's `searches_at_once` always.
+  using Capacity = std::function<int(const World&)>;
+  using NextChange = std::function<std::int64_t(const World&, std::int64_t now)>;
+  void set_staffing(Capacity capacity, NextChange next_change) {
+    capacity_ = std::move(capacity);
+    next_change_ = std::move(next_change);
+  }
+  int capacity(const World& w) const { return capacity_ ? capacity_(w) : params_.searches_at_once; }
+
+  void update(World& w) override;
+  std::int64_t next_wake(const World& w, std::int64_t now) const override;
   void save(ArchiveWriter& w) const override;
   void load(ArchiveReader& r) override;
 
@@ -62,9 +73,13 @@ class PoliceCases : public System, public Expectations::Listener {
   FoundBy draw_found_by(const World& w, PopId pop, std::int64_t serial) const;
   int rank_of(const Case& c) const;  // 1-based place in the queue among the cases waiting
   void start_searches(World& w);
+  void reevaluate(World& w);  // the staff changed: suspend the searches it can no longer run, start the ones it can
   PoliceParams params_;
   Expectations* exp_;
   std::function<bool(PopId)> is_child_;  // never saved
+  Capacity capacity_;                    // never saved
+  NextChange next_change_;               // never saved
+  std::int64_t next_eval_ = 0;           // the next tick the staff may change (never saved: after a load the first update looks again)
   std::vector<Case> cases_;
   std::int64_t opened_total_ = 0, resolved_total_ = 0;
 };

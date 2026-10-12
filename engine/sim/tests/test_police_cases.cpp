@@ -259,17 +259,18 @@ TEST_CASE("in the one world, every report opens a case and the police run the se
   t.missing->set_rate_scale(8000);
   t.missing->redraw(*t.world, 0);
   t.world->jump(200 * kTicksPerGameDay);
-  int reports = 0, opened = 0, resolved = 0, searches = 0;
+  int reports = 0, opened = 0, resolved = 0, searches = 0, suspended = 0;
   for (const Event& e : t.world->log.all()) {
     reports += e.type == EventType::MissingReported;
     opened += e.type == EventType::PoliceCaseOpened;
     resolved += e.type == EventType::PoliceCaseResolved;
     searches += e.type == EventType::SearchStarted;
+    suspended += e.type == EventType::SearchSuspended;
   }
   CHECK(reports > 3);
   CHECK(opened == reports);
   CHECK(static_cast<std::int64_t>(opened) == t.police->opened_total());
   CHECK(resolved + static_cast<int>(t.police->cases().size()) == opened);
-  CHECK(searches <= opened);
+  CHECK(searches <= opened + suspended);  // a suspended search is started again (spec 65)
   CHECK(t.police->active_searches() <= 2);
 }

@@ -110,6 +110,7 @@ enum class EventType : std::uint16_t {
   // Spec 64: the police case of a missing person.
   PoliceCaseOpened = 83,   // subject = pop, a = risk tier (0 high, 1 medium, 2 low), b = the queue position (0: staffed at once)
   PoliceCaseResolved = 84, // subject = pop, a = who found it (0 own free will, 1 police, 2 other), b = ticks the case was open
+  SearchSuspended = 85,    // subject = pop: the search lost its staff (a shift ended or an officer was absent), a = officers on duty, b = searches the force can run
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

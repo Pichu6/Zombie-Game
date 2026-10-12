@@ -374,6 +374,8 @@ std::optional<Described> describe(const App& a, const Event& e) {
     case EventType::PoliceCaseOpened:
       return Described{"A police case opened for " + pop_name(a, e.subject) + " (" + (e.a == 0 ? "high" : e.a == 1 ? "medium" : "low") + " risk" +
                            (e.b > 0 ? ", waiting: number " + std::to_string(e.b) + ")" : ", a search at once)"), "alert", kWorld};
+    case EventType::SearchSuspended:
+      return Described{"The search for " + pop_name(a, e.subject) + " is suspended: not enough officers", "alert", kWorld};
     case EventType::PoliceCaseResolved:
       return Described{"The police case for " + pop_name(a, e.subject) + " is resolved: " +
                            (e.a == 0 ? "returned of their own free will" : e.a == 1 ? "found by the police" : "found by others"), "done", kWorld};

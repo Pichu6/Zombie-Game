@@ -12,6 +12,7 @@
 #include "zs/orders_system.h"
 #include "zs/payroll.h"
 #include "zs/police.h"
+#include "zs/police_staff.h"
 #include "zs/pop_system.h"
 #include "zs/schedule.h"
 #include "zs/tier0.h"
@@ -25,6 +26,8 @@ constexpr std::uint32_t kBlockRegion = 1;
 constexpr std::uint64_t kHouseholdRoster = std::uint64_t{1} << 32;  // the generator's household roster ids (registry_bridge)
 constexpr std::uint64_t kEmployerRoster = std::uint64_t{1} << 33;   // spec 62: the placeholder employer's workplace roster
 constexpr std::int64_t kPlaceholderPayrollCents = 10'000'000'000;       // what the placeholder employer holds to pay wages (until establishments are placed)
+constexpr std::uint64_t kForceCohort = 2;                                // spec 65: the police force serving the town
+constexpr std::uint64_t kPoliceRoster = std::uint64_t{1} << 34;          // its workplace roster
 
 // Placeholder money until the data spec (decision 0052 item 4) gives real wallets and budgets.
 constexpr std::int64_t kPlaceholderAdultWalletCents = 50'000;
@@ -52,7 +55,7 @@ bool has_job(const Person& p) { return !is_dead(p.fate) && p.age >= 18 && p.age 
 
 // Rule 2: one founder per census row, slot = row, the row's age and sex; households as rosters.
 // Spec 48: the block's country is its place's income group's base country; spec 49: or its real profile.
-std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place& place) {
+std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place& place, int officers) {
   const std::string data = data_dir();
   auto pops = std::make_unique<PopSystem>(w, make_pop_params(load_nation(data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml"), data));
   PopRegistry& reg = pops->setup(w);
@@ -79,11 +82,18 @@ std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place
   reg.add_roster(kEmployerRoster, kBlockRegion, RosterKind::Workplace);  // spec 62
   for (std::size_t i = 0; i < people.size(); ++i)
     if (has_job(people[i])) reg.roster_join(kEmployerRoster, census_pop_id(static_cast<std::uint32_t>(i)), 0.0);
+  // Spec 65: the police force that serves the town: more founders after the census's, on their own roster (a workplace).
+  reg.add_cohort({kForceCohort, kBlockRegion, static_cast<std::uint32_t>(people.size()), static_cast<std::uint64_t>(officers)});
+  std::vector<FounderSpec> force;
+  for (int i = 0; i < officers; ++i) force.push_back({static_cast<std::uint16_t>(25 + (i * 7) % 31), i % 4 == 0 ? PopSex::Female : PopSex::Male});
+  reg.set_founder_specs(kForceCohort, std::move(force));
+  reg.add_roster(kPoliceRoster, kBlockRegion, RosterKind::Workplace);
+  for (int i = 0; i < officers; ++i) reg.roster_join(kPoliceRoster, census_pop_id(static_cast<std::uint32_t>(people.size()) + static_cast<std::uint32_t>(i)), 0.0);
   return pops;
 }
 
 // Rule 3: country, region, the map's three buildings, one owner per person; placeholder money.
-std::unique_ptr<EconomySystem> make_economy(World& w, const Census& census, WorldOwners& ids) {
+std::unique_ptr<EconomySystem> make_economy(World& w, const Census& census, WorldOwners& ids, int officers) {
   auto econ = std::make_unique<EconomySystem>(w);
   Owners& o = econ->owners();
   ids.country = o.add(w.ledger, "country", Scope::Country);
@@ -96,6 +106,11 @@ std::unique_ptr<EconomySystem> make_economy(World& w, const Census& census, Worl
     const OwnerId pop = o.add(w.ledger, p.name, Scope::Pop, ids.region);
     ids.pops.push_back(pop);
     if (p.age >= 18 && !is_dead(p.fate)) w.ledger.mint(pop, money, kPlaceholderAdultWalletCents);
+  }
+  for (int i = 0; i < officers; ++i) {  // spec 65: the officers' wallets, by registry slot after the census's
+    const OwnerId pop = o.add(w.ledger, "officer " + std::to_string(i + 1), Scope::Pop, ids.region);
+    ids.pops.push_back(pop);
+    w.ledger.mint(pop, money, kPlaceholderAdultWalletCents);
   }
   w.ledger.mint(ids.country, money, kPlaceholderCountryBudgetCents);
   w.ledger.mint(ids.region, money, kPlaceholderRegionBudgetCents);
@@ -182,8 +197,11 @@ NextCommitment make_commitments(const Census& census, const CalendarSystem& cale
 
 void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   World& w = *t.world;
-  auto pops = make_pops(w, *t.census, place);
-  auto econ = make_economy(w, *t.census, t.owners);
+  // Spec 65: the police force serving the town, sized by its population: officers are pops after the census's, with shifts.
+  const ForceParams force_params = load_force_params(data_dir() + "/institutions/police/force.toml", place.profile, place.income);
+  const int officers = force_size(force_params, place.town_people);
+  auto pops = make_pops(w, *t.census, place, officers);
+  auto econ = make_economy(w, *t.census, t.owners, officers);
   auto orders = std::make_unique<OrdersSystem>(econ.get(), pops.get());
   std::vector<PopId> audience;  // rule 5: the living founders
   for (std::size_t i = 0; i < t.census->people().size(); ++i)
@@ -208,7 +226,16 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // reads the system it is given to.
   auto lost_jobs = std::make_shared<const Expectations*>(nullptr);
   auto bonds_link = std::make_shared<const Bonds*>(nullptr);
-  const NextCommitment commitments = make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs, bonds_link);
+  // Spec 65: the officers as pops with shifts; their commitments come from the force, everyone else's from the census.
+  auto staff = std::make_shared<PoliceStaff>(force_params, std::make_shared<TimeUseTable>(timeuse_for(data_dir(), place.profile, place.income)),
+                                             calendar.get(), w.rng.seed());
+  const std::size_t census_size = t.census->people().size();
+  for (int i = 0; i < officers; ++i) staff->add_officer(census_pop_id(static_cast<std::uint32_t>(census_size) + static_cast<std::uint32_t>(i)), 25 + (i * 7) % 31, i % 4 == 0 ? 'f' : 'm');
+  t.force = staff;
+  const NextCommitment census_commitments = make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs, bonds_link);
+  const NextCommitment commitments = [census_commitments, staff](PopId pop, std::int64_t from) -> std::optional<Commitment> {
+    return staff->is_officer(pop) ? staff->next_commitment(pop, from) : census_commitments(pop, from);
+  };
   auto expectations = std::make_unique<Expectations>(
       load_expectation_params(data_dir() + "/life/expectations.toml"),
       commitments,
@@ -219,11 +246,13 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // process of absences at the country's rates by age class; the ladder above reacts to them.
   auto missing = std::make_unique<MissingPersons>(
       load_missing_params(data_dir() + "/life/missing.toml", place.profile, place.income), expectations.get(),
-      [people = t.census](PopId id) {
+      [people = t.census, census_size, officers](PopId id) {
+        if (!is_born(id) && founder_slot_of(id) >= census_size && founder_slot_of(id) < census_size + static_cast<std::size_t>(officers)) return true;  // an officer
         return !is_born(id) && founder_slot_of(id) < people->people().size() && !is_dead(people->people()[founder_slot_of(id)].fate);
       });
   for (std::size_t i = 0; i < t.census->people().size(); ++i)
     if (!is_dead(t.census->people()[i].fate)) missing->track(w, census_pop_id(static_cast<std::uint32_t>(i)), t.census->people()[i].age);
+  for (int i = 0; i < officers; ++i) missing->track(w, census_pop_id(static_cast<std::uint32_t>(census_size) + static_cast<std::uint32_t>(i)), 25 + (i * 7) % 31);  // spec 65
   t.missing = missing.get();
   // Spec 62: money and labour: the placeholder employer pays each shift worked and nothing for a shift missed; a separation takes
   // the pop off its workplace roster.
@@ -232,6 +261,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
       t.owners.employers, kEmployerRoster, [owners = t.owners.pops](PopId id) { return owners[founder_slot_of(id)]; });
   for (std::size_t i = 0; i < t.census->people().size(); ++i)
     if (has_job(t.census->people()[i])) payroll->track(census_pop_id(static_cast<std::uint32_t>(i)));
+  for (int i = 0; i < officers; ++i) payroll->track(census_pop_id(static_cast<std::uint32_t>(census_size) + static_cast<std::uint32_t>(i)));  // spec 65: the officers are paid too
   t.payroll = payroll.get();
   // Spec 63: the household after an absence or a lost job: each holder carries a strain toward the pop, easing over time; past
   // a limit the holder leaves the household's roster. The ladder's system tells it.
@@ -249,6 +279,9 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
       [people = t.census](PopId id) { return !is_born(id) && founder_slot_of(id) < people->people().size() && people->people()[founder_slot_of(id)].age <= 17; });
   expectations->set_external_search(true);
   expectations->add_listener(police.get());
+  // Spec 65: the force's searches are the officers on duty and present over the officers one takes; a shift change is a wake.
+  police->set_staffing([staff, exp = expectations.get()](const World& world) { return staff->capacity(world.clock.tick, exp); },
+                       [staff](const World&, std::int64_t now) { return staff->next_change(now); });
   t.police = police.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));

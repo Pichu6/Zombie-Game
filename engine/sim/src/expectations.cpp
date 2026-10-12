@@ -142,6 +142,7 @@ void Expectations::apply_command(World& w, const Command& c, EventId cause) {
       }
     }
     cases_.push_back(std::move(k));
+    for (Listener* l : listeners_) l->on_absence_begun(w, cases_.back(), cases_.back().begin_event);
   } else if (c.type == AbsenceEnd) {
     const auto it = std::find_if(cases_.begin(), cases_.end(), [&](const Case& k) { return k.pop == c.subject; });
     if (it == cases_.end()) return refuse(w, c, cause, 2);
@@ -205,6 +206,16 @@ void Expectations::start_search(World& w, PopId pop) {
     c.next_tick = kNever;
     return;
   }
+}
+
+// The search lost its staff (spec 65): the case goes back to waiting for one, as if it had only been reported.
+void Expectations::suspend_search(PopId pop) {
+  for (Case& c : cases_)
+    if (c.pop == pop && c.stage == AbsenceStage::Searching) {
+      c.stage = AbsenceStage::Reported;
+      c.next_tick = kNever;  // the police restart it, never a timer
+      return;
+    }
 }
 
 std::int64_t Expectations::next_wake(const World&, std::int64_t now) const {

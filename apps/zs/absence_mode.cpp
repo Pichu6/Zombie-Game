@@ -48,6 +48,8 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::PoliceCaseOpened:
       return n(e.subject) + ": a police case opens (" + (e.a == 0 ? "high" : e.a == 1 ? "medium" : "low") + " risk" +
              (e.b > 0 ? ", waiting: number " + std::to_string(e.b) + " in the queue" : ", a search at once") + ")";
+    case EventType::SearchSuspended:
+      return "the search for " + n(e.subject) + " is suspended: not enough officers (" + std::to_string(e.b) + " searches can run)";
     case EventType::PoliceCaseResolved:
       return "the police case for " + n(e.subject) + " is resolved: " + (e.a == 0 ? "returned of their own free will" : e.a == 1 ? "found by the police" : "found by others") +
              ", after " + std::to_string(e.b / kTicksPerGameHour) + " h";
@@ -128,6 +130,7 @@ int absence_main(int argc, char** argv) {
     };
     const std::int64_t back = static_cast<std::int64_t>(back_after_h * static_cast<double>(kTicksPerGameHour));
     t.world->jump(back);
+    std::printf("(%llu world steps for %.0f hours)\n", static_cast<unsigned long long>(t.world->probes.empty() ? 0 : t.world->probes[0].updates), back_after_h);
     show();
     t.world->submit({0, AbsenceEnd, pop, 0, 0});
     t.world->run_ticks(1);

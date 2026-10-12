@@ -1,0 +1,15 @@
+# The police force that serves a town (spec 65): how many officers, and how many it takes to run one search. The force is sized
+# by the town's population; its officers are pops with shifts (day, evening and night in turn), and a search can run only while
+# enough of them are on duty and present. EVERY number here is a DEFAULT taken by Claude, none is sourced: an order of
+# magnitude to be replaced by national police staffing data (research to do).
+
+[default]
+officers_per_1000 = 2.4     # sworn officers per 1,000 inhabitants
+officers_per_search = 2     # officers it takes to run one search
+min_officers = 6            # a small town's force is never smaller than this (a station keeps three shifts)
+
+[index]
+high = "default"
+upper_middle = "default"
+lower_middle = "default"
+low = "default"

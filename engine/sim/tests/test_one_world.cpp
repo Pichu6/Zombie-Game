@@ -10,6 +10,7 @@
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
 #include "zs/place.h"
+#include "zs/police_staff.h"
 #include "zs/pop_system.h"
 #include "zs/tier0.h"
 
@@ -61,7 +62,7 @@ TEST_CASE("one world: owners, money, the grid tree and the orders audience") {
   CHECK(o.scope(t.owners.country) == Scope::Country);
   CHECK(o.parent(t.owners.region) == t.owners.country);
   CHECK(o.parent(t.owners.house_a) == t.owners.region);
-  REQUIRE(t.owners.pops.size() == t.census->people().size());
+  REQUIRE(t.owners.pops.size() == t.census->people().size() + t.force->officers().size());  // a wallet per census row, then one per officer (spec 65)
   const ResourceId money = t.econ->money().resource();
   CHECK(t.world->ledger.balance(t.owners.region, money) > 0);
   const GridTree::Summary d = t.grids->tree().summary(t.owners.district);

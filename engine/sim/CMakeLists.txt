@@ -52,6 +52,7 @@ add_library(zs_sim
   src/payroll.cpp
   src/bonds.cpp
   src/police.cpp
+  src/police_staff.cpp
   src/sound_marks.cpp
 )
 target_include_directories(zs_sim PUBLIC include)
