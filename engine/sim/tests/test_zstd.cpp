@@ -28,7 +28,7 @@ std::vector<std::uint8_t> compress(const std::vector<std::uint8_t>& in, int leve
 TEST_CASE("zstd: a save round-trips at levels 1, 3 and 19, smaller, with its content size, deterministic (A1)") {
   auto w = zs::demo::make_world(1);
   for (int i = 0; i < 2000; ++i) w->step();
-  const std::vector<std::uint8_t> save = w->save();
+  const std::vector<std::uint8_t> save = w->save(zs::SaveCodec::None);
   for (int level : {1, 3, 19}) {
     CAPTURE(level);
     const auto packed = compress(save, level);

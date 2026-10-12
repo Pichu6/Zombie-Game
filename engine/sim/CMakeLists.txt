@@ -51,4 +51,4 @@ add_library(zs_sim
 target_include_directories(zs_sim PUBLIC include)
 target_include_directories(zs_sim PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)
 target_compile_definitions(zs_sim PUBLIC ZS_DATA_DIR="${PROJECT_SOURCE_DIR}/data")
-target_link_libraries(zs_sim PUBLIC zs_strict_fp)
+target_link_libraries(zs_sim PUBLIC zs_strict_fp PRIVATE zs_zstd)

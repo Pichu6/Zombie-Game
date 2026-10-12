@@ -88,3 +88,63 @@ TEST_CASE("the ledger check catches a violation") {
   CHECK_THROWS(w->step());
   REQUIRE(w->last_violation.has_value());
 }
+
+// Spec 06 rules 16 and 17: format version 6 carries the codec and the uncompressed size; the state is zstd by default.
+TEST_CASE("version 6: both codecs load to the same state, zstd is smaller, hashes are over the uncompressed state (A1)") {
+  auto w = run(3, 2 * kTicksPerGameDay);
+  const auto raw = w->save(SaveCodec::None);
+  const auto packed = w->save();  // zstd level 3
+  CHECK(packed.size() < raw.size());
+  CHECK(packed == w->save());  // the same state gives the same compressed bytes
+  for (const auto* bytes : {&raw, &packed}) {
+    auto c = demo::make_world(3);
+    c->load(*bytes);
+    CHECK(c->state_hash() == w->state_hash());
+    CHECK(c->save() == packed);
+  }
+  for (int level : {1, 3, 19}) {
+    auto c = demo::make_world(3);
+    c->load(w->save(SaveCodec::Zstd, level));
+    CHECK(c->state_hash() == w->state_hash());
+  }
+}
+
+TEST_CASE("version 6: a save damaged anywhere, or lying about its size or codec, is refused (A1)") {
+  auto w = run(2, 3000);
+  const auto good = w->save();
+  auto refuses = [&](std::vector<std::uint8_t> bytes) {
+    auto c = demo::make_world(2);
+    try {
+      c->load(bytes);
+    } catch (const std::exception&) {
+      return true;
+    }
+    return false;
+  };
+  CHECK_FALSE(refuses(good));
+  for (std::size_t i : {std::size_t{20}, std::size_t{28}, good.size() / 2, good.size() - 1}) {  // header hash, frame start, middle, checksum
+    CAPTURE(i);
+    auto bad = good;
+    bad[i] ^= 0x01;
+    CHECK(refuses(bad));
+  }
+  auto huge = good;  // the uncompressed size claims 2^40 bytes: refused before any allocation
+  huge[19] = 0x01;
+  CHECK(refuses(huge));
+  auto wrong_size = good;  // the size differs from the frame's own content size
+  wrong_size[12] ^= 0x01;
+  CHECK(refuses(wrong_size));
+  auto codec = good;
+  codec[8] = 7;  // an unknown codec
+  CHECK(refuses(codec));
+  CHECK(refuses({good.begin(), good.begin() + 20}));  // cut inside the header
+  CHECK(refuses({good.begin(), good.end() - 3}));      // cut inside the frame
+}
+
+TEST_CASE("the version 5 save still loads (A1)") {
+  // fixtures/save_v5.zsav: demo seed 1, one game day, written by zs --days 1 --save with the build of version 5.
+  auto w = demo::make_world(1);
+  w->load(read_file(std::string(ZS_FIXTURES_DIR) + "/save_v5.zsav"));
+  CHECK(w->clock.tick == kTicksPerGameDay);
+  CHECK(w->state_hash() == run(1, kTicksPerGameDay)->state_hash());
+}

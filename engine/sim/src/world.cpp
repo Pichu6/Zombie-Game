@@ -6,6 +6,8 @@
 
 #include <stdexcept>
 
+#include <zstd.h>
+
 #if defined(_M_X64) || defined(__x86_64__) || defined(_M_IX86) || defined(__i386__)
 #include <xmmintrin.h>
 #define ZS_HAS_MXCSR 1
@@ -220,31 +222,80 @@ void World::load_state(ArchiveReader& r, std::uint32_t version) {
   }
 }
 
-std::vector<std::uint8_t> World::save() const {
-  ArchiveWriter w;
-  w.u32(0x5641535a);  // "ZSAV"
-  w.u32(kSaveFormatVersion);
+namespace {
+constexpr std::uint32_t kSaveMagic = 0x5641535a;  // "ZSAV"
+// Header of version 6: magic, version, codec, uncompressed size, hash of the uncompressed state.
+constexpr std::size_t kHeaderV6 = 4 + 4 + 4 + 8 + 8;
+constexpr std::uint64_t kMaxStateBytes = 1ull << 30;  // a header claiming more is refused before any allocation
+}  // namespace
+
+std::vector<std::uint8_t> World::save(SaveCodec codec, int level) const {
   ArchiveWriter state;
   save_state(state);
-  w.u64(hash_bytes(state.bytes()));
-  ArchiveWriter out = w;
-  std::vector<std::uint8_t> bytes = out.bytes();
-  bytes.insert(bytes.end(), state.bytes().begin(), state.bytes().end());
+  const std::vector<std::uint8_t>& raw = state.bytes();
+  ArchiveWriter head;
+  head.u32(kSaveMagic);
+  head.u32(kSaveFormatVersion);
+  head.u32(static_cast<std::uint32_t>(codec));
+  head.u64(raw.size());
+  head.u64(hash_bytes(raw));
+  std::vector<std::uint8_t> bytes = head.bytes();
+  if (codec == SaveCodec::None) {
+    bytes.insert(bytes.end(), raw.begin(), raw.end());
+    return bytes;
+  }
+  // One frame, single-threaded, content size and checksum on (spec 06 rule 17): the same state gives the same bytes.
+  ZSTD_CCtx* ctx = ZSTD_createCCtx();
+  ZSTD_CCtx_setParameter(ctx, ZSTD_c_compressionLevel, level);
+  ZSTD_CCtx_setParameter(ctx, ZSTD_c_checksumFlag, 1);
+  ZSTD_CCtx_setParameter(ctx, ZSTD_c_contentSizeFlag, 1);
+  const std::size_t room = ZSTD_compressBound(raw.size());
+  bytes.resize(kHeaderV6 + room);
+  const std::size_t n = ZSTD_compress2(ctx, bytes.data() + kHeaderV6, room, raw.data(), raw.size());
+  ZSTD_freeCCtx(ctx);
+  if (ZSTD_isError(n)) throw std::runtime_error(std::string("save: compression failed: ") + ZSTD_getErrorName(n));
+  bytes.resize(kHeaderV6 + n);
   return bytes;
 }
 
 void World::load(const std::vector<std::uint8_t>& bytes) {
   ArchiveReader r(bytes);
-  if (r.u32() != 0x5641535a) throw std::runtime_error("not a save file");
+  if (r.u32() != kSaveMagic) throw std::runtime_error("not a save file");
   const std::uint32_t version = r.u32();
   // Older versions are upgraded field by field in load_state. Unknown versions refuse to load.
   if (version < 1 || version > kSaveFormatVersion) throw std::runtime_error("unsupported save version " + std::to_string(version));
+  if (version <= 5) {  // magic, version, hash, then the state as it is
+    const std::uint64_t expected_hash = r.u64();
+    const std::vector<std::uint8_t> state(bytes.begin() + 16, bytes.end());
+    if (hash_bytes(state) != expected_hash) throw std::runtime_error("save file is corrupt (hash mismatch)");
+    r.format = version;
+    load_state(r, version);
+    if (!r.at_end()) throw std::runtime_error("save file has trailing data");
+    return;
+  }
+  const std::uint32_t codec = r.u32();
+  const std::uint64_t size = r.u64();
   const std::uint64_t expected_hash = r.u64();
-  const std::vector<std::uint8_t> state(bytes.begin() + 16, bytes.end());
+  if (size > kMaxStateBytes) throw std::runtime_error("save file claims an absurd size");
+  std::vector<std::uint8_t> state;
+  if (codec == static_cast<std::uint32_t>(SaveCodec::None)) {
+    state.assign(bytes.begin() + kHeaderV6, bytes.end());
+    if (state.size() != size) throw std::runtime_error("save file is truncated or has trailing data");
+  } else if (codec == static_cast<std::uint32_t>(SaveCodec::Zstd)) {
+    const std::uint8_t* frame = bytes.data() + kHeaderV6;
+    const std::size_t frame_size = bytes.size() - kHeaderV6;
+    if (ZSTD_getFrameContentSize(frame, frame_size) != size) throw std::runtime_error("save file: frame size differs from the header");
+    state.resize(size);
+    const std::size_t n = ZSTD_decompress(state.data(), state.size(), frame, frame_size);
+    if (ZSTD_isError(n) || n != size) throw std::runtime_error("save file is corrupt (decompression failed)");
+  } else {
+    throw std::runtime_error("unsupported save codec " + std::to_string(codec));
+  }
   if (hash_bytes(state) != expected_hash) throw std::runtime_error("save file is corrupt (hash mismatch)");
-  r.format = version;
-  load_state(r, version);
-  if (!r.at_end()) throw std::runtime_error("save file has trailing data");
+  ArchiveReader sr(state);
+  sr.format = version;
+  load_state(sr, version);
+  if (!sr.at_end()) throw std::runtime_error("save file has trailing data");
 }
 
 std::uint64_t World::state_hash() const {

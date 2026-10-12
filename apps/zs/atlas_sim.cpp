@@ -152,7 +152,7 @@ struct SimState {
   void refresh() {
     if (!t) return;
     hash = t->world->state_hash();
-    save_bytes = t->world->save().size();
+    save_bytes = t->world->save(SaveCodec::None).size();
     const auto& all = t->world->log.all();
     for (; seen < all.size(); ++seen)
       if (auto line = zs::tier0::event_line(*t, all[seen])) lines.push_back(zs::tier0::time_text(all[seen].tick) + "  " + line->text);

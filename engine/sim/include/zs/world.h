@@ -17,7 +17,12 @@ namespace zs {
 
 // Version history: 1 = stage 1; 2 = adds the entity id counter (stage 2); 3 = adds commands submitted
 // but not yet applied (stage 4 review).
-inline constexpr std::uint32_t kSaveFormatVersion = 5;  // 5: entity ids minted per creator (decision 0065, spec 27); 4: actors' heading and steering (spec 50)
+// 6: the header carries the codec and the uncompressed size, the state may be zstd-compressed (spec 06 rules 16-17);
+// 5: entity ids minted per creator (decision 0065, spec 27); 4: actors' heading and steering (spec 50)
+inline constexpr std::uint32_t kSaveFormatVersion = 6;
+
+// How a save's state is stored. Hashes and goldens are always over the uncompressed state.
+enum class SaveCodec : std::uint32_t { None = 0, Zstd = 1 };
 
 // A player intent, applied at the start of the tick it was submitted for. The AI produces the
 // same kind of intents (parity), but only player commands are recorded in the input log.
@@ -133,7 +138,8 @@ class World {
   std::vector<SystemHash> system_hashes() const;
 
   // Persistence. Load into a candidate world built by the same setup, then swap if it succeeded.
-  std::vector<std::uint8_t> save() const;
+  // Zstd level 3 for saves, 1 for autosaves and traces (spec 06 rule 17); None for tests that want the raw bytes.
+  std::vector<std::uint8_t> save(SaveCodec codec = SaveCodec::Zstd, int level = 3) const;
   void load(const std::vector<std::uint8_t>& bytes);
   std::uint64_t state_hash() const;  // hash of the state part of a save (header excluded)
   // The same without the input log: equal for a player-driven and an AI-driven run of the same
