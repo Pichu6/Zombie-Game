@@ -238,7 +238,7 @@ void Actors::populate(World& w) {
       }
       continue;
     }
-    const EntityId e = w.new_entity();
+    const EntityId e = w.new_entity(World::Creator::Actions);
     object_entities_.push_back(e);
     object_index_[e] = i;
     if (!o.amounts.empty()) {

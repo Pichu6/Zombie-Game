@@ -71,7 +71,7 @@ void run_hours(Tier0& t, double h) {
 }  // namespace
 
 TEST_CASE("stage 7: the census conserves people through arrivals, deaths and rising (spec 22, A1)") {
-  Tier0 t = make_world(1, true);
+  Tier0 t = make_world(4, true);  // seed 4 since decision 0065: the draws are keyed by entity id, and seed 1's scenario no longer bites in the window
   t.world->check_every_tick = false;
   GeneratorScenario script(false);
   while (script.drive(t)) t.world->step();
@@ -268,7 +268,7 @@ TEST_CASE("stage 7: a generator at night draws the walkers on the map toward it 
 }
 
 TEST_CASE("stage 7: the scenario with the dead: save/load keeps the hash; golden") {
-  Tier0 t = make_world(1, true);
+  Tier0 t = make_world(4, true);  // seed 4 since decision 0065 (see the census test above)
   t.world->check_every_tick = false;
   GeneratorScenario script(false);
   std::vector<std::uint8_t> mid;
@@ -284,13 +284,13 @@ TEST_CASE("stage 7: the scenario with the dead: save/load keeps the hash; golden
   run_hours(t, 2);
   CHECK(count(*t.world, EventType::Bite) > 0);
   CHECK(count(*t.world, EventType::Reanimated) == 1);
-  Tier0 u = make_world(1, true);
+  Tier0 u = make_world(4, true);
   u.world->check_every_tick = false;
   u.world->load(mid);
   while (at_mid.drive(u)) u.world->step();
   run_hours(u, 2);
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 4196410207175639476ULL;  // re-pinned on MSVC for spec 50 (movement: 8-direction paths, blocking furniture, doors on the way), 2026-10-08
+  const std::uint64_t golden = 860777209367898720ULL;  // re-pinned on MSVC for decision 0065 (ids per creator, seed 4), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 7 golden world hash: " << t.world->world_hash());
 }

@@ -51,3 +51,7 @@ None: the jump forms use the same constants as the hot rules.
 ## Not in Tier 0
 
 Tier 0's block is one hot chunk plus the cold census (off-map walkers already promote on arrival and demote when destroyed, [22](22-census.md)). Splitting the map into chunks, region-level cold models and streaming from disk start in Tier 1.
+
+## Ids per creator (decision 0065 rule 1; built 2026-10-11, before any chunk code)
+
+`World::new_entity(Creator)` mints an entity id from the creator's own counter: the creator in the top 16 bits, the creator's sequence (from 1) in the low 48. Creators today: items (assemblies), bodies, wounds and actions (objects placed by the actions system); when chunks exist, a chunk becomes the creator. Ids are unique and never recycled (0041), and two creators' ids never depend on each other's order, which is what local rollback and parallel chunks need (RA-114). Fixed setup ids stay below `kFirstEntity`. The counters are state: save format version 5 writes one per creator; a save of version 2 to 4 loads its single counter as the Legacy creator (0), whose ids keep their meaning and which mints nothing new. Because the draws are keyed by entity id (spec 02), the change re-keyed every scenario's dice: the stage goldens were re-pinned once, and the stage 7 scenario tests moved from seed 1 to seed 4, the first seed whose script bites and rises inside the test's window.

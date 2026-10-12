@@ -11,5 +11,5 @@
 
 ## Consequences
 
-- Both go into spec 27 (chunks) before any chunk code; the five call sites of `World::new_entity` move to the new scheme in that work.
+- Both go into spec 27 (chunks) before any chunk code; the five call sites of `World::new_entity` move to the new scheme in that work. **Rule 1 built 2026-10-11** (spec 27, save format version 5, goldens re-pinned, stage 7 tests on seed 4). Rule 2 waits for chunks.
 - Saves and replays carry ids in the new form; the save format version records the change (spec 06).

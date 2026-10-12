@@ -17,7 +17,7 @@ namespace zs {
 
 // Version history: 1 = stage 1; 2 = adds the entity id counter (stage 2); 3 = adds commands submitted
 // but not yet applied (stage 4 review).
-inline constexpr std::uint32_t kSaveFormatVersion = 4;  // 4: actors' heading and steering (spec 50)
+inline constexpr std::uint32_t kSaveFormatVersion = 5;  // 5: entity ids minted per creator (decision 0065, spec 27); 4: actors' heading and steering (spec 50)
 
 // A player intent, applied at the start of the tick it was submitted for. The AI produces the
 // same kind of intents (parity), but only player commands are recorded in the input log.
@@ -68,9 +68,20 @@ class World {
     return nullptr;
   }
 
-  // Allocates a new entity id. Ids below kFirstEntity are reserved for fixed setup ids.
+  // Entity ids (decision 0065 rule 1): minted per creator from that creator's own counter, so two creators' ids never
+  // depend on each other's order (what local rollback and parallel chunks need, RA-114). An id is the creator in the
+  // top 16 bits and the creator's sequence (from 1) in the low 48. Ids below kFirstEntity are fixed setup ids; the
+  // Legacy creator (0) is the single global counter of saves before format 5 and mints nothing new. When chunks
+  // exist, a chunk becomes the creator.
+  enum class Creator : std::uint16_t { Legacy = 0, Items = 1, Bodies = 2, Wounds = 3, Actions = 4, kCount = 5 };
   static constexpr EntityId kFirstEntity = EntityId{1} << 20;
-  EntityId new_entity() { return next_entity_++; }
+  static constexpr int kCreatorShift = 48;
+  EntityId new_entity(Creator by) {
+    const auto k = static_cast<std::size_t>(by);
+    return (static_cast<EntityId>(by) << kCreatorShift) | ++creator_counters_[k];
+  }
+  static constexpr Creator creator_of(EntityId e) { return static_cast<Creator>(e >> kCreatorShift); }
+  std::uint64_t creator_count(Creator by) const { return creator_counters_[static_cast<std::size_t>(by)]; }
 
   // Ends setup: no more minting, logs the run start.
   void close_setup();
@@ -144,7 +155,7 @@ class World {
   std::vector<Command> pending_;
   std::vector<Command> input_log_;
   std::vector<EventId> emitted_;
-  EntityId next_entity_ = kFirstEntity;
+  std::uint64_t creator_counters_[static_cast<std::size_t>(Creator::kCount)] = {kFirstEntity, 0, 0, 0, 0};  // Legacy holds the old counter
 };
 
 }  // namespace zs

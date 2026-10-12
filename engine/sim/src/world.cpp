@@ -134,7 +134,7 @@ std::vector<World::SystemHash> World::system_hashes() const {
 
 void World::save_core(ArchiveWriter& w, bool with_input_log) const {
   w.i64(clock.tick);
-  w.u64(next_entity_);
+  for (std::uint64_t c : creator_counters_) w.u64(c);  // v5: one counter per creator (decision 0065)
   w.u64(rng.seed());
   w.u64(rng.counters().size());
   for (const auto& [key, value] : rng.counters()) { w.u64(key.first); w.u32(key.second); w.u64(value); }
@@ -166,7 +166,13 @@ void World::save_core(ArchiveWriter& w, bool with_input_log) const {
 
 void World::load_state(ArchiveReader& r, std::uint32_t version) {
   clock.tick = r.i64();
-  next_entity_ = version >= 2 ? r.u64() : kFirstEntity;  // v1 had no entity counter
+  if (version >= 5) {
+    for (std::uint64_t& c : creator_counters_) c = r.u64();
+  } else {
+    // v2 to v4: one global counter; its ids keep the Legacy creator (0), and the new creators start from nothing.
+    creator_counters_[0] = version >= 2 ? r.u64() : kFirstEntity;
+    for (std::size_t k = 1; k < static_cast<std::size_t>(Creator::kCount); ++k) creator_counters_[k] = 0;
+  }
   rng = Rng(r.u64());
   for (std::uint64_t n = r.u64(); n > 0; --n) {
     const EntityId e = r.u64(); const std::uint32_t p = r.u32(); rng.set_counter(e, p, r.u64());

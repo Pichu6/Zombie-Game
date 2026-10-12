@@ -55,7 +55,7 @@ TEST_CASE("load at day 2 and play on matches the uninterrupted run (A1)") {
 
 TEST_CASE("golden hash of the scripted demo run (A1; pinned on Linux, must match on Windows)") {
   auto w = run(1, 14 * kTicksPerGameDay);
-  CHECK(w->state_hash() == 0xdb28323507a4a3aeULL);
+  CHECK(w->state_hash() == 16535670403649575214ULL);  // re-pinned on MSVC for decision 0065 (ids per creator; the draws are keyed by id), 2026-10-11
 }
 
 TEST_CASE("every saved format version still loads (A1)") {

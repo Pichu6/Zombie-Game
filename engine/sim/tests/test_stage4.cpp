@@ -213,7 +213,7 @@ TEST_CASE("stage 4: arriving is not working; save mid-action and load replays to
 
 TEST_CASE("stage 4: golden hash of the scripted pop (same on every compiler)") {
   Tier0 t = run_script(false);
-  const std::uint64_t golden = 9625313229885997280ULL;  // re-pinned on MSVC for spec 50 (movement: 8-direction paths, blocking furniture, doors on the way), 2026-10-08
+  const std::uint64_t golden = 12015068923226770232ULL;  // re-pinned on MSVC for decision 0065 (ids per creator; the draws are keyed by id), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 4 golden world hash: " << t.world->world_hash());
 }

@@ -25,7 +25,7 @@ std::optional<DefId> Assemblies::find_def(const std::string& id) const {
 }
 
 EntityId Assemblies::create(World& w, DefId def_id, int quality, EntityId parent) {
-  const EntityId id = w.new_entity();
+  const EntityId id = w.new_entity(World::Creator::Items);
   Instance inst;
   inst.id = id;
   inst.def = def_id;

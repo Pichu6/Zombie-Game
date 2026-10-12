@@ -243,7 +243,7 @@ Bodies::Amounts Bodies::amounts_for(const BodySpec& spec) {
 
 EntityId Bodies::create(World& w, const BodySpec& spec, const std::string& label) {
   Body b;
-  b.id = w.new_entity();
+  b.id = w.new_entity(World::Creator::Bodies);
   b.label = label;
   b.spec = spec;
   b.owner = w.ledger.add_owner("body:" + label);
@@ -273,7 +273,7 @@ void Bodies::reserve_slots(World& w, std::size_t n) {
   if (!w.ledger.setup_open()) throw std::logic_error("body slots may only be reserved during setup");
   for (std::size_t i = 0; i < n; ++i) {
     Body b;
-    b.id = w.new_entity();
+    b.id = w.new_entity(World::Creator::Bodies);
     b.label = "slot " + std::to_string(slots_.size());
     b.owner = w.ledger.add_owner("slot:" + std::to_string(slots_.size()));
     b.vacant = true;
@@ -446,7 +446,7 @@ std::int64_t Bodies::drink(World& w, EntityId body, OwnerId source, std::int64_t
 
 EntityId Bodies::add_wound(World& w, EntityId body, Wound wound, EventId cause) {
   Body& b = get(body);
-  wound.id = w.new_entity();
+  wound.id = w.new_entity(World::Creator::Wounds);
   wound.created_tick = w.clock.tick;
   wound.cause = cause;
   const double days = wound.type == WoundType::Fracture ? 42 : kHealDays[static_cast<int>(wound.depth)];

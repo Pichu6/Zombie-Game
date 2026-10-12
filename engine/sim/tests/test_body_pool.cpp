@@ -182,7 +182,7 @@ TEST_CASE("a body cannot leave unless it can: walker, dead, vacant, foreign, hol
   const EntityId id = p.bodies->embody(*p.world, BodySpec{}, "dee", 5, 1);
   CHECK(p.bodies->cannot_disembody(*p.world, id).empty());
   // Holding an item (anything located under the body that is not a wound).
-  const EntityId item = p.world->new_entity();
+  const EntityId item = p.world->new_entity(World::Creator::Items);
   p.world->locations.place(item, id);
   CHECK(p.bodies->cannot_disembody(*p.world, id) == "the body holds items");
   CHECK_THROWS(p.bodies->disembody(*p.world, id, 2));
