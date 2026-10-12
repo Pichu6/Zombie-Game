@@ -361,6 +361,10 @@ std::optional<Described> describe(const App& a, const Event& e) {
       return Described{"The employer opened a disciplinary process for " + pop_name(a, e.subject) + " (" + std::to_string(e.a) + " days without contact)", "alert", kWorld};
     case EventType::ConductCaseOpened:
       return Described{"A conduct case opened for " + pop_name(a, e.subject) + " (" + std::to_string(e.a) + " shifts missed)", "alert", kWorld};
+    // Spec 62: money and labour.
+    case EventType::ShiftUnpaid:
+      return Described{pop_name(a, e.subject) + "'s shift is not paid: " + std::to_string(e.a / 100) + " withheld", "alert", kWorld};
+    case EventType::LeftEmployer: return Described{pop_name(a, e.subject) + " is off the employer's roster: the wages stop", "dead", kWorld};
     case EventType::ReturnedToWork:
       return Described{pop_name(a, e.subject) + " met the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process"), "done", kWorld};
     default: break;

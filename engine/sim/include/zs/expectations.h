@@ -33,9 +33,12 @@ struct Commitment {
   std::int64_t due_tick = 0;
   std::vector<PopId> holders;
   EmployerKind employer = EmployerKind::None;  // of a shift start
+  int minutes = 0;                             // of a shift start: how long the shift lasts (what the employer pays for)
 };
 // The next commitment of a pop due at or after `from_tick`, or none (nobody expects it anywhere: nobody notices).
 using NextCommitment = std::function<std::optional<Commitment>(PopId pop, std::int64_t from_tick)>;
+// The next shift start (a commitment with an employer) at or after `from`, skipping other kinds; none if there is none soon.
+std::optional<Commitment> next_shift_of(const NextCommitment& next, PopId pop, std::int64_t from);
 
 // Timings per commitment kind, in minutes (data/life/expectations.toml). Defaults taken by Claude.
 struct LadderTimes {

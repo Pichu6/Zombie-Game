@@ -49,6 +49,7 @@ add_library(zs_sim
   src/pacer.cpp
   src/expectations.cpp
   src/missing_persons.cpp
+  src/payroll.cpp
   src/sound_marks.cpp
 )
 target_include_directories(zs_sim PUBLIC include)

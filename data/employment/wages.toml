@@ -1,0 +1,21 @@
+# What an hour of work pays (spec 62): cents per hour for a pop with a job, by country table or income group through [index].
+# Every number here is a DEFAULT taken by Claude: an order of magnitude for a typical wage in each income group, to be
+# replaced by ILO and national earnings sources (research to do). They are not sourced.
+
+[us]
+cents_per_hour = 2500        # about 25 dollars an hour
+
+[upper_middle]
+cents_per_hour = 1000
+
+[lower_middle]
+cents_per_hour = 400
+
+[low]
+cents_per_hour = 150
+
+[index]            # which table an income group reads
+high = "us"
+upper_middle = "upper_middle"
+lower_middle = "lower_middle"
+low = "low"

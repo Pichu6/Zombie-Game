@@ -98,17 +98,19 @@ void Expectations::refuse(World& w, const Command& c, EventId cause, std::int64_
   w.emit(EventType::ExpectationRefused, c.subject, cause, c.type, why);
 }
 
-// The next shift start at or after `from`, skipping other commitments (the employer expects shifts only).
-std::optional<Commitment> Expectations::next_shift(PopId pop, std::int64_t from) const {
-  if (!next_) return std::nullopt;
+std::optional<Commitment> next_shift_of(const NextCommitment& next, PopId pop, std::int64_t from) {
+  if (!next) return std::nullopt;
   for (int i = 0; i < kShiftLookups; ++i) {
-    const std::optional<Commitment> c = next_(pop, from);
+    const std::optional<Commitment> c = next(pop, from);
     if (!c) return std::nullopt;
     if (c->kind == CommitmentKind::ShiftStart && c->employer != EmployerKind::None) return c;
     from = c->due_tick + 1;
   }
   return std::nullopt;
 }
+
+// The next shift start at or after `from` (the employer expects shifts only).
+std::optional<Commitment> Expectations::next_shift(PopId pop, std::int64_t from) const { return next_shift_of(next_, pop, from); }
 
 void Expectations::apply_command(World& w, const Command& c, EventId cause) {
   if (c.type == AbsenceBegin) {

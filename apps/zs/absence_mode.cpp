@@ -11,6 +11,7 @@
 #include "zs/expectations.h"
 #include "zs/gen/place.h"
 #include "zs/missing_persons.h"
+#include "zs/payroll.h"
 #include "zs/tier0.h"
 #include "zs/world.h"
 #include "absence_mode.h"
@@ -40,6 +41,8 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::Separated: return "the employer records " + n(e.subject) + " as having left the job (" + std::to_string(e.a) + " days without contact)";
     case EventType::DisciplinaryOpened: return "the employer opens a disciplinary process for " + n(e.subject);
     case EventType::ConductCaseOpened: return "a conduct case opens for " + n(e.subject) + " (" + std::to_string(e.a) + " shifts missed)";
+    case EventType::ShiftUnpaid: return n(e.subject) + "'s shift is not paid (absent)";
+    case EventType::LeftEmployer: return n(e.subject) + " is off the employer's roster; wages stop";
     case EventType::ReturnedToWork:
       return n(e.subject) + " meets the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process");
     case EventType::ExpectationRefused: return "refused";
@@ -74,7 +77,7 @@ int absence_main(int argc, char** argv) {
       std::printf("the one world, seed %llu: real disappearances for %.0f days at %.0f times the table's rate (%zu pops tracked)\n",
                   static_cast<unsigned long long>(seed), days, rate_scale, t.missing->entries().size());
       t.world->jump(static_cast<std::int64_t>(days * static_cast<double>(kTicksPerGameDay)));
-      int began = 0, ended = 0, broken = 0, reported = 0;
+      int began = 0, ended = 0, broken = 0, reported = 0, unpaid = 0;
       for (const Event& e : t.world->log.all()) {
         const std::string s = line_of(t, e);
         if (s.empty()) continue;
@@ -82,9 +85,14 @@ int absence_main(int argc, char** argv) {
         ended += e.type == EventType::AbsenceEnded;
         broken += e.type == EventType::CommitmentBroken;
         reported += e.type == EventType::MissingReported;
+        unpaid += e.type == EventType::ShiftUnpaid;
         std::printf("  %s  %s\n", tier0::time_text(e.tick).c_str(), s.c_str());
       }
       std::printf("%d went missing, %d came back, %d commitments broken, %d reported missing\n", began, ended, broken, reported);
+      if (t.payroll)
+        std::printf("payroll: %zu of %zu workers still employed; %lld shifts paid (%.0f currency units ordered), %d shifts unpaid\n",
+                    t.payroll->headcount(), t.payroll->entries().size(), static_cast<long long>(t.payroll->shifts_paid_total()),
+                    static_cast<double>(t.payroll->wages_ordered()) / 100.0, unpaid);
       return 0;
     }
     if (slot < 0) {  // the first living adult with another living adult in the household

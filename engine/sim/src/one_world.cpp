@@ -9,6 +9,7 @@
 #include "zs/missing_persons.h"
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
+#include "zs/payroll.h"
 #include "zs/pop_system.h"
 #include "zs/schedule.h"
 #include "zs/tier0.h"
@@ -20,11 +21,16 @@ namespace {
 constexpr std::uint64_t kBlockCohort = 1;
 constexpr std::uint32_t kBlockRegion = 1;
 constexpr std::uint64_t kHouseholdRoster = std::uint64_t{1} << 32;  // the generator's household roster ids (registry_bridge)
+constexpr std::uint64_t kEmployerRoster = std::uint64_t{1} << 33;   // spec 62: the placeholder employer's workplace roster
+constexpr std::int64_t kPlaceholderPayrollCents = 10'000'000'000;       // what the placeholder employer holds to pay wages (until establishments are placed)
 
 // Placeholder money until the data spec (decision 0052 item 4) gives real wallets and budgets.
 constexpr std::int64_t kPlaceholderAdultWalletCents = 50'000;
 constexpr std::int64_t kPlaceholderRegionBudgetCents = 10'000'000;
 constexpr std::int64_t kPlaceholderCountryBudgetCents = 1'000'000'000;
+
+// Spec 62: a living pop of working age (18 to 64, the schedule's full-time workers) has a job with the placeholder employer.
+bool has_job(const Person& p) { return !is_dead(p.fate) && p.age >= 18 && p.age < 65; }
 
 // Rule 2: one founder per census row, slot = row, the row's age and sex; households as rosters.
 // Spec 48: the block's country is its place's income group's base country; spec 49: or its real profile.
@@ -52,6 +58,9 @@ std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place
     }
     reg.roster_join(kHouseholdRoster | h, id, 0.0);
   }
+  reg.add_roster(kEmployerRoster, kBlockRegion, RosterKind::Workplace);  // spec 62
+  for (std::size_t i = 0; i < people.size(); ++i)
+    if (has_job(people[i])) reg.roster_join(kEmployerRoster, census_pop_id(static_cast<std::uint32_t>(i)), 0.0);
   return pops;
 }
 
@@ -72,6 +81,8 @@ std::unique_ptr<EconomySystem> make_economy(World& w, const Census& census, Worl
   }
   w.ledger.mint(ids.country, money, kPlaceholderCountryBudgetCents);
   w.ledger.mint(ids.region, money, kPlaceholderRegionBudgetCents);
+  ids.employers = o.add(w.ledger, "block employers", Scope::Building, ids.region);  // spec 62
+  w.ledger.mint(ids.employers, money, kPlaceholderPayrollCents);
   econ->start_lots(w);
   econ->start_establishments(w);
   econ->start_populations(w);
@@ -137,6 +148,7 @@ NextCommitment make_commitments(const Census& census, const CalendarSystem& cale
         out.due_tick = due;
         out.kind = back_home ? CommitmentKind::ArriveHome : CommitmentKind::ShiftStart;
         out.employer = s.activity == DayActivity::Work ? EmployerKind::Private : EmployerKind::None;  // the block has no police employers placed
+        out.minutes = s.end_min - s.start_min;
         found = true;
       }
     }
@@ -174,9 +186,10 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // Spec 61: the employer's rule (decision 0070 rule 3); a separated pop's schedule has no more shifts, so the provider
   // reads the system it is given to.
   auto lost_jobs = std::make_shared<const Expectations*>(nullptr);
+  const NextCommitment commitments = make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs);
   auto expectations = std::make_unique<Expectations>(
       load_expectation_params(data_dir() + "/life/expectations.toml"),
-      make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs),
+      commitments,
       load_employer_policy(data_dir() + "/employment/absence_policy.toml", place.profile, place.income));
   *lost_jobs = expectations.get();
   t.expectations = expectations.get();
@@ -190,6 +203,14 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   for (std::size_t i = 0; i < t.census->people().size(); ++i)
     if (!is_dead(t.census->people()[i].fate)) missing->track(w, census_pop_id(static_cast<std::uint32_t>(i)), t.census->people()[i].age);
   t.missing = missing.get();
+  // Spec 62: money and labour: the placeholder employer pays each shift worked and nothing for a shift missed; a separation takes
+  // the pop off its workplace roster.
+  auto payroll = std::make_unique<Payroll>(
+      load_wage_params(data_dir() + "/employment/wages.toml", place.profile, place.income), expectations.get(), commitments,
+      t.owners.employers, kEmployerRoster, [owners = t.owners.pops](PopId id) { return owners[founder_slot_of(id)]; });
+  for (std::size_t i = 0; i < t.census->people().size(); ++i)
+    if (has_job(t.census->people()[i])) payroll->track(census_pop_id(static_cast<std::uint32_t>(i)));
+  t.payroll = payroll.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));
@@ -199,6 +220,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   w.add_system(std::move(calendar));
   w.add_system(std::move(expectations));
   w.add_system(std::move(missing));
+  w.add_system(std::move(payroll));
 }
 
 }  // namespace zs::tier0

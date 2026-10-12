@@ -23,6 +23,7 @@ class GridSystem;
 class CalendarSystem;
 class Expectations;
 class MissingPersons;
+class Payroll;
 }  // namespace zs
 
 namespace zs::tier0 {
@@ -31,6 +32,7 @@ namespace zs::tier0 {
 struct WorldOwners {
   OwnerId country = 0, region = 0;
   OwnerId main_building = 0, house_a = 0, house_b = 0;
+  OwnerId employers = 0;  // spec 62: the placeholder employer that pays every wage until establishments are placed
   std::vector<OwnerId> pops;  // by census row (= registry slot)
   GridId nation = 0, district = 0;
 };
@@ -55,6 +57,7 @@ struct Tier0 {
   CalendarSystem* calendar = nullptr;  // spec 53
   Expectations* expectations = nullptr;  // spec 59 (the one world only)
   MissingPersons* missing = nullptr;     // spec 60 (the one world only)
+  Payroll* payroll = nullptr;            // spec 62 (the one world only)
   WorldOwners owners;
   EntityId player = 0;  // the body of the pop at the map's player start
   std::vector<EntityId> group;  // the player first, then survivors who start with it

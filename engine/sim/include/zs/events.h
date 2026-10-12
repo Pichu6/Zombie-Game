@@ -101,6 +101,9 @@ enum class EventType : std::uint16_t {
   DisciplinaryOpened = 76, // subject = pop, a = days missed: a process, where the country has no automatic separation
   ConductCaseOpened = 77,  // subject = pop, a = days missed: a police employer's conduct process after the return
   ReturnedToWork = 78,     // subject = pop, a = ReturnOutcome (0 forgiven, 1 warning, 2 disciplinary), b = days missed
+  // Spec 62: money and labour.
+  ShiftUnpaid = 79,        // subject = pop, a = cents withheld, b = minutes of the shift: the pop was absent, so the shift is not paid
+  LeftEmployer = 80,       // subject = pop, a = the employer owner, b = cents ordered paid in all: the pop left the workplace roster
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,
