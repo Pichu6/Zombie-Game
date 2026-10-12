@@ -95,6 +95,12 @@ enum class EventType : std::uint16_t {
   AbsenceEnded = 71,       // subject = pop, a = AbsenceStage reached, b = ticks gone
   CaseClosed = 72,         // subject = pop, a = ticks the missing-person case was open
   ExpectationRefused = 73, // subject = pop, a = the command type, b = 1 already absent, 2 not absent
+  // Spec 61: the employer's absence rule.
+  ShiftMissed = 74,        // subject = pop, a = consecutive scheduled days missed so far, b = EmployerKind
+  Separated = 75,          // subject = pop, a = days missed: the employer records a separation (job abandonment)
+  DisciplinaryOpened = 76, // subject = pop, a = days missed: a process, where the country has no automatic separation
+  ConductCaseOpened = 77,  // subject = pop, a = days missed: a police employer's conduct process after the return
+  ReturnedToWork = 78,     // subject = pop, a = ReturnOutcome (0 forgiven, 1 warning, 2 disciplinary), b = days missed
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

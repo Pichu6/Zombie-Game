@@ -101,25 +101,26 @@ std::unique_ptr<GridSystem> make_grids(WorldOwners& ids) {
 // adult is expected somewhere: at work or school at the segment's start (a shift start), and home at the end of the
 // way back (arriving home). The holders are the household's other living adults, in census order: the first phones,
 // the last reports. Born pops and people nobody lives with are expected nowhere (nobody notices their absence).
-NextCommitment make_commitments(const Census& census, const CalendarSystem& calendar, const Place& place, std::uint64_t world_seed) {
+NextCommitment make_commitments(const Census& census, const CalendarSystem& calendar, const Place& place, std::uint64_t world_seed,
+                               std::shared_ptr<const Expectations*> lost_jobs) {
   auto table = std::make_shared<TimeUseTable>(timeuse_for(data_dir(), place.profile, place.income));
   const Census* people = &census;
   const CalendarSystem* cal = &calendar;
-  return [table, people, cal, world_seed](PopId pop, std::int64_t from) -> std::optional<Commitment> {
+  return [table, people, cal, world_seed, lost_jobs](PopId pop, std::int64_t from) -> std::optional<Commitment> {
     const auto& all = people->people();
     if (is_born(pop) || founder_slot_of(pop) >= all.size()) return std::nullopt;
     const Person& p = all[founder_slot_of(pop)];
-    if (is_dead(p.fate) || p.household.empty()) return std::nullopt;
+    if (is_dead(p.fate)) return std::nullopt;
     Commitment out;
-    for (std::size_t i = 0; i < all.size(); ++i)
+    for (std::size_t i = 0; i < all.size() && !p.household.empty(); ++i)
       if (i != founder_slot_of(pop) && all[i].household == p.household && !is_dead(all[i].fate) && all[i].age >= 16)
         out.holders.push_back(census_pop_id(static_cast<std::uint32_t>(i)));
-    if (out.holders.empty()) return std::nullopt;
     SchedulePerson sp;
     sp.key = keyed_u64(world_seed, Purpose::PopLife, pop, 0x5C4ED);  // the schedule's own draw of the pop's life
     sp.age = p.age;
     sp.sex = p.sex == Sex::Female ? 'f' : 'm';
     sp.employment = p.age < 5 ? Employment::Child : p.age < 18 ? Employment::Student : p.age < 65 ? Employment::FullTime : Employment::Retired;
+    if (sp.employment == Employment::FullTime && *lost_jobs && (*lost_jobs)->lost_job(pop)) sp.employment = Employment::NotEmployed;  // separated: no more shifts
     sp.has_workplace = false;  // the block has no workplaces placed: work is done at home with no commute (spec 54 rule 4)
     const std::int64_t start_day = cal->start_day();
     const std::int64_t first_day = civil_time(start_day, from).day_number;
@@ -135,6 +136,7 @@ NextCommitment make_commitments(const Census& census, const CalendarSystem& cale
         if (due < from || (found && due >= out.due_tick)) continue;
         out.due_tick = due;
         out.kind = back_home ? CommitmentKind::ArriveHome : CommitmentKind::ShiftStart;
+        out.employer = s.activity == DayActivity::Work ? EmployerKind::Private : EmployerKind::None;  // the block has no police employers placed
         found = true;
       }
     }
@@ -169,8 +171,14 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
       start_day, load_country_calendar(calendar_path(data_dir(), calendar_id(place.profile, place.income))));
   t.calendar = calendar.get();
   // Spec 59: broken commitments are noticed. The schedule's commitments and the household's holders (decision 0070).
+  // Spec 61: the employer's rule (decision 0070 rule 3); a separated pop's schedule has no more shifts, so the provider
+  // reads the system it is given to.
+  auto lost_jobs = std::make_shared<const Expectations*>(nullptr);
   auto expectations = std::make_unique<Expectations>(
-      load_expectation_params(data_dir() + "/life/expectations.toml"), make_commitments(*t.census, *calendar, place, w.rng.seed()));
+      load_expectation_params(data_dir() + "/life/expectations.toml"),
+      make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs),
+      load_employer_policy(data_dir() + "/employment/absence_policy.toml", place.profile, place.income));
+  *lost_jobs = expectations.get();
   t.expectations = expectations.get();
   // Spec 60: real people go missing without any player (decision 0070 rule 6): every living founder is a Poisson
   // process of absences at the country's rates by age class; the ladder above reacts to them.

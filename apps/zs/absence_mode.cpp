@@ -36,6 +36,12 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::SearchStarted: return "a search opens for " + n(e.subject);
     case EventType::AbsenceEnded: return n(e.subject) + " is back, after " + std::to_string(e.b / kTicksPerGameHour) + " h";
     case EventType::CaseClosed: return "the missing-person case for " + n(e.subject) + " is closed";
+    case EventType::ShiftMissed: return n(e.subject) + " misses a shift without calling (" + std::to_string(e.a) + " in a row)";
+    case EventType::Separated: return "the employer records " + n(e.subject) + " as having left the job (" + std::to_string(e.a) + " days without contact)";
+    case EventType::DisciplinaryOpened: return "the employer opens a disciplinary process for " + n(e.subject);
+    case EventType::ConductCaseOpened: return "a conduct case opens for " + n(e.subject) + " (" + std::to_string(e.a) + " shifts missed)";
+    case EventType::ReturnedToWork:
+      return n(e.subject) + " meets the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process");
     case EventType::ExpectationRefused: return "refused";
     default: return "";
   }

@@ -352,6 +352,17 @@ std::optional<Described> describe(const App& a, const Event& e) {
     case EventType::AbsenceEnded:
       return Described{pop_name(a, e.subject) + " is back (gone " + std::to_string(e.b / kTicksPerGameHour) + " h)", "done", kWorld};
     case EventType::CaseClosed: return Described{"The missing-person case for " + pop_name(a, e.subject) + " was closed", "done", kWorld};
+    // Spec 61: the employer's absence rule.
+    case EventType::ShiftMissed:
+      return Described{pop_name(a, e.subject) + " missed a shift without calling (" + std::to_string(e.a) + " in a row)", "alert", kWorld};
+    case EventType::Separated:
+      return Described{"The employer recorded " + pop_name(a, e.subject) + " as having left the job (" + std::to_string(e.a) + " days without contact)", "dead", kWorld};
+    case EventType::DisciplinaryOpened:
+      return Described{"The employer opened a disciplinary process for " + pop_name(a, e.subject) + " (" + std::to_string(e.a) + " days without contact)", "alert", kWorld};
+    case EventType::ConductCaseOpened:
+      return Described{"A conduct case opened for " + pop_name(a, e.subject) + " (" + std::to_string(e.a) + " shifts missed)", "alert", kWorld};
+    case EventType::ReturnedToWork:
+      return Described{pop_name(a, e.subject) + " met the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process"), "done", kWorld};
     default: break;
   }
   if (auto l = event_line(a.t, e)) {

@@ -228,7 +228,7 @@ TEST_CASE("stage 9: a run: save/load keeps the hash across a join; golden") {
   run_hours(u, 6);
   CHECK(u.world->world_hash() == t.world->world_hash());
   CHECK(u.run->group() == t.run->group());
-  const std::uint64_t golden = 1416787590115583712ULL;  // re-pinned on MSVC 2026-10-12 for spec 60 (the missing-persons system joins the one world); before: 3562420989190914903 for spec 59 (expectations) and 1685692074888937123 for decision 0065 (ids per creator)
+  const std::uint64_t golden = 3062730944574475040ULL;  // re-pinned on MSVC 2026-10-12 for spec 61 (the employer's count joins the expectations' state and the schedule provider); before: 1416787590115583712 for spec 60 (missing persons), 3562420989190914903 for spec 59 (expectations), 1685692074888937123 for decision 0065 (ids per creator)
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 9 golden world hash: " << t.world->world_hash());
 }

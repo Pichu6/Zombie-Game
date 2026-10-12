@@ -1,0 +1,30 @@
+# The employer's absence rule (decision 0070 rule 3, spec 61): what an employer does about shifts missed without contact.
+# A table per country, or per income group through [index]. Every number is a default taken by Claude from the research
+# (absence-and-missing-persons, AB-5 to AB-8): the sources are sample policies and HR guidance, not law.
+#
+# abandonment_days: consecutive scheduled days missed without any contact after which the employer acts. The US measure
+#   is 3 business days in a common sample policy, 3 to 5 in practice (AB-5, AB-6); no federal or California law defines it
+#   (AB-8): it is whatever the employer's written policy says.
+# automatic_separation: true records a separation (voluntary resignation by abandonment). false opens a disciplinary process
+#   instead (the UK has no automatic resignation: to verify).
+# pause_on_report: a missing-person report or the family's contact explains the absence ("unable to call", AB-7), so the count
+#   stops; on return the employer forgives it.
+# police_conduct_case: a police employer opens a conduct process after the return instead of separating (default).
+
+[us]
+abandonment_days = 3
+automatic_separation = true
+pause_on_report = true
+police_conduct_case = true
+
+[gb]
+abandonment_days = 3
+automatic_separation = false
+pause_on_report = true
+police_conduct_case = true
+
+[index]            # which table an income group reads (default taken by Claude: only two shapes have sources)
+high = "gb"
+upper_middle = "us"
+lower_middle = "us"
+low = "us"
