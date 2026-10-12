@@ -3,6 +3,8 @@
 #include <doctest.h>
 
 #include <cmath>
+#include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -65,12 +67,14 @@ TEST_CASE("the tables load, an income group reads its index, and a bad table is 
   CHECK(high.adult_return[0].first == 48);
   CHECK_THROWS(load_missing_params(tier0::data_dir() + "/life/no_such.toml", "", "high"));
   CHECK_THROWS(load_missing_params(data_file(), "", "no_such_group"));
+  const std::string bad_path = (std::filesystem::temp_directory_path() / "zs_bad_missing.toml").string();
   {
-    std::ofstream bad("bad_missing.toml");
+    std::ofstream bad(bad_path);
     bad << "[t]\nadult_per_1000_year=1\nchild_per_1000_year=1\nchild_age_max=17\nadult_return_cdf=[[48,0.9],[24,0.95]]\n"
            "child_return_cdf=[[24,0.5]]\nadult_chose=0\nadult_wandered=0\nchild_chose=0\nchild_wandered=0\n[index]\nhigh=\"t\"\n";
   }
-  CHECK_THROWS(load_missing_params("bad_missing.toml", "t", "high"));  // hours go backwards
+  CHECK_THROWS(load_missing_params(bad_path, "t", "high"));  // hours go backwards
+  std::remove(bad_path.c_str());
 }
 
 TEST_CASE("absences begin at the table's rate per head, children more often than adults (A1)") {
