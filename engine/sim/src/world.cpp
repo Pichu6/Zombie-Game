@@ -1,5 +1,7 @@
 #include "zs/world.h"
 
+#include <chrono>
+
 #include <algorithm>
 
 #include <stdexcept>
@@ -64,8 +66,18 @@ void World::step() {
     for (auto& s : systems_) s->apply_command(*this, c, id);
   }
   pending_.clear();
-  // 2. Systems, in their fixed order.
-  for (auto& s : systems_) s->update(*this);
+  // 2. Systems, in their fixed order; the probes count and, when asked, time each update.
+  if (probes.size() < systems_.size()) probes.resize(systems_.size());
+  for (std::size_t i = 0; i < systems_.size(); ++i) {
+    if (probe_timing) {
+      const auto t0 = std::chrono::steady_clock::now();
+      systems_[i]->update(*this);
+      probes[i].ns += static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - t0).count());
+    } else {
+      systems_[i]->update(*this);
+    }
+    ++probes[i].updates;
+  }
   // 3. Scheduled events due this tick.
   for (const ScheduledEvent& e : scheduler.pop_due(clock.tick))
     for (auto& s : systems_) s->on_scheduled(*this, e);
@@ -102,6 +114,25 @@ void World::jump(std::int64_t to_tick) {
 }
 
 void World::save_state(ArchiveWriter& w, bool with_input_log) const {
+  save_core(w, with_input_log);
+  w.u64(systems_.size());
+  for (const auto& s : systems_) { w.str(s->name()); s->save(w); }
+}
+
+std::vector<World::SystemHash> World::system_hashes() const {
+  std::vector<SystemHash> out;
+  ArchiveWriter core;
+  save_core(core, true);
+  out.push_back({"core", hash_bytes(core.bytes())});
+  for (const auto& s : systems_) {
+    ArchiveWriter w;
+    s->save(w);
+    out.push_back({s->name(), hash_bytes(w.bytes())});
+  }
+  return out;
+}
+
+void World::save_core(ArchiveWriter& w, bool with_input_log) const {
   w.i64(clock.tick);
   w.u64(next_entity_);
   w.u64(rng.seed());
@@ -131,8 +162,6 @@ void World::save_state(ArchiveWriter& w, bool with_input_log) const {
   }
   w.u64(pending_.size());  // v3: submitted, applied on the next step
   for (const Command& c : pending_) { w.i64(c.tick); w.u16(c.type); w.u64(c.subject); w.i64(c.a); w.i64(c.b); }
-  w.u64(systems_.size());
-  for (const auto& s : systems_) { w.str(s->name()); s->save(w); }
 }
 
 void World::load_state(ArchiveReader& r, std::uint32_t version) {

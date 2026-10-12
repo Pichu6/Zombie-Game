@@ -16,7 +16,7 @@ Ranked by value against cost. Each item names the spec it would change and wheth
 
 | # | Improvement | Spec | Cost | Why now | Touches generators? |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **Per-subsystem hash every tick in test builds, plus a tool that prints the first divergent tick and the subsystem** | 06, 40 | Small | Every later piece (chunks, threads, run-ahead) needs it to debug; Age of Empires wished it had built this first (HST-126, HST-127) | No |
+| 1 | **Built 2026-10-11 ([spec 56](../tier0/specs/56-probes-and-divergence.md)).** Per-subsystem hash every tick in test builds, plus a tool that prints the first divergent tick and the subsystem | 06, 40 | Small | Every later piece (chunks, threads, run-ahead) needs it to debug; Age of Empires wished it had built this first (HST-126, HST-127) | No |
 | 2 | **Decide how ids are made before chunks exist:** one global counter today (`World::new_entity`, 5 call sites) breaks local rollback and parallel chunks; mint ids per creator, e.g. (chunk, tick, sequence) | 0041, 27 | Small now, large later | Cheap at 5 call sites; the run-ahead decision depends on it (RA-114) | No |
 | 3 | **Fix the noise numbers:** grid-dead background 35 day / 25–28 night (or state that the claim is about 6×, not 10×); notice at 0 dB, place at +10 dB; generator 85 dB at 1 m | 18 | Small, re-pins hashes | It's the core loop: "the generator, not the shout, brings the horde" (HST-138..HST-140) | No |
 | 4 | **Testing harness, first slice:** run each seed twice and diff; `SIM_BUGGIFY` sites for save/load round trips, forced jumps and speed changes; a "jump = step" model test (tick-by-tick stepping as the oracle) | 06, 40 | Medium | FoundationDB and TigerBeetle got most of their quality from this (HST-104..HST-118) | No |
@@ -133,7 +133,7 @@ How Project Zomboid and others handle lore ([lore-made-and-generated-worlds](../
 
 | # | Improvement | Spec | Cost | Notes | Touches generators? |
 | --- | --- | --- | --- | --- | --- |
-| 67 | **Probes:** per-subsystem and per-chunk timers and counters, a debug overlay and a log, beside the per-tick hash; never fed into the simulation | 05, 40 | Small | [sensors-and-soundscape](sensors-and-soundscape.md) §1; goes with item 1 | No |
+| 67 | **Probes:** per-subsystem and per-chunk timers and counters, a debug overlay and a log, beside the per-tick hash; never fed into the simulation (per-system timers built with spec 56; chunks, overlay and log remain) | 05, 40 | Small | [sensors-and-soundscape](sensors-and-soundscape.md) §1; goes with item 1 | No |
 | 68 | **Readers module:** district loudness, activity counts, beacons and the attention list computed from the published snapshot; consumed by audio, UI and the director | engine architecture | Medium | sensors §1; XD-125, PKC-160 | No |
 | 69 | **Governor rules:** what measured load may change (speed caps, detail where A1, pinned-window refresh, render and audio detail) and what it never may | 40, 27 | Small (a rule) | sensors §1; XD-136, RA-115 | No |
 | 70 | **Soundscape spec:** silence or music on the world map, ambience fading in with zoom toward the zoom target, a listener per mode, beds by zoom band from the same dB the walkers hear, smoothing, knowledge-mode rule | new spec (audio) | Medium | sensors §2; answers ES-46 | No |

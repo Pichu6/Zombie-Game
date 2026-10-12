@@ -6,11 +6,13 @@
 //   zs --play [--world NAME] [--from SAVE] [--seed N] [--watch] [--shot out.bmp ...]   the window
 //   zs --run|--group|--stage6|... [options]         headless (zs --help lists them)
 //   zs --day [--seed N] [--country C] [--people N] [--date D]   a town's day hour by hour (spec 54)
+//   zs --diverge [--seed N] [--hours H] [--every T] [--mode jump|saveload|both]   the first divergent tick and system (spec 56)
 //   zs gen town|census|names|cultures|world ...     content generators
 //   zs world list|new|fork|delete ...               worlds as folders
 #include <cstring>
 
 #include "day_mode.h"
+#include "diverge_mode.h"
 #include "modes.h"
 #include "worlds.h"
 
@@ -55,6 +57,7 @@ int main(int argc, char** argv) {
   if (argc >= 2 && !std::strcmp(argv[1], "gen")) return gen_main(argc - 1, argv + 1);
   if (argc >= 2 && !std::strcmp(argv[1], "world")) return zs::worlds::cli(argc - 1, argv + 1);
   if (argc >= 2 && !std::strcmp(argv[1], "--day")) return zs::atlas::day_main(argc, argv);  // spec 54
+  if (argc >= 2 && !std::strcmp(argv[1], "--diverge")) return zs::atlas::diverge_main(argc, argv);  // spec 56
   for (int i = 1; i < argc; ++i)
     if (headless_flag(argv[i])) return headless_main(argc, argv);
   hide_own_console();

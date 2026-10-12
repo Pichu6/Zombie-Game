@@ -104,6 +104,23 @@ class World {
   // restored the default (engine architecture section 5). Not state: not saved or hashed.
   std::uint64_t fp_env_restored = 0;
 
+  // Probes (spec 56, ranked items 1 and 67): per-system timers and per-system hashes. Never saved, never hashed,
+  // never read by the simulation (sensors-and-soundscape section 1).
+  struct SystemProbe {
+    std::uint64_t updates = 0;  // calls of update() counted
+    std::uint64_t ns = 0;       // wall-clock nanoseconds inside update(), when probe_timing is on
+  };
+  std::vector<SystemProbe> probes;  // one per system, in update order; grows with add_system
+  bool probe_timing = false;        // on: step() times each system's update (tens of nanoseconds per zone)
+  // The hash of each system's saved state, plus "core" first (clock, entities, rng, ledger, locations, log,
+  // scheduler, commands): two worlds that should agree are compared system by system to find the first divergent
+  // tick and the system that diverged (Factorio and Age of Empires, HST-126, HST-127).
+  struct SystemHash {
+    std::string name;
+    std::uint64_t hash = 0;
+  };
+  std::vector<SystemHash> system_hashes() const;
+
   // Persistence. Load into a candidate world built by the same setup, then swap if it succeeded.
   std::vector<std::uint8_t> save() const;
   void load(const std::vector<std::uint8_t>& bytes);
@@ -120,6 +137,7 @@ class World {
 
  private:
   void save_state(ArchiveWriter& w, bool with_input_log = true) const;
+  void save_core(ArchiveWriter& w, bool with_input_log) const;  // save_state without the systems
   void load_state(ArchiveReader& r, std::uint32_t version);
 
   std::vector<std::unique_ptr<System>> systems_;

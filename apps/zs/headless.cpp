@@ -35,6 +35,7 @@ void usage() {
             "       zs --scripted-pop [--ai]  stage 4: a pop eats, drinks, dresses a wound, salvages, barricades\n"
             "       zs --stage6 [--seed N] [--trace FILE]  the grid fails; generator, fuel, fridge, noise and light\n"
             "       zs --day [--seed N] [--country C] [--people N] [--date YYYY-MM-DD]  spec 54: a town's day hour by hour\n"
+            "       zs --diverge [--seed N] [--hours H] [--every TICKS] [--mode jump|saveload|both]  spec 56: the first divergent tick and system, and the time per system\n"
             "                  (--trace writes a JSON replay for the web viewer, tools/viewer)");
 }
 

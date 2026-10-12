@@ -187,6 +187,7 @@ struct SimState {
       try {
         auto built = zs::gen::make_world(seed, settings);
         built.world->check_every_tick = false;
+        built.world->probe_timing = true;  // spec 56: the card shows where the time goes
         std::lock_guard<std::mutex> l(mutex);
         t.emplace(std::move(built));
         refresh();
@@ -299,13 +300,25 @@ void draw_sim(SimState& st, std::uint64_t seed, const gen::WorldSettings& settin
     ImGui::TextDisabled("a jump steps only the ticks some system is awake at (spec 40); with bodies in the block that is most of them");
     ImGui::Spacing();
     const std::int64_t now = w.clock.tick;
-    if (ImGui::BeginTable("systems", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+    const auto hashes = w.system_hashes();  // spec 56: core first, then each system
+    std::uint64_t total_ns = 0;
+    for (const auto& p : w.probes) total_ns += p.ns;
+    if (ImGui::BeginTable("systems", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
       ImGui::TableSetupColumn("System (update order)", 0, 2);
       ImGui::TableSetupColumn("Next wake", 0, 2);
-      ImGui::TableSetupColumn("", 0, 1);
+      ImGui::TableSetupColumn("", 0, 0.8f);
+      ImGui::TableSetupColumn("Time", 0, 0.8f);
+      ImGui::TableSetupColumn("Hash", 0, 1.6f);
       ImGui::TableHeadersRow();
+      std::size_t si = 0;
       for (const auto& s : w.systems()) {
         ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(3);
+        if (si < w.probes.size() && total_ns) ImGui::Text("%.1f %%", 100.0 * w.probes[si].ns / total_ns);
+        else ImGui::TextDisabled("-");
+        ImGui::TableSetColumnIndex(4);
+        if (si + 1 < hashes.size()) ImGui::TextDisabled("%s", hex(hashes[si + 1].hash).c_str());
+        ++si;
         ImGui::TableSetColumnIndex(0);
         ImGui::TextUnformatted(s->name());
         const std::int64_t wake = s->next_wake(w, now);
@@ -320,6 +333,8 @@ void draw_sim(SimState& st, std::uint64_t seed, const gen::WorldSettings& settin
       }
       ImGui::EndTable();
     }
+    ImGui::TextDisabled("Core (clock, rng, ledger, log, scheduler) %s; the time column is the share of each system's update since the open (spec 56 probes).",
+                        hashes.empty() ? "" : hex(hashes[0].hash).c_str());
     ImGui::TextDisabled("Next wake of the world as a whole: %s", [&] {
       const std::int64_t nw = w.next_wake(now);
       return nw <= now ? std::string("now") : "in " + ticks_text(nw - now);

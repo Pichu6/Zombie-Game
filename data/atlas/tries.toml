@@ -124,6 +124,16 @@ workshop = true
 added = 2026-10-11
 
 [[try]]
+id = "diverge"
+part = "simulation"
+spec = "56"
+title = "The first divergent tick and system"
+what = "Spec 56: the one world stepped six hours; a second copy jumped to each hour and a third reloaded from a save, compared system by system; then where the time went."
+run = ["--diverge", "--seed", "{seed}", "--hours", "6", "--mode", "both"]
+kind = "text"
+added = 2026-10-11
+
+[[try]]
 id = "day"
 part = "individual"
 spec = "54"
