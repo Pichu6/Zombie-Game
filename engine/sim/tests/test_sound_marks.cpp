@@ -152,3 +152,59 @@ TEST_CASE("compass words follow the bearing, north being toward smaller y (A1)")
   CHECK(std::string(compass_word(3 * kPi / 2)) == "south");
   CHECK(std::string(compass_word(kPi / 4)) == "north-east");
 }
+
+namespace {
+SoundMark mark_of(std::size_t source, SoundMark::Kind kind = SoundMark::Kind::Placed) {
+  SoundMark m;
+  m.source = source;
+  m.kind = kind;
+  m.over_db = 12;
+  return m;
+}
+}  // namespace
+
+TEST_CASE("a sound that stops becomes an echo that fades over thirty game seconds, then is gone (A1)") {
+  SoundMemory mem;
+  mem.hear({mark_of(0)}, 100);
+  CHECK(mem.echoes(100).empty());  // heard now: a live mark, not an echo
+  mem.hear({}, 120);               // silent at the next recompute
+  auto e = mem.echoes(120);
+  REQUIRE(e.size() == 1);
+  CHECK(e[0].last_heard == 100);
+  CHECK(e[0].strength(120) == doctest::Approx(1.0 - 20.0 / SoundMemory::kFadeTicks));
+  double prev = 2;
+  for (std::int64_t now = 120; now < 100 + SoundMemory::kFadeTicks; now += 7) {
+    const auto at_now = mem.echoes(now);
+    REQUIRE(at_now.size() == 1);
+    CHECK(at_now[0].strength(now) < prev);  // monotone fading
+    CHECK(at_now[0].strength(now) > 0);
+    prev = at_now[0].strength(now);
+  }
+  CHECK(mem.echoes(100 + SoundMemory::kFadeTicks).empty());  // strength 0: gone
+  mem.hear({}, 100 + SoundMemory::kFadeTicks + 5);           // and forgotten for good
+  CHECK(mem.echoes(100 + 1).empty());
+}
+
+TEST_CASE("a sound heard again is live again; sources are remembered independently, newest first (A1)") {
+  SoundMemory mem;
+  mem.hear({mark_of(0), mark_of(1, SoundMark::Kind::Noticed)}, 100);
+  mem.hear({mark_of(1, SoundMark::Kind::Noticed)}, 110);  // source 0 goes quiet
+  auto e = mem.echoes(110);
+  REQUIRE(e.size() == 1);
+  CHECK(e[0].mark.source == 0);
+  CHECK(e[0].mark.kind == SoundMark::Kind::Placed);
+  mem.hear({mark_of(0), mark_of(1, SoundMark::Kind::Noticed)}, 120);  // both again
+  CHECK(mem.echoes(120).empty());
+  mem.hear({}, 130);  // both quiet; 0 and 1 were last heard at the same tick
+  mem.hear({mark_of(0)}, 140);
+  e = mem.echoes(140);
+  REQUIRE(e.size() == 1);  // only 1 is an echo; 0 is live
+  CHECK(e[0].mark.source == 1);
+  mem.hear({}, 150);  // 0 last heard at 140, 1 at 120
+  e = mem.echoes(150);
+  REQUIRE(e.size() == 2);
+  CHECK(e[0].mark.source == 0);  // the more recent memory first
+  CHECK(e[1].mark.source == 1);
+  mem.clear();
+  CHECK(mem.echoes(150).empty());
+}

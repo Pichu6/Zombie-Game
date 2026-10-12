@@ -117,6 +117,8 @@ struct App {
   std::vector<SoundMark> marks;
   std::int64_t marks_key = -1;
   Cell marks_cell{};
+  SoundMemory echoes;  // what was heard a moment ago, fading (spec 58)
+  EntityId marks_id = 0;
   // Input.
   std::optional<Cell> menu_cell;
   std::optional<Cell> hover_cell;
@@ -525,8 +527,15 @@ void refresh_marks(App& a) {
   const EntityId id = a.followed();
   if (!id || !a.t.actors->actors().contains(id) || !a.t.bodies->get(id).alive) {
     a.marks.clear();
+    a.echoes.clear();
     a.marks_key = -1;
+    a.marks_id = 0;
     return;
+  }
+  if (id != a.marks_id) {  // another pop's ears: what the last one heard is not this one's memory
+    a.echoes.clear();
+    a.marks_id = id;
+    a.marks_key = -1;
   }
   const Cell here = a.t.actors->actor(id).pos;
   const std::int64_t key = w.clock.tick / 20;
@@ -535,6 +544,7 @@ void refresh_marks(App& a) {
   a.marks_cell = here;
   a.marks = sound_marks(*a.t.map, *a.t.items, here, noise_sources(w, *a.t.actors, *a.t.power),
                         background_db(a.t.power->mains_alive(), w.clock.hour()), static_cast<std::uint64_t>(key));
+  a.echoes.hear(a.marks, w.clock.tick);  // what is no longer heard stays a while as an echo
 }
 
 ImVec2 at(const App& a, double x, double y) {
@@ -753,24 +763,28 @@ void draw_map(App& a, ImDrawList* d) {
     else if (db.id == a.selected) d->AddCircle(c, rr + 7, rgb(255, 230, 120), 0, 1.5f);
     draw_action_bar(a, d, db.id, c, rr);
   }
-  // What the followed pop hears (spec 58): a placed sound is rings at the place it seems to come from, with its error
-  // circle; a noticed one is only a cone on the pop's ring toward the direction, wide as the error. Teal, never red:
-  // red is the noise overlay.
+  // What the followed pop hears (spec 58): a placed sound is rings at the place it seems to come from; a noticed one is
+  // only a cone on the pop's ring toward the direction, wide as the error. What stopped sounding a moment ago stays as
+  // an echo (one thin ring or a thin arc) that fades. Teal, never red: red is the noise overlay.
   refresh_marks(a);
-  if (const EntityId id = a.followed(); id && !a.marks.empty() && a.marks_cell.z == a.level) {
-    const ImU32 teal = rgb(80, 205, 225), teal_soft = rgb(80, 205, 225, 90);
+  if (const EntityId id = a.followed(); id && a.marks_cell.z == a.level) {
     const V2 pp = actor_at(a, id);
     const ImVec2 pc = at(a, pp.x + 0.5, pp.y + 0.5);
     const float ring = a.cell * 1.45f;
-    for (const SoundMark& mk : a.marks) {
+    const auto teal = [](double k) { return rgb(80, 205, 225, static_cast<int>(255 * k)); };
+    const auto draw_mark = [&](const SoundMark& mk, double k, bool echo) {
       if (mk.kind == SoundMark::Kind::Placed) {
-        if (mk.apparent.z != a.level) continue;
+        if (mk.apparent.z != a.level) return;
         const ImVec2 c = at(a, mk.apparent.x + 0.5, mk.apparent.y + 0.5);
-        for (float r : {0.3f, 0.55f, 0.8f}) d->AddCircle(c, a.cell * r, r < 0.5f ? teal : teal_soft, 0, 2.0f);
-        if (a.cell >= 22) {
-          char buf[24];
-          std::snprintf(buf, sizeof buf, "~%.0f m", mk.distance_m);
-          d->AddText({c.x + a.cell * 0.85f, c.y - a.cell * 0.3f}, teal, buf);
+        if (echo) {
+          d->AddCircle(c, a.cell * 0.55f, teal(k * 0.7), 0, 1.0f);
+        } else {
+          for (float r : {0.3f, 0.55f, 0.8f}) d->AddCircle(c, a.cell * r, teal(r < 0.5f ? 1.0 : 0.35), 0, 2.0f);
+          if (a.cell >= 22) {
+            char buf[24];
+            std::snprintf(buf, sizeof buf, "~%.0f m", mk.distance_m);
+            d->AddText({c.x + a.cell * 0.85f, c.y - a.cell * 0.3f}, teal(1), buf);
+          }
         }
       } else {
         // The cone: from the bearing minus the error to plus the error, then an arrowhead at the bearing itself.
@@ -778,13 +792,16 @@ void draw_map(App& a, ImDrawList* d) {
         const float b = static_cast<float>(mk.bearing);
         d->PathClear();
         for (int i = -4; i <= 4; ++i) d->PathLineTo({pc.x + std::cos(b + kErr * i / 4) * ring, pc.y - std::sin(b + kErr * i / 4) * ring});
-        d->PathStroke(teal_soft, 0, 5.0f);
+        d->PathStroke(teal(echo ? k * 0.4 : 0.35), 0, echo ? 2.0f : 5.0f);
+        if (echo) return;
         const ImVec2 tip{pc.x + std::cos(b) * (ring + 12), pc.y - std::sin(b) * (ring + 12)};
         const ImVec2 base{pc.x + std::cos(b) * (ring + 2), pc.y - std::sin(b) * (ring + 2)};
         const ImVec2 side{-std::sin(b) * -5, -std::cos(b) * -5};
-        d->AddTriangleFilled(tip, {base.x + side.x, base.y + side.y}, {base.x - side.x, base.y - side.y}, teal);
+        d->AddTriangleFilled(tip, {base.x + side.x, base.y + side.y}, {base.x - side.x, base.y - side.y}, teal(1));
       }
-    }
+    };
+    for (const SoundEcho& e : a.echoes.echoes(w.clock.tick)) draw_mark(e.mark, e.strength(w.clock.tick), true);
+    for (const SoundMark& mk : a.marks) draw_mark(mk, 1, false);
   }
   // The state column by the controlled pop (spec 16 rule 10).
   if (const EntityId me = a.me(); me && a.t.bodies->get(me).alive && a.t.actors->actor(me).pos.z == a.level) {
@@ -838,6 +855,14 @@ void map_notes(App& a, ImDrawList* d) {
       else
         std::snprintf(buf, sizeof buf, "You hear something faint, toward the %s", compass_word(mk.bearing));
       note(h, rgb(120, 215, 230), buf);
+      h.y -= 26;
+    }
+    int shown_echoes = 0;
+    for (const SoundEcho& e : a.echoes.echoes(w.clock.tick)) {
+      if (shown_echoes++ >= 2) break;
+      std::snprintf(buf, sizeof buf, "You heard %s, %s, a moment ago", e.mark.kind == SoundMark::Kind::Placed ? "a clear sound" : "something faint",
+                    compass_word(e.mark.bearing));
+      note(h, rgb(110, 150, 160), buf);
       h.y -= 26;
     }
   }
@@ -1399,6 +1424,9 @@ void map_key(App& a) {
     for (int i = -4; i <= 4; ++i) d->PathLineTo({c.x + std::cos(0.5f * i / 4) * 9, c.y - std::sin(0.5f * i / 4) * 9});
     d->PathStroke(rgb(80, 205, 225, 90), 0, 5.0f);
     d->AddTriangleFilled({c.x + 14, c.y}, {c.x + 10, c.y - 4}, {c.x + 10, c.y + 4}, rgb(80, 205, 225));
+  });
+  legend_row("a sound heard a moment ago (thin, fading away)", [](ImDrawList* d, ImVec2 c) {
+    d->AddCircle(c, 7, rgb(80, 205, 225, 130), 0, 1.0f);
   });
   legend_row("noise overlay: noticed line (0 dB over the background)", line(rgb(250, 220, 90), 1.5f));
   legend_row("noise overlay: placed line (+10 dB: you would know where)", line(rgb(255, 255, 255), 2.5f));

@@ -72,6 +72,39 @@ std::vector<SoundMark> sound_marks(const SiteMap& map, const Assemblies& items, 
   return out;
 }
 
+
+double SoundEcho::strength(std::int64_t now) const {
+  return std::clamp(1.0 - static_cast<double>(now - last_heard) / static_cast<double>(SoundMemory::kFadeTicks), 0.0, 1.0);
+}
+
+void SoundMemory::hear(const std::vector<SoundMark>& marks, std::int64_t tick) {
+  latest_ = tick;
+  for (const SoundMark& m : marks) {
+    auto it = std::find_if(entries_.begin(), entries_.end(), [&](const auto& e) { return e.first == m.source; });
+    if (it == entries_.end()) entries_.push_back({m.source, Entry{m, tick}});
+    else it->second = Entry{m, tick};
+  }
+  entries_.erase(std::remove_if(entries_.begin(), entries_.end(),
+                                [&](const auto& e) { return tick - e.second.last_heard >= kFadeTicks; }),
+                 entries_.end());
+}
+
+std::vector<SoundEcho> SoundMemory::echoes(std::int64_t now) const {
+  std::vector<SoundEcho> out;
+  for (const auto& [index, e] : entries_) {
+    if (e.last_heard == latest_) continue;  // heard at the last hear(): a live mark, not an echo
+    const SoundEcho echo{e.mark, e.last_heard};
+    if (echo.strength(now) > 0) out.push_back(echo);
+  }
+  std::sort(out.begin(), out.end(), [](const SoundEcho& a, const SoundEcho& b) { return a.last_heard > b.last_heard; });
+  return out;
+}
+
+void SoundMemory::clear() {
+  entries_.clear();
+  latest_ = -1;
+}
+
 const char* compass_word(double bearing) {
   static const char* const words[8] = {"east", "north-east", "north", "north-west", "west", "south-west", "south", "south-east"};
   double a = std::fmod(bearing, 2 * 3.14159265358979323846);
