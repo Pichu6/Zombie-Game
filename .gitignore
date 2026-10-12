@@ -5,3 +5,8 @@ __pycache__/
 .vs/
 .vscode/
 *.blend1
+
+# Local only (research, decisions, notes, agent instructions); the repo holds the engine and the game
+docs/
+CLAUDE.md
+tools/docs/
