@@ -24,6 +24,7 @@ constexpr double kCoordination = 0.5;             // walker speed = body walk sp
 constexpr double kPursuitBoost = 1.2;             // a little faster with a target in sight
 constexpr double kFadeDbPerS = 0.02;              // a 20 dB memory fades in ~17 min (estimate)
 constexpr double kSightStrength = 40, kWindowStrength = 10;
+constexpr double kMoanDb = 65;  // decision 0064 rule 2: a moan at 1 m, an estimate to tune
 constexpr double kPushNoiseDb = 75;               // shoving and pounding on a door (estimate)
 constexpr double kEdgeCost = 25;                  // path cost of a closed door or window: push through it
 constexpr double kGrabChance = 0.5, kBiteChance = 0.4, kEscapeBase = 0.2;
@@ -159,9 +160,28 @@ double Walkers::heard_db(const World&, const NoiseSource& s, const Cell& at, dou
 
 std::vector<NoiseSource> Walkers::sources(const World&) const {
   std::vector<NoiseSource> out;
-  for (const auto& [id, z] : walkers_)
+  for (const auto& [id, z] : walkers_) {
     if (z.pushing) out.push_back({z.pos, kPushNoiseDb});
+    // Decision 0064 rule 2: a walker that has something moans, and the moan carries to other walkers, so a horde turns
+    // as a wave and relays the sound from walker to walker. The level is an estimate to tune.
+    if (z.mode == Mode::Pursue || z.mode == Mode::Attack || z.mode == Mode::Bash) out.push_back({z.pos, kMoanDb});
+  }
   return out;
+}
+
+// A cell up to `steps` walkable steps from `from` in the direction of `to` (the same storey): where a noticed sound
+// sends a walker (decision 0064), not the spot itself.
+Cell Walkers::toward(const Cell& from, const Cell& to, int steps) const {
+  Cell c = from;
+  for (int i = 0; i < steps; ++i) {
+    const int dx = (to.x > c.x) - (to.x < c.x), dy = (to.y > c.y) - (to.y < c.y);
+    if (!dx && !dy) break;
+    Cell nb{c.z, c.x + dx, c.y + dy};
+    if (dx && dy) nb = std::abs(to.x - c.x) >= std::abs(to.y - c.y) ? Cell{c.z, c.x + dx, c.y} : Cell{c.z, c.x, c.y + dy};
+    if (!map_.passable(nb) || !walker_passes(SiteMap::edge_between(c, nb))) break;
+    c = nb;
+  }
+  return c;
 }
 
 // ---- Brain ---------------------------------------------------------------------------------------------
@@ -303,10 +323,12 @@ void Walkers::think(World& w, WalkerState& z) {
     for (const NoiseSource& s : sources(w))
       if (!(s.at == z.pos)) srcs.push_back(s);
     for (const NoiseSource& s : srcs) {
-      const double margin = (heard_db(w, s, z.pos, bg) - bg - 3) * bodies_.capabilities(b, now).hearing;
+      // Decision 0064: noticed at 0 dB over the background; placed at +10 dB. A noticed sound sends the walker a few
+      // steps toward it; a placed one sends it to the spot.
+      const double margin = (heard_db(w, s, z.pos, bg) - bg - kNoticeDb) * bodies_.capabilities(b, now).hearing;
       if (margin > best + 1) {  // a clearly stronger sound
         best = margin;
-        heard = s.at;
+        heard = margin >= kPlaceDb ? s.at : toward(z.pos, s.at, 6);
       }
     }
     // A lit window standing out against the night (spec 19 rule 4).

@@ -11,7 +11,7 @@
 namespace zs {
 namespace {
 
-constexpr double kHearingThresholdDb = 3;  // spec 18 rule 2
+constexpr double kHearingThresholdDb = kNoticeDb;  // spec 18 rule 2, decision 0064: noticed at 0 dB over the background
 constexpr double kBoardLossDb = 3;         // per board nailed over an opening (estimate)
 constexpr double kStoreyM = 3;             // distance between levels
 
@@ -71,7 +71,7 @@ std::size_t cell_index(const SiteMap& m, const Cell& c) { return index_of(m, c);
 double background_db(bool grid_alive, double hour) {
   const bool night = hour < 7 || hour >= 22;  // WHO night period (approx.)
   if (grid_alive) return night ? 45 : 55;
-  return night ? 30 : 40;
+  return night ? 27 : 35;  // decision 0064
 }
 
 double edge_loss_db(const SiteMap& map, const Assemblies& items, const EdgeRef& e) {

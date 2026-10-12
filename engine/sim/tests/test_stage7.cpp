@@ -290,7 +290,7 @@ TEST_CASE("stage 7: the scenario with the dead: save/load keeps the hash; golden
   while (at_mid.drive(u)) u.world->step();
   run_hours(u, 2);
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 860777209367898720ULL;  // re-pinned on MSVC for decision 0065 (ids per creator, seed 4), 2026-10-11
+  const std::uint64_t golden = 6581081184344293996ULL;  // re-pinned on MSVC for decision 0064 (background 35/27, two thresholds, moans, generator 85 dB), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 7 golden world hash: " << t.world->world_hash());
 }
@@ -317,4 +317,30 @@ TEST_CASE("stage 7 review: nothing reaches through a shut door or a wall; a dead
   t.bodies->kill(*t.world, t.player, DeathCause::Exsanguination, 0);
   t.world->step();
   CHECK(t.actors->actor(t.player).noise_db == 0);
+}
+
+TEST_CASE("decision 0064: a walker that pursues moans, and a second walker nearby hears the moan and turns to it (spec 18, A3)") {
+  Tier0 t = make_world(4, true);
+  t.world->check_every_tick = false;
+  t.world->clock.tick = 15 * kTicksPerGameHour;  // 23:00: night background (45 dB with the grid alive)
+  const auto bodies = off_map(t);
+  REQUIRE(bodies.size() >= 2);
+  const Cell me = player_cell(t);
+  // The first walker next to the player: it sees and pursues, and so moans.
+  const Cell beside{me.z, me.x + 1, me.y};
+  place(t, bodies[0], beside);
+  // The second six cells farther along the same row (3 m): the moan, 65 dB at 1 m, is about 55 dB there, 10 dB over the
+  // night background, so it is placed, not merely noticed.
+  const Cell farther{me.z, me.x + 7, me.y};
+  place(t, bodies[1], farther);
+  t.world->run_ticks(4 * kBodyStepTicks);
+  const auto& first = t.walkers->walkers().at(bodies[0]);
+  CHECK((first.mode == Mode::Pursue || first.mode == Mode::Attack));
+  bool moans = false;
+  for (const NoiseSource& s : t.walkers->sources(*t.world))
+    if (s.at == first.pos && s.db_1m >= 60) moans = true;
+  CHECK(moans);
+  const auto& second = t.walkers->walkers().at(bodies[1]);
+  CHECK(second.mode != Mode::Idle);
+  CHECK(std::abs(second.goal.x - me.x) <= std::abs(farther.x - me.x));  // its goal is toward the player, not away
 }

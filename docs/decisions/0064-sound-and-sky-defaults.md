@@ -15,6 +15,6 @@
 
 ## Consequences
 
-- Spec 18 changes in the same commit as its code, because the numbers re-pin the golden hashes; until then spec 18 states what is implemented.
+- Spec 18 changes in the same commit as its code, because the numbers re-pin the golden hashes; until then spec 18 states what is implemented. **Rules 1 and 2 built 2026-10-11** (background 35/27, the two thresholds, the generator at 85 dB, moans at 65 dB; the stage 7 golden re-pinned). Rule 3, the sky's parameters, waits for the daylight-by-latitude slice of spec 42.
 - The walker relay speed, once moans exist, sets the rollback cone of the run-ahead proposal (engine architecture, Open).
 - Sun and moon come from formulas on these parameters (spec 19), shared with the planet work.

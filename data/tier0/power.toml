@@ -8,7 +8,7 @@ surge_w = 3500         # starting watts
 idle_lph = 0.6         # fuel at no load
 full_lph = 1.9         # fuel at rated load
 tank_l = 15
-noise_db_1m = 89       # ~72 dBA at 7 m
+noise_db_1m = 85       # ~68-70 dBA at 7 m, an open-frame unit (decision 0064, HST-140); was 89
 source = "typical 3-3.5 kW open-frame spec sheets: ~12 h at 50 % load on a ~15 L tank, ~72 dBA at 7 m; idle and full-load use read off the same curve (estimate)"
 
 [[circuit]]

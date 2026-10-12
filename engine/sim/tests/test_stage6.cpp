@@ -136,8 +136,9 @@ TEST_CASE("stage 6: the generator is heard 200 m away at night only once the gri
   const double before = audible_range_m(*t.map, *t.items, gen, background_db(true, 23));
   const double after = audible_range_m(*t.map, *t.items, gen, background_db(false, 23));
   CHECK(before < 200);
-  CHECK(before == doctest::Approx(112).epsilon(0.02));
+  CHECK(before == doctest::Approx(100).epsilon(0.02));  // 85 dB over 45 dB: 10^(40/20) = 100 m (decision 0064)
   CHECK(after > 200);
+  CHECK(after == doctest::Approx(794).epsilon(0.02));  // over 27 dB: 10^(58/20); about eight times farther at night
 }
 
 TEST_CASE("stage 6: closing a door lowers the level beyond it by the door's loss (spec 18, A1)") {

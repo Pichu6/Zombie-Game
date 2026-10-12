@@ -155,6 +155,7 @@ class Walkers : public System {
   // Arm's reach: the same cell, or the next cell with nothing closed between (no diagonals,
   // nothing through glass or a shut door). Strikes, grabs and bites all use it.
   bool in_reach(const Cell& a, const Cell& b) const;
+  Cell toward(const Cell& from, const Cell& to, int steps) const;  // decision 0064: where a noticed sound sends a walker
   // What a living person sees of the dead: walkers in line of sight and light, nearest first
   // (same sight rule the walkers use). Nothing while asleep.
   std::vector<EntityId> visible_to(const World& w, EntityId viewer) const;

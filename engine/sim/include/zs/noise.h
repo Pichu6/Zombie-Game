@@ -18,6 +18,12 @@ struct NoiseSource {
 };
 
 // Background at the listener: urban day/night while the grid lives; quiet after (spec 18 table).
+// Decision 0064: two hearing thresholds on signal minus background. A sound is noticed at 0 dB (the listener turns
+// toward it), and placed at +10 dB (the listener knows where it is).
+inline constexpr double kNoticeDb = 0;
+inline constexpr double kPlaceDb = 10;
+// Background by hour: 55 dB by day and 45 at night while the grid lives; 35 and 27 once it has failed (decision 0064:
+// 20 dB and 18 dB drops, so voices carry about ten times farther), night being 22:00 to 07:00.
 double background_db(bool grid_alive, double hour);
 // What a closed edge takes off a sound crossing it (dB); 0 when air passes.
 double edge_loss_db(const SiteMap& map, const Assemblies& items, const EdgeRef& e);
