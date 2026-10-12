@@ -1,6 +1,7 @@
 // zs --absence (spec 59): a pop of the one world goes missing and the household reacts on the ladder of decision 0070:
 // phone, ask around, report missing, search; then the pop comes back. Prints every step with the game time.
 //   zs --absence [--seed N] [--pop SLOT] [--back-after-hours H] [--phoned-in]
+//   zs --absence --real [--seed N] [--days D] [--rate-scale S]   the world's own disappearances (spec 60)
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -9,6 +10,7 @@
 #include "zs/clock.h"
 #include "zs/expectations.h"
 #include "zs/gen/place.h"
+#include "zs/missing_persons.h"
 #include "zs/tier0.h"
 #include "zs/world.h"
 #include "absence_mode.h"
@@ -45,17 +47,40 @@ int absence_main(int argc, char** argv) {
   std::uint64_t seed = 1;
   long slot = -1;
   double back_after_h = 48;
-  bool phoned_in = false;
+  bool phoned_in = false, real = false;
+  double days = 365, rate_scale = 1;
   for (int i = 1; i < argc; ++i) {
     if (!std::strcmp(argv[i], "--seed") && i + 1 < argc) seed = std::strtoull(argv[++i], nullptr, 10);
     else if (!std::strcmp(argv[i], "--pop") && i + 1 < argc) slot = std::strtol(argv[++i], nullptr, 10);
     else if (!std::strcmp(argv[i], "--back-after-hours") && i + 1 < argc) back_after_h = std::atof(argv[++i]);
     else if (!std::strcmp(argv[i], "--phoned-in")) phoned_in = true;
+    else if (!std::strcmp(argv[i], "--real")) real = true;
+    else if (!std::strcmp(argv[i], "--days") && i + 1 < argc) days = std::atof(argv[++i]);
+    else if (!std::strcmp(argv[i], "--rate-scale") && i + 1 < argc) rate_scale = std::atof(argv[++i]);
   }
   try {
     auto t = zs::gen::make_world(seed);
     t.world->check_every_tick = false;
     const auto& people = t.census->people();
+    if (real) {  // spec 60: nobody is sent away; the world's own disappearances, at the table's rates times the scale
+      t.missing->set_rate_scale(rate_scale);
+      t.missing->redraw(*t.world, 0);
+      std::printf("the one world, seed %llu: real disappearances for %.0f days at %.0f times the table's rate (%zu pops tracked)\n",
+                  static_cast<unsigned long long>(seed), days, rate_scale, t.missing->entries().size());
+      t.world->jump(static_cast<std::int64_t>(days * static_cast<double>(kTicksPerGameDay)));
+      int began = 0, ended = 0, broken = 0, reported = 0;
+      for (const Event& e : t.world->log.all()) {
+        const std::string s = line_of(t, e);
+        if (s.empty()) continue;
+        began += e.type == EventType::AbsenceBegan;
+        ended += e.type == EventType::AbsenceEnded;
+        broken += e.type == EventType::CommitmentBroken;
+        reported += e.type == EventType::MissingReported;
+        std::printf("  %s  %s\n", tier0::time_text(e.tick).c_str(), s.c_str());
+      }
+      std::printf("%d went missing, %d came back, %d commitments broken, %d reported missing\n", began, ended, broken, reported);
+      return 0;
+    }
     if (slot < 0) {  // the first living adult with another living adult in the household
       for (std::size_t i = 0; i < people.size() && slot < 0; ++i) {
         if (is_dead(people[i].fate) || people[i].age < 18 || people[i].household.empty()) continue;

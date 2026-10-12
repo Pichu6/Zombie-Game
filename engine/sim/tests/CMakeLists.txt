@@ -4,6 +4,7 @@ add_executable(zs_sim_tests
   test_schedule.cpp
   test_probes.cpp
   test_expectations.cpp
+  test_missing_persons.cpp
   test_sound_marks.cpp
   test_harness.cpp
   test_detmath.cpp

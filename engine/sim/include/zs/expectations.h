@@ -18,7 +18,7 @@ enum class CommitmentKind : std::uint8_t { ShiftStart = 0, ArriveHome = 1, kCoun
 const char* commitment_name(CommitmentKind k);
 
 // Why a pop is absent (the AbsenceBegin command's `a`).
-enum class AbsenceCause : std::uint8_t { Possessed = 0, Ill = 1, Chose = 2, Unknown = 3, kCount = 4 };
+enum class AbsenceCause : std::uint8_t { Possessed = 0, Ill = 1, Chose = 2, Unknown = 3, Wandered = 4, kCount = 5 };  // Wandered: lost, confused (AB-36)
 
 // One commitment as the schedule names it: when it falls due and who expects it, in the order they act (the first
 // phones and asks around, the last reports).

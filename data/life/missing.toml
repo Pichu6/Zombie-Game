@@ -1,0 +1,45 @@
+# Real people go missing without any player (decision 0070 rule 6, spec 60), so a possession hides among them.
+# Per country table: a rate per head per year by age class, how long a person stays away, and why. A table is chosen by the
+# country's own entry when it has one, else by its income group ([index]).
+#
+# gb_ew: England and Wales, NCA UKMPU 2022/23. Individuals reported missing (AB-10, AB-11): 156,454, of whom 69,927
+# children (45 %) and 86,189 adults. The per-1,000 rates below divide those by the 2021 census population (59.6 million;
+# AB rates-per-head note) split by age: children (under 18) about 12.5 million, adults 47.1 million. Those two denominators
+# are our estimate, not fetched. Each incident per person: adults 1.4, children 2.9 (AB-11); the rates here are for
+# individuals, and an individual's repeat is another draw of the same process (a Poisson process per pop).
+# Return times: adults about 85 % within 48 h (derived, rough, AB-21) and 98.8 % within 28 days (AB-23: 1.2 % still
+# missing); children 78 % within 24 h and 90 % within 48 h (AB-22), 99.5 % within 28 days (AB-23). The rest do not
+# return within the run: long-term missing.
+# Causes: adults runaway 16 %, wandered off or lost 8.6 %, the rest unknown (AB-36, Canada 2024); children runaway 71 %
+# (AB-37, Canada 2024). A table for another country borrows these shapes until it has its own sources.
+#
+# us: the FBI's NCIC entries (AB-30, AB-31): about 1.6 per 1,000 people per year across all ages (reported); the age split
+# and the return times are borrowed from gb_ew scaled to that total (default taken by Claude).
+
+[gb_ew]
+adult_per_1000_year = 1.8
+child_per_1000_year = 5.6
+child_age_max = 17
+adult_return_cdf = [[48, 0.85], [672, 0.988]]            # [hours, share returned by then]
+child_return_cdf = [[24, 0.78], [48, 0.90], [672, 0.995]]
+adult_chose = 0.16
+adult_wandered = 0.086
+child_chose = 0.71
+child_wandered = 0.0
+
+[us]
+adult_per_1000_year = 0.9
+child_per_1000_year = 2.8
+child_age_max = 17
+adult_return_cdf = [[48, 0.85], [672, 0.988]]
+child_return_cdf = [[24, 0.78], [48, 0.90], [672, 0.995]]
+adult_chose = 0.16
+adult_wandered = 0.086
+child_chose = 0.71
+child_wandered = 0.0
+
+[index]            # which table a country's income group reads (default taken by Claude: only two have sources)
+high = "gb_ew"
+upper_middle = "us"
+lower_middle = "us"
+low = "us"

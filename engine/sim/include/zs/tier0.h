@@ -22,6 +22,7 @@ class OrdersSystem;
 class GridSystem;
 class CalendarSystem;
 class Expectations;
+class MissingPersons;
 }  // namespace zs
 
 namespace zs::tier0 {
@@ -53,6 +54,7 @@ struct Tier0 {
   PlaceSystem* place = nullptr;  // spec 42
   CalendarSystem* calendar = nullptr;  // spec 53
   Expectations* expectations = nullptr;  // spec 59 (the one world only)
+  MissingPersons* missing = nullptr;     // spec 60 (the one world only)
   WorldOwners owners;
   EntityId player = 0;  // the body of the pop at the map's player start
   std::vector<EntityId> group;  // the player first, then survivors who start with it

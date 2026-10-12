@@ -6,6 +6,7 @@
 #include "zs/demographics.h"
 #include "zs/economy_system.h"
 #include "zs/expectations.h"
+#include "zs/missing_persons.h"
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
 #include "zs/pop_system.h"
@@ -171,6 +172,16 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   auto expectations = std::make_unique<Expectations>(
       load_expectation_params(data_dir() + "/life/expectations.toml"), make_commitments(*t.census, *calendar, place, w.rng.seed()));
   t.expectations = expectations.get();
+  // Spec 60: real people go missing without any player (decision 0070 rule 6): every living founder is a Poisson
+  // process of absences at the country's rates by age class; the ladder above reacts to them.
+  auto missing = std::make_unique<MissingPersons>(
+      load_missing_params(data_dir() + "/life/missing.toml", place.profile, place.income), expectations.get(),
+      [people = t.census](PopId id) {
+        return !is_born(id) && founder_slot_of(id) < people->people().size() && !is_dead(people->people()[founder_slot_of(id)].fate);
+      });
+  for (std::size_t i = 0; i < t.census->people().size(); ++i)
+    if (!is_dead(t.census->people()[i].fate)) missing->track(w, census_pop_id(static_cast<std::uint32_t>(i)), t.census->people()[i].age);
+  t.missing = missing.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));
@@ -179,6 +190,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   w.add_system(std::move(where));
   w.add_system(std::move(calendar));
   w.add_system(std::move(expectations));
+  w.add_system(std::move(missing));
 }
 
 }  // namespace zs::tier0

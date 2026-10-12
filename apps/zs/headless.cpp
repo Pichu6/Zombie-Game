@@ -36,6 +36,8 @@ void usage() {
             "       zs --stage6 [--seed N] [--trace FILE]  the grid fails; generator, fuel, fridge, noise and light\n"
             "       zs --day [--seed N] [--country C] [--people N] [--date YYYY-MM-DD]  spec 54: a town's day hour by hour\n"
             "       zs --diverge [--seed N] [--hours H] [--every TICKS] [--mode jump|saveload|both]  spec 56: the first divergent tick and system, and the time per system\n"
+            "       zs --absence [--seed N] [--pop SLOT] [--back-after-hours H] [--phoned-in]  spec 59: a pop goes missing; the household's ladder of phone, ask, report, search\n"
+            "       zs --absence --real [--seed N] [--days D] [--rate-scale S]  spec 60: the world's own disappearances at the table's rates times S\n"
             "                  (--trace writes a JSON replay for the web viewer, tools/viewer)");
 }
 
