@@ -4,6 +4,7 @@
 // first system and the operations since the last agreement, and the seed that makes the plan.
 // Research: docs/research/hordes-sound-sky-and-testing.md HST-104..HST-118 (FoundationDB, TigerBeetle).
 #pragma once
+#include <array>
 #include <cstdint>
 #include <functional>
 #include <exception>
@@ -45,6 +46,7 @@ inline std::string first_divergence(const World& a, const World& b) {
 struct Oracle {
   std::vector<std::vector<World::SystemHash>> hours;  // [h - 1] = the hashes after h hours
   std::uint64_t final_hash = 0;
+  std::array<std::uint64_t, static_cast<std::size_t>(FaultSite::kCount)> hits{};  // fault sites fired
 };
 
 inline Oracle plain_run(const Make& make, int hours) {
@@ -56,6 +58,7 @@ inline Oracle plain_run(const Make& make, int hours) {
     o.hours.push_back(t.world->system_hashes());
   }
   o.final_hash = t.world->state_hash();
+  o.hits = t.world->buggify.hits;
   return o;
 }
 
@@ -67,6 +70,7 @@ struct Report {
   std::string system;           // and the first system that did
   std::string ops;              // the operations since the last agreement, for the failure message
   int saves = 0, jumps = 0, steps = 0;  // what the plan did
+  std::array<std::uint64_t, static_cast<std::size_t>(FaultSite::kCount)> hits{};  // fault sites fired, over every world of the run
 };
 
 // A perturbed run of `hours` game hours under the plan keyed by `plan_seed`. Segments never cross an hour boundary,
@@ -119,6 +123,7 @@ inline Report perturbed_run(const Make& make, const Oracle& oracle, std::uint64_
           } else {
             fresh.world->load(bytes);
           }
+          for (std::size_t s = 0; s < r.hits.size(); ++s) r.hits[s] += t.world->buggify.hits[s];
           t = std::move(fresh);
           ++r.saves;
           break;
@@ -138,6 +143,7 @@ inline Report perturbed_run(const Make& make, const Oracle& oracle, std::uint64_
       }
     ops.str("");
   }
+  for (std::size_t s = 0; s < r.hits.size(); ++s) r.hits[s] += t.world->buggify.hits[s];
   if (t.world->state_hash() != oracle.final_hash) {
     r.agree = false;
     r.hour = hours;

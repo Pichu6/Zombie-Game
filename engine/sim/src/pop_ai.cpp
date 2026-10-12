@@ -773,6 +773,7 @@ void PopAI::update(World& w) {
     }
     if (id == possessed_ || now < m.next_decide) continue;
     m.next_decide = now + kDecideTicks;
+    if (w.buggify.fire(FaultSite::PopHesitates, now, id, 200000)) continue;  // 20 %: the pop lets this period pass
     decide(w, m);
   }
 }

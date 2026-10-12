@@ -1,6 +1,7 @@
 // Spec 57: the testing harness. Each seed twice, perturbed runs against plain stepping, and the negative controls.
 #include <doctest.h>
 
+#include <array>
 #include <string>
 
 #include "harness.h"
@@ -16,11 +17,16 @@ struct Config {
 };
 
 // The three worlds of the stages: the block alone, the block with the dead and four AI pops, the one world.
-std::vector<Config> configs(std::uint64_t seed) {
+// `faults` turns the fault sites on, keyed by the seed: every copy of the world built by the setup sees the same faults.
+std::vector<Config> configs(std::uint64_t seed, bool faults = false) {
+  auto armed = [seed, faults](tier0::Tier0 t) {
+    if (faults) t.world->buggify.seed = 0xFA17ull + seed;
+    return t;
+  };
   return {
-      {"stage 6 block", [seed] { return tier0::make_world(seed); }},
-      {"stage 8 group", [seed] { return tier0::make_world(seed, true, 4); }},
-      {"stage 9 one world", [seed] { return tier0::make_run(seed); }},
+      {"stage 6 block", [=] { return armed(tier0::make_world(seed)); }},
+      {"stage 8 group", [=] { return armed(tier0::make_world(seed, true, 4)); }},
+      {"stage 9 one world", [=] { return armed(tier0::make_run(seed)); }},
   };
 }
 
@@ -77,4 +83,31 @@ TEST_CASE("plans are reproducible: the same plan seed does the same operations")
   CHECK(a.steps == b.steps);
   CHECK(a.jumps == b.jumps);
   CHECK(a.saves == b.saves);
+}
+
+TEST_CASE("with fault sites on, the three promises still hold, over six days (A1)" * doctest::skip(World::kDebugBuild)) {
+  constexpr int kDays = 6 * 24;  // the grid fails somewhere in days 2 to 5 (spec 17 rule 5): the generator branch runs
+  std::array<std::uint64_t, static_cast<std::size_t>(FaultSite::kCount)> fired{};
+  for (const Config& c : configs(6, true)) {
+    const Oracle oracle = plain_run(c.make, kDays);
+    for (std::size_t s = 0; s < fired.size(); ++s) fired[s] += oracle.hits[s];
+    for (std::uint64_t plan : {51, 52, 53}) {
+      const Report r = perturbed_run(c.make, oracle, plan, kDays);
+      CHECK_MESSAGE(r.agree, c.name << ", plan " << plan << ": first difference at hour " << r.hour << " in "
+                                    << r.system << " after: " << r.ops);
+    }
+  }
+  // A site that never fires tests nothing: every site fired somewhere in the worlds.
+  for (std::size_t s = 0; s < fired.size(); ++s) CHECK_MESSAGE(fired[s] > 0, "fault site " << s << " never fired");
+}
+
+TEST_CASE("fault sites change the run, and a world without a seed never fires one (A1)" * doctest::skip(World::kDebugBuild)) {
+  const Config plain = configs(7, false)[1], faulty = configs(7, true)[1];
+  const Oracle a = plain_run(plain.make, 72), b = plain_run(faulty.make, 72);
+  CHECK(a.final_hash != b.final_hash);  // the faults changed what happened
+  for (std::uint64_t n : a.hits) CHECK(n == 0);
+  std::uint64_t total = 0;
+  for (std::uint64_t n : b.hits) total += n;
+  CHECK(total > 0);
+  CHECK(b.final_hash == plain_run(faulty.make, 72).final_hash);  // and the same faults give the same run
 }

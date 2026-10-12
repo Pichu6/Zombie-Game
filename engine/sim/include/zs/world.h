@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "zs/archive.h"
+#include "zs/buggify.h"
 #include "zs/clock.h"
 #include "zs/draw.h"
 #include "zs/events.h"
@@ -114,6 +115,9 @@ class World {
   const std::vector<Command>& input_log() const { return input_log_; }
 
   // Ledger check every tick. On by default in debug builds; tests turn it on everywhere.
+  // Fault injection sites (spec 57): off unless a test sets a seed; not state, never saved or hashed.
+  Buggify buggify;
+
   bool check_every_tick = kDebugBuild;
   std::optional<std::string> last_violation;
   // Times step() found the floating-point environment changed (rounding, flush-to-zero, denormals-are-zero) and

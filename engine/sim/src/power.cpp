@@ -208,6 +208,7 @@ void Power::stall(World& w, StallCause why, EventId cause) {
 
 bool Power::start_generator(World& w, EventId cause) {
   if (running_ || fuel_ul(w) <= 0) return false;
+  if (w.buggify.fire(FaultSite::GeneratorWontStart, w.clock.tick, 0, 300000)) return false;  // 30 %: the engine does not catch
   running_ = true;
   solve(w, cause, -1, true);
   return running_;

@@ -377,6 +377,7 @@ void Walkers::think(World& w, WalkerState& z) {
 void Walkers::move(World& w, WalkerState& z) {
   Body& b = bodies_.get(z.body);
   b.activity = Activity{};
+  if (w.buggify.fire(FaultSite::WalkerStumbles, w.clock.tick, z.body, 100000)) return;  // 10 %: no step this tick
   if (z.next >= z.path.size()) {
     z.pushing.reset();
     return;
