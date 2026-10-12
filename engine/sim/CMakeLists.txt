@@ -47,6 +47,7 @@ add_library(zs_sim
   src/beliefs.cpp
   src/orders_system.cpp
   src/pacer.cpp
+  src/expectations.cpp
   src/sound_marks.cpp
 )
 target_include_directories(zs_sim PUBLIC include)

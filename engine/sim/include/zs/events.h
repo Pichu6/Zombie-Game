@@ -85,6 +85,16 @@ enum class EventType : std::uint16_t {
   OrderRefused = 62,     // subject = what it was aimed at, a = the command type, b = OrderRefusal
   Broadcast = 63,        // subject = the thing told (an edict entity), a = how many heard
   Told = 64,             // subject = the listener pop, a = the teller, b = the thing
+  // Spec 59: broken commitments are noticed (decision 0070).
+  AbsenceBegan = 65,       // subject = pop, a = AbsenceCause, b = 1 if phoned in (an ordinary absence); the root of the ladder
+  CommitmentBroken = 66,   // subject = pop, a = CommitmentKind, b = the first holder
+  HolderPhoned = 67,       // subject = the holder, a = the pop, b = 0 (no answer)
+  HolderAskedAround = 68,  // subject = the holder, a = the pop, b = how many holders were asked
+  MissingReported = 69,    // subject = the pop, a = who reported
+  SearchStarted = 70,      // subject = the pop
+  AbsenceEnded = 71,       // subject = pop, a = AbsenceStage reached, b = ticks gone
+  CaseClosed = 72,         // subject = pop, a = ticks the missing-person case was open
+  ExpectationRefused = 73, // subject = pop, a = the command type, b = 1 already absent, 2 not absent
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

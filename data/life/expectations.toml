@@ -1,0 +1,16 @@
+# Broken commitments are noticed (decision 0070, spec 59). Per commitment kind, minutes after the commitment's due
+# time. A kept commitment costs nothing; a broken one starts the ladder: phone, ask around, report missing, search.
+# Every number here is a default taken by Claude (research absence-and-missing-persons, "the reaction chain"): none was
+# found in a source except that no waiting period applies before a report (AB-42) and a no-call is the anomaly (AB-1, AB-7).
+
+[shift_start]            # an employer expects the pop at work; the household is told when the employer cannot reach it
+tolerance_min = 30       # grace after the shift start before the supervisor calls
+ask_after_min = 120      # from the broken commitment: friends, colleagues, hospitals
+report_after_min = 360   # from the broken commitment: reported missing (no waiting period applies, AB-42)
+search_after_min = 60    # from the report: a search opens
+
+[arrive_home]            # the household expects the pop home
+tolerance_min = 60
+ask_after_min = 120
+report_after_min = 240
+search_after_min = 60

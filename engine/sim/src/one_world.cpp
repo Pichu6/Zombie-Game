@@ -5,9 +5,11 @@
 #include "zs/calendar.h"
 #include "zs/demographics.h"
 #include "zs/economy_system.h"
+#include "zs/expectations.h"
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
 #include "zs/pop_system.h"
+#include "zs/schedule.h"
 #include "zs/tier0.h"
 
 namespace zs::tier0 {
@@ -94,6 +96,52 @@ std::unique_ptr<GridSystem> make_grids(WorldOwners& ids) {
   return grids;
 }
 
+// Spec 59: the schedule's commitments, as holders see them. A pop of the census whose household has another living
+// adult is expected somewhere: at work or school at the segment's start (a shift start), and home at the end of the
+// way back (arriving home). The holders are the household's other living adults, in census order: the first phones,
+// the last reports. Born pops and people nobody lives with are expected nowhere (nobody notices their absence).
+NextCommitment make_commitments(const Census& census, const CalendarSystem& calendar, const Place& place, std::uint64_t world_seed) {
+  auto table = std::make_shared<TimeUseTable>(timeuse_for(data_dir(), place.profile, place.income));
+  const Census* people = &census;
+  const CalendarSystem* cal = &calendar;
+  return [table, people, cal, world_seed](PopId pop, std::int64_t from) -> std::optional<Commitment> {
+    const auto& all = people->people();
+    if (is_born(pop) || founder_slot_of(pop) >= all.size()) return std::nullopt;
+    const Person& p = all[founder_slot_of(pop)];
+    if (is_dead(p.fate) || p.household.empty()) return std::nullopt;
+    Commitment out;
+    for (std::size_t i = 0; i < all.size(); ++i)
+      if (i != founder_slot_of(pop) && all[i].household == p.household && !is_dead(all[i].fate) && all[i].age >= 16)
+        out.holders.push_back(census_pop_id(static_cast<std::uint32_t>(i)));
+    if (out.holders.empty()) return std::nullopt;
+    SchedulePerson sp;
+    sp.key = keyed_u64(world_seed, Purpose::PopLife, pop, 0x5C4ED);  // the schedule's own draw of the pop's life
+    sp.age = p.age;
+    sp.sex = p.sex == Sex::Female ? 'f' : 'm';
+    sp.employment = p.age < 5 ? Employment::Child : p.age < 18 ? Employment::Student : p.age < 65 ? Employment::FullTime : Employment::Retired;
+    sp.has_workplace = false;  // the block has no workplaces placed: work is done at home with no commute (spec 54 rule 4)
+    const std::int64_t start_day = cal->start_day();
+    const std::int64_t first_day = civil_time(start_day, from).day_number;
+    bool found = false;
+    for (std::int64_t k = 0; k < 4 && !found; ++k) {
+      const std::int64_t dn = first_day + k;
+      const std::int64_t midnight = (dn - start_day) * kTicksPerGameDay - kStartTimeOfDayTicks;
+      const DayPlan plan = plan_for_tick(*table, cal->calendar(), start_day, sp, midnight + 12 * kTicksPerGameHour);
+      for (const Segment& s : plan.segments) {
+        if (!s.commitment) continue;
+        const bool back_home = s.activity == DayActivity::Commute;
+        const std::int64_t due = midnight + static_cast<std::int64_t>(back_home ? s.end_min : s.start_min) * (kTicksPerGameHour / 60);
+        if (due < from || (found && due >= out.due_tick)) continue;
+        out.due_tick = due;
+        out.kind = back_home ? CommitmentKind::ArriveHome : CommitmentKind::ShiftStart;
+        found = true;
+      }
+    }
+    if (!found) return std::nullopt;
+    return out;
+  };
+}
+
 }  // namespace
 
 void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
@@ -119,6 +167,10 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   auto calendar = std::make_unique<CalendarSystem>(
       start_day, load_country_calendar(calendar_path(data_dir(), calendar_id(place.profile, place.income))));
   t.calendar = calendar.get();
+  // Spec 59: broken commitments are noticed. The schedule's commitments and the household's holders (decision 0070).
+  auto expectations = std::make_unique<Expectations>(
+      load_expectation_params(data_dir() + "/life/expectations.toml"), make_commitments(*t.census, *calendar, place, w.rng.seed()));
+  t.expectations = expectations.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));
@@ -126,6 +178,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   w.add_system(std::move(grids));
   w.add_system(std::move(where));
   w.add_system(std::move(calendar));
+  w.add_system(std::move(expectations));
 }
 
 }  // namespace zs::tier0

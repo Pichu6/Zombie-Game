@@ -26,6 +26,7 @@
 
 #include "zs/archive.h"
 #include "zs/calendar.h"
+#include "zs/expectations.h"
 #include "zs/noise.h"
 #include "zs/sound_marks.h"
 #include "zs/pacer.h"
@@ -296,6 +297,12 @@ struct Described {
   int category;
 };
 
+// A pop id's name from the census (the founders); "someone" for anyone else (a born pop is not in the census).
+std::string pop_name(const App& a, PopId id) {
+  if (a.t.census && !is_born(id) && founder_slot_of(id) < a.t.census->people().size()) return a.t.census->people()[founder_slot_of(id)].name;
+  return "someone";
+}
+
 // One event in words, with its context (spec 16 rule 12). The chronicle's own lines (tier0::event_line, shared with the
 // headless app) stay as they are; the window adds the everyday ones: orders, actions done or stopped, sleep, wounds.
 std::optional<Described> describe(const App& a, const Event& e) {
@@ -331,6 +338,20 @@ std::optional<Described> describe(const App& a, const Event& e) {
     case EventType::GeneratorStalled: return Described{"The generator stalled", "alert", kWorld};
     case EventType::BreakerTripped: return Described{"A breaker tripped", "alert", kWorld};
     case EventType::PartFailed: return Described{"A part gave way", "alert", kDanger};
+    // Spec 59: broken commitments are noticed (decision 0070). Subjects are pop ids, named from the census.
+    case EventType::AbsenceBegan:
+      return Described{pop_name(a, e.subject) + (e.b ? " called in: away for a while" : " is away"), "world", kWorld};
+    case EventType::CommitmentBroken:
+      return Described{pop_name(a, e.subject) + " did not keep " + commitment_name(static_cast<CommitmentKind>(e.a)), "alert", kWorld};
+    case EventType::HolderPhoned:
+      return Described{pop_name(a, e.subject) + " phoned " + pop_name(a, static_cast<PopId>(e.a)) + ": no answer", "world", kWorld};
+    case EventType::HolderAskedAround:
+      return Described{pop_name(a, e.subject) + " asked around about " + pop_name(a, static_cast<PopId>(e.a)), "world", kWorld};
+    case EventType::MissingReported: return Described{pop_name(a, e.subject) + " was reported missing", "alert", kWorld};
+    case EventType::SearchStarted: return Described{"A search opened for " + pop_name(a, e.subject), "alert", kWorld};
+    case EventType::AbsenceEnded:
+      return Described{pop_name(a, e.subject) + " is back (gone " + std::to_string(e.b / kTicksPerGameHour) + " h)", "done", kWorld};
+    case EventType::CaseClosed: return Described{"The missing-person case for " + pop_name(a, e.subject) + " was closed", "done", kWorld};
     default: break;
   }
   if (auto l = event_line(a.t, e)) {

@@ -1,5 +1,5 @@
 # zs: the one executable (decision 0052): the window, the headless modes and the content generators.
-add_executable(zs main.cpp headless.cpp pop_bench.cpp town_demo.cpp gen_cli.cpp planet_raster.cpp worlds.cpp day_mode.cpp diverge_mode.cpp)
+add_executable(zs main.cpp headless.cpp pop_bench.cpp town_demo.cpp gen_cli.cpp planet_raster.cpp worlds.cpp day_mode.cpp diverge_mode.cpp absence_mode.cpp)
 target_link_libraries(zs PRIVATE zs_sim zs_gen)
 target_include_directories(zs PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)
 if(WIN32)
