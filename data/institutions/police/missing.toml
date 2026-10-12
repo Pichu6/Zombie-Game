@@ -1,0 +1,28 @@
+# The police's missing-person case (decision 0070 rule 3, decision 0069 rule 3, spec 64): a case opens when a pop is reported
+# missing, takes a risk tier, waits in a queue for staff (high first, then by age of the case), is searched while the force has
+# a free search, and is resolved when the pop is found. Shares are sourced where the research has them, defaults otherwise.
+#
+# gb_ew: England and Wales, NCA UKMPU 2022/23.
+#   Risk tiers by age class (AB-15): adults 31 % high, 58 % medium, about 11 % low or very low; children 14 %, 83 %, 3 %
+#   (the low shares are derived: what is left). The 74/20/6 split across all cases (AB-14) is the blend.
+#   Who finds a missing person (AB-24): returned of their own free will 39 %, found by police 33 %, the other 28 % family,
+#   carers, friends and others (the split of those is not readable in the source; here they are one share).
+#   wandered_is_high: a pop that wandered off lost or confused (dementia) is graded high risk (default taken by Claude, from
+#   the AB-29 and AB-44 notes: people found unidentified are often injured or have amnesia or dementia).
+#   searches_at_once: how many searches a force runs together (DEFAULT taken by Claude: no source; the block's force is small).
+#
+# Borrowed by every other country until it has its own sources (the index below).
+
+[gb_ew]
+adult_tiers = [0.31, 0.58, 0.11]      # high, medium, low
+child_tiers = [0.14, 0.83, 0.03]
+child_age_max = 17
+found_by = [0.39, 0.33, 0.28]         # own free will, police, other
+wandered_is_high = true
+searches_at_once = 2
+
+[index]
+high = "gb_ew"
+upper_middle = "gb_ew"
+lower_middle = "gb_ew"
+low = "gb_ew"

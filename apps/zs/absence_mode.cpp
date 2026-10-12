@@ -45,6 +45,12 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::LeftEmployer: return n(e.subject) + " is off the employer's roster; wages stop";
     case EventType::BondStrained: return n(e.subject) + " is strained toward " + n(e.a) + " (" + std::to_string(e.b / 10) + " %)";
     case EventType::LeftHousehold: return n(e.subject) + " leaves the household over " + n(e.a);
+    case EventType::PoliceCaseOpened:
+      return n(e.subject) + ": a police case opens (" + (e.a == 0 ? "high" : e.a == 1 ? "medium" : "low") + " risk" +
+             (e.b > 0 ? ", waiting: number " + std::to_string(e.b) + " in the queue" : ", a search at once") + ")";
+    case EventType::PoliceCaseResolved:
+      return "the police case for " + n(e.subject) + " is resolved: " + (e.a == 0 ? "returned of their own free will" : e.a == 1 ? "found by the police" : "found by others") +
+             ", after " + std::to_string(e.b / kTicksPerGameHour) + " h";
     case EventType::ReturnedToWork:
       return n(e.subject) + " meets the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process");
     case EventType::ExpectationRefused: return "refused";

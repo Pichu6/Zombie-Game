@@ -370,6 +370,13 @@ std::optional<Described> describe(const App& a, const Event& e) {
       return Described{pop_name(a, e.subject) + " is strained toward " + pop_name(a, static_cast<PopId>(e.a)) + " (" + std::to_string(e.b / 10) + " %)", "alert", kWorld};
     case EventType::LeftHousehold:
       return Described{pop_name(a, e.subject) + " left the household over " + pop_name(a, static_cast<PopId>(e.a)), "dead", kWorld};
+    // Spec 64: the police's missing-person case.
+    case EventType::PoliceCaseOpened:
+      return Described{"A police case opened for " + pop_name(a, e.subject) + " (" + (e.a == 0 ? "high" : e.a == 1 ? "medium" : "low") + " risk" +
+                           (e.b > 0 ? ", waiting: number " + std::to_string(e.b) + ")" : ", a search at once)"), "alert", kWorld};
+    case EventType::PoliceCaseResolved:
+      return Described{"The police case for " + pop_name(a, e.subject) + " is resolved: " +
+                           (e.a == 0 ? "returned of their own free will" : e.a == 1 ? "found by the police" : "found by others"), "done", kWorld};
     case EventType::ReturnedToWork:
       return Described{pop_name(a, e.subject) + " met the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process"), "done", kWorld};
     default: break;

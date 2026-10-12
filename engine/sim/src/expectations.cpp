@@ -149,7 +149,7 @@ void Expectations::apply_command(World& w, const Command& c, EventId cause) {
     const EventId ended = w.emit(EventType::AbsenceEnded, it->pop, it->last_event, static_cast<std::int64_t>(it->stage), gone);
     if (it->stage >= AbsenceStage::Reported) w.emit(EventType::CaseClosed, it->pop, ended, w.clock.tick - it->broken_tick);
     meet_employer(w, *it, ended);
-    if (listener_) listener_->on_absence_ended(w, *it, ended);
+    for (Listener* l : listeners_) l->on_absence_ended(w, *it, ended);
     cases_.erase(it);
   }
 }
@@ -177,7 +177,7 @@ void Expectations::employer_step(World& w, Case& c) {
       c.shift_check = kNever;  // a conduct case follows the return; nothing is recorded now
     } else if (policy_.automatic_separation) {
       c.employer_event = w.emit(EventType::Separated, c.pop, c.employer_event, c.missed);
-      if (listener_) listener_->on_separated(w, c, c.employer_event);
+      for (Listener* l : listeners_) l->on_separated(w, c, c.employer_event);
       c.separated = true;
       lost_jobs_.push_back(c.pop);
       c.shift_check = kNever;
@@ -193,6 +193,17 @@ void Expectations::employer_step(World& w, Case& c) {
     c.shift_check = next->due_tick + minutes(params_.times[static_cast<int>(CommitmentKind::ShiftStart)].tolerance_min);
   } else {
     c.shift_check = kNever;
+  }
+}
+
+// The police have staff for the search of a reported pop (spec 64): the search opens now, caused by the last step.
+void Expectations::start_search(World& w, PopId pop) {
+  for (Case& c : cases_) {
+    if (c.pop != pop || c.stage != AbsenceStage::Reported) continue;
+    c.last_event = w.emit(EventType::SearchStarted, c.pop, c.last_event);
+    c.stage = AbsenceStage::Searching;
+    c.next_tick = kNever;
+    return;
   }
 }
 
@@ -226,12 +237,14 @@ void Expectations::update(World& w) {
         case AbsenceStage::Asked:  // nobody has seen the pop: reported missing (no waiting period applies)
           c.last_event = w.emit(EventType::MissingReported, c.pop, c.last_event, static_cast<std::int64_t>(c.holders.back()));
           c.stage = AbsenceStage::Reported;
-          c.next_tick = c.next_tick + minutes(lt.search_after_min);
+          // The ladder opens the search an hour on, unless the police own it (spec 64): then start_search does, when staffed.
+          c.next_tick = external_search_ ? kNever : c.next_tick + minutes(lt.search_after_min);
           // A report explains the absence: the employer's count pauses (AB-7), if its rule says so.
           if (policy_.pause_on_report && c.employer != EmployerKind::None && !c.separated) {
             c.paused = true;
             c.shift_check = kNever;
           }
+          for (Listener* l : listeners_) l->on_reported(w, c, c.last_event);
           break;
         case AbsenceStage::Reported:  // the police open a search
           c.last_event = w.emit(EventType::SearchStarted, c.pop, c.last_event);

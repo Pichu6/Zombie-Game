@@ -118,8 +118,13 @@ class Expectations : public System {
     virtual ~Listener() = default;
     virtual void on_absence_ended(World&, const Case&, EventId /*ended*/) {}
     virtual void on_separated(World&, const Case&, EventId /*separation*/) {}
+    virtual void on_reported(World&, const Case&, EventId /*reported*/) {}  // the pop was reported missing (spec 64)
   };
-  void set_listener(Listener* listener) { listener_ = listener; }
+  void add_listener(Listener* listener) { listeners_.push_back(listener); }
+  // Spec 64: the police own the search. With this on, the ladder no longer opens a search by itself an hour after the report;
+  // start_search does it when the police have staff for it.
+  void set_external_search(bool on) { external_search_ = on; }
+  void start_search(World& w, PopId pop);
   const std::vector<Case>& cases() const { return cases_; }  // the open absences, in the order they began
   const Case* find(PopId pop) const;
   // A pop whose employer separated from it: its schedule has no more shifts (the provider reads this).
@@ -136,7 +141,8 @@ class Expectations : public System {
   NextCommitment next_;  // set by the setup, never saved
   std::vector<Case> cases_;
   std::vector<PopId> lost_jobs_;
-  Listener* listener_ = nullptr;  // never saved
+  std::vector<Listener*> listeners_;  // never saved
+  bool external_search_ = false;      // never saved
 };
 
 }  // namespace zs

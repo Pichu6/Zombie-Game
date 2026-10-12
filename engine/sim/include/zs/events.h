@@ -107,6 +107,9 @@ enum class EventType : std::uint16_t {
   // Spec 63: the household after an absence or a lost job.
   BondStrained = 81,       // subject = the holder, a = the pop the bond is toward, b = the strain now, in thousandths
   LeftHousehold = 82,      // subject = the holder who left the household roster, a = the pop that strained it, b = the strain in thousandths
+  // Spec 64: the police case of a missing person.
+  PoliceCaseOpened = 83,   // subject = pop, a = risk tier (0 high, 1 medium, 2 low), b = the queue position (0: staffed at once)
+  PoliceCaseResolved = 84, // subject = pop, a = who found it (0 own free will, 1 police, 2 other), b = ticks the case was open
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

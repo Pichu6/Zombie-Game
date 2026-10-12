@@ -25,6 +25,7 @@ class Expectations;
 class MissingPersons;
 class Payroll;
 class Bonds;
+class PoliceCases;
 }  // namespace zs
 
 namespace zs::tier0 {
@@ -60,6 +61,7 @@ struct Tier0 {
   MissingPersons* missing = nullptr;     // spec 60 (the one world only)
   Payroll* payroll = nullptr;            // spec 62 (the one world only)
   Bonds* bonds = nullptr;                // spec 63 (the one world only)
+  PoliceCases* police = nullptr;         // spec 64 (the one world only)
   WorldOwners owners;
   EntityId player = 0;  // the body of the pop at the map's player start
   std::vector<EntityId> group;  // the player first, then survivors who start with it

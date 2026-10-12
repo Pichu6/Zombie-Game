@@ -11,6 +11,7 @@
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
 #include "zs/payroll.h"
+#include "zs/police.h"
 #include "zs/pop_system.h"
 #include "zs/schedule.h"
 #include "zs/tier0.h"
@@ -238,9 +239,17 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
                                        [rosters = household_rosters(*t.census)](PopId id) -> std::uint64_t {
                                          return !is_born(id) && founder_slot_of(id) < rosters.size() ? rosters[founder_slot_of(id)] : 0;
                                        });
-  expectations->set_listener(bonds.get());
+  expectations->add_listener(bonds.get());
   *bonds_link = bonds.get();
   t.bonds = bonds.get();
+  // Spec 64: the police's missing-person case: a risk tier, a queue for free searches, the national record. The police own the
+  // search (the ladder no longer opens one by itself).
+  auto police = std::make_unique<PoliceCases>(
+      load_police_params(data_dir() + "/institutions/police/missing.toml", place.profile, place.income), expectations.get(),
+      [people = t.census](PopId id) { return !is_born(id) && founder_slot_of(id) < people->people().size() && people->people()[founder_slot_of(id)].age <= 17; });
+  expectations->set_external_search(true);
+  expectations->add_listener(police.get());
+  t.police = police.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));
@@ -252,6 +261,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   w.add_system(std::move(missing));
   w.add_system(std::move(payroll));
   w.add_system(std::move(bonds));
+  w.add_system(std::move(police));
 }
 
 }  // namespace zs::tier0

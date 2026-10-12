@@ -56,7 +56,7 @@ struct BondRig {
     auto x = std::make_unique<Expectations>(load_expectation_params(tier0::data_dir() + "/life/expectations.toml"), next, policy);
     auto b = std::make_unique<Bonds>(load_bond_params(tier0::data_dir() + "/life/household.toml"),
                                      [](PopId) -> std::uint64_t { return kHousehold; });
-    x->set_listener(b.get());
+    x->add_listener(b.get());
     *link = b.get();
     pops = p.get();
     exp = x.get();
