@@ -1,0 +1,24 @@
+# The household after an absence or a lost job (decision 0070 rule 5, spec 63): a strain each holder carries toward a pop, in
+# thousandths, that builds when the pop's absence reached the household, eases with time, and past a limit ends the household
+# (the holder leaves). The research gives only the shape (a strained bond after a return, AB-26, "household (bond strain)" in
+# the reaction chain; ambiguous loss was not researched): EVERY number here is a default taken by Claude, none is sourced.
+
+[stage_milli]        # what a holder carries after an absence that reached this stage (nobody noticed before "broken": nothing)
+broken = 50          # the commitment broke and the first holder phoned
+asked = 100          # friends and colleagues were asked
+reported = 200       # the pop was reported missing
+searching = 300      # a search opened
+
+[cause_percent]      # how much the reason weighs on the bond (100 = as above)
+possessed = 100      # the household cannot know why: as above
+unknown = 100
+chose = 150          # left on purpose: it hurts more
+wandered = 50        # lost, confused: sympathy
+ill = 30
+
+[job_loss]
+milli = 150          # every holder, when the pop's employer separates (the money and the shame)
+
+[bond]
+half_life_days = 30      # the strain halves every month
+leave_threshold_milli = 900   # a holder at or above this leaves the household

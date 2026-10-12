@@ -63,11 +63,13 @@ void World::step() {
   if (restore_fp_env()) ++fp_env_restored;
   emitted_.clear();
   // 1. Input commands, in submission order.
-  for (const Command& c : pending_) {
+  // A system applying a command may queue another (a listener, a consequence): it goes to the next tick, not into this loop.
+  std::vector<Command> commands;
+  commands.swap(pending_);
+  for (const Command& c : commands) {
     const EventId id = emit(EventType::Intent, c.subject, 0, c.type, c.a);
     for (auto& s : systems_) s->apply_command(*this, c, id);
   }
-  pending_.clear();
   // 2. Systems, in their fixed order; the probes count and, when asked, time each update.
   if (probes.size() < systems_.size()) probes.resize(systems_.size());
   for (std::size_t i = 0; i < systems_.size(); ++i) {

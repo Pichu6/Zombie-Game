@@ -6,6 +6,7 @@ add_executable(zs_sim_tests
   test_expectations.cpp
   test_employer_rule.cpp
   test_payroll.cpp
+  test_household_bonds.cpp
   test_missing_persons.cpp
   test_sound_marks.cpp
   test_harness.cpp

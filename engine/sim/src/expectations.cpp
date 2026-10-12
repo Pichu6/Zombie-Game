@@ -149,6 +149,7 @@ void Expectations::apply_command(World& w, const Command& c, EventId cause) {
     const EventId ended = w.emit(EventType::AbsenceEnded, it->pop, it->last_event, static_cast<std::int64_t>(it->stage), gone);
     if (it->stage >= AbsenceStage::Reported) w.emit(EventType::CaseClosed, it->pop, ended, w.clock.tick - it->broken_tick);
     meet_employer(w, *it, ended);
+    if (listener_) listener_->on_absence_ended(w, *it, ended);
     cases_.erase(it);
   }
 }
@@ -176,6 +177,7 @@ void Expectations::employer_step(World& w, Case& c) {
       c.shift_check = kNever;  // a conduct case follows the return; nothing is recorded now
     } else if (policy_.automatic_separation) {
       c.employer_event = w.emit(EventType::Separated, c.pop, c.employer_event, c.missed);
+      if (listener_) listener_->on_separated(w, c, c.employer_event);
       c.separated = true;
       lost_jobs_.push_back(c.pop);
       c.shift_check = kNever;

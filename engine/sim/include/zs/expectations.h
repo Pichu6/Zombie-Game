@@ -112,6 +112,14 @@ class Expectations : public System {
     bool paused = false, separated = false, disciplined = false;
     EventId employer_event = 0;
   };
+  // Who is told when an absence ends and when an employer separates (spec 63: the household's bonds). Set by the setup,
+  // never saved. A listener may emit events and queue intents; it must not change the case.
+  struct Listener {
+    virtual ~Listener() = default;
+    virtual void on_absence_ended(World&, const Case&, EventId /*ended*/) {}
+    virtual void on_separated(World&, const Case&, EventId /*separation*/) {}
+  };
+  void set_listener(Listener* listener) { listener_ = listener; }
   const std::vector<Case>& cases() const { return cases_; }  // the open absences, in the order they began
   const Case* find(PopId pop) const;
   // A pop whose employer separated from it: its schedule has no more shifts (the provider reads this).
@@ -128,6 +136,7 @@ class Expectations : public System {
   NextCommitment next_;  // set by the setup, never saved
   std::vector<Case> cases_;
   std::vector<PopId> lost_jobs_;
+  Listener* listener_ = nullptr;  // never saved
 };
 
 }  // namespace zs

@@ -2,6 +2,7 @@
 // with the census rows as the registry's founders. Spec: docs/tier0/specs/41-one-world.md
 #include <memory>
 
+#include "zs/bonds.h"
 #include "zs/calendar.h"
 #include "zs/demographics.h"
 #include "zs/economy_system.h"
@@ -28,6 +29,22 @@ constexpr std::int64_t kPlaceholderPayrollCents = 10'000'000'000;       // what 
 constexpr std::int64_t kPlaceholderAdultWalletCents = 50'000;
 constexpr std::int64_t kPlaceholderRegionBudgetCents = 10'000'000;
 constexpr std::int64_t kPlaceholderCountryBudgetCents = 1'000'000'000;
+
+// The household roster id of each census row (0 for none), by first appearance of the household name: the same ids make_pops
+// gives the rosters it adds (spec 63: the roster a holder leaves).
+std::vector<std::uint64_t> household_rosters(const Census& census) {
+  const auto& people = census.people();
+  std::vector<std::string> households;
+  std::vector<std::uint64_t> out(people.size(), 0);
+  for (std::size_t i = 0; i < people.size(); ++i) {
+    if (people[i].household.empty()) continue;
+    std::size_t h = 0;
+    while (h < households.size() && households[h] != people[i].household) ++h;
+    if (h == households.size()) households.push_back(people[i].household);
+    out[i] = kHouseholdRoster | h;
+  }
+  return out;
+}
 
 // Spec 62: a living pop of working age (18 to 64, the schedule's full-time workers) has a job with the placeholder employer.
 bool has_job(const Person& p) { return !is_dead(p.fate) && p.age >= 18 && p.age < 65; }
@@ -113,18 +130,21 @@ std::unique_ptr<GridSystem> make_grids(WorldOwners& ids) {
 // way back (arriving home). The holders are the household's other living adults, in census order: the first phones,
 // the last reports. Born pops and people nobody lives with are expected nowhere (nobody notices their absence).
 NextCommitment make_commitments(const Census& census, const CalendarSystem& calendar, const Place& place, std::uint64_t world_seed,
-                               std::shared_ptr<const Expectations*> lost_jobs) {
+                               std::shared_ptr<const Expectations*> lost_jobs, std::shared_ptr<const Bonds*> bonds) {
   auto table = std::make_shared<TimeUseTable>(timeuse_for(data_dir(), place.profile, place.income));
   const Census* people = &census;
   const CalendarSystem* cal = &calendar;
-  return [table, people, cal, world_seed, lost_jobs](PopId pop, std::int64_t from) -> std::optional<Commitment> {
+  return [table, people, cal, world_seed, lost_jobs, bonds](PopId pop, std::int64_t from) -> std::optional<Commitment> {
     const auto& all = people->people();
     if (is_born(pop) || founder_slot_of(pop) >= all.size()) return std::nullopt;
     const Person& p = all[founder_slot_of(pop)];
     if (is_dead(p.fate)) return std::nullopt;
     Commitment out;
-    for (std::size_t i = 0; i < all.size() && !p.household.empty(); ++i)
-      if (i != founder_slot_of(pop) && all[i].household == p.household && !is_dead(all[i].fate) && all[i].age >= 16)
+    // A pop that left its household because of a strained bond lives apart (nobody at home expects it), and a holder that left no longer holds.
+    const bool apart = *bonds && (*bonds)->left_household(pop);
+    for (std::size_t i = 0; i < all.size() && !p.household.empty() && !apart; ++i)
+      if (i != founder_slot_of(pop) && all[i].household == p.household && !is_dead(all[i].fate) && all[i].age >= 16 &&
+          !(*bonds && (*bonds)->left_household(census_pop_id(static_cast<std::uint32_t>(i)))))
         out.holders.push_back(census_pop_id(static_cast<std::uint32_t>(i)));
     SchedulePerson sp;
     sp.key = keyed_u64(world_seed, Purpose::PopLife, pop, 0x5C4ED);  // the schedule's own draw of the pop's life
@@ -186,7 +206,8 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // Spec 61: the employer's rule (decision 0070 rule 3); a separated pop's schedule has no more shifts, so the provider
   // reads the system it is given to.
   auto lost_jobs = std::make_shared<const Expectations*>(nullptr);
-  const NextCommitment commitments = make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs);
+  auto bonds_link = std::make_shared<const Bonds*>(nullptr);
+  const NextCommitment commitments = make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs, bonds_link);
   auto expectations = std::make_unique<Expectations>(
       load_expectation_params(data_dir() + "/life/expectations.toml"),
       commitments,
@@ -211,6 +232,15 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   for (std::size_t i = 0; i < t.census->people().size(); ++i)
     if (has_job(t.census->people()[i])) payroll->track(census_pop_id(static_cast<std::uint32_t>(i)));
   t.payroll = payroll.get();
+  // Spec 63: the household after an absence or a lost job: each holder carries a strain toward the pop, easing over time; past
+  // a limit the holder leaves the household's roster. The ladder's system tells it.
+  auto bonds = std::make_unique<Bonds>(load_bond_params(data_dir() + "/life/household.toml"),
+                                       [rosters = household_rosters(*t.census)](PopId id) -> std::uint64_t {
+                                         return !is_born(id) && founder_slot_of(id) < rosters.size() ? rosters[founder_slot_of(id)] : 0;
+                                       });
+  expectations->set_listener(bonds.get());
+  *bonds_link = bonds.get();
+  t.bonds = bonds.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));
@@ -221,6 +251,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   w.add_system(std::move(expectations));
   w.add_system(std::move(missing));
   w.add_system(std::move(payroll));
+  w.add_system(std::move(bonds));
 }
 
 }  // namespace zs::tier0

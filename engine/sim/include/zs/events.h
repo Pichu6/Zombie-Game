@@ -104,6 +104,9 @@ enum class EventType : std::uint16_t {
   // Spec 62: money and labour.
   ShiftUnpaid = 79,        // subject = pop, a = cents withheld, b = minutes of the shift: the pop was absent, so the shift is not paid
   LeftEmployer = 80,       // subject = pop, a = the employer owner, b = cents ordered paid in all: the pop left the workplace roster
+  // Spec 63: the household after an absence or a lost job.
+  BondStrained = 81,       // subject = the holder, a = the pop the bond is toward, b = the strain now, in thousandths
+  LeftHousehold = 82,      // subject = the holder who left the household roster, a = the pop that strained it, b = the strain in thousandths
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

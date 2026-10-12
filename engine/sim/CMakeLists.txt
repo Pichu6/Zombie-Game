@@ -50,6 +50,7 @@ add_library(zs_sim
   src/expectations.cpp
   src/missing_persons.cpp
   src/payroll.cpp
+  src/bonds.cpp
   src/sound_marks.cpp
 )
 target_include_directories(zs_sim PUBLIC include)

@@ -43,6 +43,8 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::ConductCaseOpened: return "a conduct case opens for " + n(e.subject) + " (" + std::to_string(e.a) + " shifts missed)";
     case EventType::ShiftUnpaid: return n(e.subject) + "'s shift is not paid (absent)";
     case EventType::LeftEmployer: return n(e.subject) + " is off the employer's roster; wages stop";
+    case EventType::BondStrained: return n(e.subject) + " is strained toward " + n(e.a) + " (" + std::to_string(e.b / 10) + " %)";
+    case EventType::LeftHousehold: return n(e.subject) + " leaves the household over " + n(e.a);
     case EventType::ReturnedToWork:
       return n(e.subject) + " meets the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process");
     case EventType::ExpectationRefused: return "refused";

@@ -365,6 +365,11 @@ std::optional<Described> describe(const App& a, const Event& e) {
     case EventType::ShiftUnpaid:
       return Described{pop_name(a, e.subject) + "'s shift is not paid: " + std::to_string(e.a / 100) + " withheld", "alert", kWorld};
     case EventType::LeftEmployer: return Described{pop_name(a, e.subject) + " is off the employer's roster: the wages stop", "dead", kWorld};
+    // Spec 63: the household after an absence or a lost job.
+    case EventType::BondStrained:
+      return Described{pop_name(a, e.subject) + " is strained toward " + pop_name(a, static_cast<PopId>(e.a)) + " (" + std::to_string(e.b / 10) + " %)", "alert", kWorld};
+    case EventType::LeftHousehold:
+      return Described{pop_name(a, e.subject) + " left the household over " + pop_name(a, static_cast<PopId>(e.a)), "dead", kWorld};
     case EventType::ReturnedToWork:
       return Described{pop_name(a, e.subject) + " met the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process"), "done", kWorld};
     default: break;
