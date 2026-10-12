@@ -3,7 +3,7 @@
 // Time runs through the spec 40 pacer; WASD, the follow camera, shapes, the state column and alerts follow
 // spec 16 rules 4-13 (decision 0055, research note view-readability).
 //
-// usage: zs [--seed N] [--watch] [--shot out.bmp [--ticks N] [--menu x,y] [--overlay noise|light]]
+// usage: zs [--seed N] [--watch] [--shot out.bmp [--ticks N] [--menu x,y] [--overlay noise|light] [--generator]]
 //   --watch starts with the AI driving everyone (nobody possessed).
 //   --shot renders one frame without a screen (offscreen driver) and saves it, for checks.
 #include <SDL3/SDL.h>
@@ -27,6 +27,7 @@
 #include "zs/archive.h"
 #include "zs/calendar.h"
 #include "zs/noise.h"
+#include "zs/sound_marks.h"
 #include "zs/pacer.h"
 #include "zs/run.h"
 #include "zs/gen/place.h"
@@ -112,6 +113,10 @@ struct App {
   std::vector<double> noise, lux;
   double background = 0;
   bool noise_any = false, light_any = false;
+  // What the followed pop hears (spec 58): recomputed when its cell or the game-ten-seconds key changes.
+  std::vector<SoundMark> marks;
+  std::int64_t marks_key = -1;
+  Cell marks_cell{};
   // Input.
   std::optional<Cell> menu_cell;
   std::optional<Cell> hover_cell;
@@ -513,6 +518,25 @@ void refresh_fields(App& a) {
     }
 }
 
+// What the followed pop hears of the noise sources (spec 58), kept while its cell and the key stay the same: the key
+// changes every ten game seconds, so a mark's error holds still for a while instead of jittering every frame.
+void refresh_marks(App& a) {
+  const World& w = *a.t.world;
+  const EntityId id = a.followed();
+  if (!id || !a.t.actors->actors().contains(id) || !a.t.bodies->get(id).alive) {
+    a.marks.clear();
+    a.marks_key = -1;
+    return;
+  }
+  const Cell here = a.t.actors->actor(id).pos;
+  const std::int64_t key = w.clock.tick / 20;
+  if (key == a.marks_key && here == a.marks_cell) return;
+  a.marks_key = key;
+  a.marks_cell = here;
+  a.marks = sound_marks(*a.t.map, *a.t.items, here, noise_sources(w, *a.t.actors, *a.t.power),
+                        background_db(a.t.power->mains_alive(), w.clock.hour()), static_cast<std::uint64_t>(key));
+}
+
 ImVec2 at(const App& a, double x, double y) {
   return {a.origin.x + static_cast<float>(x) * a.cell, a.origin.y + static_cast<float>(y) * a.cell};
 }
@@ -598,6 +622,24 @@ void draw_map(App& a, ImDrawList* d) {
         d->AddRectFilled(at(a, x, y), at(a, x + 1, y + 1), rgb(250, 230, 120, static_cast<int>(std::min(180.0, 40 * std::log10(lux)))));
       }
     }
+  // Noise contours (spec 58): the line where a sound is just noticed (0 dB over the background) and where it is placed
+  // (+10 dB), between neighbouring cells either side of the threshold.
+  if (a.overlay == Overlay::Noise) {
+    const auto margin_at = [&](int x, int y) { return noise_at(m, a.noise, {a.level, x, y}) - a.background; };
+    const auto contour = [&](double threshold, ImU32 col, float thick) {
+      for (int y = 0; y < m.height(); ++y)
+        for (int x = 0; x < m.width(); ++x) {
+          if (!m.walkable({a.level, x, y})) continue;
+          const bool here = margin_at(x, y) >= threshold;
+          if (x + 1 < m.width() && m.walkable({a.level, x + 1, y}) && here != (margin_at(x + 1, y) >= threshold))
+            d->AddLine(at(a, x + 1, y), at(a, x + 1, y + 1), col, thick);  // between this cell and the one to the east
+          if (y + 1 < m.height() && m.walkable({a.level, x, y + 1}) && here != (margin_at(x, y + 1) >= threshold))
+            d->AddLine(at(a, x, y + 1), at(a, x + 1, y + 1), col, thick);  // between this cell and the one to the south
+        }
+    };
+    contour(kNoticeDb, rgb(250, 220, 90), 1.5f);
+    contour(kPlaceDb, rgb(255, 255, 255), 2.5f);
+  }
   // Map objects: outlined squares with a short label (spec 16 rule 9); item spawn markers are not drawn.
   for (const MapObject& o : m.objects()) {
     if (o.at.z != a.level || !drawn_object(o)) continue;
@@ -711,6 +753,39 @@ void draw_map(App& a, ImDrawList* d) {
     else if (db.id == a.selected) d->AddCircle(c, rr + 7, rgb(255, 230, 120), 0, 1.5f);
     draw_action_bar(a, d, db.id, c, rr);
   }
+  // What the followed pop hears (spec 58): a placed sound is rings at the place it seems to come from, with its error
+  // circle; a noticed one is only a cone on the pop's ring toward the direction, wide as the error. Teal, never red:
+  // red is the noise overlay.
+  refresh_marks(a);
+  if (const EntityId id = a.followed(); id && !a.marks.empty() && a.marks_cell.z == a.level) {
+    const ImU32 teal = rgb(80, 205, 225), teal_soft = rgb(80, 205, 225, 90);
+    const V2 pp = actor_at(a, id);
+    const ImVec2 pc = at(a, pp.x + 0.5, pp.y + 0.5);
+    const float ring = a.cell * 1.45f;
+    for (const SoundMark& mk : a.marks) {
+      if (mk.kind == SoundMark::Kind::Placed) {
+        if (mk.apparent.z != a.level) continue;
+        const ImVec2 c = at(a, mk.apparent.x + 0.5, mk.apparent.y + 0.5);
+        for (float r : {0.3f, 0.55f, 0.8f}) d->AddCircle(c, a.cell * r, r < 0.5f ? teal : teal_soft, 0, 2.0f);
+        if (a.cell >= 22) {
+          char buf[24];
+          std::snprintf(buf, sizeof buf, "~%.0f m", mk.distance_m);
+          d->AddText({c.x + a.cell * 0.85f, c.y - a.cell * 0.3f}, teal, buf);
+        }
+      } else {
+        // The cone: from the bearing minus the error to plus the error, then an arrowhead at the bearing itself.
+        constexpr float kErr = 0.5f;
+        const float b = static_cast<float>(mk.bearing);
+        d->PathClear();
+        for (int i = -4; i <= 4; ++i) d->PathLineTo({pc.x + std::cos(b + kErr * i / 4) * ring, pc.y - std::sin(b + kErr * i / 4) * ring});
+        d->PathStroke(teal_soft, 0, 5.0f);
+        const ImVec2 tip{pc.x + std::cos(b) * (ring + 12), pc.y - std::sin(b) * (ring + 12)};
+        const ImVec2 base{pc.x + std::cos(b) * (ring + 2), pc.y - std::sin(b) * (ring + 2)};
+        const ImVec2 side{-std::sin(b) * -5, -std::cos(b) * -5};
+        d->AddTriangleFilled(tip, {base.x + side.x, base.y + side.y}, {base.x - side.x, base.y - side.y}, teal);
+      }
+    }
+  }
   // The state column by the controlled pop (spec 16 rule 10).
   if (const EntityId me = a.me(); me && a.t.bodies->get(me).alive && a.t.actors->actor(me).pos.z == a.level) {
     const V2 p = actor_at(a, me);
@@ -748,6 +823,23 @@ void map_notes(App& a, ImDrawList* d) {
     std::snprintf(buf, sizeof buf, a.light_any ? "Light: yellow = brighter than outdoors (%.0f lux); this light leaks"
                                                : "Light: nothing brighter than outdoors (%.0f lux)", Power::ambient_lux(w.clock.hour()));
     note(q, rgb(250, 230, 140), buf);
+  }
+  // What the followed pop hears, in words: the loudest first, direction and how sure (spec 58), above the overlay note.
+  {
+    ImVec2 h{q.x, q.y - (a.overlay == Overlay::Noise || a.overlay == Overlay::Light ? 26.0f : 0.0f)};
+    std::vector<const SoundMark*> heard;
+    for (const SoundMark& mk : a.marks) heard.push_back(&mk);
+    std::sort(heard.begin(), heard.end(), [](const SoundMark* x, const SoundMark* y) { return x->over_db > y->over_db; });
+    for (std::size_t i = 0; i < heard.size() && i < 3; ++i) {
+      const SoundMark& mk = *heard[i];
+      if (mk.kind == SoundMark::Kind::Placed)
+        std::snprintf(buf, sizeof buf, "You hear a clear sound, %s, about %.0f m%s", compass_word(mk.bearing), mk.distance_m,
+                      mk.apparent.z != a.marks_cell.z ? (mk.apparent.z > a.marks_cell.z ? " (above)" : " (below)") : "");
+      else
+        std::snprintf(buf, sizeof buf, "You hear something faint, toward the %s", compass_word(mk.bearing));
+      note(h, rgb(120, 215, 230), buf);
+      h.y -= 26;
+    }
   }
   if (a.real_s < a.hint_until) {
     const char* hint = "Paused: Space to run";
@@ -1299,6 +1391,17 @@ void map_key(App& a) {
     d->AddRectFilled({c.x - 12, c.y - 3}, {c.x + 12, c.y + 3}, rgb(15, 15, 18));
     d->AddRectFilled({c.x - 12, c.y - 3}, {c.x + 2, c.y + 3}, rgb(120, 200, 120));
   });
+  legend_row("a sound you hear, placed (rings: where it seems to come from)", [](ImDrawList* d, ImVec2 c) {
+    for (float r : {3.0f, 6.0f, 9.0f}) d->AddCircle(c, r, r < 5 ? rgb(80, 205, 225) : rgb(80, 205, 225, 90), 0, 2.0f);
+  });
+  legend_row("a sound you hear, faint (cone: only the direction)", [](ImDrawList* d, ImVec2 c) {
+    d->PathClear();
+    for (int i = -4; i <= 4; ++i) d->PathLineTo({c.x + std::cos(0.5f * i / 4) * 9, c.y - std::sin(0.5f * i / 4) * 9});
+    d->PathStroke(rgb(80, 205, 225, 90), 0, 5.0f);
+    d->AddTriangleFilled({c.x + 14, c.y}, {c.x + 10, c.y - 4}, {c.x + 10, c.y + 4}, rgb(80, 205, 225));
+  });
+  legend_row("noise overlay: noticed line (0 dB over the background)", line(rgb(250, 220, 90), 1.5f));
+  legend_row("noise overlay: placed line (+10 dB: you would know where)", line(rgb(255, 255, 255), 2.5f));
   legend_row("outside wall", line(rgb(235, 230, 220), 4));
   legend_row("inside wall", line(rgb(190, 185, 175), 3));
   legend_row("door", line(rgb(170, 110, 50), 3));
@@ -1390,7 +1493,7 @@ int window_main(int argc, char** argv) {
   std::string shot;
   std::int64_t shot_ticks = 0;
   std::optional<Cell> shot_menu;
-  bool watch = false;
+  bool watch = false, generator = false;  // generator: a shot aid, the grid down and the generator running
   Overlay overlay = Overlay::None;
   std::string world_name, from_save;
   for (int i = 1; i < argc; ++i) {
@@ -1400,6 +1503,7 @@ int window_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--play")) {}
     else if (!std::strcmp(argv[i], "--shot") && i + 1 < argc) shot = argv[++i];
     else if (!std::strcmp(argv[i], "--watch")) watch = true;
+    else if (!std::strcmp(argv[i], "--generator")) generator = true;
     else if (!std::strcmp(argv[i], "--overlay") && i + 1 < argc) {
       ++i;
       overlay = !std::strcmp(argv[i], "noise") ? Overlay::Noise : !std::strcmp(argv[i], "light") ? Overlay::Light : Overlay::None;
@@ -1456,6 +1560,11 @@ int window_main(int argc, char** argv) {
   start(a, seed);
   if (!from_save.empty()) load_game(a, from_save);
   if (watch) a.t.ai->release();
+  if (generator && a.t.power) {  // for checking the sound marks by eye: the same calls the stage 6 scenario makes
+    a.t.power->fail_grid(*a.t.world, 0);
+    a.t.power->set_transfer(*a.t.world, Transfer::Generator, 0);
+    a.t.power->start_generator(*a.t.world, 0);
+  }
   a.overlay = overlay;
   if (shot_ticks > 0) {
     for (std::int64_t i = 0; i < shot_ticks; ++i) a.t.world->step();

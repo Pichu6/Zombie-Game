@@ -30,12 +30,15 @@ Cell cell_at(const SiteMap& m, std::size_t i) {
 // Least total edge loss from `from` to every cell; ties broken by steps, then cell index.
 }  // namespace
 
-std::vector<double> path_loss(const SiteMap& map, const Assemblies& items, const Cell& from) {
+PathTree path_tree(const SiteMap& map, const Assemblies& items, const Cell& from) {
   const std::size_t n = map.levels().size() * static_cast<std::size_t>(map.width() * map.height());
-  std::vector<double> best(n, 1e300);
+  PathTree tree;
+  tree.loss.assign(n, 1e300);
+  tree.prev.assign(n, PathTree::npos);
+  std::vector<double>& best = tree.loss;
   using Key = std::tuple<double, int, std::size_t>;
   std::priority_queue<Key, std::vector<Key>, std::greater<Key>> open;
-  if (!map.in_bounds(from) || !map.walkable(from)) return best;
+  if (!map.in_bounds(from) || !map.walkable(from)) return tree;
   best[index_of(map, from)] = 0;
   open.emplace(0.0, 0, index_of(map, from));
   while (!open.empty()) {
@@ -48,6 +51,7 @@ std::vector<double> path_loss(const SiteMap& map, const Assemblies& items, const
       const std::size_t j = index_of(map, nb);
       if (loss + cost < best[j]) {
         best[j] = loss + cost;
+        tree.prev[j] = i;
         open.emplace(best[j], steps + 1, j);
       }
     };
@@ -58,7 +62,23 @@ std::vector<double> path_loss(const SiteMap& map, const Assemblies& items, const
       if (s.b == c) relax(s.a, 0);
     }
   }
-  return best;
+  return tree;
+}
+
+std::vector<double> path_loss(const SiteMap& map, const Assemblies& items, const Cell& from) {
+  return path_tree(map, items, from).loss;
+}
+
+std::vector<Cell> path_to_root(const SiteMap& map, const PathTree& tree, const Cell& to) {
+  std::vector<Cell> out;
+  if (!map.in_bounds(to)) return out;
+  std::size_t i = index_of(map, to);
+  if (tree.loss[i] >= 1e299) return out;
+  for (;; i = tree.prev[i]) {
+    out.push_back(cell_at(map, i));
+    if (tree.prev[i] == PathTree::npos) break;
+  }
+  return out;
 }
 
 double distance_m(const Cell& a, const Cell& b) {

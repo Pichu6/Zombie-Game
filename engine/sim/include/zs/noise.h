@@ -31,6 +31,16 @@ double edge_loss_db(const SiteMap& map, const Assemblies& items, const EdgeRef& 
 // Unreachable cells get kSilentDb.
 inline constexpr double kSilentDb = -100;
 std::vector<double> noise_field(const SiteMap& map, const Assemblies& items, const std::vector<NoiseSource>& sources);
+// The least-loss tree from `from`: the loss to every cell and the previous cell on the way back (same indexing; npos at
+// `from` and where unreachable). Same ties as path_loss.
+struct PathTree {
+  static constexpr std::size_t npos = static_cast<std::size_t>(-1);
+  std::vector<double> loss;
+  std::vector<std::size_t> prev;
+};
+PathTree path_tree(const SiteMap& map, const Assemblies& items, const Cell& from);
+// The cells from `to` back to the tree's root, both included; empty when `to` is unreachable.
+std::vector<Cell> path_to_root(const SiteMap& map, const PathTree& tree, const Cell& to);
 // Least total edge loss (dB) from `from` to every cell (same indexing); 1e300 where unreachable.
 std::vector<double> path_loss(const SiteMap& map, const Assemblies& items, const Cell& from);
 std::size_t cell_index(const SiteMap& map, const Cell& c);
