@@ -11,6 +11,7 @@
 //   zs gen layout [--seed N] [--people P] [--country ID] [--bmp FILE]   the town's streets, blocks and plots (spec 71)
 //   zs gen plot [--seed N] [--people P] [--plot N | --address A] [--out FILE]   what stands on a plot (spec 72)
 //   zs gen routes [--seed N] [--freq F] [--bmp FILE]   roads, rivers and sea lanes between towns; the block's town's routes (spec 74)
+//   zs gen food [--seed N] [--freq F] [--border X]   food made, eaten and sent between towns over the routes (spec 76)
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE]
 //                                                  world fields, land, deposits and countries: summary and a text map
@@ -36,6 +37,7 @@
 #include "zs/gen/world_land.h"
 #include "zs/gen/world_people.h"
 #include "zs/gen/world_routes.h"
+#include "zs/gen/world_food.h"
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
 #include "modes.h"
@@ -56,7 +58,8 @@ int usage() {
                "       zs gen stations|station [--seed N] [--people P] [--profile ISO3] [--station K] [--out FILE]   (spec 69)\n"
                "       zs gen layout [--seed N] [--people P] [--country ID] [--bmp FILE]   (spec 71)\n"
                "       zs gen plot [--seed N] [--people P] [--country ID] [--plot N | --address A] [--out FILE]   (spec 72)\n"
-               "       zs gen routes [--seed N] [--freq F] [--bmp FILE]   (spec 74)\n"
+               "       zs gen routes [--seed N] [--freq F] [--detour X] [--bmp FILE]   (spec 74)\n"
+               "       zs gen food [--seed N] [--freq F] [--border X]   (spec 76)\n"
                "       zs gen cultures\n"
                "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE [--political]]\n";
   return 2;
@@ -184,6 +187,42 @@ int gen_main(int argc, char** argv) {
       }
       std::cout << "legend: '~' large river, ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
+      return 0;
+    }
+    if (cmd == "food") {  // spec 76
+      const int freq = std::atoi(arg(argc, argv, "--freq", "101").c_str());
+      const zs::gen::WorldGrid grid(freq, 6371.0);
+      zs::gen::WorldParams wp;
+      wp.seed = seed;
+      const auto f = zs::gen::generate_fields(grid, wp);
+      const auto land = zs::gen::generate_land(grid, f);
+      zs::gen::DepositParams dp;
+      dp.seed = seed;
+      const auto deposits = zs::gen::generate_deposits(grid, f, dp);
+      const std::string tables = zs::tier0::data_dir();
+      const auto people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(tables),
+                                                  zs::gen::load_real_profiles(tables));
+      const auto routes = zs::gen::build_routes(grid, f, land, people);
+      zs::gen::FreightParams fp;
+      fp.border_road_km = std::atof(arg(argc, argv, "--border", std::to_string(fp.border_road_km)).c_str());
+      const auto food = zs::gen::food_flows(land, people, routes, fp);
+      std::cout << "Food (spec 76), seed " << seed << ", border " << fp.border_road_km << " road-km: production "
+                << food.production / 1e9 << " billion people-years, demand " << food.demand / 1e9 << "; traded "
+                << 100.0 * food.traded / food.production << "% of production, across borders " << 100.0 * food.international_share()
+                << "% (WSR-44: about 23%); unmet " << 100.0 * food.unmet / food.demand << "% of demand; " << food.flows.size()
+                << " flows in " << food.rounds << " rounds\n";
+      if (const int town = zs::gen::choose_town(f, people, seed); town >= 0) {
+        const int node = routes.node_of[people.towns[static_cast<std::size_t>(town)].cell];
+        const auto& nf = food.nodes[static_cast<std::size_t>(node)];
+        std::cout << "the block's town's region: makes " << nf.made << ", eats " << nf.demand << " (at home " << nf.eaten << ", sent "
+                  << nf.sent << ", received " << nf.received << ", unmet " << nf.unmet << ")\n";
+        for (const auto& fl : food.flows)
+          if (fl.to == node || fl.from == node)
+            std::cout << "  " << (fl.to == node ? "from" : "to") << " town cell " << (fl.to == node ? fl.from : fl.to) << ": "
+                      << fl.amount << " people-years at " << fl.cost << " road-km" << (fl.international ? " (across a border)" : "")
+                      << "\n";
+      }
+      std::cout << "digest " << zs::gen::food_digest(food) << "\n";
       return 0;
     }
     if (cmd == "routes") {  // spec 74

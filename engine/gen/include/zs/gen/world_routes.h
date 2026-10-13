@@ -42,12 +42,14 @@ struct Route {
   std::array<double, kRouteModes> km{};
   double hours = 0;
   bool crosses_border = false;
+  int ports = 0, borders = 0;         // spec 76: steps through a port, steps into another country
   RouteWhy why = RouteWhy::Tree;
 };
 
 struct WorldRoutes {
   std::vector<RouteNode> nodes;            // by cell, ascending
   std::vector<int> node_of;                // per cell; -1 without a town
+  std::vector<int> region_of;              // spec 76: per cell, the node nearest in time (rule 3's search)
   std::vector<Route> routes;               // tree routes first, then loops, each in the order added
   std::vector<std::vector<int>> of_node;   // route indices per node
   RouteParams params;

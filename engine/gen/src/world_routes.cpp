@@ -203,6 +203,8 @@ WorldRoutes build_routes(const WorldGrid& grid, const WorldFields& fields, const
         r.km[static_cast<int>(s.mode)] += s.km;
       }
       r.crosses_border = r.crosses_border || s.border;
+      r.ports += s.port;
+      r.borders += s.border;
     }
     const int idx = static_cast<int>(w.routes.size());
     w.of_node[static_cast<std::size_t>(r.a)].push_back(idx);
@@ -210,6 +212,7 @@ WorldRoutes build_routes(const WorldGrid& grid, const WorldFields& fields, const
     w.routes.push_back(std::move(r));
   };
 
+  w.region_of = owner;
   // Rule 4: the tree.
   Dsu dsu(w.nodes.size());
   std::vector<char> used(cands.size(), 0);
