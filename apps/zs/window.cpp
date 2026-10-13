@@ -30,6 +30,7 @@
 #include "zs/noise.h"
 #include "zs/sound_marks.h"
 #include "zs/pacer.h"
+#include "zs/players.h"
 #include "zs/run.h"
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
@@ -155,11 +156,34 @@ V2 actor_at(const App& a, EntityId id) {
   return body_at(act.pos, act.action.path, act.action.path_next, act.action.step_m, act.action.phase == Phase::Approach);
 }
 
+// Spec 67: the census row of a body on the block, as a pop id (kNoPop for a body with no row).
+zs::PopId pop_of(const App& a, EntityId body) {
+  const auto person = a.t.census ? a.t.census->person_of(body) : std::nullopt;
+  return person ? zs::census_pop_id(static_cast<std::uint32_t>(*person)) : zs::kNoPop;
+}
+
+// Spec 67: taking and leaving a body are player commands (player 1, the one joined at the start); without players, the AI directly.
+void take_control(App& a, EntityId body) {
+  if (!a.t.players || a.t.players->players().empty()) return a.t.ai->possess(body);
+  const zs::PopId pop = pop_of(a, body);
+  const auto& me = a.t.players->players().front();
+  if (pop == me.home) a.t.world->submit({0, zs::PlayerReturn, me.id, 0, 0});
+  else a.t.world->submit({0, zs::PlayerPossess, me.id, static_cast<std::int64_t>(pop), 0});
+}
+
+void leave_body(App& a) {
+  if (!a.t.players || a.t.players->players().empty()) return a.t.ai->release();
+  a.t.world->submit({0, zs::PlayerDetach, a.t.players->players().front().id, 0, 0});
+}
+
 void start(App& a, std::uint64_t seed) {
   a.seed = seed;
   a.t = zs::gen::make_world(seed, a.world ? a.world->settings : zs::gen::WorldSettings{});  // the one world (specs 41, 42), the world's settings (spec 55)
   a.t.world->check_every_tick = false;
-  a.t.ai->possess(a.t.run->controlled());
+  a.t.ai->possess(a.t.run->controlled());  // the first tick, before the join below is applied
+  // Spec 67: the player joins with the run's pop as home (sandbox: the free level), so control is a command in the replay.
+  if (a.t.players) a.t.world->submit({0, zs::PlayerJoin, 0, static_cast<std::int64_t>(pop_of(a, a.t.run->controlled())),
+                                       static_cast<std::int64_t>(zs::DetachLevel::Free)});
   a.selected = a.me();
   a.log.clear();
   a.alerts.clear();
@@ -1409,7 +1433,7 @@ void group_panel(App& a) {
     if (joined && b.alive && !b.spec.walker && id != a.me()) {
       ImGui::SameLine();
       if (ImGui::SmallButton("Control")) {
-        a.t.ai->possess(id);
+        take_control(a, id);
         a.selected = id;
         recentre(a);
       }
@@ -1428,9 +1452,9 @@ void group_panel(App& a) {
     ImGui::PopID();
   }
   if (a.t.ai->possessed()) {
-    if (ImGui::Button("Let the AI drive everyone")) a.t.ai->release();
+    if (ImGui::Button("Let the AI drive everyone")) leave_body(a);
   } else if (ImGui::Button("Take control again")) {
-    a.t.ai->possess(a.t.run->controlled());
+    take_control(a, a.t.run->controlled());
     recentre(a);
   }
   ImGui::End();

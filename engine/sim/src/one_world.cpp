@@ -2,6 +2,7 @@
 // with the census rows as the registry's founders. Spec: docs/tier0/specs/41-one-world.md
 #include <memory>
 
+#include "zs/body.h"
 #include "zs/bonds.h"
 #include "zs/calendar.h"
 #include "zs/demographics.h"
@@ -10,11 +11,14 @@
 #include "zs/missing_persons.h"
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
+#include "zs/dead.h"
 #include "zs/payroll.h"
 #include "zs/police.h"
 #include "zs/players.h"
 #include "zs/police_staff.h"
+#include "zs/pop_ai.h"
 #include "zs/pop_system.h"
+#include "zs/run.h"
 #include "zs/schedule.h"
 #include "zs/tier0.h"
 
@@ -194,6 +198,46 @@ NextCommitment make_commitments(const Census& census, const CalendarSystem& cale
   };
 }
 
+// Spec 67: how the players reach bodies in the one world. A census row with a living body on the block is controlled
+// there (the pop AI leaves it to the player); anyone else (an officer, a row with no body) gets a pool body.
+class WorldHands : public Hands {
+ public:
+  WorldHands(const Census* census, const Bodies* bodies, PopAI* ai, const Run* run, PopSystem* pops)
+      : census_(census), bodies_(bodies), ai_(ai), run_(run), pops_(pops) {}
+  Found body_of(const World&, PopId pop) const override {
+    const EntityId body = map_body(pop);
+    if (body == 0) return {Where::Nowhere, 0};
+    const Body& b = bodies_->get(body);
+    if (!b.alive || b.spec.walker || b.away) return {Where::Unavailable, body};
+    return {Where::OnMap, body};
+  }
+  void take(World&, EntityId body) override { ai_->possess(body); }
+  void give_back(World&, EntityId body) override {
+    if (ai_->possessed() == body) ai_->release();
+  }
+  EntityId embody(World& w, PopId pop, EventId cause) override { return pops_->embody_pop(w, pop, cause); }
+  bool disembody(World& w, PopId pop, EventId cause) override { return pops_->disembody_pop(w, pop, cause); }
+  std::int64_t dwell_ticks() const override { return pops_->dwell_ticks(); }
+  // Spec 26: when the controlled member dies the run hands control to the next one; the player follows it.
+  PopId successor(const World&, PopId dead) const override {
+    const EntityId next = run_->controlled();
+    if (next == 0 || next == map_body(dead)) return kNoPop;
+    const auto person = census_->person_of(next);
+    return person ? census_pop_id(static_cast<std::uint32_t>(*person)) : kNoPop;
+  }
+
+ private:
+  EntityId map_body(PopId pop) const {
+    if (is_born(pop) || founder_slot_of(pop) >= census_->people().size()) return 0;
+    return census_->people()[founder_slot_of(pop)].body;
+  }
+  const Census* census_;
+  const Bodies* bodies_;
+  PopAI* ai_;
+  const Run* run_;
+  PopSystem* pops_;
+};
+
 }  // namespace
 
 void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
@@ -286,14 +330,20 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   t.police = police.get();
   // Spec 66: players and possession (decisions 0066, 0068): a possession is an absence like any other. Nobody plays until a
   // player joins; until then the system has nothing to look at and never wakes.
+  const PossessionParams possession = load_possession_params(data_dir() + "/life/possession.toml");
+  // Spec 67: the body pool (spec 29) for pops a player takes that have no body on the block.
+  t.bodies->reserve_slots(w, static_cast<std::size_t>(possession.body_slots));
+  t.pops->attach_bodies(w, *t.bodies);
   auto players = std::make_unique<Players>(
-      load_possession_params(data_dir() + "/life/possession.toml"), expectations.get(),
+      possession, expectations.get(),
       [reg = &t.pops->registry()](PopId id, std::int64_t tick) {
         PopSnapshot s;
         const double year = year_of_tick(tick);
         return reg->snapshot(id, year, s) && s.base.birth_year <= year && year < s.base.death_year;
       });
   t.players = players.get();
+  t.hands = std::make_shared<WorldHands>(t.census, t.bodies, t.ai, t.run, t.pops);
+  players->set_hands(t.hands.get());
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));

@@ -52,6 +52,11 @@ class PopSystem : public System {
   void attach_bodies(World& w, Bodies& bodies);
   // The least time a pop stays embodied before it may be demoted (hysteresis); a setting, not saved. Default 1 game hour.
   void set_dwell_ticks(std::int64_t ticks) { dwell_ticks_ = ticks; }
+  std::int64_t dwell_ticks() const { return dwell_ticks_; }
+  // The commands' work for a system that embodies a pop in the same tick as its own change (spec 67: a possession).
+  // A refusal is the same PopCommandRefused event; embody returns 0 and disembody false then.
+  EntityId embody_pop(World& w, PopId pop, EventId cause);
+  bool disembody_pop(World& w, PopId pop, EventId cause);
 
   // Spec 41: the census reports a death of one of its rows (a founder) as it happens. The census's change is
   // itself derived from the world's state, so replay repeats it; this is not a player command.

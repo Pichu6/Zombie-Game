@@ -68,6 +68,18 @@ void PopSystem::disembody(World& w, const Command& c, EventId cause) {
   w.emit(EventType::PopDisembodied, c.subject, cause, static_cast<std::int64_t>(body), 0);
 }
 
+EntityId PopSystem::embody_pop(World& w, PopId pop, EventId cause) {
+  const bool already = registry_.embodied_body(pop) != 0;  // refused below, and not a body this call gave
+  embody(w, {w.clock.tick, PopEmbody, pop, 0, 0}, cause);
+  return already ? 0 : registry_.embodied_body(pop);
+}
+
+bool PopSystem::disembody_pop(World& w, PopId pop, EventId cause) {
+  if (registry_.embodied_body(pop) == 0) return false;
+  disembody(w, {w.clock.tick, PopDisembody, pop, 0, 0}, cause);
+  return registry_.embodied_body(pop) == 0;
+}
+
 void PopSystem::apply_command(World& w, const Command& c, EventId cause) {
   const double year = year_of_tick(w.clock.tick);
   const auto kind = static_cast<EffectKind>(c.a);

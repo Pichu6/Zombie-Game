@@ -4,3 +4,6 @@
 
 [release]
 return_home_min = 120   # minutes from the release to the pop being home again
+
+[body]                  # spec 67: pops with no body on the map (an officer, anyone off the block) get one from a pool
+slots = 4               # bodies the one world reserves at setup: at most this many such pops held at once (a setup setting)

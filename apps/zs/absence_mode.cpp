@@ -64,6 +64,8 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::PlayerJoined: return "player " + std::to_string(e.subject) + " joins " + (e.a >= 0 ? "as " + n(static_cast<PopId>(e.a)) : std::string("as a free camera"));
     case EventType::PlayerPossessed: return "the player takes " + n(e.a) + (e.b ? " from their life" : " (home)");
     case EventType::PlayerLeftBody: return "the player leaves " + n(e.a) + (e.b ? ", who heads home (there at " + tier0::time_text(e.b) + ")" : "");
+    case EventType::PopEmbodied: return n(e.subject) + " gets a body from the pool (not on the map)";
+    case EventType::PopDisembodied: return n(e.subject) + "'s body goes back to the pool; its state is kept";
     case EventType::PlayerRefused: return "the player's command is refused (reason " + std::to_string(e.b) + ")";
     default: return "";
   }
