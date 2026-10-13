@@ -1,0 +1,44 @@
+# A town's police agency by its size (spec 69, decision 0077), from research services-by-settlement-size (SV).
+# Sworn officers = residents x the class's officers per 1,000 x (the country's police per 100,000 / the curve's reference).
+# The curve is the United States' (BJS, Local Police Departments 2016); using its shape elsewhere is an ESTIMATE until a
+# second country's curve is found. Lines without a source are DEFAULTS taken by Claude.
+
+[curve]
+id = "police_us_2016"
+reference_per_100k = 217          # SV-21: US general-purpose sworn officers per 100,000, 2016
+# [min people, max people (0 = open), mean full-time-equivalent sworn per 1,000]; SV-5 (BJS figure 2, appendix table 6).
+# Places under 1,000 were excluded by BJS: the 1,000-9,999 value is used for them (estimate).
+classes = [
+  [0, 9999, 2.3],
+  [10000, 24999, 1.9],
+  [25000, 49999, 1.8],
+  [50000, 99999, 1.6],
+  [100000, 249999, 1.7],
+  [250000, 499999, 1.9],
+  [500000, 999999, 2.2],
+  [1000000, 0, 2.3],
+]
+# [min people, max people (0 = open), share of sworn officers who are women]; SV-12 (BJS table 5).
+female = [
+  [0, 9999, 0.073],
+  [10000, 24999, 0.090],
+  [25000, 49999, 0.096],
+  [50000, 99999, 0.105],
+  [100000, 249999, 0.120],
+  [250000, 499999, 0.152],
+  [500000, 999999, 0.146],
+  [1000000, 0, 0.176],
+]
+
+[staff]
+investigator_share = 0.15         # SV-10: about 15% of sworn officers have investigation as their primary duty
+min_sworn_for_investigator = 7    # SV-11: a department under about 7 sworn holds no investigator
+civilian_share = 0.22             # SV-2: civilians are 22% of local police full-time staff
+shifts = 3                        # spec 65: day, evening and night
+
+[country]                         # police per 100,000 by country; none sourced except the US (SV-21). Absent: the reference.
+USA = 217
+
+[station]                         # DEFAULTS (Claude): no source on stations per agency was found
+people_per_station = 100000       # an agency gets one station, and one more for each 100,000 residents above the first
+officers_per_cell = 15            # holding cells: one per this many sworn, at least one

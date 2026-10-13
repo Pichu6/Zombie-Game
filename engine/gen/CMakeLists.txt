@@ -10,6 +10,7 @@ add_library(zs_gen
   src/place.cpp
   src/world_people.cpp
   src/dwellings.cpp
+  src/stations.cpp
   src/world_land.cpp
   src/world_deposits.cpp
   src/world_countries.cpp

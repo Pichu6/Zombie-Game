@@ -1,0 +1,14 @@
+# Spec 69: a police station's rooms from its staff. EVERY number here is an ESTIMATE taken by Claude: no source on police
+# station floor areas was found (research to do). Staff come from data/services/police.toml.
+
+desk_m2 = 6          # floor per desk in the squad room, the investigators' room and records
+locker_m2 = 1        # floor per locker in the locker room
+min_width = 9        # the building's frontage in 1 m cells
+max_width = 24
+
+[room_m2]            # rooms of a fixed size
+lobby = 16           # the public counter
+office = 10          # the station's commander
+evidence = 8         # evidence and the armoury
+cell = 6             # one holding cell
+washroom = 4         # one for every 30 staff, at least one

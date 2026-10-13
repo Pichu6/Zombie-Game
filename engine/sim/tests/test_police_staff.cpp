@@ -34,22 +34,19 @@ struct Force {
 
 }  // namespace
 
-TEST_CASE("the force's size and parameters load from data, and a bad table is refused (A1)") {
+TEST_CASE("the force's parameters load from data, and a bad table is refused (A1)") {
   const std::string path = tier0::data_dir() + "/institutions/police/force.toml";
   const ForceParams p = load_force_params(path, "", "high");
-  CHECK(p.officers_per_1000 == doctest::Approx(2.4));
   CHECK(p.officers_per_search >= 1);
-  CHECK(force_size(p, 50'000) == 120);
-  CHECK(force_size(p, 1'000) == p.min_officers);  // a small town's station still keeps three shifts
-  CHECK(force_size(p, 200'000) > force_size(p, 50'000));
+  CHECK(p.min_officers >= 3);  // a small town's station still keeps three shifts
   CHECK_THROWS(load_force_params(tier0::data_dir() + "/institutions/police/no_such.toml", "", "high"));
   CHECK_THROWS(load_force_params(path, "", "no_such_group"));
   const std::string bad_path = (std::filesystem::temp_directory_path() / "zs_bad_force.toml").string();
   {
     std::ofstream bad(bad_path);
-    bad << "[t]\nofficers_per_1000 = 0\nofficers_per_search = 2\nmin_officers = 6\n[index]\nhigh = \"t\"\n";
+    bad << "[t]\nofficers_per_search = 0\nmin_officers = 6\n[index]\nhigh = \"t\"\n";
   }
-  CHECK_THROWS(load_force_params(bad_path, "t", "high"));  // a force of no officers
+  CHECK_THROWS(load_force_params(bad_path, "t", "high"));  // a search that needs nobody
   std::remove(bad_path.c_str());
 }
 
@@ -262,7 +259,7 @@ TEST_CASE("in the one world, the force's searches never exceed its staff on duty
   tier0::Tier0 t = tier0::make_run(1);
   t.world->check_every_tick = false;
   REQUIRE(t.force);
-  CHECK(t.force->officers().size() == 120);  // 2.4 per 1,000 of a town of 50,000
+  CHECK(t.force->officers().size() == 80);  // spec 69: 1.6 per 1,000 for a town of 50,000 (BJS, SV-5)
   t.missing->set_rate_scale(8000);
   t.missing->redraw(*t.world, 0);
   for (int day = 1; day <= 20; ++day) {

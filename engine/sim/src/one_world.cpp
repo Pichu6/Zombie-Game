@@ -16,6 +16,7 @@
 #include "zs/dead.h"
 #include "zs/payroll.h"
 #include "zs/police.h"
+#include "zs/police_agency.h"
 #include "zs/players.h"
 #include "zs/police_staff.h"
 #include "zs/pop_ai.h"
@@ -63,7 +64,8 @@ bool has_job(const Person& p) { return !is_dead(p.fate) && p.age >= 18 && p.age 
 
 // Rule 2: one founder per census row, slot = row, the row's age and sex; households as rosters.
 // Spec 48: the block's country is its place's income group's base country; spec 49: or its real profile.
-std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place& place, int officers) {
+std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place& place, const AgencyPlan& agency) {
+  const int officers = agency.sworn;
   const std::string data = data_dir();
   auto pops = std::make_unique<PopSystem>(w, make_pop_params(load_nation(data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml"), data));
   PopRegistry& reg = pops->setup(w);
@@ -93,7 +95,7 @@ std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place
   // Spec 65: the police force that serves the town: more founders after the census's, on their own roster (a workplace).
   reg.add_cohort({kForceCohort, kBlockRegion, static_cast<std::uint32_t>(people.size()), static_cast<std::uint64_t>(officers)});
   std::vector<FounderSpec> force;
-  for (int i = 0; i < officers; ++i) force.push_back({static_cast<std::uint16_t>(25 + (i * 7) % 31), i % 4 == 0 ? PopSex::Female : PopSex::Male});
+  for (int i = 0; i < officers; ++i) force.push_back({static_cast<std::uint16_t>(25 + (i * 7) % 31), officer_is_woman(agency, i) ? PopSex::Female : PopSex::Male});  // spec 69: SV-12
   reg.set_founder_specs(kForceCohort, std::move(force));
   reg.add_roster(kPoliceRoster, kBlockRegion, RosterKind::Workplace);
   for (int i = 0; i < officers; ++i) reg.roster_join(kPoliceRoster, census_pop_id(static_cast<std::uint32_t>(people.size()) + static_cast<std::uint32_t>(i)), 0.0);
@@ -275,8 +277,12 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   World& w = *t.world;
   // Spec 65: the police force serving the town, sized by its population: officers are pops after the census's, with shifts.
   const ForceParams force_params = load_force_params(data_dir() + "/institutions/police/force.toml", place.profile, place.income);
-  const int officers = force_size(force_params, place.town_people);
-  auto pops = make_pops(w, *t.census, place, officers);
+  // Spec 69: its size from the BJS curve for the town's people, at the country's level; women by the class's share.
+  const AgencyPlan agency = plan_agency(load_agency_params(data_dir() + "/services/police.toml", place.profile), place.town_people,
+                                        force_params.min_officers);
+  const int officers = agency.sworn;
+  t.agency = agency;
+  auto pops = make_pops(w, *t.census, place, agency);
   auto econ = make_economy(w, *t.census, t.owners, officers);
   auto orders = std::make_unique<OrdersSystem>(econ.get(), pops.get());
   std::vector<PopId> audience;  // rule 5: the living founders
@@ -306,7 +312,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   auto staff = std::make_shared<PoliceStaff>(force_params, std::make_shared<TimeUseTable>(timeuse_for(data_dir(), place.profile, place.income)),
                                              calendar.get(), w.rng.seed());
   const std::size_t census_size = t.census->people().size();
-  for (int i = 0; i < officers; ++i) staff->add_officer(census_pop_id(static_cast<std::uint32_t>(census_size) + static_cast<std::uint32_t>(i)), 25 + (i * 7) % 31, i % 4 == 0 ? 'f' : 'm');
+  for (int i = 0; i < officers; ++i) staff->add_officer(census_pop_id(static_cast<std::uint32_t>(census_size) + static_cast<std::uint32_t>(i)), 25 + (i * 7) % 31, officer_is_woman(agency, i) ? 'f' : 'm');
   t.force = staff;
   const NextCommitment census_commitments = make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs, bonds_link);
   const NextCommitment commitments = [census_commitments, staff](PopId pop, std::int64_t from) -> std::optional<Commitment> {

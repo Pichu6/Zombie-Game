@@ -17,3 +17,32 @@ kit = ["wardrobe", "lamp"]
 
 [room.bath]
 kit = ["toilet", "sink", "bathtub"]
+
+# Spec 69: a police station's rooms (estimates). Desks and lockers come one per occupant (room.seat) and do not block;
+# shelves, safes and benches do not block either (they are not in the list above).
+[room.lobby]
+kit = ["desk", "bench", "lamp"]
+
+[room.squad]
+kit = ["lamp"]
+
+[room.office]
+kit = ["shelf", "lamp"]
+
+[room.investigators]
+kit = ["shelf", "lamp"]
+
+[room.records]
+kit = ["shelf", "lamp"]
+
+[room.locker]
+kit = ["bench"]
+
+[room.evidence]
+kit = ["shelf", "safe"]
+
+[room.washroom]
+kit = ["toilet", "sink"]
+
+[room.cell]
+kit = ["toilet"]

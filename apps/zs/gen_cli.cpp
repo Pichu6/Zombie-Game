@@ -5,6 +5,8 @@
 //                 kinds: person (default), street, town, province, country
 //   zs gen houses [--seed N] [--mix FILE] [--country ID]        every household's dwelling: address, size, rooms (spec 51)
 //   zs gen house  [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]
+//   zs gen stations [--seed N] [--people P] [--profile ISO3]   the town's police agency and its stations (spec 69)
+//   zs gen station  [--seed N] [--people P] [--station K] [--out FILE]   one station as a site map
 //                                                  one house with its interior as a site map; prints its plan
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE]
@@ -19,6 +21,7 @@
 #include <vector>
 
 #include "zs/gen/dwellings.h"
+#include "zs/gen/stations.h"
 #include "zs/gen/keyed.h"
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
@@ -42,6 +45,7 @@ int usage() {
   std::cerr << "usage: zs gen town|census [--seed N] [--mix FILE] [--country ID]   ID: data/setup/nations/<ID>.toml, e.g. base_low\n"
                "       zs gen names --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]\n"
                "       zs gen houses|house [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]   (spec 51)\n"
+               "       zs gen stations|station [--seed N] [--people P] [--profile ISO3] [--station K] [--out FILE]   (spec 69)\n"
                "       zs gen cultures\n"
                "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE [--political]]\n";
   return 2;
@@ -197,6 +201,41 @@ int gen_main(int argc, char** argv) {
         return 2;
       }
       const std::string toml = zs::gen::house_toml(town, dwellings[static_cast<std::size_t>(h)], rules, seed);
+      if (const std::string out = arg(argc, argv, "--out", ""); !out.empty()) {
+        std::ofstream(out, std::ios::binary) << toml;
+        std::cout << "wrote " << out << "\n";
+      }
+      std::cout << toml;
+      return 0;
+    }
+    if (cmd == "stations" || cmd == "station") {  // spec 69: the town's police agency and its stations
+      auto mix = zs::gen::load_mix(arg(argc, argv, "--mix", data + "/gen/populations/tier0_block.toml"));
+      if (const std::string c = arg(argc, argv, "--country", ""); !c.empty()) zs::gen::set_country(mix, c, data);
+      const auto town = zs::gen::generate_town(cat, mix, seed);
+      const double people = std::atof(arg(argc, argv, "--people", "50000").c_str());  // the town the agency serves
+      const zs::AgencyParams ap = zs::load_agency_params(data + "/services/police.toml", arg(argc, argv, "--profile", ""));
+      const zs::AgencyPlan agency = zs::plan_agency(ap, people, 6);
+      const auto rules = zs::gen::load_dwelling_rules(data + "/gen");
+      const auto stations = zs::gen::plan_stations(cat, town, agency, ap.shifts, zs::gen::load_station_rules(data + "/gen"), rules, seed);
+      if (cmd == "stations") {
+        std::cout << "Police of " << town.name << " (seed " << seed << "), serving " << people << " people: " << agency.sworn << " sworn ("
+                  << agency.per_1000 << " per 1,000; " << agency.investigators << " investigators, " << agency.patrol << " patrol, "
+                  << agency.women << " women), " << agency.civilians << " civilians, " << agency.stations
+                  << (agency.stations == 1 ? " station, " : " stations, ") << agency.cells << " holding cells\n\n";
+        for (const auto& s : stations) {
+          std::cout << "  " << s.name << ", " << s.address << ": " << s.sworn << " sworn, " << s.civilians << " civilians, "
+                    << s.plan.floor_area() << " m2 (" << s.plan.width << " x " << s.plan.depth << "), rooms:";
+          for (const auto& r : s.plan.rooms) std::cout << " " << r.type << (r.occupants ? "(" + std::to_string(r.occupants) + ")" : "");
+          std::cout << "\n";
+        }
+        return 0;
+      }
+      const int k = std::atoi(arg(argc, argv, "--station", "1").c_str()) - 1;
+      if (k < 0 || k >= static_cast<int>(stations.size())) {
+        std::cerr << "station must be 1.." << stations.size() << "\n";
+        return 2;
+      }
+      const std::string toml = zs::gen::station_toml(town, stations[static_cast<std::size_t>(k)], rules, seed);
       if (const std::string out = arg(argc, argv, "--out", ""); !out.empty()) {
         std::ofstream(out, std::ios::binary) << toml;
         std::cout << "wrote " << out << "\n";

@@ -37,20 +37,14 @@ ForceParams load_force_params(const std::string& path, const std::string& countr
   }
   const toml::table* c = t[id].as_table();
   if (!c) throw std::runtime_error(path + ": no table [" + id + "]");
-  const auto per_1000 = (*c)["officers_per_1000"].value<double>();
   const auto per_search = (*c)["officers_per_search"].value<std::int64_t>();
   const auto minimum = (*c)["min_officers"].value<std::int64_t>();
-  if (!per_1000 || *per_1000 <= 0 || !per_search || *per_search < 1 || !minimum || *minimum < 1)
-    throw std::runtime_error(path + ": [" + id + "] needs officers_per_1000 above 0, officers_per_search and min_officers of at least 1");
+  if (!per_search || *per_search < 1 || !minimum || *minimum < 1)
+    throw std::runtime_error(path + ": [" + id + "] needs officers_per_search and min_officers of at least 1");
   ForceParams p;
-  p.officers_per_1000 = *per_1000;
   p.officers_per_search = static_cast<int>(*per_search);
   p.min_officers = static_cast<int>(*minimum);
   return p;
-}
-
-int force_size(const ForceParams& params, double people) {
-  return std::max(params.min_officers, static_cast<int>(std::llround(people * params.officers_per_1000 / 1000.0)));
 }
 
 void PoliceStaff::add_officer(PopId pop, int age, char sex) {

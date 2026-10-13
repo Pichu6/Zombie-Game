@@ -14,6 +14,16 @@ kind = "window"
 added = 2026-10-11
 
 [[try]]
+id = "police-stations"
+part = "generators"
+spec = "69"
+title = "A town's police and its stations"
+what = "The police agency of a town of 17,626 sized by real staffing data (BJS 2016): officers, investigators, civilians, women, and its station with its rooms (decision 0077)."
+run = ["gen", "stations", "--seed", "{seed}", "--people", "17626"]
+kind = "text"
+added = 2026-10-12
+
+[[try]]
 id = "possess-officer"
 part = "individual"
 spec = "68"

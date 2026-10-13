@@ -30,9 +30,10 @@ std::string income_group(const Mix& mix);
 
 // A room: a rectangle of the footprint (cells), its type and how many sleep in it.
 struct Room {
-  std::string type;  // main, living, kitchen, bath, bedroom
+  std::string type;  // main, living, kitchen, bath, bedroom; spec 69 adds a station's rooms
   int x = 0, y = 0, w = 0, h = 0;
   int occupants = 0;
+  std::string seat = "bed";  // what each occupant gets (spec 69: a desk, a locker; a bed never blocks)
 };
 
 struct Dwelling {
@@ -57,5 +58,10 @@ std::vector<Dwelling> plan_dwellings(const Town& town, const DwellingRules& rule
 void assign_addresses(Town& town, const std::vector<Dwelling>& dwellings);
 // The house on its lot with its interior, as a site-map TOML (rules 4-8).
 std::string house_toml(const Town& town, const Dwelling& d, const DwellingRules& rules, std::uint64_t seed);
+// Any building planned as a Dwelling (a corridor down the middle, rooms in two bands, a lot around it) as a site-map TOML:
+// floors, walls, doors, windows and the furniture of each room; `header` is its comment line, and `marker` an object put
+// at the front door (a house's census home; spec 69: the station). `key` keys the furniture.
+std::string building_toml(const Dwelling& d, const DwellingRules& rules, std::uint64_t seed, const std::string& header,
+                          const std::string& marker_kind = "", const std::string& marker_id = "");
 
 }  // namespace zs::gen

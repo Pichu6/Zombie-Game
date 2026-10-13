@@ -17,14 +17,12 @@
 namespace zs {
 
 struct ForceParams {
-  double officers_per_1000 = 2.4;
   int officers_per_search = 2;
   int min_officers = 6;
 };
 // data/institutions/police/force.toml: the table `country_profile`, or the one the income group's [index] names.
 ForceParams load_force_params(const std::string& path, const std::string& country_profile, const std::string& income);
-// How many officers a town of `people` has.
-int force_size(const ForceParams& params, double people);
+// How many officers a town has: spec 69 (police_agency.h) from the size curve, at least min_officers.
 
 class PoliceStaff {
  public:
