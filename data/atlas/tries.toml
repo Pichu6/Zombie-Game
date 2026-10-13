@@ -24,6 +24,16 @@ kind = "text"
 added = 2026-10-13
 
 [[try]]
+id = "world-routes"
+part = "generators"
+spec = "74"
+title = "Routes between towns"
+what = "Roads, sea lanes and ports joining every town on the planet: the tree of least travel time plus loops where the detour is large, circuity checked against European roads; the block's town's routes and the hours to its capital (decision 0077 item 3.4). Writes the map with the routes."
+run = ["gen", "routes", "--seed", "{seed}", "--bmp", "{out}/routes.bmp"]
+kind = "image"
+added = 2026-10-13
+
+[[try]]
 id = "town-layout"
 part = "generators"
 spec = "71"

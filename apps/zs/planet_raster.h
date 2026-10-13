@@ -8,6 +8,7 @@
 #include "zs/gen/world_fields.h"
 #include "zs/gen/world_grid.h"
 #include "zs/gen/world_land.h"
+#include "zs/gen/world_routes.h"
 
 namespace zs::atlas {
 
@@ -19,6 +20,9 @@ struct PlanetRaster {
 
 PlanetRaster render_planet(const gen::WorldGrid& grid, const gen::WorldFields& fields, const gen::WorldLand& land,
                            const gen::WorldCountries* countries, bool political, int w = 2048, int h = 1024);
+// Spec 74: the routes over a picture: roads dark red, rivers dark blue, sea lanes white, town cells black.
+void draw_routes(PlanetRaster& r, const gen::WorldGrid& grid, const gen::WorldFields& f, const gen::WorldLand& land,
+                 const gen::WorldRoutes& routes);
 // 24-bit BMP, bottom row first.
 void write_bmp(const std::string& path, const PlanetRaster& r);
 

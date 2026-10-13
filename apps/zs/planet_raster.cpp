@@ -1,6 +1,7 @@
 #include "planet_raster.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <fstream>
 
@@ -55,6 +56,42 @@ PlanetRaster render_planet(const gen::WorldGrid& grid, const gen::WorldFields& f
         r.rgb[(static_cast<std::size_t>(y) * W + x) * 3 + q] = static_cast<unsigned char>(col[q] * shade);
     }
   return r;
+}
+
+void draw_routes(PlanetRaster& r, const gen::WorldGrid& grid, const gen::WorldFields& f, const gen::WorldLand& land,
+                 const gen::WorldRoutes& routes) {
+  auto pixel = [&](gen::CellId c, int& x, int& y) {
+    const gen::Vec3& v = grid.centre(c);
+    const double lat = std::asin(std::clamp(v.z, -1.0, 1.0)) * 180.0 / 3.14159265358979323846;
+    const double lon = std::atan2(v.y, v.x) * 180.0 / 3.14159265358979323846;
+    x = std::clamp(static_cast<int>((lon + 180.0) / 360.0 * r.w), 0, r.w - 1);
+    y = std::clamp(static_cast<int>((90.0 - lat) / 180.0 * r.h), 0, r.h - 1);
+  };
+  auto put = [&](int x, int y, const unsigned char* col) {
+    for (int q = 0; q < 3; ++q) r.rgb[(static_cast<std::size_t>(y) * r.w + x) * 3 + q] = col[q];
+  };
+  static const unsigned char road[3] = {150, 20, 20}, river[3] = {10, 40, 160}, sea[3] = {235, 235, 235}, town[3] = {0, 0, 0};
+  for (const gen::Route& route : routes.routes)
+    for (std::size_t i = 1; i < route.path.size(); ++i) {
+      int x0, y0, x1, y1;
+      pixel(route.path[i - 1], x0, y0);
+      pixel(route.path[i], x1, y1);
+      if (std::abs(x1 - x0) > r.w / 2) continue;  // across the date line
+      const bool wet = !f.land(route.path[i - 1]) || !f.land(route.path[i]);
+      const bool on_river = !wet && land.river[route.path[i - 1]] == 2 && land.river[route.path[i]] == 2 &&
+                            (land.downstream[route.path[i - 1]] == route.path[i] || land.downstream[route.path[i]] == route.path[i - 1]);
+      const unsigned char* col = wet ? sea : on_river ? river : road;
+      const int steps = std::max(std::abs(x1 - x0), std::abs(y1 - y0));
+      for (int s = 0; s <= steps; ++s) {
+        const int x = steps ? x0 + (x1 - x0) * s / steps : x0, y = steps ? y0 + (y1 - y0) * s / steps : y0;
+        put(x, y, col);
+      }
+    }
+  for (const gen::RouteNode& n : routes.nodes) {
+    int x, y;
+    pixel(n.cell, x, y);
+    put(x, y, town);
+  }
 }
 
 void write_bmp(const std::string& path, const PlanetRaster& r) {

@@ -10,6 +10,7 @@
 //   zs gen station  [--seed N] [--people P] [--station K] [--out FILE]   one station as a site map
 //   zs gen layout [--seed N] [--people P] [--country ID] [--bmp FILE]   the town's streets, blocks and plots (spec 71)
 //   zs gen plot [--seed N] [--people P] [--plot N | --address A] [--out FILE]   what stands on a plot (spec 72)
+//   zs gen routes [--seed N] [--freq F] [--bmp FILE]   roads, rivers and sea lanes between towns; the block's town's routes (spec 74)
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE]
 //                                                  world fields, land, deposits and countries: summary and a text map
@@ -34,6 +35,8 @@
 #include "zs/gen/world_deposits.h"
 #include "zs/gen/world_land.h"
 #include "zs/gen/world_people.h"
+#include "zs/gen/world_routes.h"
+#include "zs/gen/place.h"
 #include "zs/tier0.h"
 #include "modes.h"
 #include "planet_raster.h"
@@ -53,6 +56,7 @@ int usage() {
                "       zs gen stations|station [--seed N] [--people P] [--profile ISO3] [--station K] [--out FILE]   (spec 69)\n"
                "       zs gen layout [--seed N] [--people P] [--country ID] [--bmp FILE]   (spec 71)\n"
                "       zs gen plot [--seed N] [--people P] [--country ID] [--plot N | --address A] [--out FILE]   (spec 72)\n"
+               "       zs gen routes [--seed N] [--freq F] [--bmp FILE]   (spec 74)\n"
                "       zs gen cultures\n"
                "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE [--political]]\n";
   return 2;
@@ -180,6 +184,68 @@ int gen_main(int argc, char** argv) {
       }
       std::cout << "legend: '~' large river, ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
+      return 0;
+    }
+    if (cmd == "routes") {  // spec 74
+      const int freq = std::atoi(arg(argc, argv, "--freq", "101").c_str());
+      const zs::gen::WorldGrid grid(freq, 6371.0);
+      zs::gen::WorldParams wp;
+      wp.seed = seed;
+      const auto f = zs::gen::generate_fields(grid, wp);
+      const auto land = zs::gen::generate_land(grid, f);
+      zs::gen::DepositParams dp;
+      dp.seed = seed;
+      const auto deposits = zs::gen::generate_deposits(grid, f, dp);
+      const std::string tables = zs::tier0::data_dir();
+      const auto people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(tables),
+                                                  zs::gen::load_real_profiles(tables));
+      zs::gen::RouteParams rp;
+      rp.loop_detour = std::atof(arg(argc, argv, "--detour", std::to_string(rp.loop_detour)).c_str());
+      const auto routes = zs::gen::build_routes(grid, f, land, people, rp);
+      std::size_t loops = 0, border = 0;
+      double km[zs::gen::kRouteModes] = {};
+      for (const auto& r : routes.routes) {
+        loops += r.why == zs::gen::RouteWhy::Loop;
+        border += r.crosses_border;
+        for (int m = 0; m < zs::gen::kRouteModes; ++m) km[m] += r.km[static_cast<std::size_t>(m)];
+      }
+      std::cout << "Routes (spec 74), seed " << seed << ": " << people.towns.size() << " towns in " << routes.nodes.size() << " cells; "
+                << routes.routes.size() << " routes (" << routes.routes.size() - loops << " tree, " << loops << " loops, " << border
+                << " across a border); trunk km: road " << km[0] << ", river " << km[1] << ", sea " << km[2] << "\n";
+      // The block's town (spec 48 rule 7): its routes and the time to its capital.
+      if (const int town = zs::gen::choose_town(f, people, seed); town >= 0) {
+        const auto& t = people.towns[static_cast<std::size_t>(town)];
+        const auto& c = people.countries[static_cast<std::size_t>(t.country)];
+        auto town_name = [&](int k) {
+          const auto& s = people.towns[static_cast<std::size_t>(k)];
+          return "town " + std::to_string(k) + " (" + std::to_string(static_cast<long long>(s.people)) + " people, rank " +
+                 std::to_string(s.rank) + ")";
+        };
+        std::cout << "the block's town: " << town_name(town) << " in " << (c.name.empty() ? "(unnamed)" : c.name) << "\n";
+        const int node = routes.node_of[t.cell];
+        for (int ri : routes.of_node[static_cast<std::size_t>(node)]) {
+          const auto& r = routes.routes[static_cast<std::size_t>(ri)];
+          const int other = r.a == node ? r.b : r.a;
+          std::cout << "  to " << town_name(routes.nodes[static_cast<std::size_t>(other)].towns.front()) << ": " << r.hours << " h, road "
+                    << r.km[0] << " km, river " << r.km[1] << " km, sea " << r.km[2] << " km" << (r.crosses_border ? ", border" : "")
+                    << (r.why == zs::gen::RouteWhy::Loop ? " (loop)" : "") << "\n";
+        }
+        for (std::size_t k = 0; k < people.towns.size(); ++k)
+          if (people.towns[k].country == t.country && people.towns[k].rank == 1)
+            std::cout << "  to the capital, " << town_name(static_cast<int>(k)) << ": "
+                      << zs::gen::town_hours(grid, f, people, routes, town, static_cast<int>(k)) << " h\n";
+      }
+      std::cout << "loop detour " << rp.loop_detour << ": mean routes per town cell "
+                << 2.0 * static_cast<double>(routes.routes.size()) / static_cast<double>(std::max<std::size_t>(1, routes.nodes.size()))
+                << "; road circuity (network km over straight km) 150-600 km apart " << zs::gen::road_circuity(grid, routes, 150, 400, seed)
+                << ", 500-2000 km " << zs::gen::road_circuity(grid, routes, 500, 200, seed) << "\n";
+      std::cout << "digest " << zs::gen::routes_digest(routes) << "\n";
+      if (const std::string bmp = arg(argc, argv, "--bmp", ""); !bmp.empty()) {
+        auto raster = zs::atlas::render_planet(grid, f, land, &people.formed, false);
+        zs::atlas::draw_routes(raster, grid, f, land, routes);
+        zs::atlas::write_bmp(bmp, raster);
+        std::cout << "wrote " << bmp << "\n";
+      }
       return 0;
     }
     if (cmd == "houses" || cmd == "house") {  // spec 51
