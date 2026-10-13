@@ -27,6 +27,7 @@ class Payroll;
 class Bonds;
 class PoliceCases;
 class PoliceStaff;
+class Players;
 }  // namespace zs
 
 namespace zs::tier0 {
@@ -64,6 +65,7 @@ struct Tier0 {
   Bonds* bonds = nullptr;                // spec 63 (the one world only)
   PoliceCases* police = nullptr;         // spec 64 (the one world only)
   std::shared_ptr<PoliceStaff> force;    // spec 65: the officers with their shifts (the one world only)
+  Players* players = nullptr;            // spec 66: players and possession (the one world only)
   WorldOwners owners;
   EntityId player = 0;  // the body of the pop at the map's player start
   std::vector<EntityId> group;  // the player first, then survivors who start with it

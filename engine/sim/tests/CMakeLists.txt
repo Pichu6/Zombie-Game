@@ -9,6 +9,7 @@ add_executable(zs_sim_tests
   test_household_bonds.cpp
   test_police_cases.cpp
   test_police_staff.cpp
+  test_players.cpp
   test_missing_persons.cpp
   test_sound_marks.cpp
   test_harness.cpp

@@ -12,6 +12,7 @@
 #include "zs/orders_system.h"
 #include "zs/payroll.h"
 #include "zs/police.h"
+#include "zs/players.h"
 #include "zs/police_staff.h"
 #include "zs/pop_system.h"
 #include "zs/schedule.h"
@@ -283,6 +284,16 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   police->set_staffing([staff, exp = expectations.get()](const World& world) { return staff->capacity(world.clock.tick, exp); },
                        [staff](const World&, std::int64_t now) { return staff->next_change(now); });
   t.police = police.get();
+  // Spec 66: players and possession (decisions 0066, 0068): a possession is an absence like any other. Nobody plays until a
+  // player joins; until then the system has nothing to look at and never wakes.
+  auto players = std::make_unique<Players>(
+      load_possession_params(data_dir() + "/life/possession.toml"), expectations.get(),
+      [reg = &t.pops->registry()](PopId id, std::int64_t tick) {
+        PopSnapshot s;
+        const double year = year_of_tick(tick);
+        return reg->snapshot(id, year, s) && s.base.birth_year <= year && year < s.base.death_year;
+      });
+  t.players = players.get();
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));
   w.add_system(std::move(econ));
@@ -295,6 +306,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   w.add_system(std::move(payroll));
   w.add_system(std::move(bonds));
   w.add_system(std::move(police));
+  w.add_system(std::move(players));
 }
 
 }  // namespace zs::tier0

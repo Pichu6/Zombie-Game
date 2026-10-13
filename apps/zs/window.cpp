@@ -381,6 +381,15 @@ std::optional<Described> describe(const App& a, const Event& e) {
                            (e.a == 0 ? "returned of their own free will" : e.a == 1 ? "found by the police" : "found by others"), "done", kWorld};
     case EventType::ReturnedToWork:
       return Described{pop_name(a, e.subject) + " met the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process"), "done", kWorld};
+    // Spec 66: possession. Player events name the pop in `a`.
+    case EventType::CalledIn:
+      return Described{pop_name(a, e.subject) + " called the people who expected them", "done", kWorld};
+    case EventType::PlayerPossessed:
+      return Described{"You are " + pop_name(a, static_cast<PopId>(e.a)) + (e.b ? " (taken from their life)" : " (home)"), "world", kWorld};
+    case EventType::PlayerLeftBody:
+      return Described{"You left " + pop_name(a, static_cast<PopId>(e.a)) + (e.b ? ", who heads home" : ""), "world", kWorld};
+    case EventType::PlayerBodyDied:
+      return Described{pop_name(a, static_cast<PopId>(e.a)) + (e.b ? ", your home, died" : " died while you were in them"), "alert", kDanger};
     default: break;
   }
   if (auto l = event_line(a.t, e)) {

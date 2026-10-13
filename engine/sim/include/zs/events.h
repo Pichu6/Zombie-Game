@@ -111,6 +111,16 @@ enum class EventType : std::uint16_t {
   PoliceCaseOpened = 83,   // subject = pop, a = risk tier (0 high, 1 medium, 2 low), b = the queue position (0: staffed at once)
   PoliceCaseResolved = 84, // subject = pop, a = who found it (0 own free will, 1 police, 2 other), b = ticks the case was open
   SearchSuspended = 85,    // subject = pop: the search lost its staff (a shift ended or an officer was absent), a = officers on duty, b = searches the force can run
+  // Spec 66: players and possession (decisions 0066, 0068).
+  CalledIn = 86,           // subject = the absent pop that phoned in, a = AbsenceStage it stopped at, b = shifts already missed
+  PlayerJoined = 87,       // subject = player, a = home pop (-1: free cam), b = DetachLevel
+  PlayerPossessed = 88,    // subject = player, a = the pop, b = 1 if it began an absence (the pop is not the player's home)
+  PlayerLeftBody = 89,     // subject = player, a = the pop left, b = the tick it will be home (0: no absence to end)
+  PlayerHomeSet = 90,      // subject = player, a = the new home, b = the old one (-1: none)
+  PlayerPinned = 91,       // subject = player, a = the pop, b = 1 pinned, 0 unpinned
+  PlayerLevelSet = 92,     // subject = player, a = DetachLevel, b = 1 if raised (the save is marked)
+  PlayerBodyDied = 93,     // subject = player, a = the pop, b = 1 if it was the home
+  PlayerRefused = 94,      // subject = player (0 for a join), a = the command type, b = PlayerRefusal
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

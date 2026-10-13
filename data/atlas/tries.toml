@@ -14,6 +14,26 @@ kind = "window"
 added = 2026-10-11
 
 [[try]]
+id = "possess-officer"
+part = "individual"
+spec = "66"
+title = "Possess a police officer"
+what = "A free-camera player takes an officer from his shifts for 80 hours, then leaves him: shifts missed and unpaid, a conduct case on his return (decisions 0068, 0070)."
+run = ["--absence", "--possess", "--officer", "--hours", "80", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-12
+
+[[try]]
+id = "possess-call-in"
+part = "individual"
+spec = "66"
+title = "Possess someone and call in"
+what = "The player takes Oscar Ortega for 30 hours and calls in at once as him: the household's ladder and the employer's count never start (decision 0070 rule 2). Without --call-in his partner phones, asks around and reports him."
+run = ["--absence", "--possess", "--pop", "1", "--hours", "30", "--call-in", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-12
+
+[[try]]
 id = "calendar-window"
 part = "individual"
 spec = "53"

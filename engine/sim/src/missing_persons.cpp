@@ -128,7 +128,9 @@ void MissingPersons::update(World& w) {
   const std::int64_t now = w.clock.tick;
   for (Entry& e : entries_) {
     if (e.away_until != 0 && e.away_until != System::kNever && e.away_until <= now) {
-      if (exp_ && exp_->find(e.pop)) w.queue_intent({0, AbsenceEnd, e.pop, 0, 0});  // back (unless someone else already ended it)
+      // Back, unless someone else already ended it; a possession's absence is the player's to end (spec 66 rule 4).
+      const Expectations::Case* open = exp_ ? exp_->find(e.pop) : nullptr;
+      if (open && open->cause != AbsenceCause::Possessed) w.queue_intent({0, AbsenceEnd, e.pop, 0, 0});
       e.away_until = 0;
       e.next_start = now + gap(w, e);
       ++e.draws;

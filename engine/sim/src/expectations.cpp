@@ -114,45 +114,72 @@ std::optional<Commitment> Expectations::next_shift(PopId pop, std::int64_t from)
 
 void Expectations::apply_command(World& w, const Command& c, EventId cause) {
   if (c.type == AbsenceBegin) {
-    if (find(c.subject)) return refuse(w, c, cause, 1);
-    Case k;
-    k.pop = c.subject;
-    k.began = w.clock.tick;
-    k.cause = c.a >= 0 && c.a < static_cast<std::int64_t>(AbsenceCause::kCount) ? static_cast<AbsenceCause>(c.a) : AbsenceCause::Unknown;
-    const bool phoned_in = c.b != 0;
-    k.begin_event = w.emit(EventType::AbsenceBegan, c.subject, cause, static_cast<std::int64_t>(k.cause), phoned_in ? 1 : 0);
-    k.last_event = k.employer_event = k.begin_event;
-    k.next_tick = kNever;
-    k.shift_check = kNever;
-    if (!phoned_in && next_) {
-      const std::optional<Commitment> due = next_(c.subject, w.clock.tick);
-      if (due && !due->holders.empty()) {  // somebody expects the pop somewhere: the ladder starts if it is still absent then
-        k.stage = AbsenceStage::Waiting;
-        k.kind = due->kind;
-        k.holders = due->holders;
-        const LadderTimes& lt = params_.times[static_cast<int>(due->kind)];
-        k.broken_tick = std::max(w.clock.tick, due->due_tick + minutes(lt.tolerance_min));
-        k.next_tick = k.broken_tick;
-      }  // else no ladder: phoned in, or nobody is told (a hermit's absence goes unnoticed by the household)
-      // The employer counts shifts missed without contact: a phone call from the pop would have ended it (AB-7).
-      if (const std::optional<Commitment> shift = next_shift(c.subject, w.clock.tick)) {
-        k.employer = shift->employer;
-        k.shift_due = shift->due_tick;
-        k.shift_check = std::max(w.clock.tick, shift->due_tick + minutes(params_.times[static_cast<int>(CommitmentKind::ShiftStart)].tolerance_min));
-      }
-    }
-    cases_.push_back(std::move(k));
-    for (Listener* l : listeners_) l->on_absence_begun(w, cases_.back(), cases_.back().begin_event);
+    const AbsenceCause why = c.a >= 0 && c.a < static_cast<std::int64_t>(AbsenceCause::kCount) ? static_cast<AbsenceCause>(c.a) : AbsenceCause::Unknown;
+    if (!begin_absence(w, c.subject, why, c.b != 0, cause)) refuse(w, c, cause, 1);
   } else if (c.type == AbsenceEnd) {
-    const auto it = std::find_if(cases_.begin(), cases_.end(), [&](const Case& k) { return k.pop == c.subject; });
-    if (it == cases_.end()) return refuse(w, c, cause, 2);
-    const std::int64_t gone = w.clock.tick - it->began;
-    const EventId ended = w.emit(EventType::AbsenceEnded, it->pop, it->last_event, static_cast<std::int64_t>(it->stage), gone);
-    if (it->stage >= AbsenceStage::Reported) w.emit(EventType::CaseClosed, it->pop, ended, w.clock.tick - it->broken_tick);
-    meet_employer(w, *it, ended);
-    for (Listener* l : listeners_) l->on_absence_ended(w, *it, ended);
-    cases_.erase(it);
+    if (!end_absence(w, c.subject)) refuse(w, c, cause, 2);
   }
+}
+
+EventId Expectations::begin_absence(World& w, PopId pop, AbsenceCause why, bool phoned_in, EventId cause) {
+  if (find(pop)) return 0;
+  Case k;
+  k.pop = pop;
+  k.began = w.clock.tick;
+  k.cause = why;
+  k.begin_event = w.emit(EventType::AbsenceBegan, pop, cause, static_cast<std::int64_t>(k.cause), phoned_in ? 1 : 0);
+  k.last_event = k.employer_event = k.begin_event;
+  k.next_tick = kNever;
+  k.shift_check = kNever;
+  if (!phoned_in && next_) {
+    const std::optional<Commitment> due = next_(pop, w.clock.tick);
+    if (due && !due->holders.empty()) {  // somebody expects the pop somewhere: the ladder starts if it is still absent then
+      k.stage = AbsenceStage::Waiting;
+      k.kind = due->kind;
+      k.holders = due->holders;
+      const LadderTimes& lt = params_.times[static_cast<int>(due->kind)];
+      k.broken_tick = std::max(w.clock.tick, due->due_tick + minutes(lt.tolerance_min));
+      k.next_tick = k.broken_tick;
+    }  // else no ladder: phoned in, or nobody is told (a hermit's absence goes unnoticed by the household)
+    // The employer counts shifts missed without contact: a phone call from the pop would have ended it (AB-7).
+    if (const std::optional<Commitment> shift = next_shift(pop, w.clock.tick)) {
+      k.employer = shift->employer;
+      k.shift_due = shift->due_tick;
+      k.shift_check = std::max(w.clock.tick, shift->due_tick + minutes(params_.times[static_cast<int>(CommitmentKind::ShiftStart)].tolerance_min));
+    }
+  }
+  cases_.push_back(std::move(k));
+  for (Listener* l : listeners_) l->on_absence_begun(w, cases_.back(), cases_.back().begin_event);
+  return cases_.back().begin_event;
+}
+
+bool Expectations::end_absence(World& w, PopId pop) {
+  const auto it = std::find_if(cases_.begin(), cases_.end(), [&](const Case& k) { return k.pop == pop; });
+  if (it == cases_.end()) return false;
+  const std::int64_t gone = w.clock.tick - it->began;
+  const EventId ended = w.emit(EventType::AbsenceEnded, it->pop, it->last_event, static_cast<std::int64_t>(it->stage), gone);
+  if (it->stage >= AbsenceStage::Reported) w.emit(EventType::CaseClosed, it->pop, ended, w.clock.tick - it->broken_tick);
+  meet_employer(w, *it, ended);
+  for (Listener* l : listeners_) l->on_absence_ended(w, *it, ended);
+  cases_.erase(it);
+  return true;
+}
+
+// The pop phones in (AB-1, AB-7): those who expected it stop where they are, the employer stops counting. Once reported
+// the police hold a case only a return closes. An absence nobody noticed and no employer counts has nobody to call.
+Expectations::CallIn Expectations::phone_in(World& w, PopId pop, EventId why) {
+  for (Case& c : cases_) {
+    if (c.pop != pop) continue;
+    if (c.stage >= AbsenceStage::Reported) return CallIn::TooLate;
+    const bool counting = c.shift_check != kNever && !c.paused && !c.separated;
+    if (c.stage == AbsenceStage::Ordinary && !counting) return CallIn::NothingToCall;
+    c.last_event = c.employer_event = w.emit(EventType::CalledIn, pop, why, static_cast<std::int64_t>(c.stage), c.missed);
+    c.stage = AbsenceStage::Ordinary;
+    c.next_tick = kNever;
+    c.shift_check = kNever;
+    return CallIn::Done;
+  }
+  return CallIn::NoCase;
 }
 
 // On return the employer meets the pop (AB-7): a conduct case for a police employer, a forgiven absence if the pop had been

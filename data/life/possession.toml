@@ -1,0 +1,6 @@
+# Players and possession (decisions 0066, 0068, 0070; spec 66). A pop taken from its life is absent (spec 59); when the
+# player leaves it, it heads home and its absence ends when it gets there. Every number here is a default taken by Claude:
+# none is sourced. It stands in for travel until the world has distances between where the pop was left and its home.
+
+[release]
+return_home_min = 120   # minutes from the release to the pop being home again

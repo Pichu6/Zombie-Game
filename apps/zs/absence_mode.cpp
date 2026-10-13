@@ -2,6 +2,7 @@
 // phone, ask around, report missing, search; then the pop comes back. Prints every step with the game time.
 //   zs --absence [--seed N] [--pop SLOT] [--back-after-hours H] [--phoned-in]
 //   zs --absence --real [--seed N] [--days D] [--rate-scale S]   the world's own disappearances (spec 60)
+//   zs --absence --possess [--officer] [--pop SLOT] [--hours H] [--call-in]   a player takes a pop from its life (spec 66)
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -12,6 +13,8 @@
 #include "zs/gen/place.h"
 #include "zs/missing_persons.h"
 #include "zs/payroll.h"
+#include "zs/players.h"
+#include "zs/police_staff.h"
 #include "zs/tier0.h"
 #include "zs/world.h"
 #include "absence_mode.h"
@@ -22,6 +25,7 @@ namespace {
 
 std::string name_of(const tier0::Tier0& t, PopId id) {
   if (!is_born(id) && founder_slot_of(id) < t.census->people().size()) return t.census->people()[founder_slot_of(id)].name;
+  if (t.force && t.force->is_officer(id)) return "officer " + std::to_string(founder_slot_of(id) - t.census->people().size() + 1);
   return "someone";
 }
 
@@ -56,6 +60,11 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::ReturnedToWork:
       return n(e.subject) + " meets the employer: " + (e.a == 0 ? "forgiven" : e.a == 1 ? "a warning" : "a disciplinary process");
     case EventType::ExpectationRefused: return "refused";
+    case EventType::CalledIn: return n(e.subject) + " calls the people who expected them: away for a while";
+    case EventType::PlayerJoined: return "player " + std::to_string(e.subject) + " joins " + (e.a >= 0 ? "as " + n(static_cast<PopId>(e.a)) : std::string("as a free camera"));
+    case EventType::PlayerPossessed: return "the player takes " + n(e.a) + (e.b ? " from their life" : " (home)");
+    case EventType::PlayerLeftBody: return "the player leaves " + n(e.a) + (e.b ? ", who heads home (there at " + tier0::time_text(e.b) + ")" : "");
+    case EventType::PlayerRefused: return "the player's command is refused (reason " + std::to_string(e.b) + ")";
     default: return "";
   }
 }
@@ -66,7 +75,7 @@ int absence_main(int argc, char** argv) {
   std::uint64_t seed = 1;
   long slot = -1;
   double back_after_h = 48;
-  bool phoned_in = false, real = false;
+  bool phoned_in = false, real = false, possess = false, officer = false, call_in = false;
   double days = 365, rate_scale = 1;
   for (int i = 1; i < argc; ++i) {
     if (!std::strcmp(argv[i], "--seed") && i + 1 < argc) seed = std::strtoull(argv[++i], nullptr, 10);
@@ -76,6 +85,10 @@ int absence_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--real")) real = true;
     else if (!std::strcmp(argv[i], "--days") && i + 1 < argc) days = std::atof(argv[++i]);
     else if (!std::strcmp(argv[i], "--rate-scale") && i + 1 < argc) rate_scale = std::atof(argv[++i]);
+    else if (!std::strcmp(argv[i], "--possess")) possess = true;
+    else if (!std::strcmp(argv[i], "--officer")) officer = true;
+    else if (!std::strcmp(argv[i], "--call-in")) call_in = true;
+    else if (!std::strcmp(argv[i], "--hours") && i + 1 < argc) back_after_h = std::atof(argv[++i]);
   }
   try {
     auto t = zs::gen::make_world(seed);
@@ -105,21 +118,6 @@ int absence_main(int argc, char** argv) {
                     static_cast<double>(t.payroll->wages_ordered()) / 100.0, unpaid);
       return 0;
     }
-    if (slot < 0) {  // the first living adult with another living adult in the household
-      for (std::size_t i = 0; i < people.size() && slot < 0; ++i) {
-        if (is_dead(people[i].fate) || people[i].age < 18 || people[i].household.empty()) continue;
-        for (std::size_t j = 0; j < people.size(); ++j)
-          if (j != i && people[j].household == people[i].household && !is_dead(people[j].fate) && people[j].age >= 16) slot = static_cast<long>(i);
-      }
-    }
-    if (slot < 0 || static_cast<std::size_t>(slot) >= people.size()) {
-      std::printf("no pop to send away (give --pop SLOT)\n");
-      return 1;
-    }
-    const PopId pop = census_pop_id(static_cast<std::uint32_t>(slot));
-    std::printf("the one world, seed %llu: %s (slot %ld) goes away at %s%s; back after %.0f h\n", static_cast<unsigned long long>(seed),
-                people[static_cast<std::size_t>(slot)].name.c_str(), slot, tier0::time_text(0).c_str(), phoned_in ? ", having phoned in" : "", back_after_h);
-    t.world->submit({0, AbsenceBegin, pop, static_cast<std::int64_t>(AbsenceCause::Possessed), phoned_in ? 1 : 0});
     std::size_t shown = 0;
     const auto show = [&] {
       for (; shown < t.world->log.all().size(); ++shown) {
@@ -128,6 +126,43 @@ int absence_main(int argc, char** argv) {
         if (!s.empty()) std::printf("  %s  %s\n", tier0::time_text(e.tick).c_str(), s.c_str());
       }
     };
+    if (possess && officer) {  // spec 66: the player's own example (decision 0070), a police officer taken from his shift
+      if (!t.force || t.force->officers().empty()) {
+        std::printf("no police force in this world\n");
+        return 1;
+      }
+      slot = static_cast<long>(founder_slot_of(t.force->officers().front()));
+    }
+    if (slot < 0) {  // the first living adult with another living adult in the household
+      for (std::size_t i = 0; i < people.size() && slot < 0; ++i) {
+        if (is_dead(people[i].fate) || people[i].age < 18 || people[i].household.empty()) continue;
+        for (std::size_t j = 0; j < people.size(); ++j)
+          if (j != i && people[j].household == people[i].household && !is_dead(people[j].fate) && people[j].age >= 16) slot = static_cast<long>(i);
+      }
+    }
+    if (slot < 0 || (static_cast<std::size_t>(slot) >= people.size() && !possess)) {
+      std::printf("no pop to send away (give --pop SLOT)\n");
+      return 1;
+    }
+    const PopId pop = census_pop_id(static_cast<std::uint32_t>(slot));
+    if (possess) {  // spec 66: a free-camera player possesses the pop, stays, then leaves it; the pop heads home
+      std::printf("the one world, seed %llu: a player takes %s for %.0f h%s\n", static_cast<unsigned long long>(seed), name_of(t, pop).c_str(),
+                  back_after_h, call_in ? ", calling in at once" : "");
+      t.world->submit({0, PlayerJoin, 0, -1, static_cast<std::int64_t>(DetachLevel::Free)});
+      t.world->submit({0, PlayerPossess, 1, static_cast<std::int64_t>(pop), 0});
+      if (call_in) t.world->submit({0, PlayerCallIn, 1, 0, 0});
+      t.world->jump(static_cast<std::int64_t>(back_after_h * static_cast<double>(kTicksPerGameHour)));
+      t.world->submit({0, PlayerDetach, 1, 0, 0});
+      t.world->run_ticks(1);
+      const std::int64_t home = t.players && !t.players->returns().empty() ? t.players->returns().front().at : t.world->clock.tick;
+      t.world->jump(home + kTicksPerGameHour);
+      std::printf("(%llu world steps)\n", static_cast<unsigned long long>(t.world->probes.empty() ? 0 : t.world->probes[0].updates));
+      show();
+      return 0;
+    }
+    std::printf("the one world, seed %llu: %s (slot %ld) goes away at %s%s; back after %.0f h\n", static_cast<unsigned long long>(seed),
+                people[static_cast<std::size_t>(slot)].name.c_str(), slot, tier0::time_text(0).c_str(), phoned_in ? ", having phoned in" : "", back_after_h);
+    t.world->submit({0, AbsenceBegin, pop, static_cast<std::int64_t>(AbsenceCause::Possessed), phoned_in ? 1 : 0});
     const std::int64_t back = static_cast<std::int64_t>(back_after_h * static_cast<double>(kTicksPerGameHour));
     t.world->jump(back);
     std::printf("(%llu world steps for %.0f hours)\n", static_cast<unsigned long long>(t.world->probes.empty() ? 0 : t.world->probes[0].updates), back_after_h);

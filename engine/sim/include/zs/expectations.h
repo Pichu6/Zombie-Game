@@ -122,6 +122,15 @@ class Expectations : public System {
     virtual void on_absence_begun(World&, const Case&, EventId /*began*/) {}   // a pop is absent: an officer absent is staff short (spec 65)
   };
   void add_listener(Listener* listener) { listeners_.push_back(listener); }
+  // The commands' work, for a system that must begin or end an absence in the same tick as its own change (spec 66: a
+  // possession). begin returns the AbsenceBegan event, 0 if the pop is already absent; end returns false if it is not.
+  EventId begin_absence(World& w, PopId pop, AbsenceCause cause, bool phoned_in, EventId why);
+  bool end_absence(World& w, PopId pop);
+  // Spec 66 rule 6: the absent pop phones the people who expect it. Before a report the absence becomes ordinary: the
+  // ladder stops where it stands and the employer counts no more shifts (what was already counted stays). After a report
+  // only a return closes the case.
+  enum class CallIn { Done = 0, NoCase = 1, TooLate = 2, NothingToCall = 3 };
+  CallIn phone_in(World& w, PopId pop, EventId why);
   // Spec 64: the police own the search. With this on, the ladder no longer opens a search by itself an hour after the report;
   // start_search does it when the police have staff for it.
   void set_external_search(bool on) { external_search_ = on; }
