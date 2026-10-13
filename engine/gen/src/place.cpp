@@ -4,7 +4,10 @@
 #include <cmath>
 #include <optional>
 
+#include "toml.hpp"
 #include "zs/fields.h"
+#include "zs/gen/stations.h"
+#include "zs/police_staff.h"
 
 namespace zs::gen {
 
@@ -98,7 +101,37 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   const WorldPeople people = populate_world(grid, f, land, deposits, seed, load_group_tables(data), load_real_profiles(data), cp);
   const int town = choose_town(f, people, seed);
   const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
-  return zs::tier0::make_run(seed, place, settings.start_day);
+  return zs::tier0::make_run(seed, place, settings.start_day, station_fragments(place, seed));
+}
+
+std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::uint64_t seed) {
+  const std::string data = zs::tier0::data_dir();
+  const Catalog cat = load_catalog(data + "/gen");
+  Mix mix = load_mix(data + "/gen/populations/tier0_block.toml");  // the town record the block's directory comes from
+  const Town town = generate_town(cat, mix, seed);
+  const zs::AgencyParams ap = zs::load_agency_params(data + "/services/police.toml", place.profile);
+  const zs::ForceParams fp = zs::load_force_params(data + "/institutions/police/force.toml", place.profile, place.income);
+  const zs::AgencyPlan agency = zs::plan_agency(ap, place.town_people, fp.min_officers);  // the same plan the one world sizes its force by
+  const DwellingRules rules = load_dwelling_rules(data + "/gen");
+  // The frame a fragment must fit: the block's map. A floor may be as deep as the frame less the lot's front and back.
+  const toml::table block = toml::parse_file(data + "/tier0/map/block.toml");
+  const int frame_h = block["map"]["height"].value_or(28);
+  const auto stations = plan_stations(cat, town, agency, ap.shifts, load_station_rules(data + "/gen"), rules, seed,
+                                      frame_h - rules.lot_front - rules.lot_back);
+  std::vector<zs::tier0::Fragment> out;
+  int first = 0;
+  for (const Station& s : stations) {
+    zs::tier0::Fragment fr;
+    fr.toml = station_toml(town, s, rules, seed);
+    fr.z = 10 * (s.index + 1);  // station 1 from level 10, station 2 from level 20, ...
+    fr.kind = "police_station";
+    fr.name = s.name;
+    fr.first_officer = first;
+    fr.officers = s.sworn;
+    first += s.sworn;
+    out.push_back(std::move(fr));
+  }
+  return out;
 }
 
 }  // namespace zs::gen

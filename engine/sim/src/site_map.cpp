@@ -121,6 +121,8 @@ void SiteMap::load_file(World& w, Assemblies& items, const std::string& path) {
   levels_.clear();
   for (const auto& lv : *levels) levels_.push_back(lv.as_table()->get("z")->value<int>().value());
   const std::size_t n_levels = levels_.size();
+  level_sites_.assign(n_levels, 0);
+  sites_ = 1;
   floors_.assign(n_levels * height_ * width_, Floor::None);
   h_edges_.assign(n_levels * (height_ + 1) * width_, Edge{});
   v_edges_.assign(n_levels * height_ * (width_ + 1), Edge{});
@@ -182,6 +184,89 @@ void SiteMap::load_file(World& w, Assemblies& items, const std::string& path) {
       blocked_[cell_index(o.at)] = true;
   dirty_ = true;
   ++version_;
+}
+
+int SiteMap::site_of(int z) const {
+  const int i = level_index(z);
+  return i < 0 || static_cast<std::size_t>(i) >= level_sites_.size() ? -1 : level_sites_[static_cast<std::size_t>(i)];
+}
+
+// Spec 70: the fragment's levels are appended after the map's, so every cell, edge and floor index the map already had
+// keeps its value (floor entities are numbered by level index, spec 14).
+int SiteMap::add_site(World& w, Assemblies& items, const std::string& toml_text, int z_base) {
+  if (!w.ledger.setup_open()) throw std::logic_error("map: a site may only be added during setup");
+  const toml::table t = toml::parse(toml_text);
+  const int fw = t["map"]["width"].value<int>().value_or(0), fh = t["map"]["height"].value<int>().value_or(0);
+  if (fw <= 0 || fh <= 0 || fw > width_ || fh > height_)
+    throw std::runtime_error("map: a site of " + std::to_string(fw) + " x " + std::to_string(fh) + " does not fit the map's " +
+                             std::to_string(width_) + " x " + std::to_string(height_));
+  const auto* levels = t["level"].as_array();
+  if (!levels) throw std::runtime_error("map: a site has no [[level]] tables");
+  const int site = sites_++;
+  for (const auto& lv : *levels) {
+    const int z = z_base + lv.as_table()->get("z")->value<int>().value();
+    if (level_index(z) >= 0) throw std::runtime_error("map: level " + std::to_string(z) + " is taken");
+    levels_.push_back(z);
+    level_sites_.push_back(site);
+  }
+  const std::size_t n_levels = levels_.size();
+  const std::size_t h_before = h_edges_.size(), v_before = v_edges_.size();
+  floors_.resize(n_levels * height_ * width_, Floor::None);
+  h_edges_.resize(n_levels * (height_ + 1) * width_, Edge{});
+  v_edges_.resize(n_levels * height_ * (width_ + 1), Edge{});
+  blocked_.resize(floors_.size(), false);
+  for (const auto& lv : *levels) {
+    const auto& tab = *lv.as_table();
+    const int z = z_base + tab["z"].value<int>().value();
+    const auto lines = split_lines(tab["grid"].value<std::string>().value());
+    if (static_cast<int>(lines.size()) != 2 * fh + 1) throw std::runtime_error("map: site level " + std::to_string(z) + " has the wrong number of rows");
+    auto at = [&](int row, int col) -> char {
+      const std::string& line = lines[row];
+      return col < static_cast<int>(line.size()) ? line[col] : ' ';
+    };
+    for (int y = 0; y < fh; ++y)
+      for (int x = 0; x < fw; ++x) floors_[cell_index({z, x, y})] = floor_from_char(at(2 * y + 1, 2 * x + 1));
+    for (int y = 0; y <= fh; ++y)
+      for (int x = 0; x < fw; ++x) edge(EdgeRef{z, x, y, false}).kind = edge_from_char(at(2 * y, 2 * x + 1));
+    for (int y = 0; y < fh; ++y)
+      for (int x = 0; x <= fw; ++x) edge(EdgeRef{z, x, y, true}).kind = edge_from_char(at(2 * y + 1, 2 * x));
+  }
+  // Assemblies for the new edges only, in the same fixed order as load_file.
+  const int quality = t["map"]["build_quality"].value_or(50);
+  auto make = [&](std::vector<Edge>& edges, std::size_t from) {
+    for (std::size_t i = from; i < edges.size(); ++i) {
+      Edge& e = edges[i];
+      if (e.kind == EdgeKind::None) continue;
+      const auto def = items.find_def(def_for(e.kind));
+      if (!def) throw std::runtime_error(std::string("map: missing item def ") + def_for(e.kind));
+      e.assembly = items.create(w, *def, quality, Locations::kWorld);
+    }
+  };
+  make(h_edges_, h_before);
+  make(v_edges_, v_before);
+  const auto shifted = [&](Cell c) {
+    c.z += z_base;
+    return c;
+  };
+  if (const auto* st = t["stairs"].as_array())
+    for (const auto& x : *st)
+      stairs_.push_back({shifted(cell_from(x.as_table()->get("a")->as_array())), shifted(cell_from(x.as_table()->get("b")->as_array()))});
+  // Its furniture blocks by the site's own list; the map's list is left as it was.
+  std::vector<std::string> blocking;
+  if (const auto* bl = t["blocking"].as_array())
+    for (const auto& k : *bl) blocking.push_back(k.value<std::string>().value());
+  if (const auto* objs = t["object"].as_array())
+    for (const auto& o : *objs) {
+      const auto& ot = *o.as_table();
+      MapObject mo{ot["kind"].value<std::string>().value(), shifted(cell_from(ot["at"].as_array())), ot["id"].value_or(std::string{}), {}};
+      for (const auto& [key, value] : ot)
+        if (auto v = value.value<double>()) mo.amounts.emplace_back(std::string(key.str()), *v);
+      if (in_bounds(mo.at) && std::find(blocking.begin(), blocking.end(), mo.kind) != blocking.end()) blocked_[cell_index(mo.at)] = true;
+      objects_.push_back(std::move(mo));
+    }
+  dirty_ = true;
+  ++version_;
+  return site;
 }
 
 void SiteMap::set_open(const EdgeRef& e, bool open) {

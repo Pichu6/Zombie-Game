@@ -77,13 +77,19 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::PlayerJoined: return "player " + std::to_string(e.subject) + " joins " + (e.a >= 0 ? "as " + n(static_cast<PopId>(e.a)) : std::string("as a free camera"));
     case EventType::PlayerPossessed: return "the player takes " + n(e.a) + (e.b ? " from their life" : " (home)");
     case EventType::PlayerLeftBody: return "the player leaves " + n(e.a) + (e.b ? ", who heads home (there at " + tier0::time_text(e.b) + ")" : "");
-    case EventType::ArrivedOnMap: return n(e.a) + " comes onto the block (where the player starts)";
-    case EventType::LeftMap: return n(e.a) + " leaves the block" + (e.b ? " (leaving what they carried)" : "");
+    case EventType::ArrivedOnMap: {  // spec 70: at a place beside the block (a police station), or on the block itself
+      const Cell at = unpack_cell(e.b);
+      if (const int site = t.map->site_of(at.z); site > 0)
+        for (const auto& s : t.sites)
+          if (s.number == site) return n(e.a) + " arrives at " + s.name + " (spec 70: a fragment, cold until now)";
+      return n(e.a) + " comes onto the block (where the player starts)";
+    }
+    case EventType::LeftMap: return n(e.a) + " leaves" + (e.b ? " (leaving what they carried)" : "");
     case EventType::Bite: return "a walker bites " + body_name(t, static_cast<EntityId>(e.a));
     case EventType::Grabbed: return "a walker grabs " + body_name(t, static_cast<EntityId>(e.a));
     case EventType::Death:
       return t.bodies->exists(e.subject) && t.bodies->get(e.subject).pop && !t.census->person_of(e.subject) ? body_name(t, e.subject) + " dies" : "";
-    case EventType::PopEmbodied: return n(e.subject) + " gets a body from the pool (not on the map)";
+    case EventType::PopEmbodied: return n(e.subject) + " gets a body from the pool";
     case EventType::PopDisembodied: return e.b ? n(e.subject) + " died in that body" : n(e.subject) + "'s body goes back to the pool; its state is kept";
     case EventType::PlayerRefused: return "the player's command is refused (reason " + std::to_string(e.b) + ")";
     default: return "";

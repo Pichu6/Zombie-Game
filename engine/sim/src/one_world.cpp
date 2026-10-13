@@ -1,5 +1,6 @@
 // The one world (spec 41): the run's Tier 0 systems plus the pop registry, the economy, orders and the grid tree,
 // with the census rows as the registry's founders. Spec: docs/tier0/specs/41-one-world.md
+#include <functional>
 #include <memory>
 #include <stdexcept>
 
@@ -207,8 +208,9 @@ NextCommitment make_commitments(const Census& census, const CalendarSystem& cale
 // there (the pop AI leaves it to the player); anyone else (an officer, a row with no body) gets a pool body.
 class WorldHands : public Hands {
  public:
-  WorldHands(const Census* census, Bodies* bodies, Actors* actors, PopAI* ai, const Run* run, PopSystem* pops, Cell gate)
-      : census_(census), bodies_(bodies), actors_(actors), ai_(ai), run_(run), pops_(pops), gate_(gate) {}
+  WorldHands(const Census* census, Bodies* bodies, Actors* actors, PopAI* ai, const Run* run, PopSystem* pops,
+             std::function<Cell(PopId)> arrival)
+      : census_(census), bodies_(bodies), actors_(actors), ai_(ai), run_(run), pops_(pops), arrival_(std::move(arrival)) {}
   Found body_of(const World&, PopId pop) const override {
     const EntityId body = map_body(pop);
     if (body == 0) return {Where::Nowhere, 0};
@@ -223,20 +225,22 @@ class WorldHands : public Hands {
   EntityId embody(World& w, PopId pop, EventId cause) override { return pops_->embody_pop(w, pop, cause); }
   bool disembody(World& w, PopId pop, EventId cause) override { return pops_->disembody_pop(w, pop, cause); }
   std::int64_t dwell_ticks() const override { return pops_->dwell_ticks(); }
+  // Spec 70: an officer comes in at his own station's door when the town's stations are loaded beside the block.
   // Spec 68: a pool body comes onto the block where the player starts (inside the main building, by the group), idle, and
   // leaves the block when the player leaves it: what it carries stays on the floor where it stood, and it is off the map
   // (away). Not the yard gate: during the outbreak the street there has walkers from the first minute (measured: dead in 47).
   bool pool_on_map() const override { return true; }
   void arrive(World& w, EntityId body, EventId cause) override {
     Actor& a = actors_->actor(body);
-    a.pos = gate_;
+    const Cell at = arrival_(bodies_->get(body).pop);
+    a.pos = at;
     a.action = Action{};
     a.queue.clear();
     a.heading = -1;
     a.noise_db = 0;
     Body& b = bodies_->get(body);
     b.away = false;
-    w.emit(EventType::ArrivedOnMap, body, cause, static_cast<std::int64_t>(b.pop), pack_cell(gate_));
+    w.emit(EventType::ArrivedOnMap, body, cause, static_cast<std::int64_t>(b.pop), pack_cell(at));
   }
   void leave(World& w, EntityId body, EventId cause) override {
     actors_->apply_command(w, {w.clock.tick, static_cast<std::uint16_t>(CommandType::Cancel), body, 0, 0}, cause);  // drops what is in the hands
@@ -268,7 +272,7 @@ class WorldHands : public Hands {
   PopAI* ai_;
   const Run* run_;
   PopSystem* pops_;
-  Cell gate_;
+  std::function<Cell(PopId)> arrival_;
 };
 
 }  // namespace
@@ -387,7 +391,18 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
         return reg->snapshot(id, year, s) && s.base.birth_year <= year && year < s.base.death_year;
       });
   t.players = players.get();
-  t.hands = std::make_shared<WorldHands>(t.census, t.bodies, t.actors, t.ai, t.run, t.pops, *gate);
+  // Spec 70: an officer of the town's force arrives at his station's door (stations take the officers in agency order).
+  const Cell player_start = *gate;
+  const std::vector<Site> sites = t.sites;
+  t.hands = std::make_shared<WorldHands>(t.census, t.bodies, t.actors, t.ai, t.run, t.pops,
+                                         [player_start, sites, census_size, officers](PopId pop) {
+                                           if (is_born(pop) || founder_slot_of(pop) < census_size) return player_start;
+                                           const int k = static_cast<int>(founder_slot_of(pop) - census_size);
+                                           if (k >= officers) return player_start;
+                                           for (const Site& s : sites)
+                                             if (s.kind == "police_station" && k >= s.first_officer && k < s.first_officer + s.officers) return s.door;
+                                           return player_start;
+                                         });
   players->set_hands(t.hands.get());
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));

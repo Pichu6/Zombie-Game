@@ -26,9 +26,9 @@ added = 2026-10-12
 [[try]]
 id = "possess-officer"
 part = "individual"
-spec = "68"
+spec = "70"
 title = "Possess a police officer"
-what = "A free-camera player takes an officer from his shift for 4 hours: he gets a body and comes onto the block (spec 68), misses a shift unpaid, leaves the block, and meets a conduct case on his return (decisions 0068, 0070). With --hours 30 he is left standing on the block during the outbreak and does not survive."
+what = "A free-camera player takes an officer from his shift: he gets a body and arrives at his own police station, a place beside the block made from the town's records (spec 70); he misses a shift unpaid, leaves, and meets a conduct case on his return (decisions 0068, 0070, 0077)."
 run = ["--absence", "--possess", "--officer", "--hours", "4", "--seed", "{seed}"]
 kind = "text"
 added = 2026-10-12

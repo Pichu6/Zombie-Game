@@ -285,17 +285,22 @@ std::string house_toml(const Town& town, const Dwelling& d, const DwellingRules&
   return building_toml(d, rules, seed, header.str(), "home", hh.home);  // rule 7: the household's census home
 }
 
-std::string building_toml(const Dwelling& d, const DwellingRules& rules, std::uint64_t seed, const std::string& header,
-                          const std::string& marker_kind, const std::string& marker_id) {
-  const Keyed r(mix64(seed, hash_str("interior")));
+namespace {
+
+// One floor of a building as a site-map grid at double resolution (spec 09). Floor 0 stands on its lot (the street in
+// front, a path to the door, fences around); an upper floor (spec 70) is the footprint alone, with no doors out.
+std::string floor_grid(const Dwelling& d, int level) {
   const int lw = d.lot_width, ld = d.lot_depth, hx = d.house_x, hy = d.house_y;
-  // Floors.
-  std::vector<char> floor(static_cast<std::size_t>(lw * ld), '"');
-  for (int x = 0; x < lw; ++x) floor[static_cast<std::size_t>(x)] = '_';  // the street
-  for (int y = 1; y < hy; ++y) floor[static_cast<std::size_t>(y * lw + hx + d.corridor_x)] = ':';  // the path
+  const bool ground = level == 0;
+  std::vector<char> floor(static_cast<std::size_t>(lw * ld), ground ? '"' : ' ');
+  if (ground) {
+    for (int x = 0; x < lw; ++x) floor[static_cast<std::size_t>(x)] = '_';  // the street
+    for (int y = 1; y < hy; ++y) floor[static_cast<std::size_t>(y * lw + hx + d.corridor_x)] = ':';  // the path
+  }
   std::vector<int> room_of(static_cast<std::size_t>(d.width * d.depth), -1);  // -1: the corridor
   for (std::size_t i = 0; i < d.rooms.size(); ++i) {
     const Room& rm = d.rooms[i];
+    if (rm.floor != level) continue;
     for (int y = rm.y; y < rm.y + rm.h; ++y)
       for (int x = rm.x; x < rm.x + rm.w; ++x) room_of[static_cast<std::size_t>(y * d.width + x)] = static_cast<int>(i);
   }
@@ -309,11 +314,13 @@ std::string building_toml(const Dwelling& d, const DwellingRules& rules, std::ui
   std::vector<char> top(static_cast<std::size_t>((ld + 1) * lw), ' '), left(static_cast<std::size_t>(ld * (lw + 1)), ' ');
   auto set_top = [&](int x, int y, char c) { top[static_cast<std::size_t>(y * lw + x)] = c; };
   auto set_left = [&](int x, int y, char c) { left[static_cast<std::size_t>(y * (lw + 1) + x)] = c; };
-  for (int y = 1; y < ld; ++y) {  // fences on the sides and back
-    set_left(0, y, '=');
-    set_left(lw, y, '=');
+  if (ground) {
+    for (int y = 1; y < ld; ++y) {  // fences on the sides and back
+      set_left(0, y, '=');
+      set_left(lw, y, '=');
+    }
+    for (int x = 0; x < lw; ++x) set_top(x, ld, '=');
   }
-  for (int x = 0; x < lw; ++x) set_top(x, ld, '=');
   for (int y = 0; y < d.depth; ++y)  // inside walls between different rooms (or a room and the corridor)
     for (int x = 0; x < d.width; ++x) {
       const int here = room_of[static_cast<std::size_t>(y * d.width + x)];
@@ -328,9 +335,12 @@ std::string building_toml(const Dwelling& d, const DwellingRules& rules, std::ui
     set_left(hx, hy + y, '#');
     set_left(hx + d.width, hy + y, '#');
   }
-  set_top(hx + d.corridor_x, hy, 'E');            // the front door, on the street side
-  set_top(hx + d.corridor_x, hy + d.depth, 'E');  // the back door
+  if (ground) {
+    set_top(hx + d.corridor_x, hy, 'E');            // the front door, on the street side
+    set_top(hx + d.corridor_x, hy + d.depth, 'E');  // the back door
+  }
   for (const Room& rm : d.rooms) {
+    if (rm.floor != level) continue;
     const bool on_left = rm.x < d.corridor_x;
     const int mid_y = rm.y + rm.h / 2, mid_x = rm.x + rm.w / 2;
     set_left(hx + (on_left ? d.corridor_x : d.corridor_x + 1), hy + mid_y, 'D');  // every room opens on the corridor
@@ -338,7 +348,6 @@ std::string building_toml(const Dwelling& d, const DwellingRules& rules, std::ui
     if (rm.y == 0) set_top(hx + mid_x, hy, 'W');
     if (rm.y + rm.h == d.depth) set_top(hx + mid_x, hy + d.depth, 'W');
   }
-  // The grid at double resolution (spec 09).
   std::ostringstream grid;
   for (int gy = 0; gy <= 2 * ld; ++gy) {
     for (int gx = 0; gx <= 2 * lw; ++gx) {
@@ -348,16 +357,37 @@ std::string building_toml(const Dwelling& d, const DwellingRules& rules, std::ui
     }
     grid << "\n";
   }
-  std::vector<Placed> objects = furnish(d, rules, r);
-  if (!marker_kind.empty()) objects.push_back({marker_kind, marker_id, d.corridor_x, 0, {}});
+  return grid.str();
+}
+
+}  // namespace
+
+std::string building_toml(const Dwelling& d, const DwellingRules& rules, std::uint64_t seed, const std::string& header,
+                          const std::string& marker_kind, const std::string& marker_id) {
+  const Keyed r(mix64(seed, hash_str("interior")));
+  const int floors = std::max(1, d.floors);
+  // Furniture floor by floor: each floor's rooms alone, keyed apart from the ground floor's (spec 70).
+  std::vector<std::pair<int, Placed>> objects;
+  for (int f = 0; f < floors; ++f) {
+    Dwelling on = d;
+    on.rooms.clear();
+    for (const Room& rm : d.rooms)
+      if (rm.floor == f) on.rooms.push_back(rm);
+    if (f > 0) on.household = d.household + 100'000 * f;
+    for (Placed& p : furnish(on, rules, r)) objects.emplace_back(f, std::move(p));
+  }
+  if (!marker_kind.empty()) objects.emplace_back(0, Placed{marker_kind, marker_id, d.corridor_x, 0, {}});
   std::ostringstream out;
   out << header << "\n\n";
   out << "blocking = [";
   for (std::size_t i = 0; i < rules.blocking.size(); ++i) out << (i ? ", " : "") << '"' << rules.blocking[i] << '"';
-  out << "]\n\n[map]\nname = \"" << d.address << "\"\nwidth = " << lw << "\nheight = " << ld << "\nbuild_quality = 50\n\n";
-  out << "[[level]]\nz = 0\ngrid = '''\n" << grid.str() << "'''\n";
-  for (const Placed& o : objects) {
-    out << "\n[[object]]\nkind = \"" << o.kind << "\"\nat = [0, " << hx + o.x << ", " << hy + o.y << "]\n";
+  out << "]\n\n[map]\nname = \"" << d.address << "\"\nwidth = " << d.lot_width << "\nheight = " << d.lot_depth << "\nbuild_quality = 50\n\n";
+  for (int f = 0; f < floors; ++f) out << (f ? "\n" : "") << "[[level]]\nz = " << f << "\ngrid = '''\n" << floor_grid(d, f) << "'''\n";
+  for (int f = 0; f + 1 < floors; ++f)  // spec 70: stairs at the back of the corridor, floor to floor
+    out << "\n[[stairs]]\na = [" << f << ", " << d.house_x + d.corridor_x << ", " << d.house_y + d.depth - 1 << "]\nb = [" << f + 1 << ", "
+        << d.house_x + d.corridor_x << ", " << d.house_y + d.depth - 1 << "]\n";
+  for (const auto& [f, o] : objects) {
+    out << "\n[[object]]\nkind = \"" << o.kind << "\"\nat = [" << f << ", " << d.house_x + o.x << ", " << d.house_y + o.y << "]\n";
     if (!o.id.empty()) out << "id = \"" << o.id << "\"\n";
     for (const auto& [key, v] : o.amounts) out << key << " = " << v << "\n";
   }

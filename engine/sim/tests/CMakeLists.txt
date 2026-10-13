@@ -12,6 +12,7 @@ add_executable(zs_sim_tests
   test_players.cpp
   test_possession_body.cpp
   test_police_agency.cpp
+  test_site_fragments.cpp
   test_missing_persons.cpp
   test_sound_marks.cpp
   test_harness.cpp

@@ -34,6 +34,7 @@ struct Room {
   int x = 0, y = 0, w = 0, h = 0;
   int occupants = 0;
   std::string seat = "bed";  // what each occupant gets (spec 69: a desk, a locker; a bed never blocks)
+  int floor = 0;             // spec 70: the floor it is on (0: the ground floor)
 };
 
 struct Dwelling {
@@ -43,12 +44,13 @@ struct Dwelling {
   std::string income;
   double target_area_m2 = 0;
   int width = 0, depth = 0;  // the footprint in 1 m cells; width faces the street
+  int floors = 1;            // spec 70: floors of the same footprint, joined by stairs at the back of the corridor
   int corridor_x = 0;        // the corridor's column inside the footprint
   int lot_width = 0, lot_depth = 0, house_x = 0, house_y = 0;  // the lot, and the footprint's origin in it
   std::vector<Room> rooms;
   bool fridge = true, bathroom = true;
   std::int64_t pantry_kj = 0, fridge_kj = 0;
-  int floor_area() const { return width * depth; }
+  int floor_area() const { return width * depth * (floors > 1 ? floors : 1); }
   int beds() const;
 };
 

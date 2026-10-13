@@ -332,6 +332,8 @@ struct Described {
 // A pop id's name from the census (the founders); "someone" for anyone else (a born pop is not in the census).
 std::string pop_name(const App& a, PopId id) {
   if (a.t.census && !is_born(id) && founder_slot_of(id) < a.t.census->people().size()) return a.t.census->people()[founder_slot_of(id)].name;
+  if (a.t.census && a.t.force && a.t.force->is_officer(id))  // spec 68: the town's officers, numbered after the census
+    return "Officer " + std::to_string(founder_slot_of(id) - a.t.census->people().size() + 1);
   return "someone";
 }
 
@@ -1300,8 +1302,13 @@ void time_bar(App& a) {
                         at.biome.c_str(), std::abs(at.lat_deg), at.lat_deg < 0 ? "S" : "N", std::abs(at.lon_deg), at.lon_deg < 0 ? "W" : "E",
                         at.elevation_m, place->outdoor_c(w), place->today_rain_mm(w));
   }
-  ImGui::Text("Grid %s | generator %s, %.1f L | level %d (PgUp/PgDn)%s | overlay:", p.mains_alive() ? "on" : "DEAD",
-              p.generator_running() ? "running" : "off", fuel_l, a.level, a.follow ? "" : " | F: follow again");
+  // Spec 70: a level of another place (a police station beside the block) says which place and which floor.
+  std::string where = "level " + std::to_string(a.level);
+  if (const int site = a.t.map->site_of(a.level); site > 0)
+    for (const auto& s : a.t.sites)
+      if (s.number == site) where = s.name + ", floor " + std::to_string(a.level - s.door.z);
+  ImGui::Text("Grid %s | generator %s, %.1f L | %s (PgUp/PgDn)%s | overlay:", p.mains_alive() ? "on" : "DEAD",
+              p.generator_running() ? "running" : "off", fuel_l, where.c_str(), a.follow ? "" : " | F: follow again");
   ImGui::SameLine();
   int ov = static_cast<int>(a.overlay);
   ImGui::RadioButton("none", &ov, 0);

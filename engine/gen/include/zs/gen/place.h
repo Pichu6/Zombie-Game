@@ -40,4 +40,8 @@ struct WorldSettings {
 // town and builds the run there, with that town's country. What zs.exe opens and plays.
 zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings = {});
 
+// Spec 70 (decision 0077): the police stations of the block's town as fragments for make_run, from its agency (spec 69),
+// each fitting the block map's frame (floors added as needed) and loaded from level 10, 20, ...
+std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::uint64_t seed);
+
 }  // namespace zs::gen

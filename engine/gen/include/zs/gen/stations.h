@@ -30,9 +30,11 @@ struct Station {
   Dwelling plan;  // the building (a corridor, two bands of rooms, a lot), as houses are planned
 };
 
-// Rules 6-8: one record per station of the agency, numbered on the town's streets.
+// Rules 6-8: one record per station of the agency, numbered on the town's streets. Spec 70: `max_depth` (cells; 0 = none)
+// is the deepest a floor may be, so a station fits a site's frame; rooms that do not fit go up a floor.
 std::vector<Station> plan_stations(const Catalog& cat, const Town& town, const AgencyPlan& agency, int shifts,
-                                   const StationRules& rules, const DwellingRules& dwelling_rules, std::uint64_t seed);
+                                   const StationRules& rules, const DwellingRules& dwelling_rules, std::uint64_t seed,
+                                   int max_depth = 0);
 // The station on its lot with its interior (rule 9), as a site-map TOML; the object `police_station` marks its front door.
 std::string station_toml(const Town& town, const Station& s, const DwellingRules& dwelling_rules, std::uint64_t seed);
 

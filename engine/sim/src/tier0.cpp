@@ -14,12 +14,14 @@ namespace zs::tier0 {
 
 namespace {
 Tier0 build(std::uint64_t seed, bool with_dead, int group, bool run, const Place& place = default_place(),
-            std::int64_t start_day = kDefaultStartDay);
+            std::int64_t start_day = kDefaultStartDay, const std::vector<Fragment>& fragments = {});
 }
 
 Tier0 make_world(std::uint64_t seed, bool with_dead, int group) { return build(seed, with_dead, group, false); }
 
-Tier0 make_run(std::uint64_t seed, const Place& place, std::int64_t start_day) { return build(seed, true, 1, true, place, start_day); }
+Tier0 make_run(std::uint64_t seed, const Place& place, std::int64_t start_day, const std::vector<Fragment>& fragments) {
+  return build(seed, true, 1, true, place, start_day, fragments);
+}
 
 namespace {
 void setup_run(Tier0& t, const std::string& path) {
@@ -77,7 +79,8 @@ void setup_run(Tier0& t, const std::string& path) {
   t.run->start(w, t.player, radio, stranger_tick, bitten, broadcast, end);
 }
 
-Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Place& place, std::int64_t start_day) {
+Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Place& place, std::int64_t start_day,
+            const std::vector<Fragment>& fragments) {
   if (group > 0 && !with_dead) throw std::invalid_argument("make_world: a group needs the census");
   Tier0 t;
   t.world = std::make_unique<World>(seed);
@@ -122,6 +125,21 @@ Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Pl
   load_item_defs(*t.items, data + "/tier0/items.toml");
   if (is_run) t.map->set_scenario("run");
   t.map->load_file(w, *t.items, data + "/tier0/map/block.toml");
+  // Spec 70: the places beside the block, before anything indexes the map (the actors index its edges next).
+  for (const Fragment& f : fragments) {
+    Site s;
+    s.kind = f.kind;
+    s.name = f.name;
+    s.number = t.map->add_site(w, *t.items, f.toml, f.z);
+    s.first_officer = f.first_officer;
+    s.officers = f.officers;
+    std::optional<Cell> door;
+    for (const MapObject& o : t.map->objects())
+      if (o.kind == f.kind && o.id == f.name && t.map->site_of(o.at.z) == s.number) door = o.at;
+    if (!door) throw std::runtime_error("one world: the fragment " + f.name + " has no " + f.kind + " marker");
+    s.door = *door;
+    t.sites.push_back(std::move(s));
+  }
   t.actors->load_processes(data + "/tier0/processes.toml");
   t.actors->populate(w);
   t.power->load_file(data + "/tier0/power.toml");

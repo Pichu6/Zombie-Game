@@ -152,7 +152,8 @@ std::optional<Cell> PopAI::safe_cell(const World& w, EntityId body, const std::v
   const Cell from = actors_.actor(body).pos;
   // One cell per indoor room (the first in scan order), scored by distance to the nearest threat.
   std::map<int, Cell> rep;
-  for (int z : map_.levels())
+  for (int z : map_.levels()) {
+    if (!map_.same_site(z, from.z)) continue;  // spec 70: another place (a station) is not a room of this one
     for (int y = 0; y < map_.height(); ++y)
       for (int x = 0; x < map_.width(); ++x) {
         const Cell c{z, x, y};
@@ -160,6 +161,7 @@ std::optional<Cell> PopAI::safe_cell(const World& w, EntityId body, const std::v
         if (r < 0 || !map_.passable(c) || !map_.rooms()[static_cast<std::size_t>(r)].indoor) continue;
         rep.try_emplace(r, c);
       }
+  }
   std::vector<std::pair<double, Cell>> scored;
   for (const auto& [r, c] : rep) {
     double s = 1e9;
@@ -381,7 +383,7 @@ bool PopAI::plan_want(World& w, PopMind& m, Doing want) {
       // Sleep upstairs when there is an upstairs: walkers have to break in and climb first.
       std::optional<Cell> bed;
       for (int z : map_.levels())
-        for (int y = 0; y < map_.height() && !bed; ++y)
+        for (int y = 0; y < map_.height() && !bed && map_.same_site(z, pos.z); ++y)  // spec 70: not in another place
           for (int x = 0; x < map_.width() && !bed; ++x) {
             const Cell c{z, x, y};
             if (z > pos.z && map_.passable(c) && is_indoor(map_.floor(c)) && !map_.find_path(pos, c).empty()) bed = c;

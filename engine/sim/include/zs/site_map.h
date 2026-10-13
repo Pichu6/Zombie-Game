@@ -74,9 +74,18 @@ class SiteMap : public System {
   void set_scenario(const std::string& s) { scenario_ = s; }
   void load_file(World& w, Assemblies& items, const std::string& path);
 
+  // Spec 70: a fragment (another place, such as a town's police station) added beside the map as levels of its own, its
+  // level z at z_base + z. No stairs join it to the map's levels, so nothing walks, sees or hears between them. Setup only,
+  // after load_file and before anything indexes the map; the fragment must fit the map's width and height. Returns its
+  // site number (1, 2, ...; the map itself is site 0).
+  int add_site(World& w, Assemblies& items, const std::string& toml_text, int z_base);
+
   int width() const { return width_; }
   int height() const { return height_; }
   const std::vector<int>& levels() const { return levels_; }
+  // Spec 70: which site a level belongs to (0: the map itself), and whether two levels are in the same place.
+  int site_of(int z) const;
+  bool same_site(int z1, int z2) const { return site_of(z1) == site_of(z2); }
   bool in_bounds(const Cell& c) const;
   Floor floor(const Cell& c) const;
   bool walkable(const Cell& c) const { return floor(c) != Floor::None; }
@@ -132,6 +141,8 @@ class SiteMap : public System {
   std::string scenario_;
   int width_ = 0, height_ = 0;
   std::vector<int> levels_;
+  std::vector<int> level_sites_;  // spec 70: per level, its site (0: the map itself)
+  int sites_ = 1;
   std::vector<Floor> floors_;
   std::vector<Edge> h_edges_;  // per level: (height + 1) rows x width
   std::vector<Edge> v_edges_;  // per level: height rows x (width + 1)

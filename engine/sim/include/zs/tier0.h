@@ -34,6 +34,23 @@ struct Hands;
 
 namespace zs::tier0 {
 
+// Spec 70: a place made beside the block (decision 0077): a site map (one or more levels from z = 0) loaded as levels of
+// its own from `z`, joined to nothing. A police station names the officers whose station it is, in the agency's order.
+struct Fragment {
+  std::string toml;
+  int z = 10;
+  std::string kind = "police_station";
+  std::string name;
+  int first_officer = 0, officers = 0;  // officers [first, first + officers) of the town's force
+};
+// A fragment as the one world holds it: where its door is, once loaded.
+struct Site {
+  std::string kind, name;
+  int number = 0;  // SiteMap::add_site's site number
+  Cell door;       // the cell inside its front door (its marker object)
+  int first_officer = 0, officers = 0;
+};
+
 // Spec 41: the owners the one world sets up (the run only).
 struct WorldOwners {
   OwnerId country = 0, region = 0;
@@ -70,6 +87,7 @@ struct Tier0 {
   Players* players = nullptr;            // spec 66: players and possession (the one world only)
   std::shared_ptr<Hands> hands;          // spec 67: how the players reach bodies (the one world only)
   AgencyPlan agency;                     // spec 69: the town's police agency by its size (the one world only)
+  std::vector<Site> sites;               // spec 70: the places loaded beside the block (the one world from zs::gen::make_world)
   WorldOwners owners;
   EntityId player = 0;  // the body of the pop at the map's player start
   std::vector<EntityId> group;  // the player first, then survivors who start with it
@@ -87,7 +105,9 @@ Tier0 make_world(std::uint64_t seed, bool with_dead = false, int group = 0);
 // Spec 41: it is the one world: the census rows are the registry's founders, and the registry, the economy,
 // orders and the grid tree run in it after the Tier 0 systems.
 // Spec 42: `place` is the block's cell on a generated planet (zs::gen::make_world); the default is a placeholder.
-Tier0 make_run(std::uint64_t seed, const Place& place = default_place(), std::int64_t start_day = kDefaultStartDay);
+// Spec 70: `fragments` are loaded beside the block (the town's police stations); none by default.
+Tier0 make_run(std::uint64_t seed, const Place& place = default_place(), std::int64_t start_day = kDefaultStartDay,
+               const std::vector<Fragment>& fragments = {});
 
 // Spec 41: adds the world-scale systems to a run under setup (called by make_run; src/one_world.cpp).
 void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day = kDefaultStartDay);

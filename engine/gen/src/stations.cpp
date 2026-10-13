@@ -25,44 +25,59 @@ double room_m2(const StationRules& r, const std::string& type) {
 }
 
 // Rule 8: the two-band plan houses use (spec 51 rule 4), from each room's target area: the lobby at the front on the
-// left, the others to the lighter band; a room is never smaller than its door cell, its seats, its kit and a way between.
+// left, the others to the shallower band; a room is never smaller than its door cell, its seats, its kit and a way
+// between. Spec 70: with a depth limit (a site's frame), a room that fits neither band starts the next floor up.
 void lay_out(Dwelling& d, std::vector<Room> rooms, const std::vector<double>& target, const StationRules& rules,
-             const DwellingRules& dr) {
+             const DwellingRules& dr, int max_depth) {
   double total = 0;
   for (double t : target) total += t;
   const int width = std::clamp(static_cast<int>(std::lround(std::sqrt(total * 1.3))), rules.min_width, rules.max_width);
   const int left_w = (width - 1) / 2, right_w = width - 1 - left_w;
-  std::vector<int> left, right;
-  double load_left = 0, load_right = 0;
-  for (std::size_t i = 0; i < rooms.size(); ++i) {
-    const bool to_left = rooms[i].type == "lobby" || (rooms[i].type != "lobby" && load_left <= load_right);
-    (to_left ? left : right).push_back(static_cast<int>(i));
-    (to_left ? load_left : load_right) += target[i];
-  }
-  for (auto* band : {&left, &right})
-    for (int i : *band) {
-      Room& room = rooms[static_cast<std::size_t>(i)];
-      room.w = band == &left ? left_w : right_w;
-      room.x = band == &left ? 0 : left_w + 1;
-      const auto kit = dr.kits.find(room.type);
-      const int need = room.occupants + (kit == dr.kits.end() ? 0 : static_cast<int>(kit->second.size())) + 2;
-      room.h = std::max({2, static_cast<int>(std::ceil(target[static_cast<std::size_t>(i)] / room.w)), (need + room.w - 1) / room.w});
-    }
-  auto band_depth = [&](const std::vector<int>& band) {
-    int s = 0;
-    for (int i : band) s += rooms[static_cast<std::size_t>(i)].h;
-    return s;
+  const auto height = [&](std::size_t i, int w) {
+    const auto kit = dr.kits.find(rooms[i].type);
+    const int need = rooms[i].occupants + (kit == dr.kits.end() ? 0 : static_cast<int>(kit->second.size())) + 2;
+    const int h = std::max({2, static_cast<int>(std::ceil(target[i] / w)), (need + w - 1) / w});
+    return max_depth > 0 ? std::min(h, max_depth) : h;
   };
-  const int depth = std::max(band_depth(left), band_depth(right));
-  for (auto* band : {&left, &right}) {
-    int y = 0;
-    for (int i : *band) {
-      rooms[static_cast<std::size_t>(i)].y = y;
-      y += rooms[static_cast<std::size_t>(i)].h;
+  std::vector<std::vector<int>> left(1), right(1);  // per floor, the rooms of each band in order
+  std::vector<int> depth_left(1, 0), depth_right(1, 0);
+  for (std::size_t i = 0; i < rooms.size(); ++i) {
+    int f = static_cast<int>(left.size()) - 1;
+    const int hl = height(i, left_w), hr = height(i, right_w);
+    const bool fits_left = max_depth <= 0 || depth_left[f] + hl <= max_depth;
+    const bool fits_right = max_depth <= 0 || depth_right[f] + hr <= max_depth;
+    bool to_left = rooms[i].type == "lobby" || depth_left[f] <= depth_right[f];
+    if (to_left && !fits_left && fits_right) to_left = false;
+    if (!to_left && !fits_right && fits_left) to_left = true;
+    if (!fits_left && !fits_right) {  // the next floor up
+      left.emplace_back();
+      right.emplace_back();
+      depth_left.push_back(0);
+      depth_right.push_back(0);
+      ++f;
+      to_left = true;
     }
-    if (!band->empty()) rooms[static_cast<std::size_t>(band->back())].h += depth - y;  // the last room takes what is left
+    Room& room = rooms[i];
+    room.floor = f;
+    room.w = to_left ? left_w : right_w;
+    room.x = to_left ? 0 : left_w + 1;
+    room.h = to_left ? hl : hr;
+    (to_left ? left : right)[static_cast<std::size_t>(f)].push_back(static_cast<int>(i));
+    (to_left ? depth_left : depth_right)[static_cast<std::size_t>(f)] += room.h;
   }
+  int depth = 0;
+  for (std::size_t f = 0; f < left.size(); ++f) depth = std::max({depth, depth_left[f], depth_right[f]});
+  for (auto* bands : {&left, &right})
+    for (const std::vector<int>& band : *bands) {
+      int y = 0;
+      for (int i : band) {
+        rooms[static_cast<std::size_t>(i)].y = y;
+        y += rooms[static_cast<std::size_t>(i)].h;
+      }
+      if (!band.empty()) rooms[static_cast<std::size_t>(band.back())].h += depth - y;  // the last room takes what is left
+    }
   d.rooms = std::move(rooms);
+  d.floors = static_cast<int>(left.size());
   d.width = width;
   d.depth = depth;
   d.corridor_x = left_w;
@@ -97,7 +112,8 @@ StationRules load_station_rules(const std::string& gen_dir) {
 }
 
 std::vector<Station> plan_stations(const Catalog& cat, const Town& town, const AgencyPlan& agency, int shifts,
-                                   const StationRules& rules, const DwellingRules& dwelling_rules, std::uint64_t seed) {
+                                   const StationRules& rules, const DwellingRules& dwelling_rules, std::uint64_t seed,
+                                   int max_depth) {
   const Keyed r(mix64(seed, hash_str("stations")));
   const int n = std::max(1, agency.stations);
   const BusinessType* police = cat.business("police");
@@ -134,20 +150,21 @@ std::vector<Station> plan_stations(const Catalog& cat, const Town& town, const A
       rooms.push_back(room);
       target.push_back(m2);
     };
+    // Spec 70: the rooms the public and the detained use first (the ground floor of a station of several floors).
     add("lobby", room_m2(rules, "lobby"));
-    add("squad", std::max(9.0, rules.desk_m2 * on_shift), on_shift, "desk");
     add("office", room_m2(rules, "office"), 1, "desk");
+    add("evidence", room_m2(rules, "evidence"));
+    for (int c = 0; c < s.cells; ++c) add("cell", room_m2(rules, "cell"), 1, "bed");
+    for (int w = 0; w < 1 + (s.sworn + s.civilians) / 30; ++w) add("washroom", room_m2(rules, "washroom"));
+    add("squad", std::max(9.0, rules.desk_m2 * on_shift), on_shift, "desk");
     if (s.investigators > 0) add("investigators", rules.desk_m2 * s.investigators, s.investigators, "desk");
     if (s.civilians > 0) add("records", rules.desk_m2 * s.civilians, s.civilians, "desk");
     add("locker", std::max(6.0, rules.locker_m2 * (s.sworn + 2)), s.sworn, "locker");
-    add("evidence", room_m2(rules, "evidence"));
-    for (int w = 0; w < 1 + (s.sworn + s.civilians) / 30; ++w) add("washroom", room_m2(rules, "washroom"));
-    for (int c = 0; c < s.cells; ++c) add("cell", room_m2(rules, "cell"), 1, "bed");
     s.plan.household = 1'000'000 + i;  // keys the furniture apart from every house
     s.plan.street = s.street;
     s.plan.number = s.number;
     s.plan.address = s.address;
-    lay_out(s.plan, std::move(rooms), target, rules, dwelling_rules);
+    lay_out(s.plan, std::move(rooms), target, rules, dwelling_rules, max_depth);
     out.push_back(std::move(s));
   }
   return out;
@@ -157,7 +174,8 @@ std::string station_toml(const Town& town, const Station& s, const DwellingRules
   std::ostringstream header;
   header << "# Generated by zs gen station (spec 69): " << s.name << ", " << s.address << ", " << town.name << "; " << s.sworn
          << " sworn (" << s.patrol << " patrol, " << s.investigators << " investigators), " << s.civilians << " civilians, " << s.cells
-         << (s.cells == 1 ? " holding cell, " : " holding cells, ") << s.plan.floor_area() << " m2.";
+         << (s.cells == 1 ? " holding cell, " : " holding cells, ") << s.plan.floor_area() << " m2"
+         << (s.plan.floors > 1 ? " on " + std::to_string(s.plan.floors) + " floors." : ".");
   return building_toml(s.plan, dwelling_rules, seed, header.str(), "police_station", s.name);
 }
 
