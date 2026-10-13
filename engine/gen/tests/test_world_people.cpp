@@ -2,12 +2,15 @@
 #include <doctest.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "zs/gen/place.h"
 #include "zs/gen/world_people.h"
+#include "zs/world.h"
 
 using namespace zs::gen;
 
@@ -86,6 +89,7 @@ TEST_CASE("world people: income groups hold their real shares; towns follow rank
       }
     const double want = c.people * p.tables.urban_share[static_cast<std::size_t>(c.income)];
     if (want > 1e6) CHECK(urban == doctest::Approx(want).epsilon(0.10));
+    if (sizes.size() >= 10) sizes.pop_back();  // spec 78 rule 3: the last town holds what is left, off the line
     if (sizes.size() >= 10) {  // least-squares slope of log size on log rank is -1/zeta
       double sx = 0, sy = 0, sxx = 0, sxy = 0;
       for (std::size_t i = 0; i < sizes.size(); ++i) {
@@ -94,7 +98,7 @@ TEST_CASE("world people: income groups hold their real shares; towns follow rank
       }
       const double nn = static_cast<double>(sizes.size());
       const double slope = (nn * sxy - sx * sy) / (nn * sxx - sx * sx);
-      CHECK(std::abs(-1.0 / slope - kRankSizeZeta) < 0.1);
+      CHECK(std::abs(-1.0 / slope - c.zeta) < 0.1);  // spec 78 rule 3: each country's own exponent
     }
   }
 }
@@ -153,4 +157,63 @@ TEST_CASE("real profiles (spec 49): each country takes a real profile of its own
   const auto t = make_world(1);
   CHECK_FALSE(t.place->place().country_name.empty());
   CHECK_FALSE(t.place->place().profile.empty());
+}
+
+// Spec 78: sizes that fit the real world.
+
+TEST_CASE("spec 78: income groups hold countries of their real sizes; the largest towns follow primacy (A2)" *
+          doctest::skip(zs::World::kDebugBuild)) {
+  const auto profiles = load_real_profiles(ZS_DATA_DIR);
+  for (std::uint64_t seed : {1ull, 4ull}) {
+    const Planet p = planet(kOneWorldFrequency, seed, profiles);
+    const WorldPeople& w = p.people;
+    std::array<double, kIncomeGroups> largest{};
+    for (const RealProfile& r : profiles) largest[static_cast<std::size_t>(r.income)] = std::max(largest[static_cast<std::size_t>(r.income)], r.population);
+    const double scale = w.total_people / p.tables.world_population;
+    double any = 0;  // a country larger than every group's largest keeps the group it had (rule 1)
+    for (double l : largest) any = std::max(any, l);
+    for (const Country& c : w.countries)
+      if (c.people <= kGroupSizeTolerance * any * scale) CHECK(c.people <= kGroupSizeTolerance * largest[static_cast<std::size_t>(c.income)] * scale * (1 + 1e-9));
+    std::vector<double> urban(w.countries.size(), 0);
+    std::vector<double> top(w.countries.size(), 0);
+    std::size_t ten = 0, five = 0, one = 0;
+    for (const Settlement& t : w.towns) {
+      urban[static_cast<std::size_t>(t.country)] += t.people;
+      if (t.rank == 1) top[static_cast<std::size_t>(t.country)] = t.people;
+      CHECK(t.people < 50e6);
+      ten += t.people >= 10e6;
+      five += t.people >= 5e6 && t.people < 10e6;
+      one += t.people >= 1e6 && t.people < 5e6;
+    }
+    for (std::size_t k = 0; k < w.countries.size(); ++k) {
+      if (urban[k] <= 0) continue;
+      const Country& c = w.countries[k];
+      const double want = c.people * p.tables.urban_share[static_cast<std::size_t>(c.income)];
+      CHECK(std::abs(urban[k] - want) <= kTownMinPeople);  // the towns hold the urban people, all but a last town's worth
+      CHECK(top[k] >= std::min(want, kPrimacyMin * want) - 1);
+      CHECK(top[k] <= want + 1);
+      CHECK(c.zeta >= kZetaMin);
+      CHECK(c.zeta <= kZetaMax);
+    }
+    // DR-4: the median country's largest town holds 30 % of its urban people (middle half 20-40 %).
+    std::vector<double> shares;
+    for (std::size_t k = 0; k < w.countries.size(); ++k)
+      if (urban[k] > 0) shares.push_back(top[k] / urban[k]);
+    std::sort(shares.begin(), shares.end());
+    REQUIRE(!shares.empty());
+    const double median = shares[shares.size() / 2];
+    CHECK(median > 0.20);
+    CHECK(median < 0.45);
+    // DR-1: 33 of 10 million or more, 48 of 5-10 million, 467 of 1-5 million: within half to twice.
+    CHECK(ten >= 33 / 2);
+    CHECK(ten <= 33 * 2);
+    CHECK(five >= 48 / 2);
+    CHECK(five <= 48 * 2);
+    CHECK(one >= 467 / 2);
+    CHECK(one <= 467 * 2);
+    double biggest = 0;
+    for (const Country& c : w.countries) biggest = std::max(biggest, c.people);
+    MESSAGE("seed " << seed << ": agglomerations 10M+ " << ten << " (33), 5-10M " << five << " (48), 1-5M " << one
+                    << " (467); primacy median " << median << " (0.30); the most populous country " << biggest / 1e6 << " million");
+  }
 }

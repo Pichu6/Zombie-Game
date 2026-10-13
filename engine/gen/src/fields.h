@@ -22,6 +22,7 @@ enum : std::uint32_t {
   // World fields (spec 31): keyed by plate index or cell id.
   PlateSeed = 100, PlateType = 101, PlateOmega = 102, PlateWeight = 103, PlateOffset = 104,
   PlateAge = 105, CellCost = 106, Rough = 107,
+  Primacy = 113,  // spec 78 rule 2: a country's primacy, keyed by country index
   // Spec 31 rules 2-4 revised (2026-10-09): keyed points and noise channels, resolution-independent.
   PlatePoint = 108, NoiseCost = 109, NoiseElev = 110, NoiseWarp = 111, Hotspot = 112,
 };

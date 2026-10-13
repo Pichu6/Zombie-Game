@@ -113,7 +113,12 @@ Step route_step(const WorldGrid& grid, const WorldFields& fields, const WorldLan
     if (river < road) s.hours = river, s.mode = RouteMode::River;
   }
   const int cu = country_at(people, u), cv = country_at(people, v);
-  if (cu != cv && cu >= 0 && cv >= 0) s.border = true, s.hours += params.border_hours;
+  if (cu != cv && cu >= 0 && cv >= 0) {  // spec 78 rule 4: the poorer of the two groups
+    const int poorer = std::max(people.countries[static_cast<std::size_t>(cu)].income, people.countries[static_cast<std::size_t>(cv)].income);
+    s.border = true;
+    s.border_hours = params.border_hours[static_cast<std::size_t>(poorer)];
+    s.hours += s.border_hours;
+  }
   return s;
 }
 
@@ -205,6 +210,7 @@ WorldRoutes build_routes(const WorldGrid& grid, const WorldFields& fields, const
       r.crosses_border = r.crosses_border || s.border;
       r.ports += s.port;
       r.borders += s.border;
+      r.border_hours += s.border_hours;
     }
     const int idx = static_cast<int>(w.routes.size());
     w.of_node[static_cast<std::size_t>(r.a)].push_back(idx);

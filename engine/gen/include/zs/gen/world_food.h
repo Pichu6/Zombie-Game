@@ -9,12 +9,12 @@
 
 namespace zs::gen {
 
-// Relative freight costs (road tonne-km = 1). Estimates taken by Claude (WSR-45 gives only the order). The border cost
-// moves the share traded across borders little (19 % free, 17.5 % at 3,000 road-km on seed 1; spec 76 As built).
+// Relative freight costs (road tonne-km = 1). Estimates taken by Claude (WSR-45 gives only the order). Spec 78 rule 5: a
+// border costs its hours (spec 74 by income) at the open road's moving speed (DR-6: 40-60 km/h).
 struct FreightParams {
   double road = 1.0, river = 0.3, sea = 0.1;  // per km
   double port_road_km = 150;                   // a port's handling, in road-km
-  double border_road_km = 300;                 // a border's cost in road-km (customs, papers, tariffs, distrust)
+  double border_road_km_per_hour = 50;         // spec 78 rule 5: a border hour, in road-km
   // Rule 1: what is grown, against what is needed: the land's capacity (spec 52) is what it could feed, not what is farmed.
   // WSR-44: world production supports 2,700-3,000 kcal a person a day against the 2,500 spec 52 counts a person needs.
   double grown_vs_need = 1.15;

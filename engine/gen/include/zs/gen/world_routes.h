@@ -25,7 +25,9 @@ struct RouteParams {
   double river_kmh = 12;            // barge on a large river
   double sea_kmh = 30;              // a cargo ship, about 16 knots
   double port_hours = 12;           // loading or unloading at a port
-  double border_hours = 2;          // crossing into another country on land
+  // Spec 78 rule 4: crossing into another country on land costs the poorer group's hours (high first): estimates
+  // anchored on DR-8 (none inside Schengen, 9-24 h on average in southern Africa).
+  std::array<double, kIncomeGroups> border_hours = {0.5, 3, 8, 24};
   double loop_detour = 1.8;         // rule 5: calibrated so road circuity lands at WSR-43 (spec 74 As built)
 };
 
@@ -43,6 +45,7 @@ struct Route {
   double hours = 0;
   bool crosses_border = false;
   int ports = 0, borders = 0;         // spec 76: steps through a port, steps into another country
+  double border_hours = 0;            // spec 78 rule 4: the hours its borders cost
   RouteWhy why = RouteWhy::Tree;
 };
 
@@ -60,6 +63,7 @@ struct Step {
   double hours = 0, km = 0;
   RouteMode mode = RouteMode::Road;
   bool port = false, border = false;
+  double border_hours = 0;  // spec 78 rule 4
 };
 Step route_step(const WorldGrid& grid, const WorldFields& fields, const WorldLand& land, const WorldPeople& people,
                 const RouteParams& params, CellId u, CellId v);

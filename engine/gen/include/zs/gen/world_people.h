@@ -48,6 +48,7 @@ struct Country {
   bool landlocked = false;
   int income = 0;               // index into kIncomeGroupIds (rule 5)
   std::string profile, name;    // spec 49: the real profile it takes (ISO3) and its parody name; empty: the base country
+  double zeta = 0;              // spec 78 rule 3: its towns' rank-size exponent (0: no towns)
 };
 
 struct Settlement {
@@ -70,6 +71,18 @@ inline constexpr double kEarthLandKm2 = 148.9e6;
 inline constexpr double kSectorTargetKm2 = 3.0e6;
 inline constexpr double kRankSizeZeta = 1.11;    // Soo (2005), mean over 73 countries
 inline constexpr double kTownMinPeople = 10'000;
+// Spec 78 rule 1: a country may be up to this times its income group's largest real profile (estimate).
+inline constexpr double kGroupSizeTolerance = 1.25;
+// Spec 78 rule 2: the largest town's share of urban people: the median min(cap, a x urban^-b) (b and a fitted by Claude to
+// DR-4's twelve large countries; the cap is DR-4's median over all countries), times exp(sd x z) for a country's keyed
+// unit-normal z (sd from DR-4's middle half, 20-40 %), clamped to [min, 1].
+inline constexpr double kPrimacyA = 21143.0, kPrimacyB = 0.641, kPrimacyCap = 0.30, kPrimacySd = 0.52, kPrimacyMin = 0.02;
+// Spec 78 rule 3: zeta's real range (DR-12).
+inline constexpr double kZetaMin = 0.81, kZetaMax = 1.96;
+// Spec 78 rule 2: no town larger than the world's largest agglomerations (DR-2: Jakarta about 42 million, Tokyo 37).
+inline constexpr double kTownMaxPeople = 45e6;
+double primacy_median(double urban_people);
+double primacy_share(double urban_people, double z);
 
 double suitability(const WorldFields& f, CellId c);
 // With `profiles`, each country takes one (spec 49).

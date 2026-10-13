@@ -269,9 +269,9 @@ int gen_main(int argc, char** argv) {
                                                   zs::gen::load_real_profiles(tables));
       const auto routes = zs::gen::build_routes(grid, f, land, people);
       zs::gen::FreightParams fp;
-      fp.border_road_km = std::atof(arg(argc, argv, "--border", std::to_string(fp.border_road_km)).c_str());
+      fp.border_road_km_per_hour = std::atof(arg(argc, argv, "--border", std::to_string(fp.border_road_km_per_hour)).c_str());
       const auto food = zs::gen::food_flows(land, people, routes, fp);
-      std::cout << "Food (spec 76), seed " << seed << ", border " << fp.border_road_km << " road-km: production "
+      std::cout << "Food (spec 76), seed " << seed << ", a border hour " << fp.border_road_km_per_hour << " road-km: production "
                 << food.production / 1e9 << " billion people-years, demand " << food.demand / 1e9 << "; traded "
                 << 100.0 * food.traded / food.production << "% of production, across borders " << 100.0 * food.international_share()
                 << "% (WSR-44: about 23%); unmet " << 100.0 * food.unmet / food.demand << "% of demand; " << food.flows.size()

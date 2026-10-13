@@ -26,7 +26,7 @@ int country_of_node(const WorldPeople& people, const WorldRoutes& routes, int no
 
 double freight_cost(const Route& r, const FreightParams& p) {
   return r.km[static_cast<int>(RouteMode::Road)] * p.road + r.km[static_cast<int>(RouteMode::River)] * p.river +
-         r.km[static_cast<int>(RouteMode::Sea)] * p.sea + r.ports * p.port_road_km + r.borders * p.border_road_km;
+         r.km[static_cast<int>(RouteMode::Sea)] * p.sea + r.ports * p.port_road_km + r.border_hours * p.border_road_km_per_hour;
 }
 
 namespace {

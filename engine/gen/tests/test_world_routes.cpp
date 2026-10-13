@@ -119,7 +119,9 @@ TEST_CASE("routes: a step is symmetric; rivers are faster than roads only where 
       }
       if (a.border) {
         ++borders;
-        CHECK(a.hours >= rp.border_hours);
+        CHECK(a.border_hours >= rp.border_hours[0]);
+        CHECK(a.border_hours <= rp.border_hours[kIncomeGroups - 1]);
+        CHECK(a.hours >= a.border_hours);
       }
     }
   CHECK(ports > 0);
@@ -167,7 +169,7 @@ TEST_CASE("routes: the same seed gives the same routes (A1)") {
   const WorldRoutes again = build_routes(p.grid, p.fields, p.land, p.people);
   CHECK(routes_digest(again) == routes_digest(p.routes));
   MESSAGE("routes digest: " << routes_digest(p.routes));
-  CHECK(routes_digest(p.routes) == 3624137318276354128ULL);  // pinned on MSVC, 2026-10-13
+  CHECK(routes_digest(p.routes) == 9151648403758374117ULL);  // pinned on MSVC, 2026-10-13 (spec 78: borders by income)
 }
 
 TEST_CASE("routes: the one world's grid, its trunk network and circuity, the block's town to its capital (A2)" *

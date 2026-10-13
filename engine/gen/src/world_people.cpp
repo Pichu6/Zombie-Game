@@ -87,6 +87,16 @@ std::vector<RealProfile> load_real_profiles(const std::string& data_dir) {
   return out;
 }
 
+double primacy_median(double urban_people) {
+  if (urban_people <= 0) return 1.0;
+  return std::min(kPrimacyCap, kPrimacyA * detmath::pow(urban_people, -kPrimacyB));
+}
+
+double primacy_share(double urban_people, double z) {
+  const double s = primacy_median(urban_people) * detmath::exp(kPrimacySd * z);
+  return s < kPrimacyMin ? kPrimacyMin : s > 1.0 ? 1.0 : s;
+}
+
 WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const WorldLand& land, const WorldDeposits& deposits,
                            std::uint64_t seed, const GroupTables& tables, const std::vector<RealProfile>& profiles,
                            const CountryParams& country_params) {
@@ -240,6 +250,15 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
   std::iota(by_dev.begin(), by_dev.end(), std::size_t{0});
   std::stable_sort(by_dev.begin(), by_dev.end(), [&](std::size_t a, std::size_t b) { return w.countries[a].development > w.countries[b].development; });
   const double group_total = std::accumulate(tables.population.begin(), tables.population.end(), 0.0);
+  // Spec 78 rule 1: a group holds countries of its real sizes: none larger than the tolerance times the group's largest
+  // real profile, scaled to this planet's people. Without profiles no group is closed.
+  std::array<double, kIncomeGroups> largest{};
+  for (const RealProfile& p : profiles) largest[static_cast<std::size_t>(p.income)] = std::max(largest[static_cast<std::size_t>(p.income)], p.population);
+  const double planet_scale = tables.world_population > 0 ? w.total_people / tables.world_population : 1.0;
+  auto fits = [&](int group, double people_count) {
+    const double cap = largest[static_cast<std::size_t>(group)];
+    return cap <= 0 || people_count <= kGroupSizeTolerance * cap * planet_scale;
+  };
   double before = 0;
   for (std::size_t k : by_dev) {
     Country& c = w.countries[k];
@@ -249,6 +268,12 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     for (int i = 0; i < kIncomeGroups; ++i) {
       edge += tables.population[static_cast<std::size_t>(i)] / group_total;
       if (mid < edge) { c.income = i; break; }
+    }
+    if (!fits(c.income, c.people)) {  // the nearest group it fits, poorer first
+      for (int step = 1; step < kIncomeGroups; ++step) {
+        if (c.income + step < kIncomeGroups && fits(c.income + step, c.people)) { c.income += step; break; }
+        if (c.income - step >= 0 && fits(c.income - step, c.people)) { c.income -= step; break; }
+      }
     }
     before += c.people;
   }
@@ -296,32 +321,63 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     }
   }
 
-  // Rule 6: towns by rank-size in each country's most populous cells.
+  // Rule 6: towns by rank-size in each country's most populous cells (spec 78 rules 2-3: the largest from primacy, the
+  // others by the country's own exponent).
   for (std::size_t k = 0; k < w.countries.size(); ++k) {
     const Country& c = w.countries[k];
     const double urban = c.people * tables.urban_share[static_cast<std::size_t>(c.income)];
-    // The sizes of K towns sum to 10,000 K^(1/zeta) H_K, H_K = sum of i^(-1/zeta): grows with K, so take the last K
-    // that still fits.
-    int count = 0;
-    double harmonic = 0;
-    for (int K = 1; K <= 1'000'000; ++K) {
-      harmonic += detmath::pow(K, -1.0 / kRankSizeZeta);
-      if (kTownMinPeople * detmath::pow(K, 1.0 / kRankSizeZeta) * harmonic > urban) break;
-      count = K;
+    if (urban < kTownMinPeople) continue;
+    // Spec 78 rule 2: the largest town from primacy.
+    const double z = Keyed(seed).bell(k, field::Primacy) / 0.2887;  // about a unit normal, as the country's luck
+    double first = std::max(kTownMinPeople, std::min({urban, kTownMaxPeople, primacy_share(urban, z) * urban}));
+    // Spec 78 rule 3: town i = first x i^(-1/zeta) down to the smallest town; zeta in the real range so they hold the
+    // urban people. The sum is found in closed form (Euler-Maclaurin) for the search; the towns are then placed one by one
+    // until the urban people are used up (the last takes what is left, none under the smallest size).
+    auto sum_for = [&](double zeta, double top) {
+      const double a = 1.0 / zeta, K = std::max(1.0, std::floor(detmath::pow(top / kTownMinPeople, zeta)));
+      const double tail = std::abs(1 - a) < 1e-9 ? detmath::log(K) : (detmath::pow(K, 1 - a) - 1) / (1 - a);
+      return top * (tail + 0.5 * (1 + detmath::pow(K, -a)));
+    };
+    auto approx_sum = [&](double zeta) { return sum_for(zeta, first); };
+    // Even the flattest real exponent cannot hold the urban people under so small a largest town: the largest town grows
+    // until they fit (up to the urban people or the largest agglomeration), rather than a spike of smallest towns.
+    if (sum_for(kZetaMax, first) < urban) {
+      double lo = first, hi = std::min(urban, std::max(first, kTownMaxPeople));
+      if (sum_for(kZetaMax, hi) <= urban) {
+        first = hi;
+      } else {
+        for (int it = 0; it < 60; ++it) {
+          const double mid = 0.5 * (lo + hi);
+          (sum_for(kZetaMax, mid) < urban ? lo : hi) = mid;
+        }
+        first = hi;
+      }
     }
-    if (count == 0) continue;
+    double zeta = kZetaMin;
+    if (approx_sum(kZetaMax) <= urban) {
+      zeta = kZetaMax;
+    } else if (approx_sum(kZetaMin) < urban) {
+      double lo = kZetaMin, hi = kZetaMax;
+      for (int it = 0; it < 60; ++it) {
+        const double mid = 0.5 * (lo + hi);
+        (approx_sum(mid) < urban ? lo : hi) = mid;
+      }
+      zeta = 0.5 * (lo + hi);
+    }
     std::vector<std::pair<double, CellId>> left;  // people not yet in a town, by cell
     for (int s : c.sectors)
       for (CellId cell : w.sectors[static_cast<std::size_t>(s)].cells) left.push_back({w.people[cell], cell});
-    const double first = kTownMinPeople * detmath::pow(count, 1.0 / kRankSizeZeta);
-    for (int i = 1; i <= count; ++i) {
+    double remaining = urban;
+    for (int i = 1; remaining >= kTownMinPeople; ++i) {
+      const double size = std::round(std::min(remaining, std::max(kTownMinPeople, first * detmath::pow(i, -1.0 / zeta))));
       auto it = std::max_element(left.begin(), left.end(), [](const auto& a, const auto& b) {
         return a.first < b.first || (a.first == b.first && a.second > b.second);
       });
-      const double size = std::round(first * detmath::pow(i, -1.0 / kRankSizeZeta));
       w.towns.push_back({it->second, static_cast<int>(k), i, size});
       it->first -= size;
+      remaining -= size;
     }
+    w.countries[k].zeta = zeta;
   }
   return w;
 }

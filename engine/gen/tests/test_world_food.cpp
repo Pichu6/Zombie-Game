@@ -121,9 +121,9 @@ TEST_CASE("food: flows run from surplus to deficit at the cheapest path's cost; 
 TEST_CASE("food: a dearer border never raises the share traded across borders; the same seed gives the same flows (A1)") {
   const Planet& p = planet(1);
   double last = 2;
-  for (double border : {0.0, 300.0, 3000.0, 30000.0}) {
+  for (double border : {0.0, 50.0, 500.0, 5000.0}) {
     FreightParams fp;
-    fp.border_road_km = border;
+    fp.border_road_km_per_hour = border;
     const double share = food_flows(p.land, p.people, p.routes, fp).international_share();
     CHECK(share <= last + 1e-9);
     last = share;
@@ -131,7 +131,7 @@ TEST_CASE("food: a dearer border never raises the share traded across borders; t
   const WorldFood a = food_flows(p.land, p.people, p.routes), b = food_flows(p.land, p.people, p.routes);
   CHECK(food_digest(a) == food_digest(b));
   MESSAGE("food digest: " << food_digest(a));
-  CHECK(food_digest(a) == 5213081340530729606ULL);  // pinned on MSVC, 2026-10-13
+  CHECK(food_digest(a) == 11922799756605238581ULL);  // pinned on MSVC, 2026-10-13 (spec 78)
 }
 
 TEST_CASE("food: on the one world's grid the share traded across borders lands near 23 % (WSR-44) (A2)" *
@@ -189,7 +189,7 @@ TEST_CASE("food by kind: kinds trade more across borders than one food; the same
   CHECK(d.international_share() > food_flows(p.land, p.people, p.routes).international_share());
   CHECK(diet_digest(d) == diet_digest(food_by_kind(p.fields, p.land, p.people, p.routes)));
   MESSAGE("diet digest: " << diet_digest(d));
-  CHECK(diet_digest(d) == 2105106697373866771ULL);  // pinned on MSVC, 2026-10-13
+  CHECK(diet_digest(d) == 419929362921953450ULL);  // pinned on MSVC, 2026-10-13 (spec 78)
 }
 
 TEST_CASE("food by kind: on the one world's grid the share across borders lands between 18 % and 30 % (WSR-44) (A2)" *
