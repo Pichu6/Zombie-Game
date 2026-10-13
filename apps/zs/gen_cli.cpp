@@ -189,6 +189,71 @@ int gen_main(int argc, char** argv) {
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
       return 0;
     }
+    if (cmd == "towns") {  // data review: the planet's towns by size, the largest, primacy, the most populous countries
+      const int freq = std::atoi(arg(argc, argv, "--freq", "101").c_str());
+      const zs::gen::WorldGrid grid(freq, 6371.0);
+      zs::gen::WorldParams wp;
+      wp.seed = seed;
+      const auto f = zs::gen::generate_fields(grid, wp);
+      const auto land = zs::gen::generate_land(grid, f);
+      zs::gen::DepositParams dp;
+      dp.seed = seed;
+      const auto deposits = zs::gen::generate_deposits(grid, f, dp);
+      const std::string tables = zs::tier0::data_dir();
+      const auto people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(tables),
+                                                  zs::gen::load_real_profiles(tables));
+      const double bounds[] = {1e4, 5e4, 1e5, 5e5, 1e6, 5e6, 1e7, 1e12};
+      const char* labels[] = {"10k-50k", "50k-100k", "100k-500k", "500k-1M", "1M-5M", "5M-10M", "10M+"};
+      std::size_t count[7] = {};
+      double urban = 0;
+      std::vector<double> country_urban(people.countries.size(), 0);
+      for (const auto& t : people.towns) {
+        urban += t.people;
+        country_urban[static_cast<std::size_t>(t.country)] += t.people;
+        for (int b = 0; b < 7; ++b)
+          if (t.people >= bounds[b] && t.people < bounds[b + 1]) ++count[b];
+      }
+      std::cout << "Towns, seed " << seed << ": " << people.towns.size() << " of 10,000 or more, holding " << urban / 1e9 << " billion ("
+                << 100.0 * urban / people.total_people << "% of " << people.total_people / 1e9 << " billion)\n  by size:";
+      for (int b = 0; b < 7; ++b) std::cout << " " << labels[b] << " " << count[b] << ";";
+      std::cout << "\n";
+      auto name_of = [&](int k) {
+        const auto& c = people.countries[static_cast<std::size_t>(k)];
+        return c.name.empty() ? std::string("(unnamed)") : c.name;
+      };
+      std::vector<std::size_t> order(people.towns.size());
+      for (std::size_t i = 0; i < order.size(); ++i) order[i] = i;
+      std::stable_sort(order.begin(), order.end(), [&](std::size_t a, std::size_t b) { return people.towns[a].people > people.towns[b].people; });
+      std::cout << "the largest towns:\n";
+      for (std::size_t i = 0; i < std::min<std::size_t>(15, order.size()); ++i) {
+        const auto& t = people.towns[order[i]];
+        std::cout << "  " << t.people / 1e6 << " million, rank " << t.rank << " of " << name_of(t.country) << " ("
+                  << people.countries[static_cast<std::size_t>(t.country)].people / 1e6 << " million people; "
+                  << 100.0 * t.people / country_urban[static_cast<std::size_t>(t.country)] << "% of its urban)\n";
+      }
+      // Primacy: the largest town's share of its country's urban people.
+      std::vector<double> primacy;
+      for (const auto& t : people.towns)
+        if (t.rank == 1) primacy.push_back(t.people / country_urban[static_cast<std::size_t>(t.country)]);
+      std::sort(primacy.begin(), primacy.end());
+      if (!primacy.empty())
+        std::cout << "primacy (largest town over its country's urban), " << primacy.size() << " countries: median "
+                  << 100.0 * primacy[primacy.size() / 2] << "%, 10th percentile " << 100.0 * primacy[primacy.size() / 10]
+                  << "%, 90th " << 100.0 * primacy[primacy.size() * 9 / 10] << "%\n";
+      std::vector<std::size_t> co(people.countries.size());
+      for (std::size_t i = 0; i < co.size(); ++i) co[i] = i;
+      std::stable_sort(co.begin(), co.end(), [&](std::size_t a, std::size_t b) { return people.countries[a].people > people.countries[b].people; });
+      std::cout << "the most populous countries:\n";
+      for (std::size_t i = 0; i < std::min<std::size_t>(10, co.size()); ++i) {
+        const auto& c = people.countries[co[i]];
+        std::size_t towns = 0;
+        for (const auto& t : people.towns) towns += t.country == static_cast<int>(co[i]);
+        std::cout << "  " << name_of(static_cast<int>(co[i])) << ": " << c.people / 1e6 << " million on " << c.area_km2 / 1e6
+                  << " million km2, " << zs::gen::kIncomeGroupIds[static_cast<std::size_t>(c.income)] << ", urban "
+                  << 100.0 * country_urban[co[i]] / c.people << "%, " << towns << " towns\n";
+      }
+      return 0;
+    }
     if (cmd == "food") {  // spec 76
       const int freq = std::atoi(arg(argc, argv, "--freq", "101").c_str());
       const zs::gen::WorldGrid grid(freq, 6371.0);
@@ -281,8 +346,17 @@ int gen_main(int argc, char** argv) {
         }
         for (std::size_t k = 0; k < people.towns.size(); ++k)
           if (people.towns[k].country == t.country && people.towns[k].rank == 1)
-            std::cout << "  to the capital, " << town_name(static_cast<int>(k)) << ": "
-                      << zs::gen::town_hours(grid, f, people, routes, town, static_cast<int>(k)) << " h\n";
+          {
+            double road_km = 0;
+            for (int ri : zs::gen::node_route_path(routes, node, routes.node_of[people.towns[k].cell])) {
+              const auto& r = routes.routes[static_cast<std::size_t>(ri)];
+              road_km += r.km[0] + r.km[1] + r.km[2];
+            }
+            const double hours = zs::gen::town_hours(grid, f, people, routes, town, static_cast<int>(k));
+            std::cout << "  to the capital, " << town_name(static_cast<int>(k)) << ": " << hours << " h over " << road_km
+                      << " km (" << grid.distance_km(t.cell, people.towns[k].cell) << " km straight; " << road_km / std::max(1e-9, hours)
+                      << " km/h on average)\n";
+          }
       }
       std::cout << "loop detour " << rp.loop_detour << ": mean routes per town cell "
                 << 2.0 * static_cast<double>(routes.routes.size()) / static_cast<double>(std::max<std::size_t>(1, routes.nodes.size()))
