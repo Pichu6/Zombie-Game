@@ -5,6 +5,7 @@
 #include <functional>
 #include <map>
 #include <queue>
+#include <sstream>
 
 #include "zs/gen/place.h"
 #include "zs/gen/world_food.h"
@@ -143,5 +144,65 @@ TEST_CASE("food: on the one world's grid the share traded across borders lands n
     MESSAGE("seed " << seed << ": across borders " << f.international_share() << ", traded " << f.traded / f.production
                     << " of production, unmet " << f.unmet / f.demand << " of demand, " << f.flows.size() << " flows, "
                     << f.rounds << " rounds");
+  }
+}
+
+// Spec 77: food by kind.
+
+TEST_CASE("food by kind: the world's mean diet matches WSR-46; each kind adds up; warm land grows more other crops (A1)") {
+  const Planet& p = planet(1);
+  const DietParams diet;
+  const WorldDiet d = food_by_kind(p.fields, p.land, p.people, p.routes);
+  double people = 0;
+  for (std::size_t c = 0; c < p.grid.size(); ++c) people += p.people.people[c];
+  CHECK(d.demand == doctest::Approx(people).epsilon(1e-9));  // the shares of each group add to one
+  CHECK(d.production == doctest::Approx(FreightParams{}.grown_vs_need * people).epsilon(1e-9));
+  const double grain = d.kinds[0].demand / d.demand, animal = d.kinds[2].demand / d.demand;
+  CHECK(std::abs(grain - 0.42) < 0.03);
+  CHECK(std::abs(animal - 0.16) < 0.03);
+  for (const WorldFood& f : d.kinds) {
+    double sent = 0;
+    for (const NodeFood& nf : f.nodes) {
+      CHECK(nf.made == doctest::Approx(nf.eaten + nf.sent + nf.surplus).epsilon(1e-9));
+      CHECK(nf.demand == doctest::Approx(nf.eaten + nf.received + nf.unmet).epsilon(1e-9));
+      sent += nf.sent;
+    }
+    CHECK(sent == doctest::Approx(f.traded).epsilon(1e-9));
+  }
+  CHECK(crops_share(diet, 0) == doctest::Approx(diet.crops_at_5c));
+  CHECK(crops_share(diet, 30) == doctest::Approx(diet.crops_at_25c));
+  CHECK(crops_share(diet, 10) < crops_share(diet, 20));
+  // Fish only where a region holds sea.
+  std::vector<char> has_sea(p.routes.nodes.size(), 0);
+  for (std::size_t c = 0; c < p.grid.size(); ++c)
+    if (!p.fields.land(static_cast<CellId>(c))) has_sea[static_cast<std::size_t>(p.routes.region_of[c])] = 1;
+  for (std::size_t k = 0; k < p.routes.nodes.size(); ++k)
+    if (d.kinds[3].nodes[k].made > 0) CHECK(has_sea[k]);
+  MESSAGE("diet: grain " << grain << ", other crops " << d.kinds[1].demand / d.demand << ", animal " << animal << ", fish "
+                         << d.kinds[3].demand / d.demand << "; across borders " << d.international_share() << " (one kind: "
+                         << food_flows(p.land, p.people, p.routes).international_share() << ")");
+}
+
+TEST_CASE("food by kind: kinds trade more across borders than one food; the same seed gives the same flows (A1)") {
+  const Planet& p = planet(1);
+  const WorldDiet d = food_by_kind(p.fields, p.land, p.people, p.routes);
+  CHECK(d.international_share() > food_flows(p.land, p.people, p.routes).international_share());
+  CHECK(diet_digest(d) == diet_digest(food_by_kind(p.fields, p.land, p.people, p.routes)));
+  MESSAGE("diet digest: " << diet_digest(d));
+  CHECK(diet_digest(d) == 2105106697373866771ULL);  // pinned on MSVC, 2026-10-13
+}
+
+TEST_CASE("food by kind: on the one world's grid the share across borders lands between 18 % and 30 % (WSR-44) (A2)" *
+          doctest::skip(zs::World::kDebugBuild)) {
+  for (std::uint64_t seed : {1ull, 4ull}) {
+    const Planet& p = planet(seed, kOneWorldFrequency);
+    const WorldDiet d = food_by_kind(p.fields, p.land, p.people, p.routes);
+    CHECK(d.international_share() > 0.18);
+    CHECK(d.international_share() < 0.30);
+    std::ostringstream kinds;
+    for (int k = 0; k < kFoodKinds; ++k)
+      kinds << " " << food_kind_name(static_cast<FoodKind>(k)) << " " << d.kinds[static_cast<std::size_t>(k)].international_share();
+    MESSAGE("seed " << seed << ": across borders " << d.international_share() << " (by kind:" << kinds.str() << "), traded "
+                    << d.traded / d.production << ", unmet " << d.unmet / d.demand);
   }
 }

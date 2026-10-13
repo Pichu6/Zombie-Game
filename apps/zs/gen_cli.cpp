@@ -222,7 +222,17 @@ int gen_main(int argc, char** argv) {
                       << fl.amount << " people-years at " << fl.cost << " road-km" << (fl.international ? " (across a border)" : "")
                       << "\n";
       }
-      std::cout << "digest " << zs::gen::food_digest(food) << "\n";
+      // Spec 77: by kind.
+      const auto diet = zs::gen::food_by_kind(f, land, people, routes, fp);
+      std::cout << "by kind (spec 77): across borders " << 100.0 * diet.international_share() << "% of production (one kind: "
+                << 100.0 * food.international_share() << "%); traded " << 100.0 * diet.traded / diet.production << "%\n";
+      for (int k = 0; k < zs::gen::kFoodKinds; ++k) {
+        const auto& kf = diet.kinds[static_cast<std::size_t>(k)];
+        std::cout << "  " << zs::gen::food_kind_name(static_cast<zs::gen::FoodKind>(k)) << ": " << 100.0 * kf.demand / diet.demand
+                  << "% of the diet, traded " << 100.0 * kf.traded / kf.production << "%, across borders "
+                  << 100.0 * kf.international_share() << "%\n";
+      }
+      std::cout << "digest " << zs::gen::food_digest(food) << ", by kind " << zs::gen::diet_digest(diet) << "\n";
       return 0;
     }
     if (cmd == "routes") {  // spec 74

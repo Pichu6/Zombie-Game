@@ -29,10 +29,15 @@ double freight_cost(const Route& r, const FreightParams& p) {
          r.km[static_cast<int>(RouteMode::Sea)] * p.sea + r.ports * p.port_road_km + r.borders * p.border_road_km;
 }
 
+namespace {
+
+// Spec 76 rules 2-5 on nodes whose `made` and `demand` are set: home first, then the cheapest supplier, in rounds.
+WorldFood flows_of(std::vector<NodeFood> nodes, const WorldPeople& people, const WorldRoutes& routes, const FreightParams& params);
+
+}  // namespace
+
 WorldFood food_flows(const WorldLand& land, const WorldPeople& people, const WorldRoutes& routes, const FreightParams& params) {
-  WorldFood f;
-  const std::size_t n = routes.nodes.size();
-  f.nodes.assign(n, {});
+  std::vector<NodeFood> nodes(routes.nodes.size());
   // Rule 1: production and demand by region. What is grown is each cell's share of the land's capacity, scaled so the
   // world grows `grown_vs_need` times what its people need.
   double capacity = 0, need = 0;
@@ -41,10 +46,19 @@ WorldFood food_flows(const WorldLand& land, const WorldPeople& people, const Wor
   for (std::size_t c = 0; c < routes.region_of.size(); ++c) {
     const int k = routes.region_of[c];
     if (k < 0) continue;
-    NodeFood& nf = f.nodes[static_cast<std::size_t>(k)];
+    NodeFood& nf = nodes[static_cast<std::size_t>(k)];
     nf.made += land.capacity_food[c] * grown;
     nf.demand += people.people[c];
   }
+  return flows_of(std::move(nodes), people, routes, params);
+}
+
+namespace {
+
+WorldFood flows_of(std::vector<NodeFood> nodes, const WorldPeople& people, const WorldRoutes& routes, const FreightParams& params) {
+  WorldFood f;
+  const std::size_t n = nodes.size();
+  f.nodes = std::move(nodes);
   // Rule 2: home first.
   for (NodeFood& nf : f.nodes) {
     nf.eaten = std::min(nf.made, nf.demand);
@@ -124,6 +138,76 @@ WorldFood food_flows(const WorldLand& land, const WorldPeople& people, const Wor
   }
   for (const NodeFood& nf : f.nodes) f.unmet += nf.unmet;
   return f;
+}
+
+}  // namespace
+
+const char* food_kind_name(FoodKind k) {
+  switch (k) {
+    case FoodKind::Grain: return "grain";
+    case FoodKind::Crops: return "other crops";
+    case FoodKind::Animal: return "animal foods";
+    case FoodKind::Fish: return "fish";
+  }
+  return "?";
+}
+
+double crops_share(const DietParams& d, double temp_c) {
+  const double t = (temp_c - 5.0) / 20.0;
+  return d.crops_at_5c + (d.crops_at_25c - d.crops_at_5c) * (t < 0 ? 0 : t > 1 ? 1 : t);
+}
+
+WorldDiet food_by_kind(const WorldFields& fields, const WorldLand& land, const WorldPeople& people, const WorldRoutes& routes,
+                       const FreightParams& params, const DietParams& diet, const LandParams& lp) {
+  const std::size_t cells = routes.region_of.size();
+  // Rule 1: each cell's potential for each kind (the kind's own units; rule 2 scales them).
+  std::array<std::vector<double>, kFoodKinds> potential;
+  std::array<std::vector<double>, kFoodKinds> need;
+  for (int k = 0; k < kFoodKinds; ++k) potential[static_cast<std::size_t>(k)].assign(cells, 0), need[static_cast<std::size_t>(k)].assign(cells, 0);
+  for (std::size_t c = 0; c < cells; ++c) {
+    const double crop = land.arable_share[c] * (1 - lp.feed_share), pasture = land.pasture_share[c] * lp.pasture_vs_crop;
+    if (land.capacity_food[c] > 0 && crop + pasture > 0) {
+      const double unit = land.capacity_food[c] / (crop + pasture);  // spec 52's capacity, per unit of its two terms
+      const double warm = crops_share(diet, fields.temp_mean_c[c]);
+      potential[0][c] = unit * crop * (1 - warm);
+      potential[1][c] = unit * crop * warm;
+      potential[2][c] = unit * (pasture + land.arable_share[c] * lp.feed_share * diet.feed_conversion);
+    }
+    potential[3][c] = land.fish_catch_t[c];
+    // Rule 3: what each people eats, by its country's income group.
+    const int country = people.formed.country_of.empty() ? -1 : people.formed.country_of[c];
+    const int group = country >= 0 ? people.countries[static_cast<std::size_t>(country)].income : kIncomeGroups - 1;
+    for (int k = 0; k < kFoodKinds; ++k)
+      need[static_cast<std::size_t>(k)][c] = people.people[c] * diet.share[static_cast<std::size_t>(group)][static_cast<std::size_t>(k)];
+  }
+  WorldDiet out;
+  for (int k = 0; k < kFoodKinds; ++k) {
+    const auto& pot = potential[static_cast<std::size_t>(k)];
+    const auto& nd = need[static_cast<std::size_t>(k)];
+    double total_pot = 0, total_need = 0;
+    for (std::size_t c = 0; c < cells; ++c) total_pot += pot[c], total_need += nd[c];
+    const double grown = total_pot > 0 ? params.grown_vs_need * total_need / total_pot : 0;  // rule 2
+    std::vector<NodeFood> nodes(routes.nodes.size());
+    for (std::size_t c = 0; c < cells; ++c) {
+      const int r = routes.region_of[c];
+      if (r < 0) continue;
+      nodes[static_cast<std::size_t>(r)].made += pot[c] * grown;
+      nodes[static_cast<std::size_t>(r)].demand += nd[c];
+    }
+    WorldFood& f = out.kinds[static_cast<std::size_t>(k)] = flows_of(std::move(nodes), people, routes, params);  // rule 4
+    out.production += f.production;
+    out.demand += f.demand;
+    out.international += f.international;
+    out.traded += f.traded;
+    out.unmet += f.unmet;
+  }
+  return out;
+}
+
+std::uint64_t diet_digest(const WorldDiet& diet) {
+  std::uint64_t h = 0;
+  for (const WorldFood& f : diet.kinds) h = mix64(h, food_digest(f));
+  return h;
 }
 
 std::uint64_t food_digest(const WorldFood& food) {
