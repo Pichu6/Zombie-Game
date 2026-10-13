@@ -78,10 +78,15 @@ struct Hands {
   };
   virtual ~Hands() = default;
   virtual Found body_of(const World& w, PopId pop) const = 0;
-  virtual void take(World& w, EntityId body) = 0;       // its AI stops driving it
+  virtual void take(World& w, EntityId body) = 0;       // its AI stops driving it (a map body or a pool body)
   virtual void give_back(World& w, EntityId body) = 0;  // its AI drives it again
   virtual EntityId embody(World& w, PopId pop, EventId cause) = 0;  // a pool body for the pop; 0 if refused
   virtual bool disembody(World& w, PopId pop, EventId cause) = 0;   // the pool body goes back; false if refused
+  // Spec 68: a pool body comes onto the map when a player is given it, and leaves the map when the player leaves it (what
+  // it carries stays where it stood). Pool bodies on the map count toward the map's one pair of hands.
+  virtual void arrive(World&, EntityId /*body*/, EventId /*cause*/) {}
+  virtual void leave(World&, EntityId /*body*/, EventId /*cause*/) {}
+  virtual bool pool_on_map() const { return false; }
   virtual std::int64_t dwell_ticks() const { return kTicksPerGameHour; }  // the least time in a pool body (spec 29 rule 4)
   // The pop the scenario hands control to when this one died (spec 26: the run passes control to the next member); kNoPop if none.
   virtual PopId successor(const World&, PopId /*dead*/) const { return kNoPop; }

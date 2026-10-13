@@ -121,6 +121,9 @@ enum class EventType : std::uint16_t {
   PlayerLevelSet = 92,     // subject = player, a = DetachLevel, b = 1 if raised (the save is marked)
   PlayerBodyDied = 93,     // subject = player, a = the pop, b = 1 if it was the home
   PlayerRefused = 94,      // subject = player (0 for a join), a = the command type, b = PlayerRefusal
+  // Spec 68: a pool body on the map.
+  ArrivedOnMap = 95,       // subject = the body, a = its pop, b = the packed cell it arrived at
+  LeftMap = 96,            // subject = the body, a = its pop, b = items it left where it stood
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

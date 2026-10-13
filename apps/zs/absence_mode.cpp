@@ -6,9 +6,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <string>
 
+#include "zs/body.h"
 #include "zs/clock.h"
+#include "zs/dead.h"
 #include "zs/expectations.h"
 #include "zs/gen/place.h"
 #include "zs/missing_persons.h"
@@ -27,6 +30,16 @@ std::string name_of(const tier0::Tier0& t, PopId id) {
   if (!is_born(id) && founder_slot_of(id) < t.census->people().size()) return t.census->people()[founder_slot_of(id)].name;
   if (t.force && t.force->is_officer(id)) return "officer " + std::to_string(founder_slot_of(id) - t.census->people().size() + 1);
   return "someone";
+}
+
+// Spec 68: a body on the block, by its census row or, for a pool body, by its pop.
+std::string body_name(const tier0::Tier0& t, EntityId body) {
+  if (t.census->person_of(body)) return t.census->name_of(body);
+  if (t.bodies->exists(body) && t.bodies->get(body).pop) return name_of(t, t.bodies->get(body).pop);
+  PopId pop = kNoPop;  // a pool body already back in the pool: whoever last came onto the block in it
+  for (const Event& e : t.world->log.all())
+    if (e.type == EventType::ArrivedOnMap && e.subject == body) pop = static_cast<PopId>(e.a);
+  return pop != kNoPop ? name_of(t, pop) : "someone";
 }
 
 // One step of the ladder in words; empty for events that are not part of it.
@@ -64,8 +77,14 @@ std::string line_of(const tier0::Tier0& t, const Event& e) {
     case EventType::PlayerJoined: return "player " + std::to_string(e.subject) + " joins " + (e.a >= 0 ? "as " + n(static_cast<PopId>(e.a)) : std::string("as a free camera"));
     case EventType::PlayerPossessed: return "the player takes " + n(e.a) + (e.b ? " from their life" : " (home)");
     case EventType::PlayerLeftBody: return "the player leaves " + n(e.a) + (e.b ? ", who heads home (there at " + tier0::time_text(e.b) + ")" : "");
+    case EventType::ArrivedOnMap: return n(e.a) + " comes onto the block (where the player starts)";
+    case EventType::LeftMap: return n(e.a) + " leaves the block" + (e.b ? " (leaving what they carried)" : "");
+    case EventType::Bite: return "a walker bites " + body_name(t, static_cast<EntityId>(e.a));
+    case EventType::Grabbed: return "a walker grabs " + body_name(t, static_cast<EntityId>(e.a));
+    case EventType::Death:
+      return t.bodies->exists(e.subject) && t.bodies->get(e.subject).pop && !t.census->person_of(e.subject) ? body_name(t, e.subject) + " dies" : "";
     case EventType::PopEmbodied: return n(e.subject) + " gets a body from the pool (not on the map)";
-    case EventType::PopDisembodied: return n(e.subject) + "'s body goes back to the pool; its state is kept";
+    case EventType::PopDisembodied: return e.b ? n(e.subject) + " died in that body" : n(e.subject) + "'s body goes back to the pool; its state is kept";
     case EventType::PlayerRefused: return "the player's command is refused (reason " + std::to_string(e.b) + ")";
     default: return "";
   }
@@ -121,9 +140,15 @@ int absence_main(int argc, char** argv) {
       return 0;
     }
     std::size_t shown = 0;
+    std::map<std::pair<EventType, std::int64_t>, std::int64_t> said;  // a walker's attack on one victim, once an hour
     const auto show = [&] {
       for (; shown < t.world->log.all().size(); ++shown) {
         const Event& e = t.world->log.all()[shown];
+        if (e.type == EventType::Bite || e.type == EventType::Grabbed) {
+          const auto key = std::make_pair(e.type, e.a);
+          if (const auto it = said.find(key); it != said.end() && e.tick - it->second < kTicksPerGameHour) continue;
+          said[key] = e.tick;
+        }
         const std::string s = line_of(t, e);
         if (!s.empty()) std::printf("  %s  %s\n", tier0::time_text(e.tick).c_str(), s.c_str());
       }

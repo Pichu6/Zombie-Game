@@ -31,6 +31,7 @@
 #include "zs/sound_marks.h"
 #include "zs/pacer.h"
 #include "zs/players.h"
+#include "zs/police_staff.h"
 #include "zs/run.h"
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
@@ -135,7 +136,14 @@ struct App {
   EntityId me() const { return t.ai ? t.ai->possessed() : 0; }
   // Whom the view follows when nobody is possessed.
   EntityId followed() const { return me() ? me() : t.run->controlled(); }
-  std::string name(EntityId b) const { return t.census ? t.census->name_of(b) : std::string("You"); }
+  std::string name(EntityId b) const {
+    if (!t.census) return "You";
+    if (t.census->person_of(b)) return t.census->name_of(b);
+    const zs::PopId pop = t.bodies->get(b).pop;  // spec 68: a pool body on the block (an officer)
+    if (t.force && t.force->is_officer(pop))
+      return "Officer " + std::to_string(zs::founder_slot_of(pop) - t.census->people().size() + 1);
+    return t.census->name_of(b);
+  }
   bool in_group(EntityId b) const { return std::find(t.group.begin(), t.group.end(), b) != t.group.end(); }
 };
 
@@ -797,6 +805,12 @@ void draw_map(App& a, ImDrawList* d) {
     if (p.z != a.level) continue;
     bodies.push_back({id, actor_at(a, id), p, false, i});
   }
+  // Spec 68: the body the player is in, when it is not one of the group (a pool body: an officer brought onto the block).
+  if (const EntityId me = a.me(); me && !a.in_group(me) && a.t.actors->actors().contains(me)) {
+    const Body& b = a.t.bodies->get(me);
+    const Cell p = a.t.actors->actor(me).pos;
+    if (!b.away && !b.spec.walker && p.z == a.level) bodies.push_back({me, actor_at(a, me), p, false, a.t.group.size()});
+  }
   static const V2 kSpread[] = {{-0.2, -0.2}, {0.2, -0.2}, {-0.2, 0.2}, {0.2, 0.2}};
   const float r = a.cell * 0.42f;
   for (std::size_t k = 0; k < bodies.size(); ++k) {
@@ -1019,7 +1033,7 @@ std::vector<Target> targets_at(const App& a, const Cell& c) {
   for (const auto& [id, inst] : a.t.items->all())
     if (w.locations.parent_of(id) == a.t.actors->floor_at(c)) out.push_back({id, a.t.items->def(inst.def).name});
   for (const auto& [id, act] : a.t.actors->actors())
-    if (act.pos == c && !a.t.bodies->get(id).away) out.push_back({id, id == a.me() ? "yourself" : a.name(id)});
+    if (act.pos == c && !a.t.bodies->get(id).away && !a.t.bodies->get(id).vacant) out.push_back({id, id == a.me() ? "yourself" : a.name(id)});
   if (a.t.walkers)
     for (const auto& [id, z] : a.t.walkers->walkers())
       if (z.pos == c && a.t.bodies->get(id).alive) out.push_back({id, "a walker (" + a.name(id) + ")"});
@@ -1451,6 +1465,19 @@ void group_panel(App& a) {
     }
     ImGui::PopID();
   }
+  // Spec 68: take a police officer from his shift; he comes onto the block where the player starts. Then back to your own body.
+  if (a.t.players && !a.t.players->players().empty() && a.t.force) {
+    const auto& me = a.t.players->players().front();
+    if (me.in != me.home && me.home != zs::kNoPop && !me.home_dead) {
+      if (ImGui::Button("Return to your body")) a.t.world->submit({0, zs::PlayerReturn, me.id, 0, 0});
+    } else if (ImGui::Button("Possess a police officer")) {
+      for (zs::PopId officer : a.t.force->officers())
+        if (a.t.players->holder_of(officer) == 0 && !(a.t.expectations && a.t.expectations->find(officer))) {
+          a.t.world->submit({0, zs::PlayerPossess, me.id, static_cast<std::int64_t>(officer), 0});
+          break;
+        }
+    }
+  }
   if (a.t.ai->possessed()) {
     if (ImGui::Button("Let the AI drive everyone")) leave_body(a);
   } else if (ImGui::Button("Take control again")) {
@@ -1605,6 +1632,7 @@ int window_main(int argc, char** argv) {
   std::int64_t shot_ticks = 0;
   std::optional<Cell> shot_menu;
   bool watch = false, generator = false;  // generator: a shot aid, the grid down and the generator running
+  bool officer = false;                   // a shot aid (spec 68): the player possesses the first officer, as the button does
   Overlay overlay = Overlay::None;
   std::string world_name, from_save;
   for (int i = 1; i < argc; ++i) {
@@ -1615,6 +1643,7 @@ int window_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--shot") && i + 1 < argc) shot = argv[++i];
     else if (!std::strcmp(argv[i], "--watch")) watch = true;
     else if (!std::strcmp(argv[i], "--generator")) generator = true;
+    else if (!std::strcmp(argv[i], "--officer")) officer = true;
     else if (!std::strcmp(argv[i], "--overlay") && i + 1 < argc) {
       ++i;
       overlay = !std::strcmp(argv[i], "noise") ? Overlay::Noise : !std::strcmp(argv[i], "light") ? Overlay::Light : Overlay::None;
@@ -1676,6 +1705,8 @@ int window_main(int argc, char** argv) {
     a.t.power->set_transfer(*a.t.world, Transfer::Generator, 0);
     a.t.power->start_generator(*a.t.world, 0);
   }
+  if (officer && a.t.players && a.t.force && !a.t.force->officers().empty())  // applied after the join submitted at the start
+    a.t.world->submit({0, zs::PlayerPossess, 1, static_cast<std::int64_t>(a.t.force->officers().front()), 0});
   a.overlay = overlay;
   if (shot_ticks > 0) {
     for (std::int64_t i = 0; i < shot_ticks; ++i) a.t.world->step();

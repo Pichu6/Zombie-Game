@@ -16,10 +16,10 @@ added = 2026-10-11
 [[try]]
 id = "possess-officer"
 part = "individual"
-spec = "66"
+spec = "68"
 title = "Possess a police officer"
-what = "A free-camera player takes an officer from his shifts for 80 hours, then leaves him: shifts missed and unpaid, a conduct case on his return (decisions 0068, 0070)."
-run = ["--absence", "--possess", "--officer", "--hours", "80", "--seed", "{seed}"]
+what = "A free-camera player takes an officer from his shift for 4 hours: he gets a body and comes onto the block (spec 68), misses a shift unpaid, leaves the block, and meets a conduct case on his return (decisions 0068, 0070). With --hours 30 he is left standing on the block during the outbreak and does not survive."
+run = ["--absence", "--possess", "--officer", "--hours", "4", "--seed", "{seed}"]
 kind = "text"
 added = 2026-10-12
 

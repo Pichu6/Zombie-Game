@@ -180,7 +180,8 @@ class Bodies : public System {
   // Returns 0 if no slot is free (the request is refused, never queued).
   EntityId embody(World& w, const BodySpec& spec, const std::string& label, std::uint64_t pop, EventId cause);
   EntityId embody_state(World& w, const BodyState& state, std::uint64_t pop, EventId cause);
-  // Why a body cannot leave right now ("" if it can): not a pool body, not alive, a walker, away, or holding items.
+  // Why a body cannot leave right now ("" if it can): not a pool body, not alive, a walker, or holding items. An away body
+  // may leave (spec 68: a pool body leaves the map first, then the pool).
   std::string cannot_disembody(const World& w, EntityId body) const;
   // Takes a body out of its slot, returning everything it held; its tissue leaves the ledger as a declared outflow.
   BodyState disembody(World& w, EntityId body, EventId cause);

@@ -1,7 +1,9 @@
 // The one world (spec 41): the run's Tier 0 systems plus the pop registry, the economy, orders and the grid tree,
 // with the census rows as the registry's founders. Spec: docs/tier0/specs/41-one-world.md
 #include <memory>
+#include <stdexcept>
 
+#include "zs/actions.h"
 #include "zs/body.h"
 #include "zs/bonds.h"
 #include "zs/calendar.h"
@@ -20,6 +22,7 @@
 #include "zs/pop_system.h"
 #include "zs/run.h"
 #include "zs/schedule.h"
+#include "zs/site_map.h"
 #include "zs/tier0.h"
 
 namespace zs::tier0 {
@@ -202,8 +205,8 @@ NextCommitment make_commitments(const Census& census, const CalendarSystem& cale
 // there (the pop AI leaves it to the player); anyone else (an officer, a row with no body) gets a pool body.
 class WorldHands : public Hands {
  public:
-  WorldHands(const Census* census, const Bodies* bodies, PopAI* ai, const Run* run, PopSystem* pops)
-      : census_(census), bodies_(bodies), ai_(ai), run_(run), pops_(pops) {}
+  WorldHands(const Census* census, Bodies* bodies, Actors* actors, PopAI* ai, const Run* run, PopSystem* pops, Cell gate)
+      : census_(census), bodies_(bodies), actors_(actors), ai_(ai), run_(run), pops_(pops), gate_(gate) {}
   Found body_of(const World&, PopId pop) const override {
     const EntityId body = map_body(pop);
     if (body == 0) return {Where::Nowhere, 0};
@@ -218,6 +221,32 @@ class WorldHands : public Hands {
   EntityId embody(World& w, PopId pop, EventId cause) override { return pops_->embody_pop(w, pop, cause); }
   bool disembody(World& w, PopId pop, EventId cause) override { return pops_->disembody_pop(w, pop, cause); }
   std::int64_t dwell_ticks() const override { return pops_->dwell_ticks(); }
+  // Spec 68: a pool body comes onto the block where the player starts (inside the main building, by the group), idle, and
+  // leaves the block when the player leaves it: what it carries stays on the floor where it stood, and it is off the map
+  // (away). Not the yard gate: during the outbreak the street there has walkers from the first minute (measured: dead in 47).
+  bool pool_on_map() const override { return true; }
+  void arrive(World& w, EntityId body, EventId cause) override {
+    Actor& a = actors_->actor(body);
+    a.pos = gate_;
+    a.action = Action{};
+    a.queue.clear();
+    a.heading = -1;
+    a.noise_db = 0;
+    Body& b = bodies_->get(body);
+    b.away = false;
+    w.emit(EventType::ArrivedOnMap, body, cause, static_cast<std::int64_t>(b.pop), pack_cell(gate_));
+  }
+  void leave(World& w, EntityId body, EventId cause) override {
+    actors_->apply_command(w, {w.clock.tick, static_cast<std::uint16_t>(CommandType::Cancel), body, 0, 0}, cause);  // drops what is in the hands
+    Actor& a = actors_->actor(body);
+    const std::vector<EntityId> carried = actors_->carried(w, body);
+    for (EntityId item : carried) w.locations.place(item, actors_->floor_at(a.pos));
+    a.carried_kg = 0;
+    a.noise_db = 0;
+    Body& b = bodies_->get(body);
+    b.away = true;
+    w.emit(EventType::LeftMap, body, cause, static_cast<std::int64_t>(b.pop), static_cast<std::int64_t>(carried.size()));
+  }
   // Spec 26: when the controlled member dies the run hands control to the next one; the player follows it.
   PopId successor(const World&, PopId dead) const override {
     const EntityId next = run_->controlled();
@@ -232,10 +261,12 @@ class WorldHands : public Hands {
     return census_->people()[founder_slot_of(pop)].body;
   }
   const Census* census_;
-  const Bodies* bodies_;
+  Bodies* bodies_;
+  Actors* actors_;
   PopAI* ai_;
   const Run* run_;
   PopSystem* pops_;
+  Cell gate_;
 };
 
 }  // namespace
@@ -334,6 +365,14 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // Spec 67: the body pool (spec 29) for pops a player takes that have no body on the block.
   t.bodies->reserve_slots(w, static_cast<std::size_t>(possession.body_slots));
   t.pops->attach_bodies(w, *t.bodies);
+  // Spec 68: each slot has an actor, so a body taken from the pool can walk and act on the block. A vacant slot is not alive:
+  // no rule runs on it and nothing sees it. Bodies come in where the player starts.
+  const std::optional<Cell> gate = t.map->find_object("pop_start", "player");
+  if (!gate) throw std::runtime_error("one world: the map has no pop_start for the player (where pool bodies come in)");
+  for (EntityId slot : t.bodies->slots()) {
+    t.actors->add_actor(w, slot, *gate);
+    t.bodies->get(slot).away = true;  // off the map until a player takes it
+  }
   auto players = std::make_unique<Players>(
       possession, expectations.get(),
       [reg = &t.pops->registry()](PopId id, std::int64_t tick) {
@@ -342,7 +381,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
         return reg->snapshot(id, year, s) && s.base.birth_year <= year && year < s.base.death_year;
       });
   t.players = players.get();
-  t.hands = std::make_shared<WorldHands>(t.census, t.bodies, t.ai, t.run, t.pops);
+  t.hands = std::make_shared<WorldHands>(t.census, t.bodies, t.actors, t.ai, t.run, t.pops, *gate);
   players->set_hands(t.hands.get());
   // Rule 1: cold systems after the hot ones.
   w.add_system(std::move(pops));

@@ -71,11 +71,14 @@ bool Players::can_take(const Player& p, PopId pop) const {
   return holder == 0 || holder == p.id;
 }
 
-// Spec 67: the map has one player's hands (the pop AI leaves one body to the player).
+// Spec 67: the map has one player's hands (the pop AI leaves one body to the player). Spec 68: a pool body counts when the
+// pool's bodies come onto the map.
 bool Players::on_map_held_by_other(const Player& p) const {
-  for (const Player& q : players_)
-    if (q.id != p.id && q.body != 0 && std::none_of(pooled_.begin(), pooled_.end(), [&](const Pooled& x) { return x.body == q.body; }))
-      return true;
+  for (const Player& q : players_) {
+    if (q.id == p.id || q.body == 0) continue;
+    const bool pooled = std::any_of(pooled_.begin(), pooled_.end(), [&](const Pooled& x) { return x.body == q.body; });
+    if (!pooled || hands_->pool_on_map()) return true;
+  }
   return false;
 }
 
@@ -85,14 +88,17 @@ void Players::refuse(World& w, const Command& c, EventId cause, PlayerRefusal wh
 
 // Rule 4: leaving a pop. One that was taken from its life heads home and is back after the getting-home time; the home
 // simply goes on living (its own AI and standing orders). Spec 67: a body on the map goes back to its AI; a pool body is
-// kept until its dwell is over, then goes back to the pool.
+// kept until its dwell is over, then goes back to the pool. Spec 68: a pool body leaves the map at once.
 void Players::release(World& w, Player& p, EventId cause) {
   if (p.in == kNoPop) return;
   const PopId pop = p.in;
   if (p.body != 0 && hands_) {
     const auto pooled = std::find_if(pooled_.begin(), pooled_.end(), [&](const Pooled& x) { return x.body == p.body; });
-    if (pooled != pooled_.end()) pooled->release_at = std::max(w.clock.tick, pooled->since + hands_->dwell_ticks());
-    else hands_->give_back(w, p.body);
+    hands_->give_back(w, p.body);
+    if (pooled != pooled_.end()) {
+      pooled->release_at = std::max(w.clock.tick, pooled->since + hands_->dwell_ticks());
+      hands_->leave(w, p.body, cause);
+    }
   }
   p.body = 0;
   p.in = kNoPop;
@@ -126,6 +132,7 @@ PlayerRefusal Players::possess(World& w, Player& p, PopId pop, EventId cause) {
       if (on_map_held_by_other(p)) return PlayerRefusal::MapTaken;
       body = found.body;
     } else {
+      if (hands_->pool_on_map() && on_map_held_by_other(p)) return PlayerRefusal::MapTaken;
       const auto kept = std::find_if(pooled_.begin(), pooled_.end(), [&](const Pooled& x) { return x.pop == pop; });
       if (kept != pooled_.end()) {  // its pool body is still held from an earlier possession: the same body again
         kept->release_at = kNever;
@@ -135,13 +142,14 @@ PlayerRefusal Players::possess(World& w, Player& p, PopId pop, EventId cause) {
         if (body == 0) return PlayerRefusal::NoBody;
         pooled_.push_back({pop, body, w.clock.tick, kNever, cause});
       }
+      hands_->arrive(w, body, cause);  // spec 68: onto the map, where the player is
     }
   }
   release(w, p, cause);  // may add a return: no iterator into returns_ survives it
   const bool on_map = hands_ && found.where == Hands::Where::OnMap;
   const bool begins = !home && !on_way && !on_map && exp_ != nullptr;
   returns_.erase(std::remove_if(returns_.begin(), returns_.end(), heading_home), returns_.end());
-  if (on_map) hands_->take(w, body);
+  if (body != 0) hands_->take(w, body);
   p.in = pop;
   p.body = body;
   p.mode = PlayerMode::Embodied;
@@ -261,8 +269,8 @@ void Players::body_check(World& w) {
       if (was_home) p.home_dead = true;
       if (p.body != 0 && hands_) {
         const auto pooled = std::find_if(pooled_.begin(), pooled_.end(), [&](const Pooled& x) { return x.body == p.body; });
+        hands_->give_back(w, p.body);
         if (pooled != pooled_.end()) pooled_.erase(pooled);  // the pop system freed the slot with the death
-        else hands_->give_back(w, p.body);
       }
       p.in = kNoPop;
       p.body = 0;

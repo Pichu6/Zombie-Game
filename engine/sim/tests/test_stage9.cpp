@@ -228,7 +228,7 @@ TEST_CASE("stage 9: a run: save/load keeps the hash across a join; golden") {
   run_hours(u, 6);
   CHECK(u.world->world_hash() == t.world->world_hash());
   CHECK(u.run->group() == t.run->group());
-  const std::uint64_t golden = 3408054401220377285ULL;  // re-pinned on MSVC 2026-10-12 for spec 67 (the body pool: 4 vacant slots reserved at setup); before: 11013989104237955141 for spec 66 (players), 11991910130597626213 for spec 65 (police staff), 12193839287339325708 for spec 64 (police cases), 3121408651712240989 for spec 63 (household bonds), 10650741264287969005 for spec 62 (payroll), 3062730944574475040 for spec 61 (employer rule), 1416787590115583712 for spec 60 (missing persons), 3562420989190914903 for spec 59 (expectations), 1685692074888937123 for decision 0065 (ids per creator)
+  const std::uint64_t golden = 4886721426998271541ULL;  // re-pinned on MSVC 2026-10-12 for spec 68 (an actor per pool slot, at the player start); before: 3408054401220377285 for spec 67 (the body pool), 11013989104237955141 for spec 66 (players), 11991910130597626213 for spec 65 (police staff), 12193839287339325708 for spec 64 (police cases), 3121408651712240989 for spec 63 (household bonds), 10650741264287969005 for spec 62 (payroll), 3062730944574475040 for spec 61 (employer rule), 1416787590115583712 for spec 60 (missing persons), 3562420989190914903 for spec 59 (expectations), 1685692074888937123 for decision 0065 (ids per creator)
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 9 golden world hash: " << t.world->world_hash());
 }

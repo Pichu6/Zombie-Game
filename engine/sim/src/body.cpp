@@ -361,7 +361,6 @@ std::string Bodies::cannot_disembody(const World& w, EntityId body) const {
   if (b.vacant) return "slot is vacant";
   if (!b.alive) return "the body is dead";
   if (b.spec.walker) return "a walker";
-  if (b.away) return "the body is away";
   for (EntityId child : w.locations.children(body)) {
     const bool is_wound = std::any_of(b.wounds.begin(), b.wounds.end(), [&](const Wound& wd) { return wd.id == child; });
     if (!is_wound) return "the body holds items";

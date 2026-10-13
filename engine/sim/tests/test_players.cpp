@@ -349,6 +349,7 @@ TEST_CASE("in the one world, an officer taken from his shift is missed, counted 
   t.world->check_every_tick = false;
   REQUIRE(t.players);
   REQUIRE(t.force.get() != nullptr);
+  t.players->set_hands(nullptr);  // spec 66 alone: the ladder, without a body left unattended on the block for four days
   const PopId officer = t.force->officers().front();
   t.world->submit({0, PlayerJoin, 0, -1, static_cast<std::int64_t>(DetachLevel::Free)});
   t.world->submit({0, PlayerPossess, 1, static_cast<std::int64_t>(officer), 0});

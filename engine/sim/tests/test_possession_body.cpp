@@ -51,6 +51,12 @@ struct FakeHands : Hands {
     return pool.erase(pop) == 1;
   }
   PopId successor(const World&, PopId) const override { return next; }
+  // Spec 68: pool bodies on the map.
+  bool on_map_pool = false;
+  std::vector<EntityId> arrived, left;
+  bool pool_on_map() const override { return on_map_pool; }
+  void arrive(World&, EntityId body, EventId) override { arrived.push_back(body); }
+  void leave(World&, EntityId body, EventId) override { left.push_back(body); }
 };
 
 struct Rig {
@@ -236,7 +242,7 @@ TEST_CASE("in the one world, an officer gets a pool body that lives, and a block
   REQUIRE(body != 0);
   CHECK(t.pops->registry().embodied_body(officer) == body);
   CHECK(t.bodies->get(body).alive);
-  CHECK(t.ai->possessed() == 0);  // the block's pop is back on its AI
+  CHECK(t.ai->possessed() == body);  // spec 68: the player's hands are on the officer, on the block
   REQUIRE(t.expectations->find(officer));
   t.world->jump(t.world->clock.tick + 2 * kTicksPerGameHour);
   CHECK(t.bodies->get(body).alive);  // two hours in the body simulation
@@ -252,4 +258,65 @@ TEST_CASE("in the one world, an officer gets a pool body that lives, and a block
   }
   CHECK(embodied == 1);
   CHECK(disembodied == 1);
+}
+
+// ---- Spec 68: a pool body on the map ---------------------------------------------------------------------------------
+
+TEST_CASE("a pool body comes onto the map when taken and leaves it when the player goes (A1)") {
+  Rig r;
+  r.hands.on_map_pool = true;
+  r.hands.on_map.clear();  // nobody has a map body: the home is a pool body too
+  r.hands.slots = 2;
+  r.join(kAda);
+  CHECK(r.hands.arrived == std::vector<EntityId>{900});
+  r.cmd(PlayerPossess, 1, kCop);
+  CHECK(r.hands.arrived == std::vector<EntityId>{900, 901});
+  CHECK(r.hands.left == std::vector<EntityId>{900});  // Ada's pool body left the map
+  CHECK(r.hands.taken == std::set<EntityId>{901});
+  r.cmd(PlayerReturn, 1);  // Ada's body is still held (dwell): the same body comes back onto the map
+  CHECK(r.hands.embodies == 2);
+  CHECK(r.hands.arrived == std::vector<EntityId>{900, 901, 900});
+  CHECK(r.hands.left == std::vector<EntityId>{900, 901});
+}
+
+TEST_CASE("with pool bodies on the map, a pool body counts toward the map's one pair of hands (A1)") {
+  Rig r;
+  r.hands.on_map_pool = true;
+  r.hands.slots = 2;
+  r.join(kAda);  // a map body
+  r.join(kCop);  // would be a second pair of hands on the map
+  CHECK(r.last_refusal() == PlayerRefusal::MapTaken);
+  CHECK(r.players->players().size() == 1);
+  CHECK(r.hands.embodies == 0);  // refused before any body was taken from the pool
+}
+
+TEST_CASE("in the one world, the officer comes onto the block where the player starts, moves, and leaves it (A1)" * doctest::skip(World::kDebugBuild)) {
+  tier0::Tier0 t = tier0::make_run(1);
+  t.world->check_every_tick = false;
+  const PopId you = census_pop_id(static_cast<std::uint32_t>(*t.census->person_of(t.run->controlled())));
+  t.world->submit({0, PlayerJoin, 0, static_cast<std::int64_t>(you), static_cast<std::int64_t>(DetachLevel::Free)});
+  const PopId officer = t.force->officers().front();
+  t.world->submit({0, PlayerPossess, 1, static_cast<std::int64_t>(officer), 0});
+  t.world->run_ticks(1);
+  const EntityId body = t.players->players()[0].body;
+  REQUIRE(body != 0);
+  const Cell gate = *t.map->find_object("pop_start", "player");
+  CHECK(t.actors->actor(body).pos == gate);
+  CHECK(!t.bodies->get(body).away);
+  CHECK(t.ai->possessed() == body);
+  int arrived = 0;
+  for (const Event& e : t.world->log.all()) arrived += e.type == EventType::ArrivedOnMap && e.subject == body && e.a == static_cast<std::int64_t>(officer);
+  CHECK(arrived == 1);
+  // He walks: a move to the yard gate, like any command for the body the player is in.
+  const Cell start = *t.map->find_object("found", "stranger");
+  t.world->submit({0, static_cast<std::uint16_t>(CommandType::MoveTo), body, pack_cell(start), 0});
+  t.world->run_ticks(kTicksPerGameHour / 60);  // a minute of game time
+  CHECK(!(t.actors->actor(body).pos == gate));
+  t.world->submit({0, PlayerReturn, 1, 0, 0});
+  t.world->run_ticks(1);
+  CHECK(t.bodies->get(body).away);  // off the block at once
+  CHECK(t.ai->possessed() == t.run->controlled());
+  t.world->jump(t.world->clock.tick + 2 * kTicksPerGameHour);
+  CHECK(t.pops->registry().embodied_body(officer) == 0);  // then back to the pool after the dwell
+  CHECK(t.bodies->get(body).vacant);
 }
