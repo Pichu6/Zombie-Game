@@ -126,9 +126,14 @@ std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::
   spec.culture = town.culture;
   spec.income = place.income;
   spec.people = place.town_people;
-  spec.mean_household_size = zs::mean_household_size(zs::load_nation(
-      data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml"));
+  const zs::NationDemographics nation = zs::load_nation(
+      data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml");
+  spec.mean_household_size = zs::mean_household_size(nation);
+  spec.household_shares = nation.household_sizes;  // spec 72
   for (const Station& s : stations) spec.lots.push_back({"police_station", s.name, s.plan.lot_width, s.plan.lot_depth});
+  // Spec 72: the Tier 0 block stands on a residential plot of its town, its census households living there.
+  spec.lots.push_back({"tier0_block", "the Tier 0 block", block["map"]["width"].value_or(32), frame_h, LandUse::Residential,
+                       static_cast<int>(town.households.size())});
   const TownLayout layout = lay_out_town(cat, load_urban_form(data + "/gen"), spec, seed);
   for (std::size_t i = 0; i < stations.size(); ++i) {
     const int pi = layout.lot_plot[i];

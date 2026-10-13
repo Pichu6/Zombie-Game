@@ -24,71 +24,6 @@ double room_m2(const StationRules& r, const std::string& type) {
   return it->second;
 }
 
-// Rule 8: the two-band plan houses use (spec 51 rule 4), from each room's target area: the lobby at the front on the
-// left, the others to the shallower band; a room is never smaller than its door cell, its seats, its kit and a way
-// between. Spec 70: with a depth limit (a site's frame), a room that fits neither band starts the next floor up.
-void lay_out(Dwelling& d, std::vector<Room> rooms, const std::vector<double>& target, const StationRules& rules,
-             const DwellingRules& dr, int max_depth) {
-  double total = 0;
-  for (double t : target) total += t;
-  const int width = std::clamp(static_cast<int>(std::lround(std::sqrt(total * 1.3))), rules.min_width, rules.max_width);
-  const int left_w = (width - 1) / 2, right_w = width - 1 - left_w;
-  const auto height = [&](std::size_t i, int w) {
-    const auto kit = dr.kits.find(rooms[i].type);
-    const int need = rooms[i].occupants + (kit == dr.kits.end() ? 0 : static_cast<int>(kit->second.size())) + 2;
-    const int h = std::max({2, static_cast<int>(std::ceil(target[i] / w)), (need + w - 1) / w});
-    return max_depth > 0 ? std::min(h, max_depth) : h;
-  };
-  std::vector<std::vector<int>> left(1), right(1);  // per floor, the rooms of each band in order
-  std::vector<int> depth_left(1, 0), depth_right(1, 0);
-  for (std::size_t i = 0; i < rooms.size(); ++i) {
-    int f = static_cast<int>(left.size()) - 1;
-    const int hl = height(i, left_w), hr = height(i, right_w);
-    const bool fits_left = max_depth <= 0 || depth_left[f] + hl <= max_depth;
-    const bool fits_right = max_depth <= 0 || depth_right[f] + hr <= max_depth;
-    bool to_left = rooms[i].type == "lobby" || depth_left[f] <= depth_right[f];
-    if (to_left && !fits_left && fits_right) to_left = false;
-    if (!to_left && !fits_right && fits_left) to_left = true;
-    if (!fits_left && !fits_right) {  // the next floor up
-      left.emplace_back();
-      right.emplace_back();
-      depth_left.push_back(0);
-      depth_right.push_back(0);
-      ++f;
-      to_left = true;
-    }
-    Room& room = rooms[i];
-    room.floor = f;
-    room.w = to_left ? left_w : right_w;
-    room.x = to_left ? 0 : left_w + 1;
-    room.h = to_left ? hl : hr;
-    (to_left ? left : right)[static_cast<std::size_t>(f)].push_back(static_cast<int>(i));
-    (to_left ? depth_left : depth_right)[static_cast<std::size_t>(f)] += room.h;
-  }
-  int depth = 0;
-  for (std::size_t f = 0; f < left.size(); ++f) depth = std::max({depth, depth_left[f], depth_right[f]});
-  for (auto* bands : {&left, &right})
-    for (const std::vector<int>& band : *bands) {
-      int y = 0;
-      for (int i : band) {
-        rooms[static_cast<std::size_t>(i)].y = y;
-        y += rooms[static_cast<std::size_t>(i)].h;
-      }
-      if (!band.empty()) rooms[static_cast<std::size_t>(band.back())].h += depth - y;  // the last room takes what is left
-    }
-  d.rooms = std::move(rooms);
-  d.floors = static_cast<int>(left.size());
-  d.width = width;
-  d.depth = depth;
-  d.corridor_x = left_w;
-  d.target_area_m2 = total;
-  d.house_x = dr.lot_side;
-  d.house_y = dr.lot_front;
-  d.lot_width = width + 2 * dr.lot_side;
-  d.lot_depth = dr.lot_front + depth + dr.lot_back;
-  d.fridge = false;
-}
-
 }  // namespace
 
 StationRules load_station_rules(const std::string& gen_dir) {
@@ -164,7 +99,7 @@ std::vector<Station> plan_stations(const Catalog& cat, const Town& town, const A
     s.plan.street = s.street;
     s.plan.number = s.number;
     s.plan.address = s.address;
-    lay_out(s.plan, std::move(rooms), target, rules, dwelling_rules, max_depth);
+    lay_out_rooms(s.plan, std::move(rooms), target, rules.min_width, rules.max_width, dwelling_rules, max_depth);
     out.push_back(std::move(s));
   }
   return out;

@@ -83,102 +83,108 @@ int Dwelling::beds() const {
   return n;
 }
 
-std::vector<Dwelling> plan_dwellings(const Town& town, const DwellingRules& rules, const std::string& income, std::uint64_t seed) {
+Dwelling plan_house(int index, int members, bool couple, const DwellingRules& rules, const std::string& income,
+                    std::uint64_t seed, int max_width) {
   const Keyed r(mix64(seed, hash_str("dwellings")));
+  Dwelling d;
+  d.household = index;
+  d.income = income;
+  const int n = std::max(1, members);
+  const auto id = static_cast<std::uint64_t>(index);
+  // Rule 2: floor area from the members and the income group.
+  const double area = std::max(rules.min_area_m2, n * lookup(rules.area_per_person_m2, income, 30) * (1 + rules.spread * r.bell(id, kArea)));
+  d.target_area_m2 = area;
+  d.fridge = !listed(rules.no_fridge, income);
+  d.bathroom = !listed(rules.no_bathroom, income);
+  // Rule 3: the rooms. The head and a partner share a bedroom; the others two to a room.
+  const int others = std::max(0, n - 1 - (couple ? 1 : 0));
+  const int bedrooms = std::min(rules.max_bedrooms, 1 + (others + 1) / 2);
+  std::vector<int> occupants(static_cast<std::size_t>(bedrooms), 0);
+  occupants[0] = 1 + (couple ? 1 : 0);
+  for (int i = 0; i < others; ++i) occupants[static_cast<std::size_t>(std::min(bedrooms - 1, bedrooms == 1 ? 0 : 1 + i / 2))]++;
+  std::vector<Room> rooms;
+  if (area < rules.main_room_below_m2) {
+    rooms.push_back({"main"});
+  } else {
+    rooms.push_back({"living"});
+    rooms.push_back({"kitchen"});
+  }
+  if (d.bathroom) rooms.push_back({"bath"});
+  for (int b = 0; b < bedrooms; ++b) rooms.push_back({"bedroom", 0, 0, 0, 0, occupants[static_cast<std::size_t>(b)]});
+  // Rule 4: the footprint, a corridor down its middle and two bands of rooms.
+  const int width = std::clamp(static_cast<int>(std::lround(std::sqrt(area * 1.3))), 5, std::max(5, max_width));
+  double weights = 0;
+  for (const Room& room : rooms) weights += lookup(rules.room_weight, room.type, 1);
+  const double net = area * (width - 1) / width;
+  // Bands first: the living or main room on the left, kitchen and bathroom on the right, bedrooms to the lighter band.
+  std::vector<int> left, right;
+  std::vector<double> target(rooms.size());
+  double load_left = 0, load_right = 0;  // m2 wanted in each band
+  for (std::size_t i = 0; i < rooms.size(); ++i) {
+    target[i] = net * lookup(rules.room_weight, rooms[i].type, 1) / weights;
+    const bool to_left = rooms[i].type == "main" || rooms[i].type == "living" ? true
+                         : rooms[i].type == "kitchen" || rooms[i].type == "bath" ? false
+                                                                                 : load_left <= load_right;
+    (to_left ? left : right).push_back(static_cast<int>(i));
+    (to_left ? load_left : load_right) += target[i];
+  }
+  if (right.empty()) {  // keep both bands in use: the last room crosses over
+    load_left -= target[static_cast<std::size_t>(left.back())];
+    load_right += target[static_cast<std::size_t>(left.back())];
+    right.push_back(left.back());
+    left.pop_back();
+  }
+  // Each band is as wide as its share of the rooms, at least 2 cells.
+  const int left_w = std::clamp(static_cast<int>(std::lround((width - 1) * load_left / (load_left + load_right))), 2, width - 3);
+  const int right_w = width - 1 - left_w;
+  for (auto* band : {&left, &right})
+    for (int i : *band) {
+      Room& room = rooms[static_cast<std::size_t>(i)];
+      room.w = band == &left ? left_w : right_w;
+      room.x = band == &left ? 0 : left_w + 1;
+      room.h = std::max({2, static_cast<int>(std::lround(target[static_cast<std::size_t>(i)] / room.w)), (min_cells(room) + room.w - 1) / room.w});
+    }
+  auto band_depth = [&](const std::vector<int>& band) {
+    int s = 0;
+    for (int i : band) s += rooms[static_cast<std::size_t>(i)].h;
+    return s;
+  };
+  const int depth = std::max({4, static_cast<int>(std::ceil(area / width)), band_depth(left), band_depth(right)});
+  for (auto* band : {&left, &right}) {
+    int y = 0;
+    for (int i : *band) {
+      rooms[static_cast<std::size_t>(i)].y = y;
+      y += rooms[static_cast<std::size_t>(i)].h;
+    }
+    rooms[static_cast<std::size_t>(band->back())].h += depth - y;  // the last room takes what is left
+  }
+  d.rooms = std::move(rooms);
+  d.width = width;
+  d.depth = depth;
+  d.corridor_x = left_w;
+  // Rule 5: the lot.
+  d.house_x = rules.lot_side;
+  d.house_y = rules.lot_front;
+  d.lot_width = width + 2 * rules.lot_side;
+  d.lot_depth = rules.lot_front + depth + rules.lot_back;
+  // Rule 7: the food follows the household.
+  const double day = n * rules.food_kj_per_person_day;
+  d.pantry_kj = static_cast<std::int64_t>(std::llround(day * lookup(rules.pantry_days, income, 7)));
+  d.fridge_kj = d.fridge ? static_cast<std::int64_t>(std::llround(day * rules.fridge_days)) : 0;
+  return d;
+}
+
+std::vector<Dwelling> plan_dwellings(const Town& town, const DwellingRules& rules, const std::string& income, std::uint64_t seed) {
   std::vector<Dwelling> out;
   std::map<std::string, int> on_street;
   for (const Household& hh : town.households) {
-    Dwelling d;
-    d.household = hh.index;
-    d.income = income;
+    bool couple = false;
+    for (std::size_t m : hh.members) couple = couple || town.pops[m].role == "partner";
+    Dwelling d = plan_house(hh.index, static_cast<int>(hh.members.size()), couple, rules, income, seed);
     // Rule 1: numbered along the town's streets, unique per street.
     d.street = town.streets.empty() ? std::string("Main Street") : town.streets[static_cast<std::size_t>(hh.index) % town.streets.size()];
     d.number = 101 + on_street[d.street]++;
     d.address = std::to_string(d.number) + " " + d.street;
-    const int n = std::max<int>(1, static_cast<int>(hh.members.size()));
-    const auto id = static_cast<std::uint64_t>(hh.index);
-    // Rule 2: floor area from the members and the income group.
-    const double area = std::max(rules.min_area_m2, n * lookup(rules.area_per_person_m2, income, 30) * (1 + rules.spread * r.bell(id, kArea)));
-    d.target_area_m2 = area;
-    d.fridge = !listed(rules.no_fridge, income);
-    d.bathroom = !listed(rules.no_bathroom, income);
-    // Rule 3: the rooms. The head and a partner share a bedroom; the others two to a room.
-    bool couple = false;
-    for (std::size_t m : hh.members) couple = couple || town.pops[m].role == "partner";
-    const int others = std::max(0, n - 1 - (couple ? 1 : 0));
-    const int bedrooms = std::min(rules.max_bedrooms, 1 + (others + 1) / 2);
-    std::vector<int> occupants(static_cast<std::size_t>(bedrooms), 0);
-    occupants[0] = 1 + (couple ? 1 : 0);
-    for (int i = 0; i < others; ++i) occupants[static_cast<std::size_t>(std::min(bedrooms - 1, bedrooms == 1 ? 0 : 1 + i / 2))]++;
-    std::vector<Room> rooms;
-    if (area < rules.main_room_below_m2) {
-      rooms.push_back({"main"});
-    } else {
-      rooms.push_back({"living"});
-      rooms.push_back({"kitchen"});
-    }
-    if (d.bathroom) rooms.push_back({"bath"});
-    for (int b = 0; b < bedrooms; ++b) rooms.push_back({"bedroom", 0, 0, 0, 0, occupants[static_cast<std::size_t>(b)]});
-    // Rule 4: the footprint, a corridor down its middle and two bands of rooms.
-    const int width = std::clamp(static_cast<int>(std::lround(std::sqrt(area * 1.3))), 5, 14);
-    double weights = 0;
-    for (const Room& room : rooms) weights += lookup(rules.room_weight, room.type, 1);
-    const double net = area * (width - 1) / width;
-    // Bands first: the living or main room on the left, kitchen and bathroom on the right, bedrooms to the lighter band.
-    std::vector<int> left, right;
-    std::vector<double> target(rooms.size());
-    double load_left = 0, load_right = 0;  // m2 wanted in each band
-    for (std::size_t i = 0; i < rooms.size(); ++i) {
-      target[i] = net * lookup(rules.room_weight, rooms[i].type, 1) / weights;
-      const bool to_left = rooms[i].type == "main" || rooms[i].type == "living" ? true
-                           : rooms[i].type == "kitchen" || rooms[i].type == "bath" ? false
-                                                                                   : load_left <= load_right;
-      (to_left ? left : right).push_back(static_cast<int>(i));
-      (to_left ? load_left : load_right) += target[i];
-    }
-    if (right.empty()) {  // keep both bands in use: the last room crosses over
-      load_left -= target[static_cast<std::size_t>(left.back())];
-      load_right += target[static_cast<std::size_t>(left.back())];
-      right.push_back(left.back());
-      left.pop_back();
-    }
-    // Each band is as wide as its share of the rooms, at least 2 cells.
-    const int left_w = std::clamp(static_cast<int>(std::lround((width - 1) * load_left / (load_left + load_right))), 2, width - 3);
-    const int right_w = width - 1 - left_w;
-    for (auto* band : {&left, &right})
-      for (int i : *band) {
-        Room& room = rooms[static_cast<std::size_t>(i)];
-        room.w = band == &left ? left_w : right_w;
-        room.x = band == &left ? 0 : left_w + 1;
-        room.h = std::max({2, static_cast<int>(std::lround(target[static_cast<std::size_t>(i)] / room.w)), (min_cells(room) + room.w - 1) / room.w});
-      }
-    auto band_depth = [&](const std::vector<int>& band) {
-      int s = 0;
-      for (int i : band) s += rooms[static_cast<std::size_t>(i)].h;
-      return s;
-    };
-    const int depth = std::max({4, static_cast<int>(std::ceil(area / width)), band_depth(left), band_depth(right)});
-    for (auto* band : {&left, &right}) {
-      int y = 0;
-      for (int i : *band) {
-        rooms[static_cast<std::size_t>(i)].y = y;
-        y += rooms[static_cast<std::size_t>(i)].h;
-      }
-      rooms[static_cast<std::size_t>(band->back())].h += depth - y;  // the last room takes what is left
-    }
-    d.rooms = std::move(rooms);
-    d.width = width;
-    d.depth = depth;
-    d.corridor_x = left_w;
-    // Rule 5: the lot.
-    d.house_x = rules.lot_side;
-    d.house_y = rules.lot_front;
-    d.lot_width = width + 2 * rules.lot_side;
-    d.lot_depth = rules.lot_front + depth + rules.lot_back;
-    // Rule 7: the food follows the household.
-    const double day = n * rules.food_kj_per_person_day;
-    d.pantry_kj = static_cast<std::int64_t>(std::llround(day * lookup(rules.pantry_days, income, 7)));
-    d.fridge_kj = d.fridge ? static_cast<std::int64_t>(std::llround(day * rules.fridge_days)) : 0;
     out.push_back(std::move(d));
   }
   return out;
@@ -361,6 +367,72 @@ std::string floor_grid(const Dwelling& d, int level) {
 }
 
 }  // namespace
+
+// Spec 69 rule 8, shared by spec 72: the two-band plan houses use (spec 51 rule 4), from each room's target area: the
+// `front` room at the front on the left, the others to the shallower band; a room is never smaller than its door cell,
+// its seats, its kit and a way between. Spec 70: with a depth limit (a site's frame), a room that fits neither band
+// starts the next floor up.
+void lay_out_rooms(Dwelling& d, std::vector<Room> rooms, const std::vector<double>& target, int min_width, int max_width,
+                   const DwellingRules& dr, int max_depth, const std::string& front) {
+  double total = 0;
+  for (double t : target) total += t;
+  const int width = std::clamp(static_cast<int>(std::lround(std::sqrt(total * 1.3))), min_width, max_width);
+  const int left_w = (width - 1) / 2, right_w = width - 1 - left_w;
+  const auto height = [&](std::size_t i, int w) {
+    const auto kit = dr.kits.find(rooms[i].type);
+    const int need = rooms[i].occupants + (kit == dr.kits.end() ? 0 : static_cast<int>(kit->second.size())) + 2;
+    const int h = std::max({2, static_cast<int>(std::ceil(target[i] / w)), (need + w - 1) / w});
+    return max_depth > 0 ? std::min(h, max_depth) : h;
+  };
+  std::vector<std::vector<int>> left(1), right(1);  // per floor, the rooms of each band in order
+  std::vector<int> depth_left(1, 0), depth_right(1, 0);
+  for (std::size_t i = 0; i < rooms.size(); ++i) {
+    int f = static_cast<int>(left.size()) - 1;
+    const int hl = height(i, left_w), hr = height(i, right_w);
+    const bool fits_left = max_depth <= 0 || depth_left[f] + hl <= max_depth;
+    const bool fits_right = max_depth <= 0 || depth_right[f] + hr <= max_depth;
+    bool to_left = rooms[i].type == front || depth_left[f] <= depth_right[f];
+    if (to_left && !fits_left && fits_right) to_left = false;
+    if (!to_left && !fits_right && fits_left) to_left = true;
+    if (!fits_left && !fits_right) {  // the next floor up
+      left.emplace_back();
+      right.emplace_back();
+      depth_left.push_back(0);
+      depth_right.push_back(0);
+      ++f;
+      to_left = true;
+    }
+    Room& room = rooms[i];
+    room.floor = f;
+    room.w = to_left ? left_w : right_w;
+    room.x = to_left ? 0 : left_w + 1;
+    room.h = to_left ? hl : hr;
+    (to_left ? left : right)[static_cast<std::size_t>(f)].push_back(static_cast<int>(i));
+    (to_left ? depth_left : depth_right)[static_cast<std::size_t>(f)] += room.h;
+  }
+  int depth = 0;
+  for (std::size_t f = 0; f < left.size(); ++f) depth = std::max({depth, depth_left[f], depth_right[f]});
+  for (auto* bands : {&left, &right})
+    for (const std::vector<int>& band : *bands) {
+      int y = 0;
+      for (int i : band) {
+        rooms[static_cast<std::size_t>(i)].y = y;
+        y += rooms[static_cast<std::size_t>(i)].h;
+      }
+      if (!band.empty()) rooms[static_cast<std::size_t>(band.back())].h += depth - y;  // the last room takes what is left
+    }
+  d.rooms = std::move(rooms);
+  d.floors = static_cast<int>(left.size());
+  d.width = width;
+  d.depth = depth;
+  d.corridor_x = left_w;
+  d.target_area_m2 = total;
+  d.house_x = dr.lot_side;
+  d.house_y = dr.lot_front;
+  d.lot_width = width + 2 * dr.lot_side;
+  d.lot_depth = dr.lot_front + depth + dr.lot_back;
+  d.fridge = false;
+}
 
 std::string building_toml(const Dwelling& d, const DwellingRules& rules, std::uint64_t seed, const std::string& header,
                           const std::string& marker_kind, const std::string& marker_id) {

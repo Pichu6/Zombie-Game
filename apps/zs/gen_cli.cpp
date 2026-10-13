@@ -9,6 +9,7 @@
 //   zs gen stations [--seed N] [--people P] [--profile ISO3]   the town's police agency and its stations (spec 69)
 //   zs gen station  [--seed N] [--people P] [--station K] [--out FILE]   one station as a site map
 //   zs gen layout [--seed N] [--people P] [--country ID] [--bmp FILE]   the town's streets, blocks and plots (spec 71)
+//   zs gen plot [--seed N] [--people P] [--plot N | --address A] [--out FILE]   what stands on a plot (spec 72)
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE]
 //                                                  world fields, land, deposits and countries: summary and a text map
@@ -18,12 +19,14 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
 #include "zs/gen/dwellings.h"
 #include "zs/gen/stations.h"
 #include "zs/gen/town_layout.h"
+#include "zs/gen/plot_contents.h"
 #include "zs/gen/keyed.h"
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
@@ -49,6 +52,7 @@ int usage() {
                "       zs gen houses|house [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]   (spec 51)\n"
                "       zs gen stations|station [--seed N] [--people P] [--profile ISO3] [--station K] [--out FILE]   (spec 69)\n"
                "       zs gen layout [--seed N] [--people P] [--country ID] [--bmp FILE]   (spec 71)\n"
+               "       zs gen plot [--seed N] [--people P] [--country ID] [--plot N | --address A] [--out FILE]   (spec 72)\n"
                "       zs gen cultures\n"
                "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE [--political]]\n";
   return 2;
@@ -211,7 +215,7 @@ int gen_main(int argc, char** argv) {
       std::cout << toml;
       return 0;
     }
-    if (cmd == "layout") {  // spec 71: the town's streets, blocks and plots
+    if (cmd == "layout" || cmd == "plot") {  // spec 71: the town's streets, blocks and plots; spec 72: what stands on one
       auto mix = zs::gen::load_mix(arg(argc, argv, "--mix", data + "/gen/populations/tier0_block.toml"));
       if (const std::string c = arg(argc, argv, "--country", ""); !c.empty()) zs::gen::set_country(mix, c, data);
       const auto town = zs::gen::generate_town(cat, mix, seed);
@@ -221,13 +225,53 @@ int gen_main(int argc, char** argv) {
       spec.income = zs::gen::income_group(mix);
       spec.people = std::atof(arg(argc, argv, "--people", "17626").c_str());
       spec.mean_household_size = mix.nation ? zs::mean_household_size(*mix.nation) : 2.5;
-      // Its police stations (spec 69) need plots of their own.
+      if (mix.nation) spec.household_shares = mix.nation->household_sizes;
+      // Its police stations (spec 69) need plots of their own, and so does the Tier 0 block with its census households.
       const zs::AgencyParams ap = zs::load_agency_params(data + "/services/police.toml", "");
       const auto rules = zs::gen::load_dwelling_rules(data + "/gen");
       const auto stations = zs::gen::plan_stations(cat, town, zs::plan_agency(ap, spec.people, 6), ap.shifts,
                                                    zs::gen::load_station_rules(data + "/gen"), rules, seed, 20);
       for (const auto& s : stations) spec.lots.push_back({"police_station", s.name, s.plan.lot_width, s.plan.lot_depth});
+      spec.lots.push_back({"tier0_block", "the Tier 0 block", 32, 28, zs::gen::LandUse::Residential, static_cast<int>(town.households.size())});
       const auto layout = zs::gen::lay_out_town(cat, zs::gen::load_urban_form(data + "/gen"), spec, seed);
+      if (cmd == "plot") {
+        const auto prules = zs::gen::load_plot_rules(data + "/gen");
+        int pick = std::atoi(arg(argc, argv, "--plot", "0").c_str()) - 1;
+        if (const std::string a = arg(argc, argv, "--address", ""); !a.empty())
+          for (std::size_t i = 0; i < layout.plots.size(); ++i)
+            if (layout.plots[i].address == a) pick = static_cast<int>(i);
+        if (pick < 0) {  // no plot named: one of each kind, to try
+          std::map<std::string, int> first;
+          std::map<std::string, int> count;
+          for (int i = 0; i < static_cast<int>(layout.plots.size()); ++i) {
+            const std::string kind = zs::gen::plan_plot(spec, layout, i, rules, prules, seed).kind;
+            first.try_emplace(kind, i);
+            ++count[kind];
+          }
+          std::cout << spec.name << ": " << layout.plots.size() << " plots\n";
+          for (const auto& [kind, i] : first)
+            std::cout << "  " << kind << ": " << count[kind] << ", e.g. plot " << i + 1 << ", " << layout.plots[static_cast<std::size_t>(i)].address << "\n";
+          std::cout << "zs gen plot --plot N (or --address \"...\") --out f.toml writes one as a site map\n";
+          return 0;
+        }
+        if (pick >= static_cast<int>(layout.plots.size())) {
+          std::cerr << "plot must be 1.." << layout.plots.size() << "\n";
+          return 2;
+        }
+        const auto plan = zs::gen::plan_plot(spec, layout, pick, rules, prules, seed);
+        const std::string toml = zs::gen::plot_toml(spec, layout, pick, rules, prules, seed);
+        if (toml.empty()) {
+          std::cout << layout.plots[static_cast<std::size_t>(pick)].address << ": " << plan.kind
+                    << (plan.kind == "block" ? " (data/tier0/map/block.toml)" : " (zs gen station writes it)") << "\n";
+          return 0;
+        }
+        if (const std::string out = arg(argc, argv, "--out", ""); !out.empty()) {
+          std::ofstream(out, std::ios::binary) << toml;
+          std::cout << "wrote " << out << "\n";
+        }
+        std::cout << toml;
+        return 0;
+      }
       std::cout << zs::gen::layout_summary(spec, layout);
       if (const std::string bmp = arg(argc, argv, "--bmp", ""); !bmp.empty()) {
         // 2 m a pixel: streets grey, then each plot by its use, with its outline darker.

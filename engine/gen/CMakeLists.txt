@@ -12,6 +12,7 @@ add_library(zs_gen
   src/dwellings.cpp
   src/stations.cpp
   src/town_layout.cpp
+  src/plot_contents.cpp
   src/world_land.cpp
   src/world_deposits.cpp
   src/world_countries.cpp

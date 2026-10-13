@@ -221,18 +221,19 @@ TownLayout lay_out_town(const Catalog& cat, const UrbanForm& form, const TownSpe
       }
     }
   }
-  // Rule 6: a lot that needs its own plot (a police station) takes a run of plots side by side in a commercial block near
-  // the centre, wide and deep enough; they become one civic plot.
+  // Rule 6: a lot that needs its own plot (a police station) takes a run of plots side by side in a block of its district
+  // (commercial for a station; spec 72: residential for the Tier 0 block) nearest the centre, wide and deep enough; they
+  // become one plot: civic for a commercial lot, residential (holding the lot's own households) for a residential one.
   t.lot_plot.assign(spec.lots.size(), -1);
   std::vector<int> lot_raw(spec.lots.size(), -1);
   for (std::size_t li = 0; li < spec.lots.size(); ++li) {
     const TownSpec::Lot& lot = spec.lots[li];
     for (int oi = 0; oi < n && lot_raw[li] < 0; ++oi) {
       const int bi = order[static_cast<std::size_t>(oi)];
-      if (t.blocks[static_cast<std::size_t>(bi)].use != LandUse::Commercial) continue;
+      if (t.blocks[static_cast<std::size_t>(bi)].use != lot.in) continue;
       for (std::size_t s = 0; s < raws.size() && lot_raw[li] < 0; ++s) {
         const Raw& first = raws[s];
-        if (first.plot.block != bi || first.merged_away || first.plot.lot >= 0 || first.plot.use != LandUse::Commercial) continue;
+        if (first.plot.block != bi || first.merged_away || first.plot.lot >= 0 || first.plot.use != lot.in) continue;
         const bool along_x = t.blocks[static_cast<std::size_t>(bi)].w >= t.blocks[static_cast<std::size_t>(bi)].h;
         const int deep = along_x ? first.plot.h : first.plot.w;
         if (deep < lot.depth_m) continue;
@@ -250,7 +251,7 @@ TownLayout lay_out_town(const Catalog& cat, const UrbanForm& form, const TownSpe
           if (along_x) keep.plot.w += raws[m].plot.w;
           else keep.plot.h += raws[m].plot.h;
         }
-        keep.plot.use = LandUse::Civic;
+        keep.plot.use = lot.in == LandUse::Commercial ? LandUse::Civic : lot.in;
         keep.plot.lot = static_cast<int>(li);
         lot_raw[li] = static_cast<int>(s);
       }
@@ -276,14 +277,23 @@ TownLayout lay_out_town(const Catalog& cat, const UrbanForm& form, const TownSpe
   // the plots nearest the centre become apartment houses, up to max_units_per_plot each. Households fill the units from
   // the centre out.
   std::vector<int> res;
-  for (int i = 0; i < static_cast<int>(t.plots.size()); ++i)
-    if (t.plots[static_cast<std::size_t>(i)].use == LandUse::Residential) res.push_back(i);
+  int on_lots = 0;  // spec 72: households living on a residential lot (the Tier 0 block) are housed there
+  for (int i = 0; i < static_cast<int>(t.plots.size()); ++i) {
+    Plot& p = t.plots[static_cast<std::size_t>(i)];
+    if (p.use != LandUse::Residential) continue;
+    if (p.lot >= 0) {
+      p.units = p.households = std::min(spec.lots[static_cast<std::size_t>(p.lot)].households, t.households - on_lots);
+      on_lots += p.households;
+      continue;
+    }
+    res.push_back(i);
+  }
   const auto plot_d = [&](int i) {
     const Plot& p = t.plots[static_cast<std::size_t>(i)];
     return sq(2 * p.x + p.w - t.width_m) + sq(2 * p.y + p.h - t.height_m);
   };
   std::stable_sort(res.begin(), res.end(), [&](int a, int b) { return plot_d(a) < plot_d(b); });
-  const int want_units = static_cast<int>(std::ceil(t.households * (1.0 + form.vacancy)));
+  const int want_units = static_cast<int>(std::ceil((t.households - on_lots) * (1.0 + form.vacancy)));
   for (int i : res) t.plots[static_cast<std::size_t>(i)].units = 1;
   int extra = want_units - static_cast<int>(res.size());
   for (int i : res) {
@@ -298,7 +308,7 @@ TownLayout lay_out_town(const Catalog& cat, const UrbanForm& form, const TownSpe
     ++t.plots[static_cast<std::size_t>(res[q])].units;
     --extra;
   }
-  int left = t.households;
+  int left = t.households - on_lots;
   for (int i : res) {
     Plot& p = t.plots[static_cast<std::size_t>(i)];
     const int take = std::min(left, p.units);

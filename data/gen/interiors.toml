@@ -46,3 +46,20 @@ kit = ["toilet", "sink"]
 
 [room.cell]
 kit = ["toilet"]
+
+# Spec 72: what stands on a town's plots (estimates). A flat is one room with its kitchen, bathroom fixtures and beds; a
+# stair hall leads to the stairs at the back of the corridor.
+[room.flat]
+kit = ["pantry", "fridge", "stove", "sink", "table", "toilet", "wardrobe", "lamp"]
+
+[room.hall]
+kit = ["lamp"]
+
+[room.shop]
+kit = ["desk", "shelf", "shelf", "shelf", "lamp"]
+
+[room.storeroom]
+kit = ["shelf", "shelf", "stockpile"]
+
+[room.workshop]
+kit = ["workbench", "shelf", "stockpile", "lamp"]

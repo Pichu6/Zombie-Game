@@ -1,0 +1,8 @@
+# Spec 72: what stands on a town's plots (decision 0077 item 3.3). EVERY number here is an ESTIMATE taken by Claude: no
+# source on lot coverage or shop and workshop plans was found (research to do); households come from the country's sizes.
+
+couple_share = 0.7            # households of two or more headed by a couple (the head and a partner share a bedroom)
+coverage_commercial = 0.6     # share of a commercial plot the building covers
+coverage_industrial = 0.5     # share of an industrial plot the building covers
+trees_per_100m2 = 1.0         # a park's trees
+benches_per_400m2 = 1.0       # a park's benches

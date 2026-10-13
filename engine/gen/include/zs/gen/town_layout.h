@@ -4,6 +4,7 @@
 // blocks cut into plots that each front a street, and every household and station given a plot and an address. All
 // geometry is in whole metres; a pure function of its inputs and a seed.
 #pragma once
+#include <array>
 #include <cstdint>
 #include <map>
 #include <string>
@@ -27,20 +28,25 @@ struct UrbanForm {
 // data/gen/urban_form.toml from `gen_dir`.
 UrbanForm load_urban_form(const std::string& gen_dir);
 
+enum class LandUse : std::uint8_t { Residential = 0, Commercial = 1, Industrial = 2, Park = 3, Civic = 4 };
+const char* land_use_name(LandUse u);
+
 // What the layout must hold (the town's record).
 struct TownSpec {
   std::string name, culture, income = "upper_middle";
   double people = 0;
   double mean_household_size = 3;
+  // Spec 72: the country's household sizes (shares of 1, 2-3, 4-5, 6+ people, spec 45); empty: every household is of
+  // the mean size.
+  std::array<double, 4> household_shares{};
   struct Lot {  // a building that needs its own plot (spec 69: a police station's lot)
     std::string kind, name;
     int width_m = 0, depth_m = 0;
+    LandUse in = LandUse::Commercial;  // spec 72: the district it stands in (the Tier 0 block: residential)
+    int households = 0;                // spec 72: the town's households who live on it (the block's census households)
   };
   std::vector<Lot> lots;
 };
-
-enum class LandUse : std::uint8_t { Residential = 0, Commercial = 1, Industrial = 2, Park = 3, Civic = 4 };
-const char* land_use_name(LandUse u);
 
 struct Street {
   std::string name;

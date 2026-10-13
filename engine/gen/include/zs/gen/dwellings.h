@@ -54,12 +54,21 @@ struct Dwelling {
   int beds() const;
 };
 
+// One household's house (rules 2-5, 7): its members, whether the head lives with a partner, the income group; spec 72: no
+// wider than `max_width` (a plot's frontage less its sides). Its street and address are left empty.
+Dwelling plan_house(int index, int members, bool couple, const DwellingRules& rules, const std::string& income,
+                    std::uint64_t seed, int max_width = 14);
 // One dwelling per household, in household order (rule 1). Its own keyed draws: the town does not change.
 std::vector<Dwelling> plan_dwellings(const Town& town, const DwellingRules& rules, const std::string& income, std::uint64_t seed);
 // Writes each dwelling's address into its household (rule 1).
 void assign_addresses(Town& town, const std::vector<Dwelling>& dwellings);
 // The house on its lot with its interior, as a site-map TOML (rules 4-8).
 std::string house_toml(const Town& town, const Dwelling& d, const DwellingRules& rules, std::uint64_t seed);
+// Spec 72 (spec 69's station planner, shared): rooms with target areas laid out in two bands either side of a corridor,
+// the width from the total area within [min_width, max_width], the first room of type `front` at the front on the left;
+// with max_depth > 0 a room that fits neither band starts the next floor up. Sets the plan's footprint and a lot around it.
+void lay_out_rooms(Dwelling& d, std::vector<Room> rooms, const std::vector<double>& target, int min_width, int max_width,
+                   const DwellingRules& rules, int max_depth, const std::string& front = "lobby");
 // Any building planned as a Dwelling (a corridor down the middle, rooms in two bands, a lot around it) as a site-map TOML:
 // floors, walls, doors, windows and the furniture of each room; `header` is its comment line, and `marker` an object put
 // at the front door (a house's census home; spec 69: the station). `key` keys the furniture.

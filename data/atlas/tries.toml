@@ -14,6 +14,16 @@ kind = "window"
 added = 2026-10-11
 
 [[try]]
+id = "plot-contents"
+part = "generators"
+spec = "72"
+title = "What stands on a town's plots"
+what = "The town of 17,626 plot by plot: how many houses, apartment houses, shops, workshops and parks, with an address of each; zs gen plot --plot N --out f.toml writes one as a site map (decision 0077)."
+run = ["gen", "plot", "--seed", "{seed}", "--people", "17626"]
+kind = "text"
+added = 2026-10-13
+
+[[try]]
 id = "town-layout"
 part = "generators"
 spec = "71"
