@@ -5,9 +5,10 @@
 //                 kinds: person (default), street, town, province, country
 //   zs gen houses [--seed N] [--mix FILE] [--country ID]        every household's dwelling: address, size, rooms (spec 51)
 //   zs gen house  [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]
+//                                                  one house with its interior as a site map; prints its plan
 //   zs gen stations [--seed N] [--people P] [--profile ISO3]   the town's police agency and its stations (spec 69)
 //   zs gen station  [--seed N] [--people P] [--station K] [--out FILE]   one station as a site map
-//                                                  one house with its interior as a site map; prints its plan
+//   zs gen layout [--seed N] [--people P] [--country ID] [--bmp FILE]   the town's streets, blocks and plots (spec 71)
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE]
 //                                                  world fields, land, deposits and countries: summary and a text map
@@ -22,6 +23,7 @@
 
 #include "zs/gen/dwellings.h"
 #include "zs/gen/stations.h"
+#include "zs/gen/town_layout.h"
 #include "zs/gen/keyed.h"
 #include "zs/gen/names.h"
 #include "zs/gen/pops.h"
@@ -46,6 +48,7 @@ int usage() {
                "       zs gen names --culture ID [--kind person|street|town|province|country] [--count N] [--seed N]\n"
                "       zs gen houses|house [--seed N] [--mix FILE] [--country ID] [--household N] [--out FILE]   (spec 51)\n"
                "       zs gen stations|station [--seed N] [--people P] [--profile ISO3] [--station K] [--out FILE]   (spec 69)\n"
+               "       zs gen layout [--seed N] [--people P] [--country ID] [--bmp FILE]   (spec 71)\n"
                "       zs gen cultures\n"
                "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE [--political]]\n";
   return 2;
@@ -206,6 +209,48 @@ int gen_main(int argc, char** argv) {
         std::cout << "wrote " << out << "\n";
       }
       std::cout << toml;
+      return 0;
+    }
+    if (cmd == "layout") {  // spec 71: the town's streets, blocks and plots
+      auto mix = zs::gen::load_mix(arg(argc, argv, "--mix", data + "/gen/populations/tier0_block.toml"));
+      if (const std::string c = arg(argc, argv, "--country", ""); !c.empty()) zs::gen::set_country(mix, c, data);
+      const auto town = zs::gen::generate_town(cat, mix, seed);
+      zs::gen::TownSpec spec;
+      spec.name = town.name;
+      spec.culture = town.culture;
+      spec.income = zs::gen::income_group(mix);
+      spec.people = std::atof(arg(argc, argv, "--people", "17626").c_str());
+      spec.mean_household_size = mix.nation ? zs::mean_household_size(*mix.nation) : 2.5;
+      // Its police stations (spec 69) need plots of their own.
+      const zs::AgencyParams ap = zs::load_agency_params(data + "/services/police.toml", "");
+      const auto rules = zs::gen::load_dwelling_rules(data + "/gen");
+      const auto stations = zs::gen::plan_stations(cat, town, zs::plan_agency(ap, spec.people, 6), ap.shifts,
+                                                   zs::gen::load_station_rules(data + "/gen"), rules, seed, 20);
+      for (const auto& s : stations) spec.lots.push_back({"police_station", s.name, s.plan.lot_width, s.plan.lot_depth});
+      const auto layout = zs::gen::lay_out_town(cat, zs::gen::load_urban_form(data + "/gen"), spec, seed);
+      std::cout << zs::gen::layout_summary(spec, layout);
+      if (const std::string bmp = arg(argc, argv, "--bmp", ""); !bmp.empty()) {
+        // 2 m a pixel: streets grey, then each plot by its use, with its outline darker.
+        const int scale = 2;
+        zs::atlas::PlanetRaster img;
+        img.w = std::max(1, layout.width_m / scale);
+        img.h = std::max(1, layout.height_m / scale);
+        img.rgb.assign(static_cast<std::size_t>(img.w * img.h * 3), 110);
+        static const unsigned char colour[5][3] = {{236, 222, 196}, {242, 168, 92}, {170, 140, 200}, {120, 190, 110}, {90, 140, 230}};
+        for (const auto& p : layout.plots) {
+          const bool empty = p.use == zs::gen::LandUse::Residential && p.households == 0;
+          for (int y = p.y / scale; y < (p.y + p.h) / scale && y < img.h; ++y)
+            for (int x = p.x / scale; x < (p.x + p.w) / scale && x < img.w; ++x) {
+              const bool edge = x == p.x / scale || y == p.y / scale;
+              const auto* c = colour[static_cast<int>(p.use)];
+              const std::size_t i = static_cast<std::size_t>((y * img.w + x) * 3);
+              for (int k = 0; k < 3; ++k)
+                img.rgb[i + static_cast<std::size_t>(k)] = static_cast<unsigned char>(edge ? c[k] * 0.6 : empty ? 250 : (p.units > 1 ? c[k] * 0.85 : c[k]));
+            }
+        }
+        zs::atlas::write_bmp(bmp, img);
+        std::cout << "wrote " << bmp << " (" << img.w << " x " << img.h << " px, 2 m a pixel)\n";
+      }
       return 0;
     }
     if (cmd == "stations" || cmd == "station") {  // spec 69: the town's police agency and its stations

@@ -14,6 +14,16 @@ kind = "window"
 added = 2026-10-11
 
 [[try]]
+id = "town-layout"
+part = "generators"
+spec = "71"
+title = "A town's streets and plots"
+what = "A town of 17,626 laid out from its record: named streets, blocks by district, plots that front a street, every household housed, the police station on its plot (decision 0077). Writes a picture of the town."
+run = ["gen", "layout", "--seed", "{seed}", "--people", "17626", "--bmp", "{out}/town.bmp"]
+kind = "image"
+added = 2026-10-13
+
+[[try]]
 id = "police-stations"
 part = "generators"
 spec = "69"

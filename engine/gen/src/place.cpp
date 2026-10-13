@@ -7,6 +7,8 @@
 #include "toml.hpp"
 #include "zs/fields.h"
 #include "zs/gen/stations.h"
+#include "zs/gen/town_layout.h"
+#include "zs/demographics.h"
 #include "zs/police_staff.h"
 
 namespace zs::gen {
@@ -116,8 +118,30 @@ std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::
   // The frame a fragment must fit: the block's map. A floor may be as deep as the frame less the lot's front and back.
   const toml::table block = toml::parse_file(data + "/tier0/map/block.toml");
   const int frame_h = block["map"]["height"].value_or(28);
-  const auto stations = plan_stations(cat, town, agency, ap.shifts, load_station_rules(data + "/gen"), rules, seed,
-                                      frame_h - rules.lot_front - rules.lot_back);
+  auto stations = plan_stations(cat, town, agency, ap.shifts, load_station_rules(data + "/gen"), rules, seed,
+                                frame_h - rules.lot_front - rules.lot_back);
+  // Spec 71: the town's streets and plots; each station takes a plot of its own and that plot's address.
+  TownSpec spec;
+  spec.name = town.name;
+  spec.culture = town.culture;
+  spec.income = place.income;
+  spec.people = place.town_people;
+  spec.mean_household_size = zs::mean_household_size(zs::load_nation(
+      data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml"));
+  for (const Station& s : stations) spec.lots.push_back({"police_station", s.name, s.plan.lot_width, s.plan.lot_depth});
+  const TownLayout layout = lay_out_town(cat, load_urban_form(data + "/gen"), spec, seed);
+  for (std::size_t i = 0; i < stations.size(); ++i) {
+    const int pi = layout.lot_plot[i];
+    if (pi < 0) continue;  // no plot wide enough: the station keeps its directory address
+    const Plot& plot = layout.plots[static_cast<std::size_t>(pi)];
+    Station& s = stations[i];
+    s.street = layout.streets[static_cast<std::size_t>(plot.street)].name;
+    s.number = plot.number;
+    s.address = plot.address;
+    s.plan.street = s.street;
+    s.plan.number = s.number;
+    s.plan.address = s.address;
+  }
   std::vector<zs::tier0::Fragment> out;
   int first = 0;
   for (const Station& s : stations) {

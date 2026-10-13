@@ -62,13 +62,17 @@ void write_bmp(const std::string& path, const PlanetRaster& r) {
   auto w32 = [&](std::uint32_t v) { for (int i = 0; i < 4; ++i) o.put(static_cast<char>((v >> (8 * i)) & 255)); };
   auto w16 = [&](std::uint16_t v) { o.put(static_cast<char>(v & 255)); o.put(static_cast<char>(v >> 8)); };
   const int W = r.w, H = r.h;
-  o.write("BM", 2); w32(54 + W * H * 3); w32(0); w32(54); w32(40); w32(W); w32(H); w16(1); w16(24);
-  w32(0); w32(W * H * 3); w32(2835); w32(2835); w32(0); w32(0);
-  for (int y = H - 1; y >= 0; --y)
+  const int pad = (4 - (W * 3) % 4) % 4;  // every row is padded to a multiple of 4 bytes
+  const std::uint32_t size = static_cast<std::uint32_t>((W * 3 + pad) * H);
+  o.write("BM", 2); w32(54 + size); w32(0); w32(54); w32(40); w32(W); w32(H); w16(1); w16(24);
+  w32(0); w32(size); w32(2835); w32(2835); w32(0); w32(0);
+  for (int y = H - 1; y >= 0; --y) {
     for (int x = 0; x < W; ++x) {
       const auto* p3 = &r.rgb[(static_cast<std::size_t>(y) * W + x) * 3];
       o.put(static_cast<char>(p3[2])); o.put(static_cast<char>(p3[1])); o.put(static_cast<char>(p3[0]));
     }
+    for (int k = 0; k < pad; ++k) o.put(0);
+  }
 }
 
 }  // namespace zs::atlas
