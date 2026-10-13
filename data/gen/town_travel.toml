@@ -1,0 +1,6 @@
+# Getting about a town by its streets (spec 75): the time from one plot to another, the faster of walking and driving.
+# Lines marked ESTIMATE are defaults taken by Claude; no research note covers them yet.
+
+walk_kmh = 4.8          # ESTIMATE: an adult's comfortable walking pace, about 1.3 m/s
+drive_kmh = 25          # ESTIMATE: average speed on town streets, stops and lights included
+car_overhead_min = 5    # ESTIMATE: getting to the car and parking at the other end

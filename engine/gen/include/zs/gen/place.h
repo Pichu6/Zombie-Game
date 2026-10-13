@@ -11,6 +11,7 @@
 #include "zs/gen/world_people.h"
 #include "zs/place.h"
 #include "zs/places.h"
+#include "zs/players.h"
 #include "zs/tier0.h"
 
 namespace zs::gen {
@@ -64,5 +65,8 @@ std::vector<zs::tier0::Fragment> station_fragments(const TownRecord& town, std::
 std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::uint64_t seed);
 // Spec 73: the town's plots for the one world's Places, each cut to the frame when opened.
 zs::PlotSource plot_source(std::shared_ptr<const TownRecord> town, std::uint64_t seed);
+// Spec 75: the minutes a released pop takes to get home by the town's streets, for Players::set_travel; `places` may be null.
+zs::Players::Travel travel_in_town(std::shared_ptr<const TownRecord> town, const zs::Places* places, std::size_t census_size,
+                                   std::uint64_t seed);
 
 }  // namespace zs::gen

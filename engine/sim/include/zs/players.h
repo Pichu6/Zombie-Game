@@ -28,7 +28,7 @@ const char* detach_level_name(DetachLevel l);
 
 // data/life/possession.toml. Defaults taken by Claude.
 struct PossessionParams {
-  int return_home_min = 120;  // a released pop is home this long after the release (until travel has distances)
+  int return_home_min = 120;  // a released pop is home this long after the release when travel cannot say (spec 75 rule 4)
   int body_slots = 4;         // spec 67: the body pool the one world reserves for pops with no body on the map (a setup setting)
 };
 PossessionParams load_possession_params(const std::string& path);
@@ -87,6 +87,8 @@ struct Hands {
   virtual void arrive(World&, EntityId /*body*/, EventId /*cause*/) {}
   virtual void leave(World&, EntityId /*body*/, EventId /*cause*/) {}
   virtual bool pool_on_map() const { return false; }
+  // Spec 75: the level a body stands on (its place: the block, a station, an opened plot); -1 when unknown.
+  virtual int level_of(const World&, EntityId /*body*/) const { return -1; }
   virtual std::int64_t dwell_ticks() const { return kTicksPerGameHour; }  // the least time in a pool body (spec 29 rule 4)
   // The pop the scenario hands control to when this one died (spec 26: the run passes control to the next member); kNoPop if none.
   virtual PopId successor(const World&, PopId /*dead*/) const { return kNoPop; }
@@ -95,6 +97,9 @@ struct Hands {
 class Players : public System {
  public:
   using Alive = std::function<bool(PopId, std::int64_t tick)>;
+  // Spec 75: minutes for a released pop to get home from the level its body stood on (-1 when no body); negative when
+  // unknown. Set by the setup, never saved.
+  using Travel = std::function<std::int64_t(PopId, int level)>;
   // `exp` runs the absences a possession begins; `alive` says whether a pop exists and lives at a tick. Both set by the setup.
   Players(PossessionParams params, Expectations* exp, Alive alive) : params_(params), exp_(exp), alive_(std::move(alive)) {}
   const char* name() const override { return "players"; }
@@ -104,6 +109,7 @@ class Players : public System {
   void save(ArchiveWriter& w) const override;
   void load(ArchiveReader& r) override;
   void set_hands(Hands* hands) { hands_ = hands; }  // setup; without hands a possession has no body (spec 66 alone)
+  void set_travel(Travel travel) { travel_ = std::move(travel); }  // setup; without it the fixed return_home_min (spec 75 rule 4)
 
   struct Player {
     std::uint64_t id = 0;  // from 1, in the order they joined
@@ -151,6 +157,7 @@ class Players : public System {
   Expectations* exp_;  // never saved
   Alive alive_;        // never saved
   Hands* hands_ = nullptr;  // never saved
+  Travel travel_;           // never saved
   std::vector<Player> players_;
   std::vector<Return> returns_;
   std::vector<Pooled> pooled_;

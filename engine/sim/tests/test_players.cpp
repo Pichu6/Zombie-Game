@@ -167,6 +167,27 @@ TEST_CASE("leaving a possessed pop sends it home: the absence ends after the get
   CHECK(from_possession);
 }
 
+TEST_CASE("spec 75: a travel function sets the getting-home time; when it cannot say, the fixed time stays (A1)") {
+  for (const std::int64_t answer : {37LL, -1LL}) {
+    Rig r;
+    PopId asked = kNoPop;
+    int level = 99;
+    r.players->set_travel([&](PopId pop, int lv) {
+      asked = pop;
+      level = lv;
+      return answer;
+    });
+    r.join(kAda);
+    r.cmd(PlayerPossess, 1, kHermit);
+    r.cmd(PlayerDetach, 1);
+    const std::int64_t released = r.world->clock.tick - 1;
+    REQUIRE(r.players->returns().size() == 1);
+    CHECK(asked == kHermit);
+    CHECK(level == -1);  // no hands in this rig: no body to stand anywhere
+    CHECK(r.players->returns()[0].at == released + (answer >= 0 ? answer : r.return_min) * kMin);
+  }
+}
+
 TEST_CASE("off cannot leave the body; return goes home and releases the pop it was in (A1)") {
   Rig r;
   r.join(kAda, DetachLevel::Off);

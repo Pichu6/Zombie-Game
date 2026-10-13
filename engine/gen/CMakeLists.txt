@@ -17,6 +17,7 @@ add_library(zs_gen
   src/world_deposits.cpp
   src/world_countries.cpp
   src/world_routes.cpp
+  src/town_travel.cpp
 )
 target_include_directories(zs_gen PUBLIC include)
 target_include_directories(zs_gen PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

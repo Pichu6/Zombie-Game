@@ -231,6 +231,7 @@ class WorldHands : public Hands {
   // leaves the block when the player leaves it: what it carries stays on the floor where it stood, and it is off the map
   // (away). Not the yard gate: during the outbreak the street there has walkers from the first minute (measured: dead in 47).
   bool pool_on_map() const override { return true; }
+  int level_of(const World&, EntityId body) const override { return actors_->actor(body).pos.z; }  // spec 75
   void arrive(World& w, EntityId body, EventId cause) override {
     Actor& a = actors_->actor(body);
     const Cell at = arrival_(bodies_->get(body).pop);

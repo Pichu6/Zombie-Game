@@ -1,5 +1,6 @@
 // The block's place on a generated planet. Spec: docs/tier0/specs/42-place.md
 #include "zs/gen/place.h"
+#include "zs/gen/town_travel.h"
 
 #include <cmath>
 #include <optional>
@@ -9,6 +10,7 @@
 #include "zs/gen/stations.h"
 #include "zs/gen/town_layout.h"
 #include "zs/demographics.h"
+#include "zs/players.h"
 #include "zs/police_staff.h"
 
 namespace zs::gen {
@@ -107,7 +109,21 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   const auto town_rec = town_record(place, seed);
   zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed));
   if (t.places) t.places->set_source(plot_source(town_rec, seed));
+  // Spec 75: a released pop gets home by the town's streets, from the plot its body stood on to the plot it lives on.
+  if (t.players && t.census) t.players->set_travel(travel_in_town(town_rec, t.places, t.census->people().size(), seed));
   return t;
+}
+
+zs::Players::Travel travel_in_town(std::shared_ptr<const TownRecord> town, const zs::Places* places, std::size_t census_size,
+                                   std::uint64_t seed) {
+  const TownTravel travel = load_town_travel(zs::tier0::data_dir() + "/gen");
+  return [town, places, census_size, seed, travel](PopId pop, int level) -> std::int64_t {
+    static const std::vector<zs::Places::Open> none;
+    const int from = plot_of_level(town->layout, town->stations.size(), places ? places->opened() : none, level);
+    const int to = home_plot(town->layout, pop, census_size, seed);
+    if (from < 0 || to < 0) return -1;
+    return plot_minutes(town->layout, from, to, travel);
+  };
 }
 
 std::shared_ptr<const TownRecord> town_record(const zs::Place& place, std::uint64_t seed) {

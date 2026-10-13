@@ -86,12 +86,14 @@ void Players::refuse(World& w, const Command& c, EventId cause, PlayerRefusal wh
   w.emit(EventType::PlayerRefused, c.subject, cause, c.type, static_cast<std::int64_t>(why));
 }
 
-// Rule 4: leaving a pop. One that was taken from its life heads home and is back after the getting-home time; the home
+// Rule 4: leaving a pop. One that was taken from its life heads home and is back after the getting-home time (spec 75: by
+// the town's streets from where its body stood, when the setup can say); the home
 // simply goes on living (its own AI and standing orders). Spec 67: a body on the map goes back to its AI; a pool body is
 // kept until its dwell is over, then goes back to the pool. Spec 68: a pool body leaves the map at once.
 void Players::release(World& w, Player& p, EventId cause) {
   if (p.in == kNoPop) return;
   const PopId pop = p.in;
+  const int level = p.body != 0 && hands_ ? hands_->level_of(w, p.body) : -1;  // spec 75 rule 1: before the body goes
   if (p.body != 0 && hands_) {
     const auto pooled = std::find_if(pooled_.begin(), pooled_.end(), [&](const Pooled& x) { return x.body == p.body; });
     hands_->give_back(w, p.body);
@@ -105,7 +107,9 @@ void Players::release(World& w, Player& p, EventId cause) {
   p.mode = p.home != kNoPop ? PlayerMode::Detached : PlayerMode::Observer;
   const Expectations::Case* open = exp_ ? exp_->find(pop) : nullptr;
   const bool taken = open && open->cause == AbsenceCause::Possessed;
-  const std::int64_t home_at = taken ? w.clock.tick + static_cast<std::int64_t>(params_.return_home_min) * kTicksPerMinute : 0;
+  std::int64_t minutes = taken && travel_ ? travel_(pop, level) : -1;  // spec 75
+  if (minutes < 0) minutes = params_.return_home_min;
+  const std::int64_t home_at = taken ? w.clock.tick + minutes * kTicksPerMinute : 0;
   const EventId left = w.emit(EventType::PlayerLeftBody, p.id, cause, static_cast<std::int64_t>(pop), home_at);
   if (taken) returns_.push_back({pop, home_at, left});
 }
