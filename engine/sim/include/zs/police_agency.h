@@ -25,7 +25,9 @@ struct AgencyParams {
   int officers_per_cell = 15;
 };
 // data/services/police.toml; `country_profile` (ISO3) picks the country's level when it has one.
-AgencyParams load_agency_params(const std::string& path, const std::string& country_profile);
+// The country's police per 100,000 is its [country] entry, else its income group's [group] entry (data review part 2,
+// DRL-4), else the reference.
+AgencyParams load_agency_params(const std::string& path, const std::string& country_profile, const std::string& income = "");
 
 // The value of the class `people` falls in (the last class if none matches).
 double size_class_value(const std::vector<SizeClass>& classes, double people);

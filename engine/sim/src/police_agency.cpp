@@ -29,7 +29,7 @@ std::vector<SizeClass> load_classes(const toml::table& t, const char* table, con
 
 }  // namespace
 
-AgencyParams load_agency_params(const std::string& path, const std::string& country_profile) {
+AgencyParams load_agency_params(const std::string& path, const std::string& country_profile, const std::string& income) {
   toml::table t;
   try {
     t = toml::parse_file(path);
@@ -46,8 +46,11 @@ AgencyParams load_agency_params(const std::string& path, const std::string& coun
   };
   p.reference_per_100k = need("curve", "reference_per_100k");
   p.country_per_100k = p.reference_per_100k;
-  if (!country_profile.empty())
-    if (const auto v = t["country"][country_profile].value<double>()) p.country_per_100k = *v;
+  if (const auto v = t["country"][country_profile].value<double>(); v && !country_profile.empty()) {
+    p.country_per_100k = *v;
+  } else if (const auto g = t["group"][income].value<double>(); g && !income.empty()) {
+    p.country_per_100k = *g;  // DRL-4: the median of the group's countries
+  }
   p.investigator_share = need("staff", "investigator_share");
   p.min_sworn_for_investigator = static_cast<int>(need("staff", "min_sworn_for_investigator"));
   p.civilian_share = need("staff", "civilian_share");

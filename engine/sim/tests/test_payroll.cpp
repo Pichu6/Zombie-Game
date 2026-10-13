@@ -99,10 +99,10 @@ constexpr std::int64_t kShiftPay = 8 * kWage;  // 8 hours
 
 TEST_CASE("the wage tables load per country and income group, and a bad file is refused (A1)") {
   const std::string path = tier0::data_dir() + "/employment/wages.toml";
-  CHECK(load_wage_params(path, "", "high").cents_per_hour == doctest::Approx(2500));
-  CHECK(load_wage_params(path, "", "low").cents_per_hour == doctest::Approx(150));
+  CHECK(load_wage_params(path, "", "high").cents_per_hour == doctest::Approx(1328));  // DRL-1: the group's median
+  CHECK(load_wage_params(path, "", "low").cents_per_hour == doctest::Approx(101));
   CHECK(load_wage_params(path, "", "high").cents_per_hour > load_wage_params(path, "", "upper_middle").cents_per_hour);
-  CHECK(load_wage_params(path, "us", "low").cents_per_hour == doctest::Approx(2500));  // a table of its own wins
+  CHECK(load_wage_params(path, "USA", "low").cents_per_hour == doctest::Approx(4349));  // a table of its own wins (DRL-1)
   CHECK_THROWS(load_wage_params(tier0::data_dir() + "/employment/no_such.toml", "", "high"));
   CHECK_THROWS(load_wage_params(path, "", "no_such_group"));
   const std::string bad_path = (std::filesystem::temp_directory_path() / "zs_bad_wages.toml").string();

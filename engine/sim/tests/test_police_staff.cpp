@@ -259,14 +259,22 @@ TEST_CASE("in the one world, the force's searches never exceed its staff on duty
   tier0::Tier0 t = tier0::make_run(1);
   t.world->check_every_tick = false;
   REQUIRE(t.force);
-  CHECK(t.force->officers().size() == 80);  // spec 69: 1.6 per 1,000 for a town of 50,000 (BJS, SV-5)
+  // Spec 69: 1.6 per 1,000 for a town of 50,000 (BJS, SV-5), scaled by the country's police per 100,000 against the US's
+  // (DRL-4): the default place is upper-middle income, whose median is 387 against the US's 207, so 150, not 80.
+  CHECK(t.force->officers().size() == 150);
   t.missing->set_rate_scale(8000);
   t.missing->redraw(*t.world, 0);
   for (int day = 1; day <= 20; ++day) {
     t.world->jump(day * kTicksPerGameDay);
     CHECK(t.police->active_searches() <= t.force->capacity(t.world->clock.tick, t.expectations));
   }
-  int opened = 0;
-  for (const Event& e : t.world->log.all()) opened += e.type == EventType::PoliceCaseOpened;
+  int opened = 0, began = 0, reported = 0, ended = 0;
+  for (const Event& e : t.world->log.all()) {
+    opened += e.type == EventType::PoliceCaseOpened;
+    began += e.type == EventType::AbsenceBegan;
+    reported += e.type == EventType::MissingReported;
+    ended += e.type == EventType::AbsenceEnded;
+  }
+  MESSAGE("absences began " << began << ", reported " << reported << ", ended " << ended << ", police cases " << opened);
   CHECK(opened > 0);
 }

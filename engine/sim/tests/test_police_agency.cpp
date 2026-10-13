@@ -22,8 +22,8 @@ TEST_CASE("the size curve loads from data with the BJS classes, and a bad file i
   CHECK(size_class_value(params().per_1000, 75'000) == doctest::Approx(1.6));    // the bottom of the U
   CHECK(size_class_value(params().per_1000, 3'000'000) == doctest::Approx(2.3));
   CHECK(size_class_value(params().female, 20'000) == doctest::Approx(0.090));    // SV-12
-  CHECK(params().reference_per_100k == doctest::Approx(217));                     // SV-21
-  CHECK(params().country_per_100k == doctest::Approx(217));                       // no country sourced: the reference
+  CHECK(params().reference_per_100k == doctest::Approx(207.2));                   // DRL-4: UNODC's USA
+  CHECK(params().country_per_100k == doctest::Approx(207.2));                     // no country, no group: the reference
   CHECK_THROWS(load_agency_params(tier0::data_dir() + "/services/no_such.toml", ""));
 }
 
@@ -54,9 +54,13 @@ TEST_CASE("a small department has no investigator, and never fewer officers than
 
 TEST_CASE("a country with its own level scales the curve (A1)") {
   AgencyParams p = params();
-  p.country_per_100k = 434;  // twice the reference
+  p.country_per_100k = 2 * p.reference_per_100k;  // twice the reference
   CHECK(plan_agency(p, 50'000, 6).sworn == 160);
-  CHECK(load_agency_params(tier0::data_dir() + "/services/police.toml", "USA").country_per_100k == doctest::Approx(217));
+  CHECK(load_agency_params(tier0::data_dir() + "/services/police.toml", "USA").country_per_100k == doctest::Approx(207.2));
+  // DRL-4: a country UNODC does not cover takes its income group's median; one it covers, its own.
+  CHECK(load_agency_params(tier0::data_dir() + "/services/police.toml", "GBR", "high").country_per_100k == doctest::Approx(346.0));
+  CHECK(load_agency_params(tier0::data_dir() + "/services/police.toml", "", "low").country_per_100k == doctest::Approx(78.2));
+  CHECK(load_agency_params(tier0::data_dir() + "/services/police.toml", "IND", "lower_middle").country_per_100k == doctest::Approx(133.6));
 }
 
 TEST_CASE("women are spread evenly over the officers: any first n hold round(n x share), with no draw (A1)") {

@@ -13,8 +13,12 @@
 # Causes: adults runaway 16 %, wandered off or lost 8.6 %, the rest unknown (AB-36, Canada 2024); children runaway 71 %
 # (AB-37, Canada 2024). A table for another country borrows these shapes until it has its own sources.
 #
-# us: the FBI's NCIC entries (AB-30, AB-31): about 1.6 per 1,000 people per year across all ages (reported); the age split
-# and the return times are borrowed from gb_ew scaled to that total (default taken by Claude).
+# us: the FBI's NCIC entries in 2023 (DRL-6, data review part 2): 563,389 records (1.67 per 1,000), 375,304 under 18. The
+# rates divide by about 73 million children and 262 million adults (our estimate of the 2023 split, not fetched). The return
+# times and causes are borrowed from gb_ew and Canada. [USA] is the same table under the profile's code.
+# CAN: Canada 2024 (DRL-7): 67,611 reports (1.64 per 1,000), about 32,725 children and 35,305 adults, over about 7.9 million
+# children and 33.4 million adults (our estimate of the split). Records removed within 24 hours: adults 32 %, children 55 %;
+# within a week 72 % and 90 %; the 28-day point is borrowed from gb_ew. Causes as gb_ew (they come from Canada, AB-36/37).
 
 [gb_ew]
 adult_per_1000_year = 1.8
@@ -28,11 +32,31 @@ child_chose = 0.71
 child_wandered = 0.0
 
 [us]
-adult_per_1000_year = 0.9
-child_per_1000_year = 2.8
+adult_per_1000_year = 0.72
+child_per_1000_year = 5.1
 child_age_max = 17
 adult_return_cdf = [[48, 0.85], [672, 0.988]]
 child_return_cdf = [[24, 0.78], [48, 0.90], [672, 0.995]]
+adult_chose = 0.16
+adult_wandered = 0.086
+child_chose = 0.71
+child_wandered = 0.0
+[USA]
+adult_per_1000_year = 0.72
+child_per_1000_year = 5.1
+child_age_max = 17
+adult_return_cdf = [[48, 0.85], [672, 0.988]]
+child_return_cdf = [[24, 0.78], [48, 0.90], [672, 0.995]]
+adult_chose = 0.16
+adult_wandered = 0.086
+child_chose = 0.71
+child_wandered = 0.0
+[CAN]
+adult_per_1000_year = 1.06
+child_per_1000_year = 4.1
+child_age_max = 17
+adult_return_cdf = [[24, 0.32], [168, 0.72], [672, 0.988]]
+child_return_cdf = [[24, 0.55], [168, 0.90], [672, 0.995]]
 adult_chose = 0.16
 adult_wandered = 0.086
 child_chose = 0.71

@@ -61,7 +61,7 @@ TEST_CASE("the tables load, an income group reads its index, and a bad table is 
   CHECK(high.child_per_1000_year == doctest::Approx(5.6));
   CHECK(high.child_per_1000_year > high.adult_per_1000_year);
   const MissingParams middle = load_missing_params(data_file(), "", "upper_middle");
-  CHECK(middle.adult_per_1000_year == doctest::Approx(0.9));
+  CHECK(middle.adult_per_1000_year == doctest::Approx(0.72));  // DRL-6: NCIC 2023
   CHECK(load_missing_params(data_file(), "gb_ew", "low").adult_per_1000_year == doctest::Approx(1.8));  // a table of its own wins
   REQUIRE(high.adult_return.size() == 2);
   CHECK(high.adult_return[0].first == 48);

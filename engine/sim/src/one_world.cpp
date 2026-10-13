@@ -189,9 +189,13 @@ NextCommitment make_commitments(const Census& census, const CalendarSystem& cale
       const std::int64_t midnight = (dn - start_day) * kTicksPerGameDay - kStartTimeOfDayTicks;
       const DayPlan plan = plan_for_tick(*table, cal->calendar(), start_day, sp, midnight + 12 * kTicksPerGameHour);
       for (const Segment& s : plan.segments) {
-        if (!s.commitment) continue;
-        const bool back_home = s.activity == DayActivity::Commute;
-        const std::int64_t due = midnight + static_cast<std::int64_t>(back_home ? s.end_min : s.start_min) * (kTicksPerGameHour / 60);
+        // Spec 59 (data review part 2): the household expects every member home by bedtime, not only those who commute; a
+        // child, a student or a retired pop is missed when bed time comes and they are not there (DRL-6: two thirds of
+        // the people reported missing in the US are children).
+        const bool bedtime = s.activity == DayActivity::Sleep && s.start_min >= 18 * 60 && !out.holders.empty();
+        if (!s.commitment && !bedtime) continue;
+        const bool back_home = s.activity == DayActivity::Commute || bedtime;
+        const std::int64_t due = midnight + static_cast<std::int64_t>(back_home && !bedtime ? s.end_min : s.start_min) * (kTicksPerGameHour / 60);
         if (due < from || (found && due >= out.due_tick)) continue;
         out.due_tick = due;
         out.kind = back_home ? CommitmentKind::ArriveHome : CommitmentKind::ShiftStart;
@@ -284,7 +288,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // Spec 65: the police force serving the town, sized by its population: officers are pops after the census's, with shifts.
   const ForceParams force_params = load_force_params(data_dir() + "/institutions/police/force.toml", place.profile, place.income);
   // Spec 69: its size from the BJS curve for the town's people, at the country's level; women by the class's share.
-  const AgencyPlan agency = plan_agency(load_agency_params(data_dir() + "/services/police.toml", place.profile), place.town_people,
+  const AgencyPlan agency = plan_agency(load_agency_params(data_dir() + "/services/police.toml", place.profile, place.income), place.town_people,
                                         force_params.min_officers);
   const int officers = agency.sworn;
   t.agency = agency;

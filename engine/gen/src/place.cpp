@@ -132,7 +132,7 @@ std::shared_ptr<const TownRecord> town_record(const zs::Place& place, std::uint6
   r->cat = load_catalog(data + "/gen");
   Mix mix = load_mix(data + "/gen/populations/tier0_block.toml");  // the town record the block's directory comes from
   r->town = generate_town(r->cat, mix, seed);
-  const zs::AgencyParams ap = zs::load_agency_params(data + "/services/police.toml", place.profile);
+  const zs::AgencyParams ap = zs::load_agency_params(data + "/services/police.toml", place.profile, place.income);
   const zs::ForceParams fp = zs::load_force_params(data + "/institutions/police/force.toml", place.profile, place.income);
   const zs::AgencyPlan agency = zs::plan_agency(ap, place.town_people, fp.min_officers);  // the same plan the one world sizes its force by
   r->dwelling = load_dwelling_rules(data + "/gen");
