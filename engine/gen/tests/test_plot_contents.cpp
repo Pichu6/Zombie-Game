@@ -10,7 +10,9 @@
 
 #include "zs/demographics.h"
 #include "zs/gen/keyed.h"
+#include "zs/gen/place.h"
 #include "zs/gen/plot_contents.h"
+#include "zs/places.h"
 #include "zs/site_map.h"
 #include "zs/world.h"
 
@@ -166,4 +168,30 @@ TEST_CASE("the same plot always gives the same building (A1)") {
   const TownLayout t = lay_out_town(catalog(), load_urban_form(std::string(ZS_DATA_DIR) + "/gen"), spec, 9);
   for (int i = 0; i < static_cast<int>(t.plots.size()); i += 97)
     CHECK(plot_toml(spec, t, i, rules(), plot_rules(), 9) == plot_toml(spec, t, i, rules(), plot_rules(), 9));
+}
+
+// ---- Spec 73: plots cut to the one world's frame, opened in play.
+
+TEST_CASE("every kind of plot cut to the block map's frame fits it, and opens in the one world (A1)" * doctest::skip(zs::World::kDebugBuild)) {
+  const auto town = town_record(zs::default_place(), 1);
+  std::map<std::string, int> first;
+  for (int i = 0; i < static_cast<int>(town->layout.plots.size()); ++i)
+    first.try_emplace(plan_plot(town->spec, town->layout, i, town->dwelling, town->plots, 1, town->frame).kind, i);
+  REQUIRE(first.size() >= 5);
+  zs::tier0::Tier0 t = zs::tier0::make_run(1, zs::default_place(), zs::kDefaultStartDay, station_fragments(*town, 1));
+  t.world->check_every_tick = false;
+  t.places->set_source(plot_source(town, 1));
+  for (const auto& [kind, plot] : first) {
+    CAPTURE(kind);
+    const std::string toml = plot_toml(town->spec, town->layout, plot, town->dwelling, town->plots, 1, town->frame);
+    if (toml.empty()) continue;  // the station and the block have their own places
+    const Loaded alone(toml);
+    CHECK(alone.map->width() <= town->frame.w);
+    CHECK(alone.map->height() <= town->frame.h);
+    t.world->submit({0, zs::PlaceOpen, 0, plot, 0});
+    t.world->run_ticks(1);
+    const auto* open = t.places->find(plot);
+    REQUIRE(open != nullptr);
+    CHECK(t.map->site_of(open->z) == open->site);
+  }
 }

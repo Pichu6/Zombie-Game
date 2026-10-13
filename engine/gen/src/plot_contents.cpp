@@ -77,10 +77,12 @@ std::vector<Home> homes_on(const TownSpec& spec, const TownLayout& t, int plot, 
 }
 
 PlotPlan plan_plot(const TownSpec& spec, const TownLayout& t, int plot, const DwellingRules& dr, const PlotRules& rules,
-                   std::uint64_t seed) {
+                   std::uint64_t seed, Frame frame) {
   const Plot& p = plot_at(t, plot);
   PlotPlan out;
-  const auto [frontage, depth] = seen_from_street(t, p);
+  auto [frontage, depth] = seen_from_street(t, p);
+  if (frame.w > 0) frontage = std::min(frontage, frame.w);  // spec 73: cut to the frame around the building
+  if (frame.h > 0) depth = std::min(depth, frame.h);
   out.frontage_m = frontage;
   out.depth_m = depth;
   if (p.use == LandUse::Park) {
@@ -181,9 +183,9 @@ PlotPlan plan_plot(const TownSpec& spec, const TownLayout& t, int plot, const Dw
 }
 
 std::string plot_toml(const TownSpec& spec, const TownLayout& t, int plot, const DwellingRules& dr, const PlotRules& rules,
-                      std::uint64_t seed) {
+                      std::uint64_t seed, Frame frame) {
   const Plot& p = plot_at(t, plot);
-  const PlotPlan plan = plan_plot(spec, t, plot, dr, rules, seed);
+  const PlotPlan plan = plan_plot(spec, t, plot, dr, rules, seed, frame);
   if (plan.kind == "civic" || plan.kind == "block") return "";
   if (plan.kind == "park") {
     // Rule 6: a park is grass behind the street row, with trees and benches at keyed cells.

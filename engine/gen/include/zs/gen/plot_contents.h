@@ -28,6 +28,13 @@ struct Home {
 // Rule 1: the households of a residential plot, one per taken unit, their sizes drawn from the country's shares.
 std::vector<Home> homes_on(const TownSpec& spec, const TownLayout& t, int plot, const PlotRules& rules, std::uint64_t seed);
 
+// Spec 73: the frame a plot must fit when it is opened as a place of the one world (the block map's size); 0 = none. A
+// larger plot is cut to the frame around its building: the street, the building (floors added if needed) and as much
+// yard or park as fits.
+struct Frame {
+  int w = 0, h = 0;
+};
+
 // What a plot holds, planned (rules 2-5): the building and the households in it. `kind` is house, apartments, shop,
 // workshop, park, civic (spec 69's station: drawn by its own generator) or block (the Tier 0 block's hand-made map).
 struct PlotPlan {
@@ -37,9 +44,9 @@ struct PlotPlan {
   int frontage_m = 0, depth_m = 0;  // the plot seen from its street: width along it, depth back from it
 };
 PlotPlan plan_plot(const TownSpec& spec, const TownLayout& t, int plot, const DwellingRules& dr, const PlotRules& rules,
-                   std::uint64_t seed);
+                   std::uint64_t seed, Frame frame = {});
 // The plot as a site-map TOML (rule 6); empty for a civic plot or the block, which have their own maps.
 std::string plot_toml(const TownSpec& spec, const TownLayout& t, int plot, const DwellingRules& dr, const PlotRules& rules,
-                      std::uint64_t seed);
+                      std::uint64_t seed, Frame frame = {});
 
 }  // namespace zs::gen

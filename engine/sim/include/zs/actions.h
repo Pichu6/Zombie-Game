@@ -187,6 +187,9 @@ class Actors : public System {
 
   // Map objects and stores.
   EntityId object_entity(std::size_t object_index) const { return object_entities_.at(object_index); }
+  // Spec 73: after a place is opened in play, or a save holding one is loaded: its objects get entities (minted now, or the
+  // ones the map kept), and the walls and doors of every level are indexed again. Objects opened in play hold no stocks.
+  void sync_with_map(World& w);
   std::optional<EntityId> find_object(const std::string& kind, const std::string& id = "") const;
   std::optional<OwnerId> store_of(EntityId holder) const;
   const std::map<EntityId, EdgeRef>& edges() const { return edge_of_; }  // edge assembly -> place
@@ -261,6 +264,7 @@ class Actors : public System {
   std::map<EntityId, std::size_t> object_index_;    // entity -> map object
   std::map<EntityId, OwnerId> stores_;              // holder (object or container) -> ledger owner
   std::map<EntityId, EdgeRef> edge_of_;             // edge assembly -> where it is
+  void index_edges();
   std::map<EntityId, EntityId> reserved_;           // instance -> actor
   std::map<std::pair<int, EntityId>, double> resume_;  // (process, target) -> kept progress
   std::map<EntityId, Actor> actors_;

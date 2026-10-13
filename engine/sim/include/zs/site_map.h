@@ -47,6 +47,7 @@ struct MapObject {
   Cell at;
   std::string id;    // optional name
   std::vector<std::pair<std::string, double>> amounts;  // stocks and contents (e.g. food_kj = 60000)
+  EntityId entity = 0;  // spec 73: the entity of an object of a site opened in play (the actors mint it; saved with the site)
 };
 
 struct Room {
@@ -78,7 +79,12 @@ class SiteMap : public System {
   // level z at z_base + z. No stairs join it to the map's levels, so nothing walks, sees or hears between them. Setup only,
   // after load_file and before anything indexes the map; the fragment must fit the map's width and height. Returns its
   // site number (1, 2, ...; the map itself is site 0).
-  int add_site(World& w, Assemblies& items, const std::string& toml_text, int z_base);
+  // Spec 73: with `runtime`, after setup too: a place opened in play (its walls and doors are minted now); the map then
+  // keeps the fragment's text and saves it, so a load rebuilds the place before reading its walls' states.
+  int add_site(World& w, Assemblies& items, const std::string& toml_text, int z_base, bool runtime = false);
+  // Spec 73: the entity the actors gave an object (an object of a site opened in play).
+  void set_object_entity(std::size_t index, EntityId e) { objects_.at(index).entity = e; }
+  std::size_t runtime_sites() const { return runtime_sites_.size(); }
 
   int width() const { return width_; }
   int height() const { return height_; }
@@ -134,6 +140,8 @@ class SiteMap : public System {
 
  private:
   int level_index(int z) const;
+  // Spec 73: a site's levels, walls (kinds only), stairs and objects; the caller mints the walls' assemblies or not.
+  int place_site(const std::string& toml_text, int z_base);
   std::size_t cell_index(const Cell& c) const;
   std::size_t edge_index(const EdgeRef& e) const;
   void rebuild_rooms() const;
@@ -142,6 +150,12 @@ class SiteMap : public System {
   int width_ = 0, height_ = 0;
   std::vector<int> levels_;
   std::vector<int> level_sites_;  // spec 70: per level, its site (0: the map itself)
+  struct RuntimeSite {             // spec 73: a place opened in play, saved with the map
+    int z_base = 0;
+    std::string toml;
+    std::size_t first_object = 0, objects = 0;
+  };
+  std::vector<RuntimeSite> runtime_sites_;
   int sites_ = 1;
   std::vector<Floor> floors_;
   std::vector<Edge> h_edges_;  // per level: (height + 1) rows x width

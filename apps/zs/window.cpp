@@ -30,6 +30,7 @@
 #include "zs/noise.h"
 #include "zs/sound_marks.h"
 #include "zs/pacer.h"
+#include "zs/places.h"
 #include "zs/players.h"
 #include "zs/police_staff.h"
 #include "zs/run.h"
@@ -91,6 +92,11 @@ struct App {
   bool resting = false;      // rest until something happens
   std::int64_t rest_until = 0;
   int level = 0;
+  // Spec 73: a place of the town asked for, until it is open and the view goes there.
+  char address[96] = "";
+  int pending_place = -1;
+  int next_plot = 0;
+  std::string place_status;
   // Camera: the cell under the view's centre, pixels per cell, and the map's screen rectangle.
   V2 cam;
   float cell = kStartCellPx;
@@ -1304,9 +1310,13 @@ void time_bar(App& a) {
   }
   // Spec 70: a level of another place (a police station beside the block) says which place and which floor.
   std::string where = "level " + std::to_string(a.level);
-  if (const int site = a.t.map->site_of(a.level); site > 0)
+  if (const int site = a.t.map->site_of(a.level); site > 0) {
     for (const auto& s : a.t.sites)
       if (s.number == site) where = s.name + ", floor " + std::to_string(a.level - s.door.z);
+    if (a.t.places)  // spec 73: a plot opened in play
+      for (const auto& o : a.t.places->opened())
+        if (o.site == site) where = a.t.places->source().address(o.plot) + ", floor " + std::to_string(a.level - o.z);
+  }
   ImGui::Text("Grid %s | generator %s, %.1f L | %s (PgUp/PgDn)%s | overlay:", p.mains_alive() ? "on" : "DEAD",
               p.generator_running() ? "running" : "off", fuel_l, where.c_str(), a.follow ? "" : " | F: follow again");
   ImGui::SameLine();
@@ -1437,7 +1447,40 @@ void inspector(App& a) {
   ImGui::End();
 }
 
+// Spec 73: ask for a plot of the town; the view goes there once it is open (next tick).
+void open_place(App& a, int plot) {
+  a.t.world->submit({0, zs::PlaceOpen, 0, plot, 0});
+  a.pending_place = plot;
+  a.place_status = "Opening " + a.t.places->source().address(plot) + "...";
+}
+
+void follow_place(App& a) {
+  if (a.pending_place < 0 || !a.t.places) return;
+  const zs::Places::Open* o = a.t.places->find(a.pending_place);
+  if (!o) {  // refused? say why and stop waiting
+    const auto& log = a.t.world->log.all();
+    for (std::size_t k = log.size(); k > 0 && k + 200 > log.size(); --k) {
+      const Event& e = log[k - 1];
+      if (e.type != EventType::PlaceRefused || e.subject != static_cast<EntityId>(a.pending_place)) continue;
+      static const char* why[] = {"", "no such plot", "already open", "it has a place of its own (the police station or the block)",
+                                  "it does not fit the map", "the town has no plots"};
+      a.place_status = "Cannot open it: " + std::string(e.b >= 0 && e.b < 6 ? why[e.b] : "?");
+      a.pending_place = -1;
+      return;
+    }
+    return;
+  }
+  a.level = o->z;
+  a.follow = false;
+  a.cam = {a.t.map->width() / 2.0, a.t.map->height() / 2.0};
+  for (const zs::MapObject& m : a.t.map->objects())
+    if (m.kind == "plot" && a.t.map->site_of(m.at.z) == o->site) a.cam = {m.at.x + 0.5, m.at.y + 0.5};
+  a.place_status = "At " + a.t.places->source().address(a.pending_place) + " (F: back to your pop)";
+  a.pending_place = -1;
+}
+
 void group_panel(App& a) {
+  follow_place(a);
   const ImGuiIO& io = ImGui::GetIO();
   ImGui::SetNextWindowPos({io.DisplaySize.x - 340, 486}, ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowSize({330, 200}, ImGuiCond_FirstUseEver);
@@ -1484,6 +1527,30 @@ void group_panel(App& a) {
           break;
         }
     }
+  }
+  // Spec 73: the town's plots, opened when asked for: an address, or the next plot.
+  if (a.t.places && a.t.places->source().count) {
+    ImGui::Separator();
+    ImGui::TextUnformatted("Go to a place in town");
+    ImGui::SetNextItemWidth(190);
+    ImGui::InputText("##address", a.address, sizeof a.address);
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Go")) {
+      const int n = a.t.places->source().count();
+      int found = -1;
+      for (int i = 0; i < n && found < 0; ++i)
+        if (a.t.places->source().address(i) == a.address) found = i;
+      if (found >= 0) open_place(a, found);
+      else a.place_status = std::string("No such address in town: ") + a.address;
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Another")) {
+      a.next_plot = (a.next_plot + 97) % a.t.places->source().count();
+      const std::string addr = a.t.places->source().address(a.next_plot);
+      std::snprintf(a.address, sizeof a.address, "%s", addr.c_str());
+      open_place(a, a.next_plot);
+    }
+    if (!a.place_status.empty()) ImGui::TextWrapped("%s", a.place_status.c_str());
   }
   if (a.t.ai->possessed()) {
     if (ImGui::Button("Let the AI drive everyone")) leave_body(a);
@@ -1640,6 +1707,7 @@ int window_main(int argc, char** argv) {
   std::optional<Cell> shot_menu;
   bool watch = false, generator = false;  // generator: a shot aid, the grid down and the generator running
   bool officer = false;                   // a shot aid (spec 68): the player possesses the first officer, as the button does
+  int open_plot = -1;                     // a shot aid (spec 73): opens this plot (1-based) and looks at it
   Overlay overlay = Overlay::None;
   std::string world_name, from_save;
   for (int i = 1; i < argc; ++i) {
@@ -1651,6 +1719,7 @@ int window_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--watch")) watch = true;
     else if (!std::strcmp(argv[i], "--generator")) generator = true;
     else if (!std::strcmp(argv[i], "--officer")) officer = true;
+    else if (!std::strcmp(argv[i], "--open-plot") && i + 1 < argc) open_plot = std::atoi(argv[++i]) - 1;
     else if (!std::strcmp(argv[i], "--overlay") && i + 1 < argc) {
       ++i;
       overlay = !std::strcmp(argv[i], "noise") ? Overlay::Noise : !std::strcmp(argv[i], "light") ? Overlay::Light : Overlay::None;
@@ -1715,11 +1784,13 @@ int window_main(int argc, char** argv) {
   if (officer && a.t.players && a.t.force && !a.t.force->officers().empty())  // applied after the join submitted at the start
     a.t.world->submit({0, zs::PlayerPossess, 1, static_cast<std::int64_t>(a.t.force->officers().front()), 0});
   a.overlay = overlay;
+  if (open_plot >= 0 && a.t.places && a.t.places->source().count) open_place(a, open_plot);
   if (shot_ticks > 0) {
     for (std::int64_t i = 0; i < shot_ticks; ++i) a.t.world->step();
     read_events(a);
     a.pacer.set_requested(Pace::Pause);
     recentre(a);
+    follow_place(a);
   }
   check_sight(a);
 

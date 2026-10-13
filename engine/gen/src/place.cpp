@@ -103,55 +103,65 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   const WorldPeople people = populate_world(grid, f, land, deposits, seed, load_group_tables(data), load_real_profiles(data), cp);
   const int town = choose_town(f, people, seed);
   const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
-  return zs::tier0::make_run(seed, place, settings.start_day, station_fragments(place, seed));
+  // Specs 70-73: the block's town: its stations loaded beside the block, its plots opened when someone asks.
+  const auto town_rec = town_record(place, seed);
+  zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed));
+  if (t.places) t.places->set_source(plot_source(town_rec, seed));
+  return t;
 }
 
-std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::uint64_t seed) {
+std::shared_ptr<const TownRecord> town_record(const zs::Place& place, std::uint64_t seed) {
   const std::string data = zs::tier0::data_dir();
-  const Catalog cat = load_catalog(data + "/gen");
+  auto r = std::make_shared<TownRecord>();
+  r->cat = load_catalog(data + "/gen");
   Mix mix = load_mix(data + "/gen/populations/tier0_block.toml");  // the town record the block's directory comes from
-  const Town town = generate_town(cat, mix, seed);
+  r->town = generate_town(r->cat, mix, seed);
   const zs::AgencyParams ap = zs::load_agency_params(data + "/services/police.toml", place.profile);
   const zs::ForceParams fp = zs::load_force_params(data + "/institutions/police/force.toml", place.profile, place.income);
   const zs::AgencyPlan agency = zs::plan_agency(ap, place.town_people, fp.min_officers);  // the same plan the one world sizes its force by
-  const DwellingRules rules = load_dwelling_rules(data + "/gen");
+  r->dwelling = load_dwelling_rules(data + "/gen");
+  r->plots = load_plot_rules(data + "/gen");
   // The frame a fragment must fit: the block's map. A floor may be as deep as the frame less the lot's front and back.
   const toml::table block = toml::parse_file(data + "/tier0/map/block.toml");
-  const int frame_h = block["map"]["height"].value_or(28);
-  auto stations = plan_stations(cat, town, agency, ap.shifts, load_station_rules(data + "/gen"), rules, seed,
-                                frame_h - rules.lot_front - rules.lot_back);
+  r->frame = {block["map"]["width"].value_or(32), block["map"]["height"].value_or(28)};
+  r->stations = plan_stations(r->cat, r->town, agency, ap.shifts, load_station_rules(data + "/gen"), r->dwelling, seed,
+                              r->frame.h - r->dwelling.lot_front - r->dwelling.lot_back);
   // Spec 71: the town's streets and plots; each station takes a plot of its own and that plot's address.
-  TownSpec spec;
-  spec.name = town.name;
-  spec.culture = town.culture;
+  TownSpec& spec = r->spec;
+  spec.name = r->town.name;
+  spec.culture = r->town.culture;
   spec.income = place.income;
   spec.people = place.town_people;
   const zs::NationDemographics nation = zs::load_nation(
       data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml");
   spec.mean_household_size = zs::mean_household_size(nation);
   spec.household_shares = nation.household_sizes;  // spec 72
-  for (const Station& s : stations) spec.lots.push_back({"police_station", s.name, s.plan.lot_width, s.plan.lot_depth});
+  for (const Station& s : r->stations) spec.lots.push_back({"police_station", s.name, s.plan.lot_width, s.plan.lot_depth});
   // Spec 72: the Tier 0 block stands on a residential plot of its town, its census households living there.
-  spec.lots.push_back({"tier0_block", "the Tier 0 block", block["map"]["width"].value_or(32), frame_h, LandUse::Residential,
-                       static_cast<int>(town.households.size())});
-  const TownLayout layout = lay_out_town(cat, load_urban_form(data + "/gen"), spec, seed);
-  for (std::size_t i = 0; i < stations.size(); ++i) {
-    const int pi = layout.lot_plot[i];
+  spec.lots.push_back({"tier0_block", "the Tier 0 block", r->frame.w, r->frame.h, LandUse::Residential,
+                       static_cast<int>(r->town.households.size())});
+  r->layout = lay_out_town(r->cat, load_urban_form(data + "/gen"), spec, seed);
+  for (std::size_t i = 0; i < r->stations.size(); ++i) {
+    const int pi = r->layout.lot_plot[i];
     if (pi < 0) continue;  // no plot wide enough: the station keeps its directory address
-    const Plot& plot = layout.plots[static_cast<std::size_t>(pi)];
-    Station& s = stations[i];
-    s.street = layout.streets[static_cast<std::size_t>(plot.street)].name;
+    const Plot& plot = r->layout.plots[static_cast<std::size_t>(pi)];
+    Station& s = r->stations[i];
+    s.street = r->layout.streets[static_cast<std::size_t>(plot.street)].name;
     s.number = plot.number;
     s.address = plot.address;
     s.plan.street = s.street;
     s.plan.number = s.number;
     s.plan.address = s.address;
   }
+  return r;
+}
+
+std::vector<zs::tier0::Fragment> station_fragments(const TownRecord& town, std::uint64_t seed) {
   std::vector<zs::tier0::Fragment> out;
   int first = 0;
-  for (const Station& s : stations) {
+  for (const Station& s : town.stations) {
     zs::tier0::Fragment fr;
-    fr.toml = station_toml(town, s, rules, seed);
+    fr.toml = station_toml(town.town, s, town.dwelling, seed);
     fr.z = 10 * (s.index + 1);  // station 1 from level 10, station 2 from level 20, ...
     fr.kind = "police_station";
     fr.name = s.name;
@@ -161,6 +171,20 @@ std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::
     out.push_back(std::move(fr));
   }
   return out;
+}
+
+std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::uint64_t seed) {
+  return station_fragments(*town_record(place, seed), seed);
+}
+
+zs::PlotSource plot_source(std::shared_ptr<const TownRecord> town, std::uint64_t seed) {
+  zs::PlotSource src;
+  src.count = [town] { return static_cast<int>(town->layout.plots.size()); };
+  src.address = [town](int plot) { return town->layout.plots.at(static_cast<std::size_t>(plot)).address; };
+  src.site_toml = [town, seed](int plot) {
+    return plot_toml(town->spec, town->layout, plot, town->dwelling, town->plots, seed, town->frame);
+  };
+  return src;
 }
 
 }  // namespace zs::gen

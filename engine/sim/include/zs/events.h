@@ -124,6 +124,9 @@ enum class EventType : std::uint16_t {
   // Spec 68: a pool body on the map.
   ArrivedOnMap = 95,       // subject = the body, a = its pop, b = the packed cell it arrived at
   LeftMap = 96,            // subject = the body, a = its pop, b = items it left where it stood
+  // Spec 73: places opened in play.
+  PlaceOpened = 97,        // subject = the plot, a = its ground floor's level, b = its site number
+  PlaceRefused = 98,       // subject = the plot, a = the command type, b = PlaceRefusal
   // Stage 1 demo scenario events.
   DemoGeneratorStarted = 100,
   DemoGeneratorStopped = 101,

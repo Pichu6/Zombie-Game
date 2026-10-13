@@ -193,45 +193,12 @@ int SiteMap::site_of(int z) const {
 
 // Spec 70: the fragment's levels are appended after the map's, so every cell, edge and floor index the map already had
 // keeps its value (floor entities are numbered by level index, spec 14).
-int SiteMap::add_site(World& w, Assemblies& items, const std::string& toml_text, int z_base) {
-  if (!w.ledger.setup_open()) throw std::logic_error("map: a site may only be added during setup");
-  const toml::table t = toml::parse(toml_text);
-  const int fw = t["map"]["width"].value<int>().value_or(0), fh = t["map"]["height"].value<int>().value_or(0);
-  if (fw <= 0 || fh <= 0 || fw > width_ || fh > height_)
-    throw std::runtime_error("map: a site of " + std::to_string(fw) + " x " + std::to_string(fh) + " does not fit the map's " +
-                             std::to_string(width_) + " x " + std::to_string(height_));
-  const auto* levels = t["level"].as_array();
-  if (!levels) throw std::runtime_error("map: a site has no [[level]] tables");
-  const int site = sites_++;
-  for (const auto& lv : *levels) {
-    const int z = z_base + lv.as_table()->get("z")->value<int>().value();
-    if (level_index(z) >= 0) throw std::runtime_error("map: level " + std::to_string(z) + " is taken");
-    levels_.push_back(z);
-    level_sites_.push_back(site);
-  }
-  const std::size_t n_levels = levels_.size();
-  const std::size_t h_before = h_edges_.size(), v_before = v_edges_.size();
-  floors_.resize(n_levels * height_ * width_, Floor::None);
-  h_edges_.resize(n_levels * (height_ + 1) * width_, Edge{});
-  v_edges_.resize(n_levels * height_ * (width_ + 1), Edge{});
-  blocked_.resize(floors_.size(), false);
-  for (const auto& lv : *levels) {
-    const auto& tab = *lv.as_table();
-    const int z = z_base + tab["z"].value<int>().value();
-    const auto lines = split_lines(tab["grid"].value<std::string>().value());
-    if (static_cast<int>(lines.size()) != 2 * fh + 1) throw std::runtime_error("map: site level " + std::to_string(z) + " has the wrong number of rows");
-    auto at = [&](int row, int col) -> char {
-      const std::string& line = lines[row];
-      return col < static_cast<int>(line.size()) ? line[col] : ' ';
-    };
-    for (int y = 0; y < fh; ++y)
-      for (int x = 0; x < fw; ++x) floors_[cell_index({z, x, y})] = floor_from_char(at(2 * y + 1, 2 * x + 1));
-    for (int y = 0; y <= fh; ++y)
-      for (int x = 0; x < fw; ++x) edge(EdgeRef{z, x, y, false}).kind = edge_from_char(at(2 * y, 2 * x + 1));
-    for (int y = 0; y < fh; ++y)
-      for (int x = 0; x <= fw; ++x) edge(EdgeRef{z, x, y, true}).kind = edge_from_char(at(2 * y + 1, 2 * x));
-  }
+int SiteMap::add_site(World& w, Assemblies& items, const std::string& toml_text, int z_base, bool runtime) {
+  if (!runtime && !w.ledger.setup_open()) throw std::logic_error("map: a site may only be added during setup");
+  const std::size_t h_before = h_edges_.size(), v_before = v_edges_.size(), objects_before = objects_.size();
+  const int site = place_site(toml_text, z_base);
   // Assemblies for the new edges only, in the same fixed order as load_file.
+  const toml::table t = toml::parse(toml_text);
   const int quality = t["map"]["build_quality"].value_or(50);
   auto make = [&](std::vector<Edge>& edges, std::size_t from) {
     for (std::size_t i = from; i < edges.size(); ++i) {
@@ -244,6 +211,49 @@ int SiteMap::add_site(World& w, Assemblies& items, const std::string& toml_text,
   };
   make(h_edges_, h_before);
   make(v_edges_, v_before);
+  if (runtime) runtime_sites_.push_back({z_base, toml_text, objects_before, objects_.size() - objects_before});
+  return site;
+}
+
+int SiteMap::place_site(const std::string& toml_text, int z_base) {
+  const toml::table t = toml::parse(toml_text);
+  const int fw = t["map"]["width"].value<int>().value_or(0), fh = t["map"]["height"].value<int>().value_or(0);
+  if (fw <= 0 || fh <= 0 || fw > width_ || fh > height_)
+    throw std::runtime_error("map: a site of " + std::to_string(fw) + " x " + std::to_string(fh) + " does not fit the map's " +
+                             std::to_string(width_) + " x " + std::to_string(height_));
+  const auto* levels = t["level"].as_array();
+  if (!levels) throw std::runtime_error("map: a site has no [[level]] tables");
+  for (const auto& lv : *levels) {  // checked before anything changes
+    const int z = z_base + lv.as_table()->get("z")->value<int>().value();
+    if (level_index(z) >= 0) throw std::runtime_error("map: level " + std::to_string(z) + " is taken");
+    const auto lines = split_lines(lv.as_table()->get("grid")->value<std::string>().value());
+    if (static_cast<int>(lines.size()) != 2 * fh + 1) throw std::runtime_error("map: site level " + std::to_string(z) + " has the wrong number of rows");
+  }
+  const int site = sites_++;
+  for (const auto& lv : *levels) {
+    levels_.push_back(z_base + lv.as_table()->get("z")->value<int>().value());
+    level_sites_.push_back(site);
+  }
+  const std::size_t n_levels = levels_.size();
+  floors_.resize(n_levels * height_ * width_, Floor::None);
+  h_edges_.resize(n_levels * (height_ + 1) * width_, Edge{});
+  v_edges_.resize(n_levels * height_ * (width_ + 1), Edge{});
+  blocked_.resize(floors_.size(), false);
+  for (const auto& lv : *levels) {
+    const auto& tab = *lv.as_table();
+    const int z = z_base + tab["z"].value<int>().value();
+    const auto lines = split_lines(tab["grid"].value<std::string>().value());
+    auto at = [&](int row, int col) -> char {
+      const std::string& line = lines[row];
+      return col < static_cast<int>(line.size()) ? line[col] : ' ';
+    };
+    for (int y = 0; y < fh; ++y)
+      for (int x = 0; x < fw; ++x) floors_[cell_index({z, x, y})] = floor_from_char(at(2 * y + 1, 2 * x + 1));
+    for (int y = 0; y <= fh; ++y)
+      for (int x = 0; x < fw; ++x) edge(EdgeRef{z, x, y, false}).kind = edge_from_char(at(2 * y, 2 * x + 1));
+    for (int y = 0; y < fh; ++y)
+      for (int x = 0; x <= fw; ++x) edge(EdgeRef{z, x, y, true}).kind = edge_from_char(at(2 * y + 1, 2 * x));
+  }
   const auto shifted = [&](Cell c) {
     c.z += z_base;
     return c;
@@ -460,7 +470,22 @@ std::optional<Cell> SiteMap::find_object(const std::string& kind, const std::str
   return std::nullopt;
 }
 
+// Spec 73: the marker that a save holds places opened in play before the walls (an edge count can never be this).
+constexpr std::uint64_t kRuntimeSites = ~std::uint64_t{0};
+
 void SiteMap::save(ArchiveWriter& w) const {
+  // Spec 73: places opened in play first, only when there are any (a map without them saves as before): each one's
+  // level, text and its objects' entities, so a load rebuilds it before reading its walls.
+  if (!runtime_sites_.empty()) {
+    w.u64(kRuntimeSites);
+    w.u64(runtime_sites_.size());
+    for (const RuntimeSite& rs : runtime_sites_) {
+      w.i64(rs.z_base);
+      w.str(rs.toml);
+      w.u64(rs.objects);
+      for (std::size_t i = 0; i < rs.objects; ++i) w.u64(objects_[rs.first_object + i].entity);
+    }
+  }
   // The layout comes from the map file; the save holds what can change: edge states.
   for (const auto* edges : {&h_edges_, &v_edges_}) {
     w.u64(edges->size());
@@ -473,8 +498,27 @@ void SiteMap::save(ArchiveWriter& w) const {
 }
 
 void SiteMap::load(ArchiveReader& r) {
+  std::uint64_t first = r.u64();
+  if (first == kRuntimeSites) {  // spec 73: rebuild the places opened in play (their walls' assemblies come from the save)
+    if (!runtime_sites_.empty()) throw std::runtime_error("save: places opened in play are loaded into a fresh world only");
+    for (std::uint64_t n = r.u64(); n > 0; --n) {
+      RuntimeSite rs;
+      rs.z_base = static_cast<int>(r.i64());
+      rs.toml = r.str();
+      rs.first_object = objects_.size();
+      place_site(rs.toml, rs.z_base);
+      rs.objects = objects_.size() - rs.first_object;
+      if (r.u64() != rs.objects) throw std::runtime_error("save: a place opened in play has different objects");
+      for (std::size_t i = 0; i < rs.objects; ++i) objects_[rs.first_object + i].entity = r.u64();
+      runtime_sites_.push_back(std::move(rs));
+    }
+    first = r.u64();
+  }
+  bool have = true;  // `first` is the horizontal edges' count, already read
   for (auto* edges : {&h_edges_, &v_edges_}) {
-    if (r.u64() != edges->size()) throw std::runtime_error("save: map size differs");
+    const std::uint64_t count = have ? first : r.u64();
+    have = false;
+    if (count != edges->size()) throw std::runtime_error("save: map size differs");
     for (Edge& e : *edges) {
       e.assembly = r.u64();
       e.barricade = r.u64();

@@ -117,7 +117,7 @@ class Power : public System {
   void stall(World& w, StallCause why, EventId cause);
   void step_fuel(World& w);
   void step_fridge(World& w);
-  void build_spaces();
+  void build_spaces() const;  // spec 73: built again when the map gains levels (a place opened in play)
   std::size_t cell_index(const Cell& c) const;
   int receiver_of(EntityId object) const;
 
@@ -136,8 +136,8 @@ class Power : public System {
   std::vector<Receiver> receivers_;  // `on` and `powered` are saved
   EntityId gen_object_ = 0, fridge_object_ = 0, panel_object_ = 0;
   Cell gen_cell_{};
-  std::vector<int> spaces_;          // per cell: walled space id, -1 = not walkable
-  std::vector<int> space_cells_;     // cells per space
+  mutable std::vector<int> spaces_;          // per cell: walled space id, -1 = not walkable
+  mutable std::vector<int> space_cells_;     // cells per space
   // State (saved).
   bool mains_alive_ = true;
   Transfer transfer_ = Transfer::Mains;

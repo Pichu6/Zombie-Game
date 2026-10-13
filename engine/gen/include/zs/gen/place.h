@@ -1,10 +1,16 @@
 // The block's place on a generated planet, and the one world built there. Spec: docs/tier0/specs/42-place.md
 #pragma once
 #include <cstdint>
+#include <memory>
+#include <vector>
 
+#include "zs/gen/plot_contents.h"
+#include "zs/gen/stations.h"
+#include "zs/gen/town_layout.h"
 #include "zs/gen/world_fields.h"
 #include "zs/gen/world_people.h"
 #include "zs/place.h"
+#include "zs/places.h"
 #include "zs/tier0.h"
 
 namespace zs::gen {
@@ -40,8 +46,23 @@ struct WorldSettings {
 // town and builds the run there, with that town's country. What zs.exe opens and plays.
 zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings = {});
 
-// Spec 70 (decision 0077): the police stations of the block's town as fragments for make_run, from its agency (spec 69),
-// each fitting the block map's frame (floors added as needed) and loaded from level 10, 20, ...
+// Specs 69-73: the block's town as records: its agency's stations (fitting the block map's frame), its layout (spec 71)
+// with the stations and the block on their plots, and what the plots need to be opened (spec 72).
+struct TownRecord {
+  Catalog cat;
+  Town town;
+  TownSpec spec;
+  TownLayout layout;
+  DwellingRules dwelling;
+  PlotRules plots;
+  std::vector<Station> stations;
+  Frame frame;  // the block map's size: what a place of the one world must fit
+};
+std::shared_ptr<const TownRecord> town_record(const zs::Place& place, std::uint64_t seed);
+// Spec 70: the town's police stations as fragments for make_run, loaded from level 10, 20, ...
+std::vector<zs::tier0::Fragment> station_fragments(const TownRecord& town, std::uint64_t seed);
 std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::uint64_t seed);
+// Spec 73: the town's plots for the one world's Places, each cut to the frame when opened.
+zs::PlotSource plot_source(std::shared_ptr<const TownRecord> town, std::uint64_t seed);
 
 }  // namespace zs::gen

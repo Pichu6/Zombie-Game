@@ -30,6 +30,7 @@ class PoliceCases;
 class PoliceStaff;
 class Players;
 struct Hands;
+class Places;
 }  // namespace zs
 
 namespace zs::tier0 {
@@ -86,6 +87,7 @@ struct Tier0 {
   std::shared_ptr<PoliceStaff> force;    // spec 65: the officers with their shifts (the one world only)
   Players* players = nullptr;            // spec 66: players and possession (the one world only)
   std::shared_ptr<Hands> hands;          // spec 67: how the players reach bodies (the one world only)
+  Places* places = nullptr;              // spec 73: places opened in play (the one world only; its plots set by zs::gen::make_world)
   AgencyPlan agency;                     // spec 69: the town's police agency by its size (the one world only)
   std::vector<Site> sites;               // spec 70: the places loaded beside the block (the one world from zs::gen::make_world)
   WorldOwners owners;

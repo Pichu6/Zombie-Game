@@ -18,6 +18,7 @@
 #include "zs/payroll.h"
 #include "zs/police.h"
 #include "zs/police_agency.h"
+#include "zs/places.h"
 #include "zs/players.h"
 #include "zs/police_staff.h"
 #include "zs/pop_ai.h"
@@ -417,6 +418,10 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   w.add_system(std::move(bonds));
   w.add_system(std::move(police));
   w.add_system(std::move(players));
+  // Spec 73: places opened in play. Last, so a world that never opens one saves its other systems as before.
+  auto places = std::make_unique<Places>(*t.map, *t.items, *t.actors);
+  t.places = places.get();
+  w.add_system(std::move(places));
 }
 
 }  // namespace zs::tier0

@@ -54,6 +54,7 @@ add_library(zs_sim
   src/police.cpp
   src/police_staff.cpp
   src/police_agency.cpp
+  src/places.cpp
   src/players.cpp
   src/sound_marks.cpp
 )

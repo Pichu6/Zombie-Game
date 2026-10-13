@@ -330,7 +330,7 @@ std::size_t Power::cell_index(const Cell& c) const {
 
 // Walled spaces: cells joined by edges with nothing built on them. Light does not pass doors or
 // windows, open or not (a Tier 0 simplification); walls don't change in Tier 0, so built once.
-void Power::build_spaces() {
+void Power::build_spaces() const {
   const std::size_t n = map_.levels().size() * static_cast<std::size_t>(map_.width() * map_.height());
   spaces_.assign(n, -1);
   space_cells_.clear();
@@ -358,7 +358,12 @@ void Power::build_spaces() {
       }
 }
 
-int Power::space_of(const Cell& c) const { return map_.in_bounds(c) ? spaces_[cell_index(c)] : -1; }
+int Power::space_of(const Cell& c) const {
+  if (!map_.in_bounds(c)) return -1;
+  // Spec 73: a place opened in play adds levels; their spaces come after the old ones, which keep their ids.
+  if (spaces_.size() != map_.levels().size() * static_cast<std::size_t>(map_.width() * map_.height())) build_spaces();
+  return spaces_[cell_index(c)];
+}
 
 double Power::lamp_lux(const Cell& c) const {
   const int s = space_of(c);

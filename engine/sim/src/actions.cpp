@@ -247,7 +247,12 @@ void Actors::populate(World& w) {
       mint_amounts(owner, o);
     }
   }
-  // Index the map's edge assemblies by where they are.
+  index_edges();
+}
+
+// The map's edge assemblies by where they are (spec 73: again whenever the map gains a place).
+void Actors::index_edges() {
+  edge_of_.clear();
   for (int z : map_.levels())
     for (int vertical = 0; vertical < 2; ++vertical)
       for (int y = 0; y <= map_.height() - vertical; ++y)
@@ -256,6 +261,20 @@ void Actors::populate(World& w) {
           const Edge& ed = map_.edge(ref);
           if (ed.assembly != 0) edge_of_[ed.assembly] = ref;
         }
+}
+
+void Actors::sync_with_map(World& w) {
+  const auto& objs = map_.objects();
+  for (std::size_t i = object_entities_.size(); i < objs.size(); ++i) {
+    EntityId e = objs[i].entity;
+    if (e == 0) {
+      e = w.new_entity(World::Creator::Actions);
+      map_.set_object_entity(i, e);
+    }
+    object_entities_.push_back(e);
+    object_index_[e] = i;
+  }
+  index_edges();
 }
 
 EntityId Actors::add_actor(World& w, EntityId body, const Cell& at) {
@@ -1089,6 +1108,15 @@ void Actors::load(ArchiveReader& r) {
     const int p = static_cast<int>(r.i64());
     const EntityId t = r.u64();
     resume_[{p, t}] = r.f64();
+  }
+  // Spec 73: the map, loaded before us, may hold places opened in play: take up their objects and walls.
+  if (map_.objects().size() > object_entities_.size()) {
+    const auto& objs = map_.objects();
+    for (std::size_t i = object_entities_.size(); i < objs.size(); ++i) {
+      object_entities_.push_back(objs[i].entity);
+      object_index_[objs[i].entity] = i;
+    }
+    index_edges();
   }
 }
 
