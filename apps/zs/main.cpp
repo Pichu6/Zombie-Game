@@ -5,6 +5,7 @@
 //   zs [--atlas [--shot out.bmp] [--page P] [--stop N]]   the Atlas: worlds, the tour, parts, try, breakthroughs
 //   zs --play [--world NAME] [--from SAVE] [--seed N] [--watch] [--shot out.bmp ...]   the window
 //   zs --run|--group|--stage6|... [options]         headless (zs --help lists them)
+//   zs --food [--seed N] [--days D] [--errand-day E]   the town's food chain and an errand (spec 80)
 //   zs --day [--seed N] [--country C] [--people N] [--date D]   a town's day hour by hour (spec 54)
 //   zs --diverge [--seed N] [--hours H] [--every T] [--mode jump|saveload|both]   the first divergent tick and system (spec 56)
 //   zs --absence [--seed N] [--pop SLOT] [--back-after-hours H] [--phoned-in]   a pop goes missing: the household's ladder (spec 59)
@@ -14,6 +15,7 @@
 
 #include "day_mode.h"
 #include "absence_mode.h"
+#include "food_mode.h"
 #include "diverge_mode.h"
 #include "modes.h"
 #include "worlds.h"
@@ -61,6 +63,7 @@ int main(int argc, char** argv) {
   if (argc >= 2 && !std::strcmp(argv[1], "--day")) return zs::atlas::day_main(argc, argv);  // spec 54
   if (argc >= 2 && !std::strcmp(argv[1], "--diverge")) return zs::atlas::diverge_main(argc, argv);  // spec 56
   if (argc >= 2 && !std::strcmp(argv[1], "--absence")) return zs::atlas::absence_main(argc, argv);  // spec 59
+  if (argc >= 2 && !std::strcmp(argv[1], "--food")) return zs::atlas::food_main(argc, argv);  // spec 80
   for (int i = 1; i < argc; ++i)
     if (headless_flag(argv[i])) return headless_main(argc, argv);
   hide_own_console();

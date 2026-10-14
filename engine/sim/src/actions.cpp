@@ -198,6 +198,14 @@ std::optional<std::size_t> Actors::find_process(const std::string& id) const {
   return std::nullopt;
 }
 
+std::optional<OwnerId> Actors::first_store(const std::string& kind) const {
+  for (const auto& [e, owner] : stores_) {
+    const auto it = object_index_.find(e);
+    if (it != object_index_.end() && map_.objects()[it->second].kind == kind) return owner;
+  }
+  return std::nullopt;
+}
+
 void Actors::populate(World& w) {
   auto& l = w.ledger;
   // Amounts in map files use readable units; the ledger uses J and uL.

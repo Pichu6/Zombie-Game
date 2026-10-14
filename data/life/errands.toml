@@ -1,0 +1,6 @@
+# An errand to a food outlet (spec 80, decision 0079): a pop of the block leaves, buys what it can carry and the outlet
+# has, and brings it home to the block's pantry. Every number is an ESTIMATE taken by Claude (no source yet).
+[errand]
+carry_kg = 20        # what one adult carries home on foot or by car from one trip
+mj_per_kg = 6        # food energy of a mixed shop (dry staples near 15 MJ/kg, fresh produce and dairy 1-3)
+shop_minutes = 20    # time inside the outlet

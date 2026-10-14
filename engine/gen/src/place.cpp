@@ -1,5 +1,6 @@
 // The block's place on a generated planet. Spec: docs/tier0/specs/42-place.md
 #include "zs/gen/place.h"
+#include "zs/gen/town_food.h"
 #include "zs/gen/town_travel.h"
 
 #include <cmath>
@@ -107,7 +108,26 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
   // Specs 70-73: the block's town: its stations loaded beside the block, its plots opened when someone asks.
   const auto town_rec = town_record(place, seed);
-  zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed));
+  // Spec 80: the town's food chain from spec 79 (decision 0079).
+  zs::FoodSetup food;
+  if (town >= 0) {
+    const FoodRetailParams fr = load_food_retail(data + "/gen");
+    int income = 0;
+    for (int g = 0; g < kIncomeGroups; ++g)
+      if (place.income == kIncomeGroupIds[static_cast<std::size_t>(g)]) income = g;
+    const ServingCentre centre = nearest_centre(grid, f, people, town, fr);
+    const TownFood tf = plan_town_food(town_rec->town, town_rec->layout, town_rec->spec.people, income, fr, seed, centre);
+    const TownTravel travel = load_town_travel(data + "/gen");
+    const int block = town_rec->layout.lot_plot.empty() ? -1 : town_rec->layout.lot_plot.back();
+    food.town_people = town_rec->spec.people;
+    food.kj_per_person_day = town_rec->dwelling.food_kj_per_person_day;
+    food.centre_days = kCentreDryShare * fr.dc_dry_days + (1 - kCentreDryShare) * fr.dc_fresh_days;
+    food.centre_hours = centre.hours;
+    for (const Outlet& o : tf.outlets)
+      food.outlets.push_back({o.name, outlet_kind_name(o.kind), o.share, o.stock_days,
+                              o.plot >= 0 && block >= 0 ? plot_minutes(town_rec->layout, block, o.plot, travel) : kNoPlotMinutes});
+  }
+  zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed), food);
   if (t.places) t.places->set_source(plot_source(town_rec, seed));
   // Spec 75: a released pop gets home by the town's streets, from the plot its body stood on to the plot it lives on.
   if (t.players && t.census) t.players->set_travel(travel_in_town(town_rec, t.places, t.census->people().size(), seed));

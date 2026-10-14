@@ -266,7 +266,7 @@ EntityId PopAI::guard_on_duty(const World& w) const {
   for (const auto& [id, m] : minds_) {
     const Body& b = bodies_.get(id);
     const int p = m.priority[static_cast<std::size_t>(Job::Guard)];
-    if (!b.alive || b.spec.walker || p == 0 || id == possessed_) continue;
+    if (!b.alive || b.spec.walker || b.away || p == 0 || id == possessed_) continue;  // spec 80: away on an errand
     if (p < best_p) {
       best = id;
       best_p = p;

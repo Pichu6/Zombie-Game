@@ -127,6 +127,27 @@ ServingCentre serving_centre(const WorldGrid&, const WorldFields&, const WorldPe
   return out;
 }
 
+ServingCentre nearest_centre(const WorldGrid& grid, const WorldFields& fields, const WorldPeople& people, int town,
+                             const FoodRetailParams& params) {
+  ServingCentre out;
+  if (town < 0) return out;
+  const Settlement& t = people.towns[static_cast<std::size_t>(town)];
+  if (t.people >= params.dc_min_town_people) {
+    out.town = town;
+    return out;
+  }
+  double best = std::numeric_limits<double>::infinity();
+  for (std::size_t i = 0; i < people.towns.size(); ++i) {
+    if (people.towns[i].people < params.dc_min_town_people) continue;
+    const double d = grid.distance_km(t.cell, people.towns[i].cell);
+    if (d < best) best = d, out.town = static_cast<int>(i);
+  }
+  if (out.town < 0) return out;
+  out.km = best * kRoadCircuity;
+  out.hours = out.km / road_kmh(fields, people, RouteParams{}, t.cell);
+  return out;
+}
+
 TownFood plan_town_food(const Town& town, const TownLayout& layout, double people, int income, const FoodRetailParams& params,
                         std::uint64_t seed, const ServingCentre& centre) {
   TownFood f;

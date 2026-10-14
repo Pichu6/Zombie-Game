@@ -16,6 +16,11 @@
 
 namespace zs::gen {
 
+// Spec 80: the share of the centre's stock that is dry (grain, other crops; spec 77's diet is about 80 % of them) for its
+// days of stock between FR-7's dry and fresh figures (estimate); minutes to an outlet without a plot (estimate).
+inline constexpr double kCentreDryShare = 0.75;
+inline constexpr std::int64_t kNoPlotMinutes = 15;
+
 // Rule 2: the planet the one world is generated on: Earth-size cells of about 5,000 km2, 70 km apart (0038, 0063).
 inline constexpr int kOneWorldFrequency = 101;
 inline constexpr int kTestFrequency = 24;  // a coarse planet for fast tests of rules that do not depend on the grid

@@ -48,6 +48,11 @@ struct ServingCentre {
 };
 ServingCentre serving_centre(const WorldGrid& grid, const WorldFields& fields, const WorldPeople& people, const WorldRoutes& routes,
                              int town, const FoodRetailParams& params);
+// Spec 80: the same without the routes (the one world does not build them): the nearest large town in a straight line,
+// its road km the straight km times spec 74's measured circuity, its hours at the town's road speed.
+inline constexpr double kRoadCircuity = 1.27;  // spec 74 As built: 1.25-1.29 on seeds 1 and 4 (WSR-43)
+ServingCentre nearest_centre(const WorldGrid& grid, const WorldFields& fields, const WorldPeople& people, int town,
+                             const FoodRetailParams& params);
 
 struct TownFood {
   int income = 0;

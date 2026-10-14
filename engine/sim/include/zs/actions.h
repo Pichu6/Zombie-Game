@@ -192,6 +192,8 @@ class Actors : public System {
   void sync_with_map(World& w);
   std::optional<EntityId> find_object(const std::string& kind, const std::string& id = "") const;
   std::optional<OwnerId> store_of(EntityId holder) const;
+  // Spec 80: the first map object of a kind that holds a store ("pantry", "fridge"), by entity order; none if there is none.
+  std::optional<OwnerId> first_store(const std::string& kind) const;
   const std::map<EntityId, EdgeRef>& edges() const { return edge_of_; }  // edge assembly -> place
   // Floors are fixed ids below World::kFirstEntity (one per cell), so they need no saved state.
   static constexpr EntityId kFloorBase = EntityId{1} << 19;

@@ -24,6 +24,16 @@ kind = "text"
 added = 2026-10-13
 
 [[try]]
+id = "town-food-chain"
+part = "individual"
+spec = "80"
+title = "Food reaching the block"
+what = "The block's town's food chain day by day: the distribution centre refilling the outlets after its road hours, the town eating its day, the block's pantry; on day 2 a pop of the block runs an errand to the largest outlet and brings food home (decision 0079: buying food is an act)."
+run = ["--food", "--seed", "{seed}", "--days", "5", "--errand-day", "2"]
+kind = "text"
+added = 2026-10-13
+
+[[try]]
 id = "town-shops"
 part = "generators"
 spec = "79"
