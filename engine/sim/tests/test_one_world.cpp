@@ -66,7 +66,11 @@ TEST_CASE("one world: owners, money, the grid tree and the orders audience") {
   const ResourceId money = t.econ->money().resource();
   CHECK(t.world->ledger.balance(t.owners.region, money) > 0);
   const GridTree::Summary d = t.grids->tree().summary(t.owners.district);
-  CHECK(d.demand_w == 12'000);
+  // Spec 82: the block's buildings report their real loads to their nodes (three fridges at the start), not fixed 6 and 3 kW.
+  std::int64_t loads = 0;
+  for (std::size_t b = 0; b < t.power->buildings().size(); ++b) loads += std::llround(t.power->building_load_w(b));
+  CHECK(loads == 450);
+  CHECK(d.demand_w == loads);
   CHECK(d.unserved_w == 0);
   std::size_t living = 0;
   for (const Person& p : t.census->people()) living += !is_dead(p.fate);

@@ -71,3 +71,29 @@ warm_tau_h = 6
 life_days_at_4c = 7
 halving_c = 4
 source = "USDA: fridge food keeps ~3-7 days at <=4 C; a closed fridge stays cold ~4 h without power. Rates are estimates"
+
+# Spec 82: the buildings on the block. The grid feeds each through its own service (its node of spec 35's block district);
+# each panel has its own copy of the circuits above; an appliance belongs to the building whose area holds its cell
+# (area = [z0, z1, x0, y0, x1, y1], from the map's walls). The generator and the transfer switch are the main building's.
+# Service ratings are ESTIMATES: a US home has 100-200 A at 240 V (24-48 kW); the main building takes the larger.
+[[building]]
+id = "main"
+name = "main building"
+grid_node = "main building"
+area = [-1, 1, 2, 4, 15, 15]
+service_w = 48000
+generator = true
+
+[[building]]
+id = "house_a"
+name = "house A"
+grid_node = "house A"
+area = [0, 0, 20, 4, 28, 11]
+service_w = 24000
+
+[[building]]
+id = "house_b"
+name = "house B"
+grid_node = "house B"
+area = [0, 0, 20, 15, 28, 22]
+service_w = 24000

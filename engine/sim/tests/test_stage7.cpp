@@ -290,7 +290,7 @@ TEST_CASE("stage 7: the scenario with the dead: save/load keeps the hash; golden
   while (at_mid.drive(u)) u.world->step();
   run_hours(u, 2);
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 3689132985415948096ULL;  // re-pinned on MSVC 2026-10-14 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 6581081184344293996 (for decision 0064 (background 35/27, two thresholds, moans, generator 85 dB), 2026-10-11)
+  const std::uint64_t golden = 12597132806031732039ULL;  // re-pinned on MSVC 2026-10-14 for spec 82 (power by building: each building its own service and panel, a fridge each, mains from spec 35's tree); before: 3689132985415948096 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 6581081184344293996 (for decision 0064 (background 35/27, two thresholds, moans, generator 85 dB), 2026-10-11)
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 7 golden world hash: " << t.world->world_hash());
 }

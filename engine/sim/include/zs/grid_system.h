@@ -3,6 +3,7 @@
 // Spec: docs/tier0/specs/35-networks.md
 #pragma once
 #include <cstdint>
+#include <functional>
 
 #include "zs/grid.h"
 #include "zs/world.h"
@@ -30,6 +31,9 @@ class GridSystem : public System {
   GridTree& tree() { return tree_; }  // setup: shape and starting state; then commands only
   const GridTree& tree() const { return tree_; }
   void start() { tree_.solve(); }  // once at the end of setup
+  // Spec 82: called after every solve a command causes, so a building on the tree learns whether its node is fed.
+  // Set by the setup, never saved.
+  std::function<void(World&, EventId)> on_solved;
 
   void apply_command(World& w, const Command& c, EventId cause) override;
   void update(World&) override {}

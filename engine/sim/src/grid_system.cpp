@@ -12,6 +12,7 @@ void GridSystem::solved(World& w, EventId cause) {
     const Grid& grid = tree_.grid(g);
     w.emit(EventType::GridChanged, g, cause, grid.served_w, grid.demand_w - grid.served_w);
   }
+  if (on_solved) on_solved(w, cause);
 }
 
 void GridSystem::apply_command(World& w, const Command& c, EventId cause) {

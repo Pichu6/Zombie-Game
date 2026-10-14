@@ -280,8 +280,8 @@ food_kj = 120000
 
 # Spec 80: each house on the block has its own pantry and fridge for its 2 residents (FR-9: 3 days and 2), listed after
 # the main building's so the run's group still eats from its own kitchen (the pop AI takes the first of each kind).
-# `id` names the house: spec 17's power system leaves a house's appliances out (the houses run off the town's mains, not
-# the main building's generator; not modelled yet), and spec 81 gives each house's household its own stores.
+# `id` names the house whose household owns the stores (spec 81). Their power comes from the house they stand in (spec 82:
+# each building's service and panel, data/tier0/power.toml), not from the main building's generator.
 [[object]]
 kind = "fridge"
 at = [0, 20, 4]

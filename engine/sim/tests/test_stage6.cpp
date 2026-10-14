@@ -122,9 +122,10 @@ TEST_CASE("stage 6: grid failure is drawn in [day 2, day 5) and cuts every mains
   CHECK(scheduled);
   all_lamps(t, true);
   t.power->set_on(*t.world, object(t, "radio"), true, 0);
-  int lit = 0;
-  for (const Receiver& r : t.power->receivers()) lit += r.powered;
-  CHECK(lit == 7);  // fridge, radio, five lamps
+  int lit = 0, houses = 0;
+  for (const Receiver& r : t.power->receivers()) (t.power->buildings()[r.building].generator ? lit : houses) += r.powered;
+  CHECK(lit == 7);     // the main building: fridge, radio, five lamps
+  CHECK(houses == 2);  // spec 82: each house's fridge, on the grid through its own service
   t.power->fail_grid(*t.world, 0);
   for (const Receiver& r : t.power->receivers()) CHECK_FALSE(r.powered);
   CHECK(count(*t.world, EventType::GridFailed) == 1);
@@ -251,7 +252,12 @@ TEST_CASE("stage 6: the scenario through actions: refuels once, runs dry, the fo
   CHECK(script.refueled());
   CHECK(count(*t.world, EventType::GridFailed) == 1);
   CHECK(count(*t.world, EventType::GeneratorOutOfFuel) == 1);
-  CHECK(count(*t.world, EventType::FoodSpoiled) == 1);
+  // The main building's fridge spoils once, after the generator runs dry; spec 82: the houses' fridges, dark since the
+  // grid failed, spoil too (one each).
+  int main_spoiled = 0;
+  for (const Event& e : t.world->log.all()) main_spoiled += e.type == EventType::FoodSpoiled && e.subject == object(t, "fridge");
+  CHECK(main_spoiled == 1);
+  CHECK(count(*t.world, EventType::FoodSpoiled) == 3);
   CHECK(count(*t.world, EventType::ActionRefused) == 0);
   CHECK(count(*t.world, EventType::ActionInterrupted) == 0);
   CHECK(t.actors->covered(*t.world, *GeneratorScenario::front_window(t)));
@@ -262,7 +268,7 @@ TEST_CASE("stage 6: the scenario through actions: refuels once, runs dry, the fo
   u.world->load(mid);
   while (at_mid.drive(u)) u.world->step();
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 8657294734058408537ULL;  // re-pinned on MSVC 2026-10-14 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 17962225722082667100 (for decision 0065 (ids per creator); the draws are keyed by id), 2026-10-11
+  const std::uint64_t golden = 11080740437299183845ULL;  // re-pinned on MSVC 2026-10-14 for spec 82 (power by building: each building its own service and panel, a fridge each, mains from spec 35's tree); before: 8657294734058408537 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 17962225722082667100 (for decision 0065 (ids per creator); the draws are keyed by id), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 6 golden world hash: " << t.world->world_hash());
 }

@@ -83,28 +83,63 @@ void Power::load_file(const std::string& path) {
       d.circuit = static_cast<std::size_t>(it - circuits_.begin());
       rdefs_.push_back(d);
     }
-  tripped_.assign(circuits_.size(), false);
+  // Spec 82: the buildings on the map; none listed: one building over the whole map with the generator (spec 17).
+  if (const auto* a = t["building"].as_array())
+    for (const auto& n : *a) {
+      const auto& x = *n.as_table();
+      BuildingDef b;
+      b.id = x["id"].value<std::string>().value();
+      b.name = x["name"].value_or(b.id);
+      b.grid_node = x["grid_node"].value_or(std::string{});
+      const auto* area = x["area"].as_array();
+      if (!area || area->size() != 6) throw std::runtime_error("power: building " + b.id + " needs area = [z0, z1, x0, y0, x1, y1]");
+      b.z0 = static_cast<int>((*area)[0].value_or(0)), b.z1 = static_cast<int>((*area)[1].value_or(0));
+      b.x0 = static_cast<int>((*area)[2].value_or(0)), b.y0 = static_cast<int>((*area)[3].value_or(0));
+      b.x1 = static_cast<int>((*area)[4].value_or(0)), b.y1 = static_cast<int>((*area)[5].value_or(0));
+      b.service_w = x["service_w"].value_or(b.service_w);
+      b.generator = x["generator"].value_or(false);
+      buildings_.push_back(b);
+    }
+  if (buildings_.empty()) {
+    BuildingDef whole;
+    whole.id = "block";
+    whole.name = "the block";
+    whole.z0 = -1000, whole.z1 = 1000, whole.x0 = -1000, whole.y0 = -1000, whole.x1 = 1000, whole.y1 = 1000;
+    whole.service_w = 1e12;
+    whole.generator = true;
+    buildings_.push_back(whole);
+  }
+  main_ = 0;
+  for (std::size_t b = 0; b < buildings_.size(); ++b)
+    if (buildings_[b].generator) {
+      main_ = b;
+      break;
+    }
+  state_.assign(buildings_.size(), BuildingState{});
+  for (BuildingState& st : state_) st.tripped.assign(circuits_.size(), false);
 }
 
 void Power::setup(World& w) {
   const auto& objs = map_.objects();
   for (std::size_t i = 0; i < objs.size(); ++i) {
     const MapObject& o = objs[i];
-    for (std::size_t d = 0; d < rdefs_.size(); ++d)
-      if (rdefs_[d].kind == o.kind && o.id.rfind("house_", 0) != 0)  // spec 81: a house's appliances run off the town's mains
-        receivers_.push_back({actors_.object_entity(i), d, o.at, rdefs_[d].on_at_start, false});
+    // Spec 82 rule 1: an appliance belongs to the building whose area holds it; in none, it draws nothing.
+    int in = -1;
+    for (std::size_t b = 0; b < buildings_.size() && in < 0; ++b)
+      if (buildings_[b].holds(o.at)) in = static_cast<int>(b);
+    for (std::size_t d = 0; d < rdefs_.size() && in >= 0; ++d)
+      if (rdefs_[d].kind == o.kind)
+        receivers_.push_back({actors_.object_entity(i), d, static_cast<std::size_t>(in), o.at, rdefs_[d].on_at_start, false});
+    if (o.kind == "fridge" && in >= 0) fridges_.push_back({actors_.object_entity(i), static_cast<std::size_t>(in), fridge_.cold_c, 0});
     if (o.kind == "generator") {
       gen_object_ = actors_.object_entity(i);
       gen_cell_ = o.at;
-    } else if (o.kind == "fridge" && o.id.rfind("house_", 0) != 0) {  // spec 81: the main building's, not a house's
-      fridge_object_ = actors_.object_entity(i);
     } else if (o.kind == "power_panel") {
       panel_object_ = actors_.object_entity(i);
     }
   }
   if (!gen_object_ || !panel_object_) throw std::runtime_error("power: the map needs a generator and a power_panel");
   if (!actors_.store_of(gen_object_)) throw std::runtime_error("power: the generator needs a tank (gasoline_l)");
-  fridge_c_ = fridge_.cold_c;
   build_spaces();
   // Grid failure: a scheduled world event in [day 2, day 5) (spec 17 rule 5).
   grid_fail_tick_ = 2 * kTicksPerGameDay +
@@ -123,7 +158,10 @@ void Power::setup(World& w) {
       if (how == "transfer_generator") return transfer_ == Transfer::Generator ? Reason::AlreadyDone : Reason::Ok;
       if (how == "transfer_mains") return transfer_ == Transfer::Mains ? Reason::AlreadyDone : Reason::Ok;
       if (how == "reset")
-        return std::find(tripped_.begin(), tripped_.end(), true) == tripped_.end() ? Reason::AlreadyDone : Reason::Ok;
+        return std::find(state_[main_].tripped.begin(), state_[main_].tripped.end(), true) == state_[main_].tripped.end() &&
+                       !state_[main_].main_tripped
+                   ? Reason::AlreadyDone
+                   : Reason::Ok;
       return Reason::WrongTarget;
     }
     const int r = receiver_of(target);
@@ -165,25 +203,43 @@ double Power::fuel_lph() const {
 
 void Power::solve(World& w, EventId cause, int switched_on, bool source_changed) {
   for (Receiver& r : receivers_) r.powered = false;
-  load_w_ = 0;
   const bool on_generator = transfer_ == Transfer::Generator && running_;
-  const bool live = (transfer_ == Transfer::Mains && mains_alive_) || on_generator;
-  if (live) {
-    std::vector<double> circuit_w(circuits_.size(), 0);
-    for (const Receiver& r : receivers_)
-      if (r.on) circuit_w[rdefs_[r.def].circuit] += rdefs_[r.def].demand_w;
-    for (std::size_t c = 0; c < circuits_.size(); ++c) {
-      if (tripped_[c]) continue;
-      if (circuit_w[c] > circuits_[c].rating_w) {
-        tripped_[c] = true;
-        w.emit(EventType::BreakerTripped, panel_object_, cause, static_cast<std::int64_t>(c));
-        continue;
+  // Spec 82 rules 2-4: each building from its own service and panel; the generator feeds only the main building.
+  for (std::size_t b = 0; b < buildings_.size(); ++b) {
+    BuildingState& st = state_[b];
+    st.load_w = 0;
+    const bool live = b == main_ ? (transfer_ == Transfer::Mains && st.mains) || on_generator : st.mains;
+    if (live && !st.main_tripped) {
+      std::vector<double> circuit_w(circuits_.size(), 0);
+      for (const Receiver& r : receivers_)
+        if (r.on && r.building == b) circuit_w[rdefs_[r.def].circuit] += rdefs_[r.def].demand_w;
+      std::vector<bool> fed(circuits_.size(), false);
+      double total = 0;
+      for (std::size_t c = 0; c < circuits_.size(); ++c) {
+        if (st.tripped[c]) continue;
+        if (circuit_w[c] > circuits_[c].rating_w) {
+          st.tripped[c] = true;
+          w.emit(EventType::BreakerTripped, b == main_ ? panel_object_ : 0, cause, static_cast<std::int64_t>(c), static_cast<std::int64_t>(b));
+          continue;
+        }
+        total += circuit_w[c];
+        fed[c] = true;
       }
-      load_w_ += circuit_w[c];
-      for (Receiver& r : receivers_)
-        if (r.on && rdefs_[r.def].circuit == c) r.powered = true;
+      if (total > buildings_[b].service_w) {  // the service's main breaker (rule 3)
+        st.main_tripped = true;
+        w.emit(EventType::BreakerTripped, b == main_ ? panel_object_ : 0, cause, -1, static_cast<std::int64_t>(b));
+      } else {
+        st.load_w = total;
+        for (Receiver& r : receivers_)
+          if (r.on && r.building == b && fed[rdefs_[r.def].circuit]) r.powered = true;
+      }
+    }
+    if (report_load_ && st.load_w != st.reported_w) {
+      st.reported_w = st.load_w;
+      report_load_(w, b, st.load_w);
     }
   }
+  load_w_ = state_[main_].load_w;
   if (!on_generator) return;
   // Brownout and stall: over the running rating, or a motor start over the surge rating (rule 2).
   if (load_w_ > gen_.capacity_w) {
@@ -193,7 +249,7 @@ void Power::solve(World& w, EventId cause, int switched_on, bool source_changed)
     double extra = 0;
     for (std::size_t i = 0; i < receivers_.size(); ++i) {
       const Receiver& r = receivers_[i];
-      if (r.powered && (source_changed || static_cast<int>(i) == switched_on))
+      if (r.building == main_ && r.powered && (source_changed || static_cast<int>(i) == switched_on))
         extra = std::max(extra, rdefs_[r.def].surge_w - rdefs_[r.def].demand_w);
     }
     if (load_w_ + extra > gen_.surge_w) stall(w, StallCause::Surge, cause);
@@ -237,9 +293,11 @@ bool Power::set_on(World& w, EntityId object, bool on, EventId cause) {
   return true;
 }
 
-bool Power::reset_breakers(World& w, EventId cause) {
-  if (std::find(tripped_.begin(), tripped_.end(), true) == tripped_.end()) return false;
-  tripped_.assign(circuits_.size(), false);
+bool Power::reset_breakers(World& w, EventId cause) {  // the main building's panel
+  BuildingState& st = state_[main_];
+  if (std::find(st.tripped.begin(), st.tripped.end(), true) == st.tripped.end() && !st.main_tripped) return false;
+  st.tripped.assign(circuits_.size(), false);
+  st.main_tripped = false;
   solve(w, cause);
   return true;
 }
@@ -259,7 +317,17 @@ void Power::fail_grid(World& w, EventId cause) {
   if (!mains_alive_) return;
   mains_alive_ = false;
   const EventId id = w.emit(EventType::GridFailed, 0, cause);
+  // Spec 82 rule 2: the block's substation fails, so every building loses its service at once; in the one world the
+  // fault goes to spec 35's tree too, whose solve then agrees.
+  for (BuildingState& st : state_) st.mains = false;
+  if (report_failed_) report_failed_(w, id);
   solve(w, id);
+}
+
+void Power::set_mains(World& w, std::size_t building, bool alive, EventId cause) {
+  if (building >= state_.size() || state_[building].mains == alive) return;
+  state_[building].mains = alive;
+  solve(w, cause);
 }
 
 void Power::on_scheduled(World& w, const ScheduledEvent& e) {
@@ -282,26 +350,45 @@ void Power::step_fuel(World& w) {
 }
 
 void Power::step_fridge(World& w) {
-  if (!fridge_object_) return;
-  const bool cooling = powered(fridge_object_);
-  const double target = cooling ? fridge_.cold_c : place_ ? place_->indoor_c(w) : fridge_.room_c;
-  const double tau_s = (cooling ? fridge_.cool_tau_h : fridge_.warm_tau_h) * 3600.0;
-  fridge_c_ += (target - fridge_c_) * -detmath::expm1(-kDt / tau_s);
-  const auto store = actors_.store_of(fridge_object_);
-  const std::int64_t food = store ? w.ledger.balance(*store, food_) : 0;
-  if (food <= 0) {
-    spoil_ = 0;  // an empty fridge: the next batch starts fresh
-    return;
+  // Spec 82 rule 5: every fridge on its own.
+  for (Fridge& f : fridges_) {
+    const bool cooling = powered(f.object);
+    const double target = cooling ? fridge_.cold_c : place_ ? place_->indoor_c(w) : fridge_.room_c;
+    const double tau_s = (cooling ? fridge_.cool_tau_h : fridge_.warm_tau_h) * 3600.0;
+    f.c += (target - f.c) * -detmath::expm1(-kDt / tau_s);
+    const auto store = actors_.store_of(f.object);
+    const std::int64_t food = store ? w.ledger.balance(*store, food_) : 0;
+    if (food <= 0) {
+      f.spoil = 0;  // an empty fridge: the next batch starts fresh
+      continue;
+    }
+    // Shelf life halves for every `halving_c` above 4 C (a Q10-style rule; estimate).
+    const double life_s = fridge_.life_days_at_4c * 86400.0 * detmath::pow(2.0, (4.0 - f.c) / fridge_.halving_c);
+    f.spoil += kDt / life_s;
+    if (f.spoil >= 1) {
+      w.ledger.convert(w.clock.tick, *store, *store, spoil_conv_, food, 0);
+      w.emit(EventType::FoodSpoiled, f.object, 0, food);
+      f.spoil = 0;
+    }
   }
-  // Shelf life halves for every `halving_c` above 4 C (a Q10-style rule; estimate).
-  const double life_s =
-      fridge_.life_days_at_4c * 86400.0 * detmath::pow(2.0, (4.0 - fridge_c_) / fridge_.halving_c);
-  spoil_ += kDt / life_s;
-  if (spoil_ >= 1) {
-    w.ledger.convert(w.clock.tick, *store, *store, spoil_conv_, food, 0);
-    w.emit(EventType::FoodSpoiled, fridge_object_, 0, food);
-    spoil_ = 0;
-  }
+}
+
+double Power::fridge_temp_c() const {
+  for (const Fridge& f : fridges_)
+    if (f.building == main_) return f.c;
+  return fridge_.room_c;
+}
+
+double Power::spoil_progress() const {
+  for (const Fridge& f : fridges_)
+    if (f.building == main_) return f.spoil;
+  return 0;
+}
+
+double Power::fridge_temp_c(EntityId fridge) const {
+  for (const Fridge& f : fridges_)
+    if (f.object == fridge) return f.c;
+  return fridge_.room_c;
 }
 
 void Power::update(World& w) {
@@ -427,16 +514,25 @@ void Power::save(ArchiveWriter& a) const {
   a.u8(static_cast<std::uint8_t>(transfer_));
   a.boolean(running_);
   a.f64(load_w_);
-  a.u64(tripped_.size());
-  for (bool t : tripped_) a.boolean(t);
+  a.u64(state_.size());
+  for (const BuildingState& st : state_) {
+    a.boolean(st.mains);
+    for (bool t : st.tripped) a.boolean(t);
+    a.boolean(st.main_tripped);
+    a.f64(st.load_w);
+    a.f64(st.reported_w);
+  }
   a.u64(receivers_.size());
   for (const Receiver& r : receivers_) {
     a.boolean(r.on);
     a.boolean(r.powered);
   }
   a.f64(burn_rest_ul_);
-  a.f64(fridge_c_);
-  a.f64(spoil_);
+  a.u64(fridges_.size());
+  for (const Fridge& f : fridges_) {
+    a.f64(f.c);
+    a.f64(f.spoil);
+  }
   a.i64(grid_fail_tick_);
 }
 
@@ -445,16 +541,25 @@ void Power::load(ArchiveReader& r) {
   transfer_ = static_cast<Transfer>(r.u8());
   running_ = r.boolean();
   load_w_ = r.f64();
-  if (r.u64() != tripped_.size()) throw std::runtime_error("power: save does not match the circuits");
-  for (std::size_t i = 0; i < tripped_.size(); ++i) tripped_[i] = r.boolean();
+  if (r.u64() != state_.size()) throw std::runtime_error("power: save does not match the buildings");
+  for (BuildingState& st : state_) {
+    st.mains = r.boolean();
+    for (std::size_t i = 0; i < st.tripped.size(); ++i) st.tripped[i] = r.boolean();
+    st.main_tripped = r.boolean();
+    st.load_w = r.f64();
+    st.reported_w = r.f64();
+  }
   if (r.u64() != receivers_.size()) throw std::runtime_error("power: save does not match the receivers");
   for (Receiver& rc : receivers_) {
     rc.on = r.boolean();
     rc.powered = r.boolean();
   }
   burn_rest_ul_ = r.f64();
-  fridge_c_ = r.f64();
-  spoil_ = r.f64();
+  if (r.u64() != fridges_.size()) throw std::runtime_error("power: save does not match the fridges");
+  for (Fridge& f : fridges_) {
+    f.c = r.f64();
+    f.spoil = r.f64();
+  }
   grid_fail_tick_ = r.i64();
 }
 

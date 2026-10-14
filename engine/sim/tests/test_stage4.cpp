@@ -213,7 +213,7 @@ TEST_CASE("stage 4: arriving is not working; save mid-action and load replays to
 
 TEST_CASE("stage 4: golden hash of the scripted pop (same on every compiler)") {
   Tier0 t = run_script(false);
-  const std::uint64_t golden = 5480706801805994729ULL;  // re-pinned on MSVC 2026-10-14 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 12015068923226770232 (for decision 0065 (ids per creator); the draws are keyed by id), 2026-10-11
+  const std::uint64_t golden = 18160105610798334054ULL;  // re-pinned on MSVC 2026-10-14 for spec 82 (power by building: each building its own service and panel, a fridge each, mains from spec 35's tree); before: 5480706801805994729 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 12015068923226770232 (for decision 0065 (ids per creator); the draws are keyed by id), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 4 golden world hash: " << t.world->world_hash());
 }

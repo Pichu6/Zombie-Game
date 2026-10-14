@@ -308,6 +308,40 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   auto where = std::make_unique<PlaceSystem>(place);  // spec 42
   t.place = where.get();
   t.power->attach_place(t.place);
+  // Spec 82: each building of the block is a leaf of spec 35's tree: its node's demand starts at the building's load and
+  // follows it by command; the block's grid failure is its substation's fault.
+  {
+    GridTree& tree = t.grids->tree();
+    const GridId district = t.owners.district;
+    const Grid& g = tree.grid(district);
+    std::vector<NodeId> node_of(t.power->buildings().size(), 0);
+    NodeId substation = 0;
+    for (std::size_t i = 0; i < g.nodes.size(); ++i) {
+      if (g.nodes[i].name == "substation") substation = GridTree::node_id(district, i);
+      for (std::size_t b = 0; b < node_of.size(); ++b)
+        if (g.nodes[i].name == t.power->buildings()[b].grid_node) node_of[b] = GridTree::node_id(district, i);
+    }
+    for (std::size_t b = 0; b < node_of.size(); ++b)
+      if (node_of[b]) tree.node(node_of[b]).demand_w = std::llround(t.power->building_load_w(b));
+    t.grids->start();
+    t.power->set_grid_link(
+        [node_of](World& world, std::size_t b, double load) {
+          if (b < node_of.size() && node_of[b]) world.submit({world.clock.tick, GridSetDemand, node_of[b], std::llround(load), 0});
+        },
+        [substation](World& world, EventId) {
+          if (substation) world.submit({world.clock.tick, GridFault, substation, 0, 0});
+        });
+    // Rule 2: a building's mains are alive while its node is fed (connected to a running source, and given its demand).
+    Power* power = t.power;
+    GridSystem* grids = t.grids;
+    grids->on_solved = [power, grids, node_of](World& world, EventId cause) {
+      for (std::size_t b = 0; b < node_of.size(); ++b) {
+        if (!node_of[b]) continue;
+        const GridNode& n = grids->tree().node(node_of[b]);
+        power->set_mains(world, b, n.sound && n.connected && n.served_w >= n.demand_w, cause);
+      }
+    };
+  }
   // Spec 53 rule 10: the calendar of the place's country, from the world's start date (decision 0072; the default
   // unless a world's settings say otherwise, spec 55).
   auto calendar = std::make_unique<CalendarSystem>(

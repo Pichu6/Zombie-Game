@@ -11,6 +11,7 @@ add_executable(zs_sim_tests
   test_police_staff.cpp
   test_players.cpp
   test_food_chain.cpp
+  test_power_buildings.cpp
   test_possession_body.cpp
   test_police_agency.cpp
   test_site_fragments.cpp
