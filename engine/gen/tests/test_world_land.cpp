@@ -33,21 +33,25 @@ const Planet& earthlike() {
 
 }  // namespace
 
-TEST_CASE("land: every land cell drains to the sea and water is conserved (A1)") {
+TEST_CASE("land: every land cell drains to the sea or a closed basin, and water is conserved (A1; spec 83 rule 4)") {
   const Planet& p = earthlike();
   for (CellId i = 0; i < p.grid.size(); ++i) {
     if (!p.fields.land(i)) continue;
     CellId c = i;
     std::size_t steps = 0;
-    while (p.fields.land(c) && steps <= p.grid.size()) {
+    while (p.fields.land(c) && p.land.downstream[c] != kNoCell && steps <= p.grid.size()) {
       c = p.land.downstream[c];
-      REQUIRE(c != kNoCell);
       ++steps;
     }
-    CHECK(!p.fields.land(c));
+    if (p.fields.land(c)) {  // the water ends in a closed depression
+      CHECK(p.land.lake[c] != kLakeNone);
+      CHECK(p.land.endorheic[i] == 1);
+    } else {
+      CHECK(p.land.endorheic[i] == 0);
+    }
   }
   const double runoff_m3s = p.land.runoff_km3 * 1e9 / (365.25 * 86400);
-  CHECK(p.land.sea_inflow_m3s == doctest::Approx(runoff_m3s).epsilon(1e-9));
+  CHECK(p.land.sea_inflow_m3s + p.land.closed_evap_m3s == doctest::Approx(runoff_m3s).epsilon(1e-6));
 }
 
 TEST_CASE("land: runoff ratio and the largest river are Earth-like (A2)") {
@@ -148,5 +152,5 @@ TEST_CASE("land: deterministic, golden pinned (A1)") {
     h = mix64(h, p.land.downstream[i]);
   }
   MESSAGE("land hash: ", h);
-  CHECK(h == 6762439985587932211ULL);  // re-pinned on MSVC, 2026-10-09 (the one world's grid, 0063)
+  CHECK(h == 16035164165432580299ULL);  // re-pinned on MSVC, 2026-10-14 (spec 83: rain by place, biomes by aridity, lakes that balance)
 }

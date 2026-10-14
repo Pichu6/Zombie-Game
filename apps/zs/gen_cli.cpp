@@ -63,7 +63,7 @@ int usage() {
                "       zs gen routes [--seed N] [--freq F] [--detour X] [--bmp FILE]   (spec 74)\n"
                "       zs gen food [--seed N] [--freq F] [--border X]   (spec 76)\n"
                "       zs gen cultures\n"
-               "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE [--political]]\n";
+               "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE [--layer L | --political]] [--layers PREFIX]\n";
   return 2;
 }
 
@@ -106,17 +106,29 @@ int gen_main(int argc, char** argv) {
       std::cout << "land above 1000 m: " << 100.0 * above1000 / (land_area > 0 ? land_area : 1) << "% of land; mean ocean depth "
                 << depth / (sea_area > 0 ? sea_area : 1) << " m\n";
       std::cout << "land " << 100.0 * land_area / grid.sphere_area_km2() << "% of the surface; biomes (% of land):\n";
-      for (int b = 1; b < zs::gen::biome_count; ++b)
-        std::cout << "  " << zs::gen::biome_name(static_cast<zs::gen::Biome>(b)) << " " << 100.0 * share[b] / land_area << "\n";
+      {
+        // Spec 83 rule 7: beside Earth's share of non-ice land (WMR-1, Dinerstein et al. 2017, grouped to our biomes).
+        static const double earth[zs::gen::biome_count] = {0, 0, 8.7, 11.4, 14.5, 7.8, 19.3, 16.7, 18.0, 3.6};
+        const double ice = share[static_cast<int>(zs::gen::Biome::Ice)];
+        std::cout << "  ice " << 100.0 * ice / land_area << "% of land\n  share of non-ice land (Earth, ratio):\n";
+        for (int b = 2; b < zs::gen::biome_count; ++b) {
+          const double ours = 100.0 * share[b] / std::max(1.0, land_area - ice);
+          std::cout << "  " << zs::gen::biome_name(static_cast<zs::gen::Biome>(b)) << " " << ours << " (" << earth[b] << ", "
+                    << ours / earth[b] << ")\n";
+        }
+      }
       // Spec 52: where the rain goes and what the land can feed.
       const zs::gen::WorldLand land = zs::gen::generate_land(grid, f);
       int rivers = 0, large = 0, lakes = 0;
-      double arable = 0, capacity = 0, largest = 0;
+      double arable = 0, capacity = 0, largest = 0, lake_area = 0, endorheic = 0, forest = 0;
       for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
         if (!f.land(i)) continue;
         rivers += land.river[i] == 1;
         large += land.river[i] == 2;
-        lakes += land.lake[i];
+        lakes += land.lake[i] != 0;
+        if (land.lake[i] == zs::gen::kLakeOpen || land.lake[i] == zs::gen::kLakeTerminal) lake_area += grid.area_km2(i);
+        if (land.endorheic[i]) endorheic += grid.area_km2(i);
+        forest += land.forest_share[i] * grid.area_km2(i);
         arable += land.arable_share[i] * grid.area_km2(i);
         capacity += land.capacity(i);
         largest = std::max(largest, land.discharge_m3s[i]);
@@ -124,6 +136,10 @@ int gen_main(int argc, char** argv) {
       std::cout << "land (spec 52): runoff " << 100.0 * land.runoff_km3 / land.land_rain_km3 << "% of land rain (" << land.runoff_km3
                 << " km3/yr); river cells " << rivers << ", large " << large << ", largest " << largest << " m3/s; lake cells " << lakes
                 << "; arable " << 100.0 * arable / land_area << "% of land; capacity " << capacity / 1e9 << " billion people\n";
+      std::cout << "water (spec 83): lakes " << 100.0 * lake_area / land_area << "% of land (Earth 1.8, WMR-8); "
+                << land.open_lakes << " open lakes, " << land.closed_basins << " closed basins; endorheic "
+                << 100.0 * endorheic / land_area << "% of land (Earth 17-18, WMR-10); forest " << 100.0 * forest / land_area
+                << "% of land (Earth 31, WMR-13)\n";
       // Spec 52 slice 3: deposits, with their totals.
       zs::gen::DepositParams dp;
       dp.seed = seed;
@@ -173,11 +189,30 @@ int gen_main(int argc, char** argv) {
         }
       }
       const std::string bmp = arg(argc, argv, "--bmp", "");
+      // Spec 83 rule 6: the map in layers.
+      zs::atlas::MapInputs mi;
+      mi.countries = &people.formed;
+      mi.deposits = &deposits;
+      mi.people = &people;
       if (!bmp.empty()) {
         const bool political = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--political"; });
-        zs::atlas::write_bmp(bmp, zs::atlas::render_planet(grid, f, land, &people.formed, political));
-        std::cout << "wrote " << bmp << "\n";
+        zs::atlas::MapLayer layer = political ? zs::atlas::MapLayer::Political : zs::atlas::MapLayer::Physical;
+        if (const std::string name = arg(argc, argv, "--layer", ""); !name.empty() && !zs::atlas::parse_layer(name, layer)) {
+          std::cerr << "unknown layer " << name << " (one of:";
+          for (int k = 0; k < zs::atlas::kMapLayers; ++k) std::cerr << " " << zs::atlas::layer_name(static_cast<zs::atlas::MapLayer>(k));
+          std::cerr << ")\n";
+          return 2;
+        }
+        zs::atlas::write_bmp(bmp, zs::atlas::render_layer(grid, f, land, mi, layer));
+        std::cout << "wrote " << bmp << " (" << zs::atlas::layer_legend(layer) << ")\n";
       }
+      if (const std::string prefix = arg(argc, argv, "--layers", ""); !prefix.empty())
+        for (int k = 0; k < zs::atlas::kMapLayers; ++k) {
+          const auto layer = static_cast<zs::atlas::MapLayer>(k);
+          const std::string path = prefix + "_" + zs::atlas::layer_name(layer) + ".bmp";
+          zs::atlas::write_bmp(path, zs::atlas::render_layer(grid, f, land, mi, layer));
+          std::cout << "wrote " << path << " (" << zs::atlas::layer_legend(layer) << ")\n";
+        }
       static const char glyph[zs::gen::biome_count] = {' ', '*', ',', 'b', 'f', '"', ':', 's', 'T', '^'};
       for (int row = 0; row < 36; ++row) {
         const double lat = 87.5 - 5.0 * row;

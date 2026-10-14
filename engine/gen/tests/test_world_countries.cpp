@@ -175,7 +175,7 @@ TEST_CASE("countries: deterministic, golden pinned (A1)") {
   for (CellId c = 0; c < p.grid.size(); ++c) h = mix64(h, static_cast<std::uint64_t>(a.country_of[c] + 2));
   h = mix64(h, a.events.size());
   MESSAGE("countries hash: " << h << ", " << a.countries.size() << " countries, " << a.events.size() << " events");
-  CHECK(h == 17827728361262929316ULL);  // re-pinned on MSVC, 2026-10-09 (spec 31 terrain revised; km sea crossings and secession pieces)
+  CHECK(h == 7685503718308942497ULL);  // re-pinned on MSVC, 2026-10-14 (spec 83: rain by place, biomes by aridity, lakes that balance)
 }
 
 TEST_CASE("countries: calibration sweep on the one world's grid (probe)" * doctest::skip()) {

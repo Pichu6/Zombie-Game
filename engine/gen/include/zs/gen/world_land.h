@@ -11,6 +11,8 @@ namespace zs::gen {
 
 inline constexpr CellId kNoCell = std::numeric_limits<CellId>::max();
 
+enum : std::uint8_t { kLakeNone = 0, kLakeOpen = 1, kLakeTerminal = 2, kLakeDry = 3 };
+
 // The start's technology and diet (rule 7; estimates, WNC-13, WNC-25, WNC-26).
 struct LandParams {
   double fu_omega = 2.6;               // RV-3
@@ -34,7 +36,8 @@ struct WorldLand {
   std::vector<double> discharge_m3s;    // own runoff plus everything upstream
   std::vector<double> catchment_km2;    // the land that drains through this cell, itself included
   std::vector<std::uint8_t> river;      // 0 none, 1 river, 2 large river
-  std::vector<std::uint8_t> lake;       // a filled depression
+  std::vector<std::uint8_t> lake;       // spec 83 rule 4: 0 none, 1 open lake, 2 terminal (salt) lake, 3 dry basin
+  std::vector<std::uint8_t> endorheic;  // 1 where the water ends in a closed depression, not the sea
   std::vector<double> fertility, arable_share, pasture_share;
   std::vector<double> capacity_food, capacity_water;  // people
   // Slice 2: living resources, today's stocks (rules 10-12). On land: forest and game; at sea: fish.
@@ -44,6 +47,8 @@ struct WorldLand {
   double capacity(CellId i) const { return capacity_food[i] < capacity_water[i] ? capacity_food[i] : capacity_water[i]; }
   // Totals for the checks.
   double land_rain_km3 = 0, runoff_km3 = 0, sea_inflow_m3s = 0;
+  double closed_evap_m3s = 0;  // what closed depressions evaporate (spec 83 rule 4)
+  int open_lakes = 0, closed_basins = 0;
 };
 
 WorldLand generate_land(const WorldGrid& grid, const WorldFields& fields, const LandParams& params = {});

@@ -25,18 +25,25 @@ const char* boundary_name(BoundaryKind k) {
   return names[static_cast<int>(k)];
 }
 
+// Spec 83 rule 3: aridity cuts (rain over potential evapotranspiration), calibrated on seeds 1-5 against Earth's
+// biome shares (WMR-1); they started at the UNEP aridity classes (0.2, 0.5) and 0.9.
+namespace {
+constexpr double kAiDesert = 0.28, kAiGrass = 0.5, kAiSavanna = 0.52;
+}  // namespace
+
+double pet_mm(double t) { return 58.93 * std::clamp(t, 0.0, 30.0); }
+
 Biome classify_biome(bool land, double elev, double t, double rain) {
   if (!land) return Biome::Ocean;
   if (t < -15) return Biome::Ice;
   if (elev >= 2500) return Biome::Mountain;
   if (t < -3) return Biome::Tundra;
-  if (t < 6) return rain >= 250 ? Biome::BorealForest : Biome::Tundra;
-  if (t < 18) {
-    if (rain < 250) return Biome::Desert;
-    return rain < 600 ? Biome::Grassland : Biome::TemperateForest;
-  }
-  if (rain < 400) return Biome::Desert;
-  return rain < 1100 ? Biome::Savanna : Biome::TropicalForest;
+  const double pet = pet_mm(t);
+  const double ai = pet > 0 ? rain / pet : 1e9;
+  if (t < 6) return ai >= kAiDesert ? Biome::BorealForest : Biome::Tundra;
+  if (ai < kAiDesert) return Biome::Desert;
+  if (t < 18) return ai < kAiGrass ? Biome::Grassland : Biome::TemperateForest;
+  return ai < kAiSavanna ? Biome::Savanna : Biome::TropicalForest;
 }
 
 namespace {
@@ -67,18 +74,34 @@ struct Source {
 };
 
 // Piecewise-linear rain by sine of latitude (spec 31 rule 7 calibration): wet equator, dry subtropics,
-// wetter mid-latitudes, dry poles.
-double lat_rain(double z) {
-  static const double knots[][2] = {{0, 2200}, {0.15, 1900}, {0.35, 700}, {0.5, 350},
-                                    {0.7, 1000}, {0.85, 850}, {1.0, 200}};
+// wetter mid-latitudes, dry poles. Spec 83 rule 2 splits it into the profile without the subtropical dip
+// (`wet_rain`) and the dip itself, which each place takes by the side of its continent.
+double piecewise(const double (*knots)[2], std::size_t n, double z) {
   const double a = z < 0 ? -z : z;
-  for (std::size_t i = 1; i < sizeof(knots) / sizeof(knots[0]); ++i)
+  for (std::size_t i = 1; i < n; ++i)
     if (a <= knots[i][0]) {
       const double f = (a - knots[i - 1][0]) / (knots[i][0] - knots[i - 1][0]);
       return knots[i - 1][1] + f * (knots[i][1] - knots[i - 1][1]);
     }
-  return knots[6][1];
+  return knots[n - 1][1];
 }
+double lat_rain(double z) {
+  static const double knots[][2] = {{0, 2200}, {0.15, 1900}, {0.35, 700}, {0.5, 350},
+                                    {0.7, 1000}, {0.85, 850}, {1.0, 200}};
+  return piecewise(knots, 7, z);
+}
+double wet_rain(double z) {  // the 15-35 degree knots raised to the line from 0.15 to 0.7
+  static const double knots[][2] = {{0, 2200}, {0.15, 1900}, {0.7, 1000}, {0.85, 850}, {1.0, 200}};
+  return piecewise(knots, 5, z);
+}
+
+// Spec 83 rule 2 (estimates, tuned in As built): how much of the subtropical dip a west and an east coast keep;
+// the reach of the moisture carry in the tropics and elsewhere; the onshore reach on a mid-latitude east side.
+constexpr double kDipWest = 1.3, kDipEast = 0.3;
+constexpr double kCarryTropicsKm = 3000, kCarryKm = 1800;
+constexpr double kEastShoreKm = 1200, kEastShoreWeight = 0.7;
+constexpr double kFloor = 0.2;  // the share of the profile a cell keeps however far the wind has carried it
+constexpr double kSideWalkKm = 8000;
 
 Vec3 unit(Vec3 v) {
   const double l = detmath::sqrt(dot(v, v));
@@ -245,13 +268,16 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       if (on_boundary[i]) bsrc.push_back(i);
     f.boundary_cells = g.graph_distance(bsrc);
   }
-  // Spread over a few hundred km: strongest effect wins, fading each step (rule 3).
+  // Spread over a few hundred km: strongest effect wins, fading each step (rule 3). An effect stays on the plate that
+  // made it (spec 83 As built): a trench spreading into the overriding continent fought its uplift cell by cell and
+  // left a saw of one-cell strips of land and sea along every subduction coast.
   const int reach = std::max(1, static_cast<int>(350.0 / spacing + 0.5));
   const double decay = detmath::pow(0.1, 1.0 / static_cast<double>(reach));
   for (int it = 0; it < reach; ++it) {
     std::vector<Source> next = src;
     for (CellId i = 0; i < N; ++i)
       for (const CellId j : g.neighbours(i)) {
+        if (f.plate[j] != f.plate[i]) continue;
         const double cand = src[j].v * decay;
         if (std::abs(cand) > std::abs(next[i].v)) next[i] = {cand, src[j].k};
       }
@@ -387,10 +413,46 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     f.temp_range_c[i] = (3.0 + 32.0 * detmath::pow(az + 1e-9, 1.2)) * continentality;
   }
 
-  // ---- Rain (rule 7): latitude profile times moisture carried by the wind off the sea, with
-  // rain on rising ground and a shadow behind it. Gauss-Seidel in id order, fixed pass count.
+  // ---- Spec 83 rule 1: which side of its continent each land cell is on, by walking along the parallel.
+  f.west_km.assign(N, 0);
+  f.east_km.assign(N, 0);
+  for (CellId i = 0; i < N; ++i) {
+    if (!f.land(i)) continue;
+    for (const double dir : {-1.0, 1.0}) {
+      CellId c = i;
+      double km = 0;
+      while (f.land(c) && km < kSideWalkKm) {
+        const Vec3& p = g.centre(c);
+        const double el = detmath::sqrt(p.x * p.x + p.y * p.y);
+        if (el < 1e-6) {  // at a pole east is undefined: count the cell as mid-continent
+          km = kSideWalkKm;
+          break;
+        }
+        const Vec3 east{dir * -p.y / el, dir * p.x / el, 0};
+        CellId best = c;
+        double bd = -2;
+        for (const CellId nb : g.neighbours(c)) {
+          const Vec3& q = g.centre(nb);
+          const double d = dot(unit(Vec3{q.x - p.x, q.y - p.y, q.z - p.z}), east);
+          if (d > bd) bd = d, best = nb;
+        }
+        km += g.distance_km(c, best);
+        c = best;
+      }
+      (dir < 0 ? f.west_km : f.east_km)[i] = std::min(km, kSideWalkKm);
+    }
+  }
+
+  // ---- Rain (rule 7; spec 83 rule 2): the profile without its subtropical dip, the dip taken by side, times
+  // moisture carried by the wind off the sea, with rain on rising ground and a shadow behind it. Gauss-Seidel in
+  // id order, fixed pass count.
   std::vector<double> M(N, 1.0);
-  const double retain = detmath::exp(-spacing / 1800.0);
+  std::vector<double> retain(N, 0.0);
+  for (CellId i = 0; i < N; ++i) {
+    const double az = g.sin_lat(i) < 0 ? -g.sin_lat(i) : g.sin_lat(i);
+    const double t = std::clamp((az - 0.26) / 0.08, 0.0, 1.0);  // tropics below 15 degrees, blend to 20
+    retain[i] = detmath::exp(-spacing / (kCarryTropicsKm + t * (kCarryKm - kCarryTropicsKm)));
+  }
   const int passes = static_cast<int>(4000.0 / spacing) + 2;
   std::vector<Vec3> wind(N);
   for (CellId i = 0; i < N; ++i) {
@@ -421,11 +483,21 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       if (wsum <= 0) continue;
       const double up_m = msum / wsum, up_e = esum / wsum;
       rise[i] = std::max(0.0, f.elevation_m[i] - up_e);
-      M[i] = up_m * retain * (1.0 - std::min(0.5, rise[i] / 2000.0));
+      M[i] = up_m * retain[i] * (1.0 - std::min(0.5, rise[i] / 2000.0));
     }
   }
   for (CellId i = 0; i < N; ++i) {
-    const double base = lat_rain(g.sin_lat(i)) * (0.35 + 0.65 * M[i]);
+    const double z = g.sin_lat(i), az = z < 0 ? -z : z;
+    double m = M[i];
+    double profile = lat_rain(z);
+    if (f.land(i)) {
+      const double e = east_index(f, i);
+      const double dip = wet_rain(z) - lat_rain(z);
+      profile = std::max(0.0, wet_rain(z) - dip * (kDipWest + (kDipEast - kDipWest) * e));
+      if (az >= 0.5 && az < 0.87)  // mid-latitude east sides: onshore summer winds off the eastern sea
+        m = std::max(m, kEastShoreWeight * detmath::exp(-f.east_km[i] / kEastShoreKm));
+    }
+    const double base = profile * (kFloor + (1 - kFloor) * m);
     const double oro = f.land(i) ? 900.0 * (rise[i] / 1000.0) * M[i] : 0.0;
     f.rain_mm[i] = std::clamp((base + oro) * prm.moisture, 0.0, 4000.0);
   }

@@ -219,6 +219,16 @@ struct Planet {
   std::string stage;
   std::mutex mutex;
   PlanetRaster raster;
+  // Spec 83 rule 6: the generated world kept so any map layer can be drawn when picked.
+  struct Data {
+    zs::gen::WorldGrid grid;
+    zs::gen::WorldFields fields;
+    zs::gen::WorldLand land;
+    zs::gen::WorldDeposits deposits;
+    zs::gen::WorldPeople people;
+  };
+  std::shared_ptr<const Data> data;
+  MapLayer layer = MapLayer::Political;
   std::vector<CountryInfo> countries;
   std::vector<CountryCard> cards;  // slice 3: the same countries with their towns, for the Cards page
   WorldCard world_card;
@@ -261,7 +271,11 @@ struct Planet {
         const zs::gen::WorldPeople people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(data),
                                                                      zs::gen::load_real_profiles(data), cp);
         set("the picture");
-        PlanetRaster r = render_planet(grid, f, land, &people.formed, true, 1024, 512);
+        MapInputs mi;
+        mi.countries = &people.formed;
+        mi.deposits = &deposits;
+        mi.people = &people;
+        PlanetRaster r = render_layer(grid, f, land, mi, layer, 1024, 512);
         std::vector<CountryInfo> cs;
         std::vector<CountryCard> cards(people.countries.size());
         std::vector<int> towns(people.countries.size(), 0);
@@ -321,7 +335,9 @@ struct Planet {
         std::snprintf(buf, sizeof buf, "%zu cells, %.0f million km2 of land, %.0f million people, %zu countries, %zu towns",
                       static_cast<std::size_t>(grid.size()), people.land_km2 / 1e6, people.total_people / 1e6,
                       people.countries.size(), people.towns.size());
+        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people});
         std::lock_guard<std::mutex> l(mutex);
+        this->data = std::move(kept);
         raster = std::move(r);
         countries = std::move(cs);
         this->cards = std::move(cards);
@@ -351,6 +367,18 @@ struct Planet {
       SDL_UpdateTexture(texture, nullptr, rgba.data(), raster.w * 4);
       SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
     }
+  }
+
+  // Draws another layer of the kept world (about half a second at this size) and drops the old texture.
+  void set_layer(MapLayer l) {
+    if (l == layer || !ready || !data) return;
+    layer = l;
+    MapInputs mi;
+    mi.countries = &data->people.formed;
+    mi.deposits = &data->deposits;
+    mi.people = &data->people;
+    raster = render_layer(data->grid, data->fields, data->land, mi, layer, 1024, 512);
+    if (texture) SDL_DestroyTexture(texture), texture = nullptr;
   }
 
   ~Planet() {
@@ -619,6 +647,14 @@ void draw_planet(App& a) {
   }
   p.upload(a.renderer);
   ImGui::Text("Seed %llu: %s (%.1f s)", static_cast<unsigned long long>(p.seed), p.summary.c_str(), p.seconds);
+  // Spec 83 rule 6: the map's layers, as Cities: Skylines' info views (WMR-19).
+  for (int k = 0; k < kMapLayers; ++k) {
+    const auto l = static_cast<MapLayer>(k);
+    if (k) ImGui::SameLine();
+    if (ImGui::RadioButton(layer_name(l), p.layer == l)) p.set_layer(l), p.upload(a.renderer);
+    if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", layer_legend(l).c_str());
+  }
+  ImGui::TextWrapped("%s", layer_legend(p.layer).c_str());
   if (!p.texture) return;
   const float avail = ImGui::GetContentRegionAvail().x - (p.selected >= 0 ? 320 : 0);
   const float scale = std::max(0.1f, avail / p.raster.w);
