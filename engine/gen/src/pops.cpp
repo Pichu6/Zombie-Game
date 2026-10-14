@@ -13,6 +13,7 @@
 #include "zs/gen/keyed.h"
 #include "zs/gen/names.h"
 #include "lifepath_text.h"
+#include "zs/tier0.h"
 
 namespace zs::gen {
 namespace {
@@ -510,7 +511,7 @@ Mix load_mix(const std::string& path) {
                         x["born_abroad"].value_or(0.0), x["host_given"].value_or(1.0)});
   }
   if (m.groups.empty() || m.household_sizes.empty()) throw std::runtime_error("gen: mix needs groups and household_sizes");
-  if (const auto c = t["country"].value<std::string>()) set_country(m, *c, ZS_DATA_DIR);
+  if (const auto c = t["country"].value<std::string>()) set_country(m, *c, zs::tier0::data_dir());
   return m;
 }
 

@@ -227,6 +227,7 @@ struct Planet {
     zs::gen::WorldLand land;
     zs::gen::WorldDeposits deposits;
     zs::gen::WorldPeople people;
+    zs::gen::WorldLandUse use;
   };
   std::shared_ptr<const Data> data;
   MapLayer layer = MapLayer::Political;
@@ -263,6 +264,7 @@ struct Planet {
         mi.countries = &people.formed;
         mi.deposits = &deposits;
         mi.people = &people;
+        mi.use = &gw.use;
         PlanetRaster r = render_layer(grid, f, land, mi, layer, 1024, 512);
         std::vector<CountryInfo> cs;
         std::vector<CountryCard> cards(people.countries.size());
@@ -323,7 +325,7 @@ struct Planet {
         std::snprintf(buf, sizeof buf, "%zu cells, %.0f million km2 of land, %.0f million people, %zu countries, %zu towns",
                       static_cast<std::size_t>(grid.size()), people.land_km2 / 1e6, people.total_people / 1e6,
                       people.countries.size(), people.towns.size());
-        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people});
+        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people, gw.use});
         std::lock_guard<std::mutex> l(mutex);
         this->data = std::move(kept);
         raster = std::move(r);
@@ -365,6 +367,7 @@ struct Planet {
     mi.countries = &data->people.formed;
     mi.deposits = &data->deposits;
     mi.people = &data->people;
+    mi.use = &data->use;
     raster = render_layer(data->grid, data->fields, data->land, mi, layer, 1024, 512);
     if (texture) SDL_DestroyTexture(texture), texture = nullptr;
   }

@@ -126,6 +126,8 @@ GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int fr
   cp.fragmentation = s.fragmentation;
   cp.people_scale = s.people;
   w.people = populate_world(w.grid, w.fields, w.land, w.deposits, seed, load_group_tables(data), load_real_profiles(data), cp);
+  say("fields, mines and fishing grounds");
+  w.use = generate_land_use(w.grid, w.fields, w.land, w.deposits, w.people);  // spec 88
   return w;
 }
 

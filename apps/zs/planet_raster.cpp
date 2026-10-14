@@ -172,10 +172,10 @@ std::string layer_legend(MapLayer l) {
       return "water: land shaded by runoff, closed (endorheic) basins hatched brown, rivers by discharge, lakes open blue, "
              "salt pale blue, dry beige";
     case MapLayer::Cover:
-      return "cover: forest dark green, arable yellow, pasture light green, the rest bare beige, each by its share of the cell; "
+      return "cover: the land in use (spec 88): working forest dark green, cropland yellow, pasture light green, the rest beige, each by its share of the cell; "
              "water as in physical";
     case MapLayer::Resources:
-      return "resources: physical faded; deposits of three times the median or more, as discs sized by amount: coal black, oil brown, gas orange, iron red, copper "
+      return "resources: physical faded; deposits of three times the median or more, as discs sized by amount (solid when worked, faint when not): coal black, oil brown, gas orange, iron red, copper "
              "teal, bauxite pink; fishing grounds shaded cyan by catch";
     case MapLayer::People:
       return "people: density from pale yellow (under 1 a km2) to dark red (over 1,000); towns as black dots sized by people, "
@@ -356,7 +356,8 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
           break;
         case MapLayer::Cover:
           if (!sea) {
-            const double fo = land.forest_share[c], ar = land.arable_share[c], pa = land.pasture_share[c];
+            const double fo = in.use ? in.use->forest[c] : land.forest_share[c], ar = in.use ? in.use->crop[c] : land.arable_share[c],
+                         pa = in.use ? in.use->pasture[c] : land.pasture_share[c];
             const double sum = fo + ar + pa, bare = std::max(0.0, 1.0 - sum), n = std::max(1.0, sum + bare);
             for (int q = 0; q < 3; ++q) col[q] = (kForest[q] * fo + kArable[q] * ar + kPasture[q] * pa + kBare[q] * bare) / n;
             if (f.biome[c] == gen::Biome::Ice) col = kBiome[static_cast<int>(gen::Biome::Ice)];
@@ -370,8 +371,10 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
           }
           break;
       }
-      if (layer == MapLayer::Resources && sea && max_catch > 0 && land.fish_catch_t[c] > 0)
-        col = mix(col, RGB{60, 200, 210}, 0.7 * std::sqrt(land.fish_catch_t[c] / grid.area_km2(c) / max_catch));
+      if (layer == MapLayer::Resources && sea && max_catch > 0) {
+        const double t = in.use ? in.use->fish_t[c] : land.fish_catch_t[c];  // spec 88: what is landed
+        if (t > 0) col = mix(col, RGB{60, 200, 210}, 0.7 * std::sqrt(t / grid.area_km2(c) / max_catch));
+      }
       const bool shows_water = layer != MapLayer::Temperature && layer != MapLayer::Climate && layer != MapLayer::Geology &&
                                layer != MapLayer::People && layer != MapLayer::Rain;
       if (shows_water && wtr == 2) col = kLakeOpen;
@@ -476,7 +479,11 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       std::nth_element(a.begin(), a.begin() + static_cast<std::ptrdiff_t>(a.size() / 2), a.end());
       median[k] = a[a.size() / 2];
     }
-    for (const gen::Deposit& d : in.deposits->deposits) {
+    std::vector<char> worked(in.deposits->deposits.size(), in.use ? 0 : 1);
+    if (in.use)
+      for (const gen::WorkSite& s : in.use->sites) worked[static_cast<std::size_t>(s.deposit)] = 1;
+    for (std::size_t di = 0; di < in.deposits->deposits.size(); ++di) {
+      const gen::Deposit& d = in.deposits->deposits[di];
       const int k = static_cast<int>(d.kind);
       double x, y;
       to_pixel(warp.undo(grid.centre(d.cell)), W, H, x, y);
@@ -484,7 +491,7 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       if (rel < 3) continue;  // the large deposits only: about one in seven
       const double rad = std::clamp(0.6 + 1.6 * std::log10(rel), 1.0, 4.5) * (W / 2048.0 + 0.5);
       const double off = (k - 2.5) * 0.9 * (W / 2048.0);
-      cv.disc(x + off, y + off * 0.5, rad, kDeposit[k], 0.9);
+      cv.disc(x + off, y + off * 0.5, rad, kDeposit[k], worked[di] ? 0.95 : 0.3);  // spec 88: unworked deposits faint
     }
   }
 

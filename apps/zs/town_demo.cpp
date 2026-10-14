@@ -7,6 +7,7 @@
 
 #include "zs/gen/registry_bridge.h"
 #include "zs/pop_system.h"
+#include "zs/tier0.h"
 
 namespace {
 
@@ -21,7 +22,7 @@ void pyramid(const zs::gen::Town& t) {
 }  // namespace
 
 int town_demo(std::uint64_t seed, int people, double years) {
-  const std::string data = ZS_DATA_DIR;
+  const std::string data = zs::tier0::data_dir();
   const zs::gen::Catalog cat = zs::gen::load_catalog(data + "/gen");
   zs::gen::Mix mix = zs::gen::load_mix(data + "/gen/populations/tier0_block.toml");
   mix.people = people;

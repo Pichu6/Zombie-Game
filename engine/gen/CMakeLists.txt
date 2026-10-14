@@ -9,6 +9,7 @@ add_library(zs_gen
   src/world_fields.cpp
   src/place.cpp
   src/world_people.cpp
+  src/world_land_use.cpp
   src/dwellings.cpp
   src/stations.cpp
   src/town_layout.cpp

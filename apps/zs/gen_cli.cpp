@@ -75,7 +75,7 @@ int usage() {
 int gen_main(int argc, char** argv) {
   if (argc < 2) return usage();
   const std::string cmd = argv[1];
-  const std::string data = ZS_DATA_DIR;
+  const std::string data = zs::tier0::data_dir();
   try {
     const zs::gen::Catalog cat = zs::gen::load_catalog(data + "/gen");
     const std::uint64_t seed = std::strtoull(arg(argc, argv, "--seed", "1").c_str(), nullptr, 10);
@@ -220,12 +220,26 @@ int gen_main(int argc, char** argv) {
           std::cout << " " << zs::gen::town_site_name(static_cast<zs::gen::TownSite>(k)) << " " << pr.sites[static_cast<std::size_t>(k)];
         std::cout << "\n";
       }
+      {  // Spec 88 rule 6: the land and sea at work, against EZ.
+        const zs::gen::WorldLandUse& u = gw.use;
+        int mines = 0, fields_n = 0, offshore = 0;
+        for (const zs::gen::WorkSite& s : u.sites) {
+          (s.kind == zs::gen::SiteKind::Mine ? mines : fields_n) += 1;
+          offshore += s.country < 0;
+        }
+        std::cout << "land use (spec 88): cropland " << 100 * u.crop_km2 / u.land_km2 << " % of land (Earth 12, EZ-1), pasture "
+                  << 100 * u.pasture_km2 / u.land_km2 << " % (25), working forest " << 100 * u.forest_worked_km2 / std::max(1.0, u.forest_km2)
+                  << " % of forest (30, EZ-2); fish landed " << u.fish_landed_t / 1e6 << " of " << u.fish_available_t / 1e6
+                  << " million t (80, EZ-5); worked: " << mines << " mining districts, " << fields_n << " oil and gas fields ("
+                  << offshore << " offshore)\n";
+      }
       const std::string bmp = arg(argc, argv, "--bmp", "");
       // Spec 83 rule 6: the map in layers.
       zs::atlas::MapInputs mi;
       mi.countries = &people.formed;
       mi.deposits = &deposits;
       mi.people = &people;
+      mi.use = &gw.use;
       if (!bmp.empty()) {
         const bool political = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--political"; });
         zs::atlas::MapLayer layer = political ? zs::atlas::MapLayer::Political : zs::atlas::MapLayer::Physical;
@@ -381,9 +395,10 @@ int gen_main(int argc, char** argv) {
       const auto people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(tables),
                                                   zs::gen::load_real_profiles(tables));
       const auto routes = zs::gen::build_routes(grid, f, land, people);
+      const auto use = zs::gen::generate_land_use(grid, f, land, deposits, people);  // spec 88 rule 5
       zs::gen::FreightParams fp;
       fp.border_road_km_per_hour = std::atof(arg(argc, argv, "--border", std::to_string(fp.border_road_km_per_hour)).c_str());
-      const auto food = zs::gen::food_flows(land, people, routes, fp);
+      const auto food = zs::gen::food_flows(land, people, routes, fp, &use);
       std::cout << "Food (spec 76), seed " << seed << ", a border hour " << fp.border_road_km_per_hour << " road-km: production "
                 << food.production / 1e9 << " billion people-years, demand " << food.demand / 1e9 << "; traded "
                 << 100.0 * food.traded / food.production << "% of production, across borders " << 100.0 * food.international_share()
@@ -401,7 +416,7 @@ int gen_main(int argc, char** argv) {
                       << "\n";
       }
       // Spec 77: by kind.
-      const auto diet = zs::gen::food_by_kind(f, land, people, routes, fp);
+      const auto diet = zs::gen::food_by_kind(f, land, people, routes, fp, {}, {}, &use);
       std::cout << "by kind (spec 77): across borders " << 100.0 * diet.international_share() << "% of production (one kind: "
                 << 100.0 * food.international_share() << "%); traded " << 100.0 * diet.traded / diet.production << "%\n";
       for (int k = 0; k < zs::gen::kFoodKinds; ++k) {

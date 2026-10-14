@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "zs/gen/world_land_use.h"
 #include "zs/gen/world_routes.h"
 
 namespace zs::gen {
@@ -66,9 +67,11 @@ struct WorldDiet {
 double freight_cost(const Route& route, const FreightParams& params);
 double crops_share(const DietParams& diet, double temp_c);
 WorldDiet food_by_kind(const WorldFields& fields, const WorldLand& land, const WorldPeople& people, const WorldRoutes& routes,
-                       const FreightParams& params = {}, const DietParams& diet = {}, const LandParams& land_params = {});
+                       const FreightParams& params = {}, const DietParams& diet = {}, const LandParams& land_params = {},
+                       const WorldLandUse* use = nullptr);
 std::uint64_t diet_digest(const WorldDiet& diet);
-WorldFood food_flows(const WorldLand& land, const WorldPeople& people, const WorldRoutes& routes, const FreightParams& params = {});
+WorldFood food_flows(const WorldLand& land, const WorldPeople& people, const WorldRoutes& routes, const FreightParams& params = {},
+                     const WorldLandUse* use = nullptr);
 std::uint64_t food_digest(const WorldFood& food);
 
 }  // namespace zs::gen

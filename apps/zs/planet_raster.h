@@ -11,6 +11,7 @@
 #include "zs/gen/world_fields.h"
 #include "zs/gen/world_grid.h"
 #include "zs/gen/world_land.h"
+#include "zs/gen/world_land_use.h"
 #include "zs/gen/world_people.h"
 #include "zs/gen/world_routes.h"
 
@@ -36,6 +37,7 @@ struct MapInputs {
   const gen::WorldCountries* countries = nullptr;
   const gen::WorldDeposits* deposits = nullptr;
   const gen::WorldPeople* people = nullptr;
+  const gen::WorldLandUse* use = nullptr;  // spec 88: cover shows the land in use; resources the worked sites
 };
 PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& fields, const gen::WorldLand& land,
                           const MapInputs& in, MapLayer layer, int w = 2048, int h = 1024);

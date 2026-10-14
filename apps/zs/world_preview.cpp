@@ -52,6 +52,7 @@ void WorldPreview::render() {
   mi.countries = &world_->people.formed;
   mi.deposits = &world_->deposits;
   mi.people = &world_->people;
+  mi.use = &world_->use;
   raster_ = render_layer(world_->grid, world_->fields, world_->land, mi, layer_, 1024, 512);
 }
 

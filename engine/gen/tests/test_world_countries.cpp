@@ -175,7 +175,7 @@ TEST_CASE("countries: deterministic, golden pinned (A1)") {
   for (CellId c = 0; c < p.grid.size(); ++c) h = mix64(h, static_cast<std::uint64_t>(a.country_of[c] + 2));
   h = mix64(h, a.events.size());
   MESSAGE("countries hash: " << h << ", " << a.countries.size() << " countries, " << a.events.size() << " events");
-  CHECK(h == 2539651790599479429ULL);  // re-pinned on MSVC, 2026-10-14 (spec 87: power falls with distance)
+  CHECK(h == 6531288129052404131ULL);  // re-pinned on MSVC, 2026-10-14 (spec 88: extraction zones; rangeland pasture)
 }
 
 TEST_CASE("countries: calibration sweep on the one world's grid (probe)" * doctest::skip()) {

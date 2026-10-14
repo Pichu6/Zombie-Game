@@ -36,18 +36,29 @@ WorldFood flows_of(std::vector<NodeFood> nodes, const WorldPeople& people, const
 
 }  // namespace
 
-WorldFood food_flows(const WorldLand& land, const WorldPeople& people, const WorldRoutes& routes, const FreightParams& params) {
+// Spec 88 rule 5: the share of a cell's capacity that is farmed or grazed (1 without a land use).
+static double in_use(const WorldLand& land, const WorldLandUse* use, CellId c) {
+  if (!use) return 1.0;
+  const LandParams lp;
+  const double crop = land.arable_share[c] * (1 - lp.feed_share), pasture = land.pasture_share[c] * lp.pasture_vs_crop;
+  if (crop + pasture <= 0) return 0.0;
+  return (use->crop[c] * (1 - lp.feed_share) + use->pasture[c] * lp.pasture_vs_crop) / (crop + pasture);
+}
+
+WorldFood food_flows(const WorldLand& land, const WorldPeople& people, const WorldRoutes& routes, const FreightParams& params,
+                     const WorldLandUse* use) {
   std::vector<NodeFood> nodes(routes.nodes.size());
   // Rule 1: production and demand by region. What is grown is each cell's share of the land's capacity, scaled so the
   // world grows `grown_vs_need` times what its people need.
   double capacity = 0, need = 0;
-  for (std::size_t c = 0; c < routes.region_of.size(); ++c) capacity += land.capacity_food[c], need += people.people[c];
+  for (std::size_t c = 0; c < routes.region_of.size(); ++c)
+    capacity += land.capacity_food[c] * in_use(land, use, static_cast<CellId>(c)), need += people.people[c];
   const double grown = capacity > 0 ? params.grown_vs_need * need / capacity : 0;
   for (std::size_t c = 0; c < routes.region_of.size(); ++c) {
     const int k = routes.region_of[c];
     if (k < 0) continue;
     NodeFood& nf = nodes[static_cast<std::size_t>(k)];
-    nf.made += land.capacity_food[c] * grown;
+    nf.made += land.capacity_food[c] * in_use(land, use, static_cast<CellId>(c)) * grown;
     nf.demand += people.people[c];
   }
   return flows_of(std::move(nodes), people, routes, params);
@@ -158,7 +169,7 @@ double crops_share(const DietParams& d, double temp_c) {
 }
 
 WorldDiet food_by_kind(const WorldFields& fields, const WorldLand& land, const WorldPeople& people, const WorldRoutes& routes,
-                       const FreightParams& params, const DietParams& diet, const LandParams& lp) {
+                       const FreightParams& params, const DietParams& diet, const LandParams& lp, const WorldLandUse* use) {
   const std::size_t cells = routes.region_of.size();
   // Rule 1: each cell's potential for each kind (the kind's own units; rule 2 scales them).
   std::array<std::vector<double>, kFoodKinds> potential;
@@ -169,11 +180,14 @@ WorldDiet food_by_kind(const WorldFields& fields, const WorldLand& land, const W
     if (land.capacity_food[c] > 0 && crop + pasture > 0) {
       const double unit = land.capacity_food[c] / (crop + pasture);  // spec 52's capacity, per unit of its two terms
       const double warm = crops_share(diet, fields.temp_mean_c[c]);
-      potential[0][c] = unit * crop * (1 - warm);
-      potential[1][c] = unit * crop * warm;
-      potential[2][c] = unit * (pasture + land.arable_share[c] * lp.feed_share * diet.feed_conversion);
+      // Spec 88 rule 5: the fields and pastures in use, not the land's potential.
+      const double arable = use ? use->crop[c] : land.arable_share[c];
+      const double grazed = use ? use->pasture[c] * lp.pasture_vs_crop : pasture;
+      potential[0][c] = unit * arable * (1 - lp.feed_share) * (1 - warm);
+      potential[1][c] = unit * arable * (1 - lp.feed_share) * warm;
+      potential[2][c] = unit * (grazed + arable * lp.feed_share * diet.feed_conversion);
     }
-    potential[3][c] = land.fish_catch_t[c];
+    potential[3][c] = use ? use->fish_t[c] : land.fish_catch_t[c];  // spec 88 rule 4: what is landed
     // Rule 3: what each people eats, by its country's income group.
     const int country = people.formed.country_of.empty() ? -1 : people.formed.country_of[c];
     const int group = country >= 0 ? people.countries[static_cast<std::size_t>(country)].income : kIncomeGroups - 1;

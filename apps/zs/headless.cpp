@@ -52,7 +52,7 @@ int print_map(const std::string& path) {
   auto* map_ptr = map.get();
   world.add_system(std::move(items));
   world.add_system(std::move(map));
-  zs::load_item_defs(*items_ptr, std::string(ZS_DATA_DIR) + "/tier0/items.toml");
+  zs::load_item_defs(*items_ptr, zs::tier0::data_dir() + "/tier0/items.toml");
   map_ptr->load_file(world, *items_ptr, path);
   const auto& rooms = map_ptr->rooms();
   std::printf("%zu rooms, %zu portals, %zu assemblies\n", rooms.size(), map_ptr->portals().size(),
@@ -723,7 +723,7 @@ int headless_main(int argc, char** argv) {
   }
   if (argc >= 2 && !std::strcmp(argv[1], "--map")) {
     try {
-      return print_map(argc >= 3 ? argv[2] : std::string(ZS_DATA_DIR) + "/tier0/map/block.toml");
+      return print_map(argc >= 3 ? argv[2] : zs::tier0::data_dir() + "/tier0/map/block.toml");
     } catch (const std::exception& e) {
       std::fprintf(stderr, "error: %s\n", e.what());
       return 1;

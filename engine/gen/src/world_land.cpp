@@ -32,17 +32,18 @@ double fertility_of(Biome b) {
   }
 }
 
-// Rule 6 (estimates): {arable, pasture}.
+// Rule 6 (estimates): {arable, pasture}. Pasture includes the rangelands of dry, cold and high land (spec 88: FAO's
+// permanent meadows and pastures are a quarter of the land, EZ-1).
 std::pair<double, double> shares_of(Biome b) {
   switch (b) {
-    case Biome::Grassland: return {0.45, 0.35};
+    case Biome::Grassland: return {0.45, 0.45};
     case Biome::TemperateForest: return {0.35, 0.05};
-    case Biome::Savanna: return {0.25, 0.45};
+    case Biome::Savanna: return {0.25, 0.50};
     case Biome::TropicalForest: return {0.15, 0.05};
     case Biome::BorealForest: return {0.08, 0.05};
-    case Biome::Mountain: return {0.04, 0.15};
-    case Biome::Desert: return {0.02, 0.08};
-    case Biome::Tundra: return {0, 0.15};
+    case Biome::Mountain: return {0.04, 0.35};
+    case Biome::Desert: return {0.02, 0.30};
+    case Biome::Tundra: return {0, 0.25};
     default: return {0, 0};
   }
 }
