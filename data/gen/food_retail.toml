@@ -1,0 +1,54 @@
+# The town's food (spec 79): its outlets by the country's income group, their share of the town's food, sizes and days of
+# stock; the distribution centre that serves the town. From research food-retail-and-stocks (FR). Lines marked ESTIMATE are
+# defaults taken by Claude where FR gives only a band or a direction.
+# Kinds: supermarket, convenience, small (a small shop, often in a house front: kirana, tiendita, sari-sari), market.
+
+[kind.supermarket]
+floor_m2 = 3900          # FR-6: US average (about 3,940 m2); UK superstores about 3,300
+shelf_days = 2           # FR-7: stores hold "a couple of days"
+back_days = 1            # ESTIMATE: the back room; fresh goods arrive within 24 h (FR-7)
+[kind.convenience]
+floor_m2 = 300           # FR-6: US convenience stores about 300 m2
+shelf_days = 2           # FR-7
+back_days = 1            # ESTIMATE
+[kind.small]
+floor_m2 = 15            # ESTIMATE: no floor area found for kirana or sari-sari stores (FR-6 "not found")
+shelf_days = 3           # ESTIMATE: restocked from wholesale every few days
+back_days = 0
+[kind.market]
+floor_m2 = 2000          # ESTIMATE: an open market's stalls together
+shelf_days = 1           # ESTIMATE: fresh produce sold the day it comes in (FR-4: bought almost daily)
+back_days = 0
+
+# Per income group: outlets per 10,000 people and the share of the town's food each kind sells; household stocks and trips.
+[group.high]
+per_10k = { supermarket = 1.2, convenience = 3.9, small = 0.9, market = 0.05 }  # FR-1 (US: 2.1 grocery incl. supermarkets, 3.9 convenience), FR-2 (Germany 4.4 food stores); the supermarket/small split of "grocery" is an ESTIMATE
+share = { supermarket = 0.70, convenience = 0.20, small = 0.08, market = 0.02 }  # ESTIMATE in the direction of FR-5
+pantry_days = 3          # FR-9: 83 % of US households hold 3 days or more
+fridge_days = 2          # ESTIMATE (spec 51)
+trips_per_week = 3       # FR-11: US households 2.6-2.8, UK about 4
+[group.upper_middle]
+per_10k = { supermarket = 0.6, convenience = 2.0, small = 55, market = 0.3 }    # FR-3: Mexico about 59 tienditas per 10,000; the rest ESTIMATE
+share = { supermarket = 0.45, convenience = 0.10, small = 0.35, market = 0.10 } # FR-5: supermarkets 40 % (Mexico) to 50-60 % (South America); FR-3: tienditas 35 % of spending
+pantry_days = 3          # ESTIMATE as high (FR-9)
+fridge_days = 2
+trips_per_week = 4       # ESTIMATE between FR-11's rich and poor
+[group.lower_middle]
+per_10k = { supermarket = 0.15, convenience = 0.8, small = 85, market = 0.5 }   # FR-3: India about 84 kirana, the Philippines about 116 sari-sari per 10,000
+share = { supermarket = 0.10, convenience = 0.05, small = 0.65, market = 0.20 } # FR-5: third-wave countries 2-20 %; FR-3: kirana about 90 % of grocery
+pantry_days = 2          # ESTIMATE
+fridge_days = 2
+trips_per_week = 6       # ESTIMATE from FR-11 (near daily)
+[group.low]
+per_10k = { supermarket = 0.03, convenience = 0.2, small = 40, market = 1.0 }   # ESTIMATE; FR-4: markets dominate
+share = { supermarket = 0.03, convenience = 0.02, small = 0.30, market = 0.65 } # FR-4: markets supply 62-87 % of household food in West Africa
+pantry_days = 1          # FR-4, FR-11: bought almost daily
+fridge_days = 0          # spec 51: no fridge
+trips_per_week = 7       # FR-4: over 70 % buy more than five days a week
+
+[distribution]
+people_served = 2500000  # FR-10: about 2-3 million people per centre (derived from Walmart and Tesco)
+max_km = 300             # FR-10: about 250-320 km from its stores
+min_town_people = 250000 # ESTIMATE: centres stand by a large town
+dry_days = 10            # FR-7: about 10 days of ambient goods in UK retailers' warehouses
+fresh_days = 3           # FR-7: "a few days of perishables"

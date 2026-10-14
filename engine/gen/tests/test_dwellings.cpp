@@ -142,5 +142,5 @@ TEST_CASE("the same seed gives the same house; golden hash pinned (A1)") {
   const std::string ta = house_toml(town, a[2], rules(), 1);
   CHECK(ta == house_toml(town, b[2], rules(), 1));
   MESSAGE("house hash: ", hash_str(ta));
-  CHECK(hash_str(ta) == 1644481660845478080ULL);  // pinned on MSVC, 2026-10-08
+  CHECK(hash_str(ta) == 9816986032796343444ULL);  // re-pinned on MSVC 2026-10-13 (spec 79: pantry days from FR-9); was 1644481660845478080
 }

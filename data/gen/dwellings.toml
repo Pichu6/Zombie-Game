@@ -15,11 +15,11 @@ lower_middle = 20
 upper_middle = 30
 high = 40
 
-[pantry_days]             # estimate: days of food in the pantry
-low = 3
-lower_middle = 5
-upper_middle = 7
-high = 10
+[pantry_days]             # spec 79 (research food-retail-and-stocks): days of food in the pantry
+low = 1                   # FR-4, FR-11: bought almost daily
+lower_middle = 2          # estimate between FR's poor and rich
+upper_middle = 3          # estimate as high
+high = 3                  # FR-9: 83 % of US households hold 3 days or more (was 10, an estimate)
 
 [lot]                     # metres around the house
 front = 3

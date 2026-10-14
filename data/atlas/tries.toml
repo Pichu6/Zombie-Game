@@ -24,6 +24,16 @@ kind = "text"
 added = 2026-10-13
 
 [[try]]
+id = "town-shops"
+part = "generators"
+spec = "79"
+title = "The town's food shops and pantries"
+what = "The block's town's food outlets by its country's income (supermarkets, convenience stores, small shops in house fronts, markets) with their share of the food and days of stock, the distribution centre that serves it and how far, and how many days households keep (research food-retail-and-stocks)."
+run = ["gen", "shops", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-13
+
+[[try]]
 id = "world-food"
 part = "generators"
 spec = "76"

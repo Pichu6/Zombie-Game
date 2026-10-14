@@ -12,6 +12,7 @@
 //   zs gen plot [--seed N] [--people P] [--plot N | --address A] [--out FILE]   what stands on a plot (spec 72)
 //   zs gen routes [--seed N] [--freq F] [--bmp FILE]   roads, rivers and sea lanes between towns; the block's town's routes (spec 74)
 //   zs gen food [--seed N] [--freq F] [--border X]   food made, eaten and sent between towns over the routes (spec 76)
+//   zs gen shops [--seed N]                        the block's town's food: shops, distribution centre, pantries (spec 79)
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE]
 //                                                  world fields, land, deposits and countries: summary and a text map
@@ -38,6 +39,7 @@
 #include "zs/gen/world_people.h"
 #include "zs/gen/world_routes.h"
 #include "zs/gen/world_food.h"
+#include "zs/gen/town_food.h"
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
 #include "modes.h"
@@ -187,6 +189,50 @@ int gen_main(int argc, char** argv) {
       }
       std::cout << "legend: '~' large river, ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
+      return 0;
+    }
+    if (cmd == "shops") {  // spec 79: the block's town's food: outlets, distribution centre, household stocks
+      const zs::gen::WorldGrid grid(zs::gen::kOneWorldFrequency, 6371.0);
+      zs::gen::WorldParams wp;
+      wp.seed = seed;
+      const auto f = zs::gen::generate_fields(grid, wp);
+      const auto land = zs::gen::generate_land(grid, f);
+      zs::gen::DepositParams dp;
+      dp.seed = seed;
+      const auto deposits = zs::gen::generate_deposits(grid, f, dp);
+      const std::string tables = zs::tier0::data_dir();
+      const auto people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(tables),
+                                                  zs::gen::load_real_profiles(tables));
+      const auto routes = zs::gen::build_routes(grid, f, land, people);
+      const int town = zs::gen::choose_town(f, people, seed);
+      if (town < 0) throw std::runtime_error("no town for the block");
+      const zs::Place place = zs::gen::place_of_town(grid, f, people, town, seed);
+      const auto rec = zs::gen::town_record(place, seed);
+      const auto params = zs::gen::load_food_retail(data + "/gen");
+      int income = 0;
+      for (int g = 0; g < zs::gen::kIncomeGroups; ++g)
+        if (place.income == zs::gen::kIncomeGroupIds[static_cast<std::size_t>(g)]) income = g;
+      const auto centre = zs::gen::serving_centre(grid, f, people, routes, town, params);
+      const auto food = zs::gen::plan_town_food(rec->town, rec->layout, rec->spec.people, income, params, seed, centre);
+      std::cout << "The food of " << rec->spec.name << " (" << rec->spec.people << " people, " << place.income << " income, "
+                << place.country_name << "), spec 79\n";
+      int counts[zs::gen::kOutletKinds] = {};
+      double shares[zs::gen::kOutletKinds] = {};
+      for (const auto& o : food.outlets) ++counts[static_cast<int>(o.kind)], shares[static_cast<int>(o.kind)] += o.share;
+      for (int k = 0; k < zs::gen::kOutletKinds; ++k)
+        std::cout << "  " << counts[k] << " " << zs::gen::outlet_kind_name(static_cast<zs::gen::OutletKind>(k)) << (counts[k] == 1 ? "" : "s")
+                  << ", selling " << 100.0 * shares[k] << "% of the town's food\n";
+      for (const auto& o : food.outlets)
+        if (o.kind != zs::gen::OutletKind::Small)
+          std::cout << "  - " << o.name << " (" << zs::gen::outlet_kind_name(o.kind) << ", " << o.floor_m2 << " m2, "
+                    << o.share * food.people_days_per_day << " people-days a day, " << o.stock_days << " days of stock)\n";
+      if (food.centre.town >= 0)
+        std::cout << "distribution centre: in a town of " << people.towns[static_cast<std::size_t>(food.centre.town)].people << " people, "
+                  << food.centre.km << " km and " << food.centre.hours << " h away; it holds " << params.dc_dry_days << " days of dry food and "
+                  << params.dc_fresh_days << " of fresh\n";
+      std::cout << "households: " << food.pantry_days << " days in the pantry, " << food.fridge_days << " in the fridge, "
+                << food.trips_per_week << " shopping trips a week\n";
+      std::cout << "digest " << zs::gen::town_food_digest(food) << "\n";
       return 0;
     }
     if (cmd == "towns") {  // data review: the planet's towns by size, the largest, primacy, the most populous countries
