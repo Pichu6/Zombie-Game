@@ -220,10 +220,12 @@ kind = "power_panel"
 at = [0, 15, 13]
 
 # The kitchen's furniture stands along its top wall and leaves the door at x = 5 free (spec 50).
+# Spec 80 (data review): a household holds about 3 days in the pantry and 2 in the fridge (research food-retail-and-stocks,
+# FR-9); the main building's household is the run's group of about 4 (10,000 kJ a person a day, spec 51).
 [[object]]
 kind = "fridge"
 at = [0, 2, 10]
-food_kj = 20000
+food_kj = 80000
 
 [[object]]
 kind = "stove"
@@ -274,6 +276,34 @@ id = "basement"
 [[object]]
 kind = "pantry"
 at = [0, 3, 10]
+food_kj = 120000
+
+# Spec 80: each house on the block has its own pantry and fridge for its 2 residents (FR-9: 3 days and 2), listed after
+# the main building's so the run's group still eats from its own kitchen (the pop AI takes the first of each kind).
+# `id` names the house: spec 17's power system leaves a house's appliances out (the houses run off the town's mains, not
+# the main building's generator; not modelled yet), and spec 81 gives each house's household its own stores.
+[[object]]
+kind = "fridge"
+at = [0, 20, 4]
+id = "house_a"
+food_kj = 40000
+
+[[object]]
+kind = "pantry"
+at = [0, 20, 5]
+id = "house_a"
+food_kj = 60000
+
+[[object]]
+kind = "fridge"
+at = [0, 28, 15]
+id = "house_b"
+food_kj = 40000
+
+[[object]]
+kind = "pantry"
+at = [0, 28, 16]
+id = "house_b"
 food_kj = 60000
 
 [[object]]

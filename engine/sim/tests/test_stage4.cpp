@@ -53,7 +53,7 @@ TEST_CASE("stage 4: the scripted pop eats, drinks, treats its wound, salvages an
   CHECK(t.world->locations.parent_of(item_of(t, "bandage")) == w.id);
   // Food and water moved from the stores into the body.
   const auto pantry = t.actors->store_of(*t.actors->find_object("pantry")).value();
-  CHECK(t.world->ledger.balance(pantry, t.bodies->ids().food_j) == 60'000'000 - 2'500'000);
+  CHECK(t.world->ledger.balance(pantry, t.bodies->ids().food_j) == 120'000'000 - 2'500'000);  // the map's pantry (spec 81: 3 days for 4)
   // The chair came apart; two planks and its nails are on the window.
   int done = 0, refused = 0;
   for (const Event& e : t.world->log.all()) {
@@ -213,7 +213,7 @@ TEST_CASE("stage 4: arriving is not working; save mid-action and load replays to
 
 TEST_CASE("stage 4: golden hash of the scripted pop (same on every compiler)") {
   Tier0 t = run_script(false);
-  const std::uint64_t golden = 12015068923226770232ULL;  // re-pinned on MSVC for decision 0065 (ids per creator; the draws are keyed by id), 2026-10-11
+  const std::uint64_t golden = 5480706801805994729ULL;  // re-pinned on MSVC 2026-10-14 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 12015068923226770232 (for decision 0065 (ids per creator); the draws are keyed by id), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 4 golden world hash: " << t.world->world_hash());
 }

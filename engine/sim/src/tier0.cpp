@@ -9,6 +9,7 @@
 #include <stdexcept>
 
 #include "toml.hpp"
+#include "zs/players.h"
 
 namespace zs::tier0 {
 
@@ -182,8 +183,30 @@ Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Pl
       const auto pantry = t.actors->first_store("pantry");
       if (!pantry) throw std::runtime_error("one world: the block has no pantry for the food chain");
       FoodSetup setup = food;
-      setup.block_people = static_cast<double>(t.census->people().size());  // the block's people eat from its pantry, not the town's counts
-      auto chain = std::make_unique<FoodChain>(setup, load_errand_params(data + "/life/errands.toml"), t.bodies, t.actors, *pantry);
+      // The block's people eat from its pantries, not the town's counts: the run's group and the residents of the houses
+      // on the map (census rows whose home is house_a or house_b); the other census rows live off the map, as counts.
+      double on_map = static_cast<double>(t.group.size());
+      for (const Person& p : t.census->people()) on_map += p.home.rfind("house_", 0) == 0 ? 1.0 : 0.0;
+      setup.block_people = on_map;
+      auto chain = std::make_unique<FoodChain>(setup, load_errand_params(data + "/life/errands.toml"), t.bodies, t.actors, *pantry, seed);
+      // Spec 81 rule 1: the main building's household is the run's group; each house's is the census rows living there.
+      chain->add_household("main building", *pantry, t.actors->first_store("fridge").value_or(0), t.group);
+      for (const char* house : {"house_a", "house_b"}) {
+        const auto p = t.actors->first_store("pantry", house);
+        if (!p) continue;
+        std::vector<EntityId> members;
+        for (const Person& person : t.census->people())
+          if (person.home == house && person.body != 0) members.push_back(person.body);
+        chain->add_household(house, *p, t.actors->first_store("fridge", house).value_or(0), std::move(members));
+      }
+      // A body a player is in cannot be taken off the map; another member goes (decision 0080 rule 1).
+      chain->set_held([players = t.players, bodies = t.bodies](EntityId body) {
+        if (!players) return false;
+        const PopId pop = bodies->get(body).pop;
+        for (const auto& p : players->players())
+          if (p.in == pop) return true;
+        return false;
+      });
       chain->setup(w);
       t.food = chain.get();
       w.add_system(std::move(chain));

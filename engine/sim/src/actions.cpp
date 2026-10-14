@@ -198,10 +198,10 @@ std::optional<std::size_t> Actors::find_process(const std::string& id) const {
   return std::nullopt;
 }
 
-std::optional<OwnerId> Actors::first_store(const std::string& kind) const {
+std::optional<OwnerId> Actors::first_store(const std::string& kind, const std::string& id) const {
   for (const auto& [e, owner] : stores_) {
     const auto it = object_index_.find(e);
-    if (it != object_index_.end() && map_.objects()[it->second].kind == kind) return owner;
+    if (it != object_index_.end() && map_.objects()[it->second].kind == kind && map_.objects()[it->second].id == id) return owner;
   }
   return std::nullopt;
 }

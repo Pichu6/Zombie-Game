@@ -262,7 +262,7 @@ TEST_CASE("stage 6: the scenario through actions: refuels once, runs dry, the fo
   u.world->load(mid);
   while (at_mid.drive(u)) u.world->step();
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 17962225722082667100ULL;  // re-pinned on MSVC for decision 0065 (ids per creator; the draws are keyed by id), 2026-10-11
+  const std::uint64_t golden = 8657294734058408537ULL;  // re-pinned on MSVC 2026-10-14 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 17962225722082667100 (for decision 0065 (ids per creator); the draws are keyed by id), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 6 golden world hash: " << t.world->world_hash());
 }

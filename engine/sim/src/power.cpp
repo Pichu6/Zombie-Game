@@ -91,11 +91,12 @@ void Power::setup(World& w) {
   for (std::size_t i = 0; i < objs.size(); ++i) {
     const MapObject& o = objs[i];
     for (std::size_t d = 0; d < rdefs_.size(); ++d)
-      if (rdefs_[d].kind == o.kind) receivers_.push_back({actors_.object_entity(i), d, o.at, rdefs_[d].on_at_start, false});
+      if (rdefs_[d].kind == o.kind && o.id.rfind("house_", 0) != 0)  // spec 81: a house's appliances run off the town's mains
+        receivers_.push_back({actors_.object_entity(i), d, o.at, rdefs_[d].on_at_start, false});
     if (o.kind == "generator") {
       gen_object_ = actors_.object_entity(i);
       gen_cell_ = o.at;
-    } else if (o.kind == "fridge") {
+    } else if (o.kind == "fridge" && o.id.rfind("house_", 0) != 0) {  // spec 81: the main building's, not a house's
       fridge_object_ = actors_.object_entity(i);
     } else if (o.kind == "power_panel") {
       panel_object_ = actors_.object_entity(i);

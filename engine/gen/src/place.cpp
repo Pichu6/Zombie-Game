@@ -123,6 +123,9 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
     food.kj_per_person_day = town_rec->dwelling.food_kj_per_person_day;
     food.centre_days = kCentreDryShare * fr.dc_dry_days + (1 - kCentreDryShare) * fr.dc_fresh_days;
     food.centre_hours = centre.hours;
+    food.pantry_days = tf.pantry_days;  // spec 81: the country's households (spec 79 rule 6)
+    food.fridge_days = tf.fridge_days;
+    food.trips_per_week = tf.trips_per_week;
     for (const Outlet& o : tf.outlets)
       food.outlets.push_back({o.name, outlet_kind_name(o.kind), o.share, o.stock_days,
                               o.plot >= 0 && block >= 0 ? plot_minutes(town_rec->layout, block, o.plot, travel) : kNoPlotMinutes});

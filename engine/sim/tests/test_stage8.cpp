@@ -229,7 +229,7 @@ TEST_CASE("stage 8: a group run: save/load keeps the hash; golden") {
   u.world->load(mid);
   run_hours(u, 6);
   CHECK(u.world->world_hash() == t.world->world_hash());
-  const std::uint64_t golden = 3567997123766471461ULL;  // re-pinned on MSVC for decision 0065 (ids per creator; the draws are keyed by id), 2026-10-11
+  const std::uint64_t golden = 10358663252760224787ULL;  // re-pinned on MSVC 2026-10-14 for spec 81 (each house with its own pantry and fridge, 3 and 2 days; the main building's 120 and 80 MJ); before: 3567997123766471461 (for decision 0065 (ids per creator); the draws are keyed by id), 2026-10-11
   CHECK(t.world->world_hash() == golden);
   MESSAGE("stage 8 golden world hash: " << t.world->world_hash());
 }
