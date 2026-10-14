@@ -26,6 +26,7 @@ struct CountryParams {
   double state_density = 25;    // rule 21: people of capacity per km2 to start as a polity
   double sea_weight = 0.1, sea_sigma = 0.33;  // rule 22 (CF-26)
   double fill_limit = 5000;     // rule 24: km-equivalent (about five temperate steps of a frequency-24 cell)
+  double people_scale = 1.0;    // spec 84: people per unit of land against today's (spec 48 rule 2)
 };
 
 enum class HistoryKind : std::uint8_t { Annex, Secede, Split, Fill };

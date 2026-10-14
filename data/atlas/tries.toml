@@ -144,6 +144,56 @@ kind = "text"
 added = 2026-10-09
 
 [[try]]
+id = "world-physical"
+part = "world"
+spec = "83"
+title = "The physical map: climate by place, lakes that balance"
+what = "The planet as an atlas draws it: biomes by aridity, deserts on the west side of continents, closed basins, rivers from source to mouth, relief."
+run = ["gen", "world", "--seed", "{seed}", "--bmp", "{out}/world_physical.bmp", "--layer", "physical"]
+kind = "image"
+added = 2026-10-14
+
+[[try]]
+id = "world-climate"
+part = "world"
+spec = "83"
+title = "The climate map (Koppen-like)"
+what = "Tropical, desert, steppe, temperate, continental and polar climates from the generated temperature and rain, to compare with a Koppen-Geiger map."
+run = ["gen", "world", "--seed", "{seed}", "--bmp", "{out}/world_climate.bmp", "--layer", "climate"]
+kind = "image"
+added = 2026-10-14
+
+[[try]]
+id = "world-resources"
+part = "world"
+spec = "83"
+title = "Where the resources are"
+what = "The large deposits of coal, oil, gas, iron, copper and bauxite, and the fishing grounds."
+run = ["gen", "world", "--seed", "{seed}", "--bmp", "{out}/world_resources.bmp", "--layer", "resources"]
+kind = "image"
+added = 2026-10-14
+
+[[try]]
+id = "world-preview"
+part = "world"
+spec = "84"
+title = "A small, poor world, previewed"
+what = "The setup's preview from the command line: a planet of 3,400 km radius with a third of Earth's fuels, at coarse cells, and its key numbers against Earth's."
+run = ["gen", "world", "--seed", "{seed}", "--preview", "--radius", "3400", "--fuel", "0.3", "--metals", "0.3"]
+kind = "text"
+added = 2026-10-14
+
+[[try]]
+id = "world-preview-earth"
+part = "world"
+spec = "84"
+title = "An Earth-like world, previewed"
+what = "The preview of Earth's settings: how long it takes and its key numbers against Earth's."
+run = ["gen", "world", "--seed", "{seed}", "--preview"]
+kind = "text"
+added = 2026-10-14
+
+[[try]]
 id = "town"
 part = "generators"
 spec = "47"

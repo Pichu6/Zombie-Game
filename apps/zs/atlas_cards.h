@@ -54,6 +54,9 @@ struct WorldEditor {
   std::function<std::vector<std::string>()> presets;
   std::function<gen::WorldSettings(const std::string&)> load_preset;
   std::function<void(const std::string&, const gen::WorldSettings&)> save_preset;
+  // Spec 84 rule 3: a preview of the draft before Apply or Fork; null leaves the button out.
+  std::function<void(const gen::WorldSettings&)> preview;
+  std::function<void()> draw_preview;
 };
 
 // "realistic" when every setting is in its realistic band, else "sandbox" (sandbox parameters §1.4).

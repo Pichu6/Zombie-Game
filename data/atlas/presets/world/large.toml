@@ -1,0 +1,5 @@
+# A shipped world preset (spec 84 rule 5): the [settings] table of a world.toml; unset fields keep Earth's.
+name = "large"
+
+[settings]
+radius_km = 8000.0

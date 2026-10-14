@@ -1,5 +1,5 @@
 # zs: the one executable (decision 0052): the window, the headless modes and the content generators.
-add_executable(zs main.cpp headless.cpp pop_bench.cpp town_demo.cpp gen_cli.cpp planet_raster.cpp worlds.cpp day_mode.cpp diverge_mode.cpp absence_mode.cpp food_mode.cpp)
+add_executable(zs main.cpp headless.cpp pop_bench.cpp town_demo.cpp gen_cli.cpp planet_raster.cpp world_numbers.cpp worlds.cpp day_mode.cpp diverge_mode.cpp absence_mode.cpp food_mode.cpp)
 target_link_libraries(zs PRIVATE zs_sim zs_gen)
 target_include_directories(zs PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)
 if(WIN32)
@@ -33,7 +33,7 @@ if(ZS_BUILD_WINDOW)
   target_link_libraries(zs_imgui PUBLIC SDL3::SDL3-static)
 
   # The Atlas (spec 55) shares the window stack and runs the modes as child processes.
-  target_sources(zs PRIVATE window.cpp atlas.cpp atlas_md.cpp atlas_cards.cpp atlas_sim.cpp runner.cpp)
+  target_sources(zs PRIVATE window.cpp atlas.cpp atlas_md.cpp atlas_cards.cpp atlas_sim.cpp runner.cpp world_preview.cpp)
   target_link_libraries(zs PRIVATE zs_imgui)
   target_compile_definitions(zs PRIVATE ZS_WITH_WINDOW)
 else()

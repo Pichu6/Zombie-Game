@@ -129,6 +129,13 @@ double* field_of(gen::WorldSettings& s, const std::string& field) {
   if (field == "relief") return &s.relief;
   if (field == "moisture") return &s.moisture;
   if (field == "fragmentation") return &s.fragmentation;
+  if (field == "radius_km") return &s.radius_km;
+  if (field == "fuel_richness") return &s.fuel_richness;
+  if (field == "metal_richness") return &s.metal_richness;
+  if (field == "fertility") return &s.fertility;
+  if (field == "forest") return &s.forest;
+  if (field == "fish") return &s.fish;
+  if (field == "people") return &s.people;
   return nullptr;
 }
 
@@ -286,6 +293,14 @@ void draw_world_settings(CardsState& st, WorldEditor& ed) {
   ImGui::TextColored(realism == "realistic" ? ImVec4(0.55f, 0.9f, 0.55f, 1) : ImVec4(0.95f, 0.75f, 0.35f, 1), "%s", realism.c_str());
   ImGui::SameLine();
   ImGui::TextDisabled("(%d of %d settings touched)", touched_count(st, st.draft), static_cast<int>(st.bands.size()) + 1);
+  // Spec 84 rule 3: look before committing.
+  if (ed.preview) {
+    ImGui::BeginDisabled(!date_ok);
+    if (ImGui::Button("Preview")) ed.preview(st.draft);
+    ImGui::EndDisabled();
+    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Generates this draft at coarse cells in about a second; nothing is written");
+    ImGui::SameLine();
+  }
   // Apply or fork.
   if (!ed.locked) {
     ImGui::BeginDisabled(!dirty || !date_ok);
@@ -311,6 +326,7 @@ void draw_world_settings(CardsState& st, WorldEditor& ed) {
     }
     ImGui::EndDisabled();
   }
+  if (ed.draw_preview) ed.draw_preview();
   ImGui::SameLine();
   if (ImGui::Button("Back to the world's")) {
     st.draft = *ed.settings;

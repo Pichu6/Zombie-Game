@@ -12,6 +12,7 @@
 
 #include "toml.hpp"
 #include "zs/calendar.h"
+#include "zs/tier0.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -57,7 +58,14 @@ void write_settings(std::ostream& o, const zs::gen::WorldSettings& s) {
     << "relief = " << s.relief << "\n"
     << "moisture = " << s.moisture << "\n"
     << "fragmentation = " << s.fragmentation << "\n"
-    << "start_date = " << quoted(date_text(s.start_day)) << "\n";
+    << "start_date = " << quoted(date_text(s.start_day)) << "\n"
+    << "radius_km = " << s.radius_km << "\n"
+    << "fuel_richness = " << s.fuel_richness << "\n"
+    << "metal_richness = " << s.metal_richness << "\n"
+    << "fertility = " << s.fertility << "\n"
+    << "forest = " << s.forest << "\n"
+    << "fish = " << s.fish << "\n"
+    << "people = " << s.people << "\n";
 }
 
 zs::gen::WorldSettings read_settings(const toml::table& t) {
@@ -69,6 +77,13 @@ zs::gen::WorldSettings read_settings(const toml::table& t) {
     s.moisture = (*st)["moisture"].value_or(s.moisture);
     s.fragmentation = (*st)["fragmentation"].value_or(s.fragmentation);
     if (auto d = (*st)["start_date"].value<std::string>()) parse_date(*d, s.start_day);
+    s.radius_km = (*st)["radius_km"].value_or(s.radius_km);
+    s.fuel_richness = (*st)["fuel_richness"].value_or(s.fuel_richness);
+    s.metal_richness = (*st)["metal_richness"].value_or(s.metal_richness);
+    s.fertility = (*st)["fertility"].value_or(s.fertility);
+    s.forest = (*st)["forest"].value_or(s.forest);
+    s.fish = (*st)["fish"].value_or(s.fish);
+    s.people = (*st)["people"].value_or(s.people);
   }
   return s;
 }
@@ -191,17 +206,25 @@ World fork(const World& from, const std::string& new_name) {
 
 std::filesystem::path presets_root() { return exe_dir() / "presets" / "world"; }
 
+// Spec 84 rule 5: shipped presets in data/atlas/presets/world, the user's own next to the executable (theirs win a name).
+std::filesystem::path shipped_presets_root() { return std::filesystem::path(zs::tier0::data_dir()) / "atlas" / "presets" / "world"; }
+
 std::vector<std::string> list_presets() {
   std::vector<std::string> out;
-  std::error_code ec;
-  for (const auto& e : std::filesystem::directory_iterator(presets_root(), ec))
-    if (e.is_regular_file() && e.path().extension() == ".toml") out.push_back(e.path().stem().string());
+  for (const auto& root : {presets_root(), shipped_presets_root()}) {
+    std::error_code ec;
+    for (const auto& e : std::filesystem::directory_iterator(root, ec))
+      if (e.is_regular_file() && e.path().extension() == ".toml") out.push_back(e.path().stem().string());
+  }
   std::sort(out.begin(), out.end());
+  out.erase(std::unique(out.begin(), out.end()), out.end());
   return out;
 }
 
 zs::gen::WorldSettings load_preset(const std::string& name) {
-  return read_settings(toml::parse_file((presets_root() / (name + ".toml")).string()));
+  std::filesystem::path p = presets_root() / (name + ".toml");
+  if (!std::filesystem::exists(p)) p = shipped_presets_root() / (name + ".toml");
+  return read_settings(toml::parse_file(p.string()));
 }
 
 void save_preset(const std::string& name, const zs::gen::WorldSettings& s) {

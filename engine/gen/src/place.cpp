@@ -87,23 +87,54 @@ zs::Place place_of_town(const WorldGrid& grid, const WorldFields& f, const World
   return p;
 }
 
-zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
-  const WorldGrid grid(kOneWorldFrequency, 6371.0);
+int world_frequency(double radius_km, double cell_km2) {
+  const double area = 4.0 * 3.14159265358979323846 * radius_km * radius_km;
+  return WorldGrid::frequency_for_cells(static_cast<std::uint64_t>(area / cell_km2 + 0.5));
+}
+
+GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int frequency, const std::function<void(const char*)>& stage) {
+  auto say = [&](const char* what) {
+    if (stage) stage(what);
+  };
+  say("the grid");
+  GeneratedWorld w{WorldGrid(frequency > 0 ? frequency : world_frequency(s.radius_km), s.radius_km), {}, {}, {}, {}};
+  say("terrain and climate");
   WorldParams wp;
   wp.seed = seed;
-  wp.land_share = settings.land_share;
-  wp.global_temp_c = settings.global_temp_c;
-  wp.relief = settings.relief;
-  wp.moisture = settings.moisture;
-  const WorldFields f = generate_fields(grid, wp);
-  const std::string data = zs::tier0::data_dir();
-  const WorldLand land = generate_land(grid, f);
+  wp.land_share = s.land_share;
+  wp.global_temp_c = s.global_temp_c;
+  wp.relief = s.relief;
+  wp.moisture = s.moisture;
+  w.fields = generate_fields(w.grid, wp);
+  say("rivers, soil and water");
+  LandParams lp;
+  lp.fertility_scale = s.fertility;
+  lp.forest_scale = s.forest;
+  lp.fish_scale = s.fish;
+  w.land = generate_land(w.grid, w.fields, lp);
+  say("deposits");
   DepositParams dp;
   dp.seed = seed;
-  const WorldDeposits deposits = generate_deposits(grid, f, dp);
+  w.deposits = generate_deposits(w.grid, w.fields, dp);
+  for (Deposit& d : w.deposits.deposits) {  // spec 84 rule 2: the same deposits, larger or smaller
+    const bool fuel = d.kind == Resource::Coal || d.kind == Resource::Oil || d.kind == Resource::Gas;
+    d.amount *= fuel ? s.fuel_richness : s.metal_richness;
+  }
+  say("people, sectors and countries");
+  const std::string data = zs::tier0::data_dir();
   CountryParams cp;
-  cp.fragmentation = settings.fragmentation;
-  const WorldPeople people = populate_world(grid, f, land, deposits, seed, load_group_tables(data), load_real_profiles(data), cp);
+  cp.fragmentation = s.fragmentation;
+  cp.people_scale = s.people;
+  w.people = populate_world(w.grid, w.fields, w.land, w.deposits, seed, load_group_tables(data), load_real_profiles(data), cp);
+  return w;
+}
+
+zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
+  const GeneratedWorld world = generate_world(seed, settings);
+  const WorldGrid& grid = world.grid;
+  const WorldFields& f = world.fields;
+  const WorldPeople& people = world.people;
+  const std::string data = zs::tier0::data_dir();
   const int town = choose_town(f, people, seed);
   const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
   // Specs 70-73: the block's town: its stations loaded beside the block, its plots opened when someone asks.

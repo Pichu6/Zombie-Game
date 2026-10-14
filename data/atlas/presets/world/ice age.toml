@@ -1,0 +1,5 @@
+# A shipped world preset (spec 84 rule 5): the [settings] table of a world.toml; unset fields keep Earth's.
+name = "ice age"
+
+[settings]
+global_temp_c = 8.0

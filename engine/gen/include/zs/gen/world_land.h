@@ -28,6 +28,8 @@ struct LandParams {
   // Slice 2 (rules 10-12; estimates).
   double game_r = 0.25, fish_r = 0.5;
   double fish_t_per_km2 = 0.75, fish_shelf_m = -1500;
+  // Spec 84: a world's richness settings (1 on Earth).
+  double fertility_scale = 1.0, forest_scale = 1.0, fish_scale = 1.0;
 };
 
 struct WorldLand {

@@ -115,7 +115,7 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     weight[c] = g.area_km2(c) * detmath::pow(std::max(w.suitability[c], 1e-300), kAlpha) * (w.suitability[c] > 0 ? 1 : 0);
     weight_sum += weight[c];
   }
-  const double total = tables.world_population * w.land_km2 / kEarthLandKm2;
+  const double total = tables.world_population * w.land_km2 / kEarthLandKm2 * country_params.people_scale;
   for (CellId c = 0; c < n; ++c) {
     w.people[c] = weight_sum > 0 ? std::round(total * weight[c] / weight_sum) : 0.0;
     w.total_people += w.people[c];

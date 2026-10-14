@@ -259,7 +259,7 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
     const double q = w.discharge_m3s[i], a = w.catchment_km2[i];
     w.river[i] = q >= p.large_river_m3s && a >= p.large_river_km2 ? 2 : q >= p.river_m3s && a >= p.river_km2 ? 1 : 0;
     const Biome b = f.biome[i];
-    w.fertility[i] = std::min(1.0, fertility_of(b) + (w.river[i] ? 0.2 : 0.0));
+    w.fertility[i] = std::min(1.0, (fertility_of(b) + (w.river[i] ? 0.2 : 0.0)) * p.fertility_scale);
     auto [arable, pasture] = shares_of(b);
     if (b == Biome::Desert && w.river[i]) arable += 0.25;  // an oasis valley
     w.arable_share[i] = std::min(arable, 1.0);
@@ -273,8 +273,8 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
     w.capacity_water[i] = water_m3 / p.water_m3_per_person;
     // Rules 10-11: forest and game.
     const ForestOf fo = forest_of(b);
-    w.forest_share[i] = fo.share;
-    w.wood_m3[i] = fo.share * ha * fo.m3_per_ha;
+    w.forest_share[i] = std::min(1.0, fo.share * p.forest_scale);
+    w.wood_m3[i] = w.forest_share[i] * ha * fo.m3_per_ha;
     w.wood_r[i] = fo.r;
     w.game_kg[i] = game_of(b) * grid.area_km2(i) * (w.river[i] ? 1.5 : 1.0);
   }
@@ -288,7 +288,7 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
     if (f.land(i) || f.elevation_m[i] < p.fish_shelf_m) continue;
     const bool coastal = to_land[i] * km_per_step <= 300.0;
     const double temp = 1.0 + (15.0 - f.temp_mean_c[i]) / 30.0;
-    w.fish_catch_t[i] = std::max(0.0, p.fish_t_per_km2 * grid.area_km2(i) * (coastal ? 1.5 : 1.0) * temp);
+    w.fish_catch_t[i] = std::max(0.0, p.fish_t_per_km2 * grid.area_km2(i) * (coastal ? 1.5 : 1.0) * temp) * p.fish_scale;
     w.fish_k_t[i] = 4.0 * w.fish_catch_t[i] / p.fish_r;  // Schaefer: catch = rK/4
   }
   return w;

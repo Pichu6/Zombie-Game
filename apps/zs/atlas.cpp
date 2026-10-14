@@ -39,6 +39,7 @@
 #include "atlas_sim.h"
 #include "modes.h"
 #include "planet_raster.h"
+#include "world_preview.h"
 #include "runner.h"
 #include "worlds.h"
 
@@ -250,26 +251,13 @@ struct Planet {
       const auto t0 = std::chrono::steady_clock::now();
       try {
         auto set = [&](const char* what) { std::lock_guard<std::mutex> l(mutex); stage = what; };
-        set("the grid");
-        const zs::gen::WorldGrid grid(zs::gen::kOneWorldFrequency, 6371.0);
-        set("terrain and climate");
-        zs::gen::WorldParams wp;
-        wp.seed = seed;
-        wp.land_share = settings.land_share;
-        wp.global_temp_c = settings.global_temp_c;
-        wp.relief = settings.relief;
-        wp.moisture = settings.moisture;
-        const auto f = zs::gen::generate_fields(grid, wp);
-        set("rivers, soil and water");
-        const zs::gen::WorldLand land = zs::gen::generate_land(grid, f);
-        set("deposits");
-        const zs::gen::WorldDeposits deposits = zs::gen::generate_deposits(grid, f);
-        set("people, sectors and countries");
-        const std::string data = zs::tier0::data_dir();
-        zs::gen::CountryParams cp;  // the defaults of `zs gen world`, with the world's fragmentation
-        cp.fragmentation = settings.fragmentation;
-        const zs::gen::WorldPeople people = zs::gen::populate_world(grid, f, land, deposits, seed, zs::gen::load_group_tables(data),
-                                                                     zs::gen::load_real_profiles(data), cp);
+        // Spec 84: the shared generator, so the world's size and richness show here too.
+        const zs::gen::GeneratedWorld gw = zs::gen::generate_world(seed, settings, 0, set);
+        const zs::gen::WorldGrid& grid = gw.grid;
+        const zs::gen::WorldFields& f = gw.fields;
+        const zs::gen::WorldLand& land = gw.land;
+        const zs::gen::WorldDeposits& deposits = gw.deposits;
+        const zs::gen::WorldPeople& people = gw.people;
         set("the picture");
         MapInputs mi;
         mi.countries = &people.formed;
@@ -417,6 +405,7 @@ struct App {
   int stop = 0;
   Planet planet;
   std::shared_ptr<CardsState> cards;
+  WorldPreview preview;  // spec 84: the world setup's preview
   std::shared_ptr<SimState> sim;
   bool sim_auto_open = false, sim_auto_cold = false, sim_auto_advance = false;  // check shots
   int card_country = -1;  // set by a planet click, read once by the Cards page
@@ -573,6 +562,8 @@ void tiled_image(SDL_Texture* tex, const char* id, ImVec2 size) {
     }
 }
 
+void preview_image(SDL_Texture* tex, const char* id, float w, float h) { tiled_image(tex, id, ImVec2(w, h)); }
+
 void badge(const char* text, ImVec4 colour) {
   ImGui::PushStyleColor(ImGuiCol_Button, colour);
   ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colour);
@@ -650,7 +641,7 @@ void draw_planet(App& a) {
   // Spec 83 rule 6: the map's layers, as Cities: Skylines' info views (WMR-19).
   for (int k = 0; k < kMapLayers; ++k) {
     const auto l = static_cast<MapLayer>(k);
-    if (k) ImGui::SameLine();
+    if (k % 6) ImGui::SameLine();  // two rows of six
     if (ImGui::RadioButton(layer_name(l), p.layer == l)) p.set_layer(l), p.upload(a.renderer);
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", layer_legend(l).c_str());
   }
@@ -756,6 +747,8 @@ void draw_cards_page(App& a) {
     ed.presets = [] { return zs::worlds::list_presets(); };
     ed.load_preset = [](const std::string& n) { return zs::worlds::load_preset(n); };
     ed.save_preset = [](const std::string& n, const zs::gen::WorldSettings& s) { zs::worlds::save_preset(n, s); };
+    ed.preview = [&a, seed = wr.seed](const zs::gen::WorldSettings& s) { a.preview.start(seed, s); };
+    ed.draw_preview = [&a] { a.preview.draw(a.renderer, preview_image); };
   }
   draw_cards(*a.cards, p.world_card, p.cards, a.card_country, ed.settings ? &ed : nullptr);
   a.card_country = -1;
@@ -1363,9 +1356,11 @@ void draw_nav(App& a) {
 }  // namespace
 
 // zs --atlas [--shot out.bmp] [--page worlds|tour|parts|try|breakthroughs|compute|status|docs] [--stop N]
+//   [--preview | --preview-preset NAME]   spec 84: the world card's preview of the world's settings or a preset
 // --shot renders the page without a screen and saves it, for checks (like the window's --shot).
 int atlas_main(int argc, char** argv) {
-  std::string shot, page_name, try_id;
+  std::string shot, page_name, try_id, preview_preset;
+  bool preview = false;
   int stop = 0, card = -1;
   bool pick = false, open_world = false, cold = false, advance = false;
   float scroll_to = -1.0f;
@@ -1380,6 +1375,8 @@ int atlas_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--open")) open_world = true;
     else if (!std::strcmp(argv[i], "--cold")) cold = true;
     else if (!std::strcmp(argv[i], "--advance")) advance = true;
+    else if (!std::strcmp(argv[i], "--preview")) preview = true;  // spec 84: the world card's preview, without a click
+    else if (!std::strcmp(argv[i], "--preview-preset") && i + 1 < argc) preview = true, preview_preset = argv[++i];
   }
   if (!shot.empty()) SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "offscreen");
   auto fail = [](const char* what) {
@@ -1433,6 +1430,13 @@ int atlas_main(int argc, char** argv) {
   if (pick) {
     a.cards = make_cards(a.data_dir);
     cards_autopick(*a.cards, true, scroll_to);
+  }
+  if (preview) {
+    if (page_name.empty()) a.page = Page::Cards;
+    const zs::worlds::World* w = current_world(a);
+    zs::gen::WorldSettings s = w ? w->settings : zs::gen::WorldSettings{};
+    if (!preview_preset.empty()) s = zs::worlds::load_preset(preview_preset);
+    a.preview.start(w ? w->seed : 1, s);
   }
   // --try ID with --shot: start that Try, wait for it, then shoot the Try page with its output (a check without a click).
   if (!try_id.empty())
@@ -1495,6 +1499,7 @@ int atlas_main(int argc, char** argv) {
         if (ready_frame >= 0 && frame < ready_frame + (advance ? 40 : 3)) waiting = true;  // the advances run after the open
       }
       if (!try_id.empty() && a.runs.count(try_id) && !a.runs[try_id]->done()) waiting = true;
+      if (preview && (a.preview.busy() || !a.preview.ready() || frame < ready_frame + 20)) waiting = true;
       if (frame >= 3 && !waiting) {
         if (SDL_Surface* s = SDL_RenderReadPixels(renderer, nullptr)) {
           SDL_SaveBMP(s, shot.c_str());

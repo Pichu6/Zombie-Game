@@ -1,12 +1,15 @@
 // The block's place on a generated planet, and the one world built there. Spec: docs/tier0/specs/42-place.md
 #pragma once
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 
 #include "zs/gen/plot_contents.h"
 #include "zs/gen/stations.h"
 #include "zs/gen/town_layout.h"
+#include "zs/gen/world_deposits.h"
+#include "zs/gen/world_land.h"
 #include "zs/gen/world_fields.h"
 #include "zs/gen/world_people.h"
 #include "zs/place.h"
@@ -45,8 +48,28 @@ struct WorldSettings {
   double moisture = 1.0;
   double fragmentation = 0.5;
   std::int64_t start_day = kDefaultStartDay;
+  // Spec 84: the planet's size and its richness; 1 (and Earth's radius) leave the world as before.
+  double radius_km = 6371.0;
+  double fuel_richness = 1.0, metal_richness = 1.0;
+  double fertility = 1.0, forest = 1.0, fish = 1.0;
+  double people = 1.0;
   bool operator==(const WorldSettings&) const = default;
 };
+
+// Spec 84: the generated planet down to its people, shared by the one world, the Atlas and the setup's preview.
+struct GeneratedWorld {
+  WorldGrid grid;
+  WorldFields fields;
+  WorldLand land;
+  WorldDeposits deposits;
+  WorldPeople people;
+};
+// The grid for a radius with cells near `cell_km2` (101 at Earth's radius and 5,000 km2, rule 2).
+int world_frequency(double radius_km, double cell_km2 = 5000.0);
+inline constexpr double kPreviewCellKm2 = 30000.0;  // spec 84 rule 3: the preview's coarse cells
+// `frequency` 0 takes the settings' radius at 5,000 km2 a cell; `stage` (may be empty) is told each step's name.
+GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& settings, int frequency = 0,
+                              const std::function<void(const char*)>& stage = {});
 
 // The one world (decision 0052, specs 41, 42, 48): generates the planet and its people from `seed`, chooses the block's
 // town and builds the run there, with that town's country. What zs.exe opens and plays.

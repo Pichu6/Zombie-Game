@@ -1,0 +1,9 @@
+# A shipped world preset (spec 84 rule 5): the [settings] table of a world.toml; unset fields keep Earth's.
+name = "rich"
+
+[settings]
+fuel_richness = 2.5
+metal_richness = 2.5
+fertility = 1.3
+forest = 1.3
+fish = 1.5
