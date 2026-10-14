@@ -87,10 +87,15 @@ PlacementReport placement_report(const WorldGrid& g, const WorldFields& f, const
     bool water = land.river[c] != 0;
     for (const CellId nb : g.neighbours(c)) water = water || (f.land(nb) && land.lake[nb] == kLakeOpen);
     if (water) r.water_people += p, r.water_land += g.area_km2(c);
+    if (land.river[c]) r.river_people += p, r.river_land += g.area_km2(c);
+    if (land.river[c] == 2) r.large_people += p, r.large_land += g.area_km2(c);
+    if (h < 200) r.below_200m += p;
     by_height.push_back({h, p});
   }
   if (total > 0) {
-    for (double* x : {&r.coast_100, &r.coast_200, &r.coast_400, &r.below_100m, &r.below_500m, &r.water_people}) *x /= total;
+    for (double* x : {&r.coast_100, &r.coast_200, &r.coast_400, &r.below_100m, &r.below_200m, &r.below_500m, &r.water_people,
+                      &r.river_people, &r.large_people})
+      *x /= total;
     std::sort(by_height.begin(), by_height.end());
     double acc = 0;
     for (const auto& [h, p] : by_height)
@@ -99,7 +104,29 @@ PlacementReport placement_report(const WorldGrid& g, const WorldFields& f, const
         break;
       }
   }
-  if (land_area > 0) r.water_land /= land_area;
+  if (land_area > 0) r.water_land /= land_area, r.river_land /= land_area, r.large_land /= land_area;
+  {  // concentration over land cells (EM-7, EM-8)
+    std::vector<std::pair<double, double>> cells;  // (density, people)
+    for (CellId c = 0; c < g.size(); ++c)
+      if (f.land(c)) cells.push_back({w.people[c] / g.area_km2(c), w.people[c]});
+    if (!cells.empty() && total > 0) {
+      std::sort(cells.begin(), cells.end(), [](const auto& a, const auto& b) { return a.first > b.first; });
+      double acc = 0;
+      std::size_t k = 0, half = 0, eighty = 0;
+      for (; k < cells.size(); ++k) {
+        acc += cells[k].second;
+        if (!half && acc >= total / 2) half = k + 1, r.median_person_density = cells[k].first;
+        if (!eighty && acc >= 0.8 * total) eighty = k + 1;
+      }
+      const double nc = static_cast<double>(cells.size());
+      r.half_cells = static_cast<double>(half) / nc;
+      r.cells_80 = static_cast<double>(eighty) / nc;
+      std::size_t empty = 0;
+      for (const auto& x : cells) empty += x.first < 1.0;
+      r.empty_cells = static_cast<double>(empty) / nc;
+      r.median_cell_density = cells[cells.size() / 2].first;
+    }
+  }
   std::vector<double> shares;
   for (const Country& c : w.countries) shares.push_back(c.people / std::max(1.0, w.total_people));
   std::sort(shares.rbegin(), shares.rend());
@@ -140,8 +167,9 @@ double people_weight(const WorldGrid& g, const WorldFields& f, const WorldLand& 
   const double spacing = detmath::sqrt(g.sphere_area_km2() / static_cast<double>(g.size()));
   const double d = std::max(0.0, (static_cast<double>(f.sea_cells[c]) - 0.5) * spacing);
   const double coast = 1.0 + p.coast_w * detmath::exp(-d / p.coast_km);
-  const double height = detmath::exp(-std::max(0.0, f.elevation_m[c]) / p.height_m);
-  return area * detmath::pow(s, kAlpha) * food * water * coast * height;
+  const double h = std::max(0.0, f.elevation_m[c]);
+  const double height = detmath::exp(-h / p.height_m) * (1.0 + p.lowland_w * detmath::exp(-h / 100.0));  // deltas and coastal plains
+  return area * detmath::pow(detmath::pow(s, kAlpha) * food, p.concentration) * water * coast * height;
 }
 
 std::vector<RealProfile> load_real_profiles(const std::string& data_dir) {

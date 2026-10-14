@@ -214,6 +214,13 @@ int gen_main(int argc, char** argv) {
                   << 100 * pr.water_people << " % of people on " << 100 * pr.water_land << " % of land; largest country "
                   << 100 * pr.largest_country << " %, two largest " << 100 * pr.two_largest << " %, ten largest " << 100 * pr.ten_largest
                   << " % (18, 35, 57, PTP-7, PTP-11)\n";
+        std::cout << "people (spec 86, EM): below 100 / 200 / 500 m " << 100 * pr.below_100m << " / " << 100 * pr.below_200m << " / "
+                  << 100 * pr.below_500m << " % (Earth 43.6 / 56.9 / 76.6, EM-2); river cells " << 100 * pr.river_land << " % of land with "
+                  << 100 * pr.river_people << " % of people (10.0, 17.8, EM-4), large rivers " << 100 * pr.large_land << " % with "
+                  << 100 * pr.large_people << " % (3.0, 8.2, EM-5); half of people on " << 100 * pr.half_cells << " % of land cells, 80 % on "
+                  << 100 * pr.cells_80 << " % (3.1, 10.6, EM-7); land cells under 1 a km2 " << 100 * pr.empty_cells
+                  << " % (48.5, EM-8); median land cell " << pr.median_cell_density << " a km2 (1.3), the median person's cell "
+                  << pr.median_person_density << " (392)\n";
         std::cout << "towns (spec 86): " << pr.million_towns << " of a million or more, " << 100 * pr.million_coastal
                   << " % within 100 km of the sea (Earth 53, PTP-6); sites:";
         for (int k = 0; k < zs::gen::kTownSites; ++k)

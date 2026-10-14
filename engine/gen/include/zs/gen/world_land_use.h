@@ -16,7 +16,7 @@ namespace zs::gen {
 // Rules 2-4 (reaches calibrated on seeds 1-5 against EZ-1, EZ-2 and EZ-5, see the spec's As built; work_rel is an
 // estimate).
 struct LandUseParams {
-  double crop_km = 300, pasture_km = 5000, forest_km = 40;
+  double crop_km = 600, pasture_km = 5000, forest_km = 50;
   double work_rel = 0.5;          // a deposit is worked at this many times its kind's median or more
   double fish_km = 1500;          // fleets reach beyond the 370 km zone (distant-water fishing)
   double fish_target_t = 80e6;    // EZ-5: marine capture, tonnes a year

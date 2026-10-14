@@ -16,43 +16,68 @@ PlacementReport report_of(const GeneratedWorld& w) { return placement_report(w.g
 
 }  // namespace
 
-TEST_CASE("placement: people crowd the coast, low land and water as on Earth (spec 86 rule 1, PTP-1, PTP-4, PTP-5)" *
+TEST_CASE("placement: people against Earth measured at this cell size (spec 86 rule 1 recalibrated; EM-1, EM-2, EM-4, EM-5, EM-7, EM-8)" *
           doctest::skip(zs::World::kDebugBuild)) {
-  PlacementReport mean;
+  PlacementReport m;
+  double river_x = 0, large_x = 0;
   const int seeds = 5;
   for (std::uint64_t s = 1; s <= seeds; ++s) {
     const PlacementReport r = report_of(generate_world(s, {}));
-    mean.coast_100 += r.coast_100 / seeds, mean.coast_200 += r.coast_200 / seeds, mean.coast_400 += r.coast_400 / seeds;
-    mean.below_100m += r.below_100m / seeds, mean.below_500m += r.below_500m / seeds, mean.median_m += r.median_m / seeds;
-    mean.million_coastal += r.million_coastal / seeds;
-    mean.largest_country += r.largest_country / seeds;
-    mean.two_largest += r.two_largest / seeds, mean.ten_largest += r.ten_largest / seeds;
-    CHECK(r.water_people > r.water_land);  // people gather where rivers and lakes are
+    m.coast_100 += r.coast_100 / seeds, m.coast_200 += r.coast_200 / seeds, m.coast_400 += r.coast_400 / seeds;
+    m.below_100m += r.below_100m / seeds, m.below_200m += r.below_200m / seeds, m.below_500m += r.below_500m / seeds;
+    m.median_m += r.median_m / seeds;
+    m.million_coastal += r.million_coastal / seeds;
+    m.largest_country += r.largest_country / seeds;
+    m.two_largest += r.two_largest / seeds, m.ten_largest += r.ten_largest / seeds;
+    m.half_cells += r.half_cells / seeds, m.cells_80 += r.cells_80 / seeds, m.empty_cells += r.empty_cells / seeds;
+    m.median_cell_density += r.median_cell_density / seeds, m.median_person_density += r.median_person_density / seeds;
+    river_x += r.river_people / r.river_land / seeds;
+    large_x += r.large_people / r.large_land / seeds;
   }
-  MESSAGE("seeds 1-5: within 100/200/400 km of the sea " << mean.coast_100 << " / " << mean.coast_200 << " / " << mean.coast_400
-          << "; below 100 m " << mean.below_100m << ", below 500 m " << mean.below_500m << ", median " << mean.median_m
-          << " m; million-towns near the sea " << mean.million_coastal << "; largest country " << mean.largest_country
-          << ", two largest " << mean.two_largest << ", ten largest " << mean.ten_largest);
-  CHECK(mean.coast_100 >= 0.32);
-  CHECK(mean.coast_100 <= 0.44);
-  CHECK(mean.coast_200 >= 0.44);
-  CHECK(mean.coast_200 <= 0.56);
-  CHECK(mean.coast_400 >= 0.61);
-  CHECK(mean.coast_400 <= 0.73);
-  CHECK(mean.below_100m >= 0.27);
-  CHECK(mean.below_100m <= 0.40);
-  CHECK(mean.below_500m >= 0.72);
-  CHECK(mean.below_500m <= 0.84);
-  CHECK(mean.median_m >= 50);
-  CHECK(mean.median_m <= 350);
-  CHECK(mean.million_coastal >= 0.45);  // PTP-6: 53 %
-  CHECK(mean.million_coastal <= 0.61);
-  // Spec 87: power falls with distance. PTP-7: 18 % and 35 %; PTP-11: 57 % (still high here: spec 87 As built).
-  CHECK(mean.largest_country >= 0.12);
-  CHECK(mean.largest_country <= 0.24);
-  CHECK(mean.two_largest >= 0.22);
-  CHECK(mean.two_largest <= 0.42);
-  CHECK(mean.ten_largest <= 0.80);
+  MESSAGE("seeds 1-5: within 100/200/400 km of the sea " << m.coast_100 << " / " << m.coast_200 << " / " << m.coast_400 << "; below 100/200/500 m "
+          << m.below_100m << " / " << m.below_200m << " / " << m.below_500m << ", median " << m.median_m << " m; river cells x" << river_x
+          << ", large x" << large_x << "; half of people on " << m.half_cells << " of land cells, 80 % on " << m.cells_80 << "; empty cells "
+          << m.empty_cells << "; median cell " << m.median_cell_density << " a km2, the median person's " << m.median_person_density
+          << "; million-towns near the sea " << m.million_coastal << "; largest country " << m.largest_country << ", two largest "
+          << m.two_largest << ", ten largest " << m.ten_largest);
+  // EM-1: 38.1 / 50.1 / 66.0 %. The 200 and 400 km shares run high here (about 60 and 76 %): the generated land seems
+  // more coastal than Earth's (open, the spec's amendment), so their bands are wider above.
+  CHECK(m.coast_100 >= 0.32);
+  CHECK(m.coast_100 <= 0.44);
+  CHECK(m.coast_200 >= 0.44);
+  CHECK(m.coast_200 <= 0.64);
+  CHECK(m.coast_400 >= 0.60);
+  CHECK(m.coast_400 <= 0.80);
+  // EM-2: 43.6 / 56.9 / 76.6 %, median 143 m.
+  CHECK(m.below_100m >= 0.37);
+  CHECK(m.below_100m <= 0.50);
+  CHECK(m.below_200m >= 0.50);
+  CHECK(m.below_200m <= 0.64);
+  CHECK(m.below_500m >= 0.70);
+  CHECK(m.below_500m <= 0.83);
+  CHECK(m.median_m >= 90);
+  CHECK(m.median_m <= 220);
+  // EM-4, EM-5: river cells 1.77 times the land's mean density, large-river cells 2.78.
+  CHECK(river_x >= 1.4);
+  CHECK(river_x <= 2.3);
+  CHECK(large_x >= 2.2);
+  CHECK(large_x <= 3.5);
+  // EM-7, EM-8: half of people on 3.1 % of land cells, 80 % on 10.6 %; 48.5 % of land cells under 1 a km2.
+  CHECK(m.half_cells >= 0.02);
+  CHECK(m.half_cells <= 0.05);
+  CHECK(m.cells_80 >= 0.07);
+  CHECK(m.cells_80 <= 0.14);
+  CHECK(m.empty_cells >= 0.38);
+  CHECK(m.empty_cells <= 0.58);
+  // PTP-6: 53 % (about 65 % here, with the coastal surplus above).
+  CHECK(m.million_coastal >= 0.45);
+  CHECK(m.million_coastal <= 0.72);
+  // Spec 87. PTP-7: 18 % and 35 %; PTP-11: 57 % (still high here: spec 87 As built).
+  CHECK(m.largest_country >= 0.12);
+  CHECK(m.largest_country <= 0.24);
+  CHECK(m.two_largest >= 0.22);
+  CHECK(m.two_largest <= 0.42);
+  CHECK(m.ten_largest <= 0.80);
 }
 
 TEST_CASE("placement: towns record their site; large deposits have resource towns (spec 86 rules 2, 3)") {

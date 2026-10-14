@@ -169,7 +169,7 @@ TEST_CASE("routes: the same seed gives the same routes (A1)") {
   const WorldRoutes again = build_routes(p.grid, p.fields, p.land, p.people);
   CHECK(routes_digest(again) == routes_digest(p.routes));
   MESSAGE("routes digest: " << routes_digest(p.routes));
-  CHECK(routes_digest(p.routes) == 4305683497782275070ULL);  // re-pinned on MSVC, 2026-10-14 (spec 88: extraction zones; rangeland pasture)
+  CHECK(routes_digest(p.routes) == 10104046759254803330ULL);  // re-pinned on MSVC, 2026-10-14 (spec 86 recalibration: people at Earth measured density)
 }
 
 TEST_CASE("routes: the one world's grid, its trunk network and circuity, the block's town to its capital (A2)" *

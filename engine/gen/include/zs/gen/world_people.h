@@ -63,13 +63,15 @@ struct Settlement {
   TownSite site = TownSite::Inland;  // spec 86
 };
 
-// Spec 86 rules 1-3 (calibrated on seeds 1-5 against PTP-1, PTP-4, PTP-5 and PTP-6, see the spec's As built;
-// resource_town and lake_w are estimates).
+// Spec 86 rules 1-3, recalibrated on seeds 1-5 against Earth measured at this cell size (research earth-measured-open-data,
+// EM-1 to EM-8; see the spec's amendment); resource_town and lake_w are estimates.
 struct PlacementParams {
   double food_exp = 0.4;
-  double river_w = 2.0, large_river_w = 3.0, lake_w = 1.5, arid_ai = 0.5;
-  double coast_w = 7.0, coast_km = 25;
-  double height_m = 900;
+  double river_w = 1.4, large_river_w = 2.6, lake_w = 1.5, arid_ai = 0.5;
+  double coast_w = 2.0, coast_km = 25;
+  double height_m = 2200;
+  double lowland_w = 1.3;      // extra weight on the lowest land, fading over 100 m (EM-2: 44 % of people below 100 m)
+  double concentration = 1.8;  // climate and food's term is raised to this power (EM-7: half of people on 3 % of land cells)
   double port_w = 0.0, mouth_w = 0.8, river_w2 = 2.0, confluence_w = 2.0;
   double resource_rel = 3.0, resource_town = 20000;
 };
@@ -107,6 +109,11 @@ struct PlacementReport {
   double coast_100 = 0, coast_200 = 0, coast_400 = 0;  // share of people within that many km of the sea
   double below_100m = 0, below_500m = 0, median_m = 0;
   double water_people = 0, water_land = 0;            // share of people, and of land, in river or open-lake-shore cells
+  // Spec 86 recalibration (EM): river cells (spec 52 rule 4) and large-river cells apart from lakes; below 200 m;
+  // concentration over land cells.
+  double river_people = 0, river_land = 0, large_people = 0, large_land = 0, below_200m = 0;
+  double half_cells = 0, cells_80 = 0, empty_cells = 0;  // shares of land cells: holding half / 80 % of people; under 1 a km2
+  double median_cell_density = 0, median_person_density = 0;  // people a km2
   double largest_country = 0, two_largest = 0, ten_largest = 0;  // shares of the world's people (spec 87)
   int million_towns = 0;
   double million_coastal = 0;                           // share of towns of a million or more within 100 km of the sea
