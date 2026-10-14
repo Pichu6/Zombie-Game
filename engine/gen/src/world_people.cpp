@@ -105,6 +105,7 @@ PlacementReport placement_report(const WorldGrid& g, const WorldFields& f, const
   std::sort(shares.rbegin(), shares.rend());
   if (!shares.empty()) r.largest_country = shares[0];
   if (shares.size() > 1) r.two_largest = shares[0] + shares[1];
+  for (std::size_t i = 0; i < shares.size() && i < 10; ++i) r.ten_largest += shares[i];
   int coastal = 0;
   for (const Settlement& t : w.towns) {
     ++r.sites[static_cast<std::size_t>(t.site)];
@@ -454,7 +455,7 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     if (urban < kTownMinPeople) continue;
     // Spec 78 rule 2: the largest town from primacy.
     const double z = Keyed(seed).bell(k, field::Primacy) / 0.2887;  // about a unit normal, as the country's luck
-    double first = std::max(kTownMinPeople, std::min({urban, kTownMaxPeople, primacy_share(urban, z) * urban}));
+    double first = std::max(kTownMinPeople, std::min({urban, kTownMaxPeople, primacy_share(urban_all, z) * urban_all}));  // spec 86: primacy of all the urban people
     // Spec 78 rule 3: town i = first x i^(-1/zeta) down to the smallest town; zeta in the real range so they hold the
     // urban people. The sum is found in closed form (Euler-Maclaurin) for the search; the towns are then placed one by one
     // until the urban people are used up (the last takes what is left, none under the smallest size).

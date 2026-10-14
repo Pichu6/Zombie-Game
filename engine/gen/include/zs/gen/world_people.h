@@ -107,7 +107,7 @@ struct PlacementReport {
   double coast_100 = 0, coast_200 = 0, coast_400 = 0;  // share of people within that many km of the sea
   double below_100m = 0, below_500m = 0, median_m = 0;
   double water_people = 0, water_land = 0;            // share of people, and of land, in river or open-lake-shore cells
-  double largest_country = 0, two_largest = 0;         // shares of the world's people
+  double largest_country = 0, two_largest = 0, ten_largest = 0;  // shares of the world's people (spec 87)
   int million_towns = 0;
   double million_coastal = 0;                           // share of towns of a million or more within 100 km of the sea
   std::array<int, kTownSites> sites{};

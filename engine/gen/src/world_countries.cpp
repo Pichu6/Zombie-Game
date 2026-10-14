@@ -2,6 +2,7 @@
 #include "zs/gen/world_countries.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <cmath>
 #include <functional>
 #include <queue>
@@ -247,8 +248,13 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
       const std::size_t k = r.weighted(c, field::Opponent, weight, static_cast<std::uint32_t>(period));
       const CellId d = cand[k];
       const int j = owner[d];
-      const double yi = pol[static_cast<std::size_t>(i)].Y * (cand_sea[k] ? p.sea_sigma : 1.0);
-      const double yj = j >= 0 ? pol[static_cast<std::size_t>(j)].Y : w.core[d];
+      // Spec 87: strength falls with distance from the capital (Boulding's loss-of-strength gradient, PTP-12).
+      const double reach = p.reach_km;
+      auto at = [&](int q) {
+        return detmath::exp(-g.distance_km(pol[static_cast<std::size_t>(q)].capital, d) / reach);
+      };
+      const double yi = pol[static_cast<std::size_t>(i)].Y * (cand_sea[k] ? p.sea_sigma : 1.0) * at(i);
+      const double yj = j >= 0 ? pol[static_cast<std::size_t>(j)].Y * at(j) : w.core[d];
       const double win = yi / (yi + yj) / (1.0 + w.terrain[d]);
       if (!r.chance(c, field::Win, win, static_cast<std::uint32_t>(period))) continue;
       move(d, i);

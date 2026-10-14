@@ -181,7 +181,7 @@ int gen_main(int argc, char** argv) {
         for (std::size_t k = 0; k < order.size(); ++k) order[k] = k;
         std::stable_sort(order.begin(), order.end(),
                          [&](std::size_t a, std::size_t b) { return people.countries[a].area_km2 > people.countries[b].area_km2; });
-        std::size_t landlocked = 0, two = 0, million = 0;
+        std::size_t landlocked = 0, two = 0, million = 0, big89 = 0;
         double top10 = 0, held = 0;
         std::size_t held_cells = 0;
         for (const auto& s : people.formed.countries) held += s.area_km2, held_cells += s.cells.size();
@@ -191,10 +191,11 @@ int gen_main(int argc, char** argv) {
           landlocked += c.landlocked;
           two += c.area_km2 >= 1.5 * cell;
           million += c.area_km2 >= 1e6;
+          big89 += c.area_km2 >= 89000;
           if (i < 10) top10 += c.area_km2;
         }
         std::cout << "countries (spec 52, fragmentation " << cp.fragmentation << "): " << people.countries.size() << " ("
-                  << two << " of two cells or more, " << million << " over 1 million km2, " << landlocked
+                  << two << " of two cells or more, " << big89 << " of 89,000 km2 or more (Earth 110), " << million << " over 1 million km2, " << landlocked
                   << " landlocked); the ten largest hold " << 100.0 * top10 / std::max(1.0, held) << "% of the land held (ice is no one's); history: "
                   << people.formed.start_polities << " start polities, " << people.formed.events.size() << " events\n";
         for (std::size_t i = 0; i < std::min<std::size_t>(12, order.size()); ++i) {
@@ -211,7 +212,8 @@ int gen_main(int argc, char** argv) {
                   << 100 * pr.coast_400 << " % (Earth 38 / 50 / 67, PTP-1); below 100 m " << 100 * pr.below_100m << " %, below 500 m "
                   << 100 * pr.below_500m << " % (33.5, 78), median height " << pr.median_m << " m (194, PTP-4); in river or lake cells "
                   << 100 * pr.water_people << " % of people on " << 100 * pr.water_land << " % of land; largest country "
-                  << 100 * pr.largest_country << " %, two largest " << 100 * pr.two_largest << " % (18, 35, PTP-7)\n";
+                  << 100 * pr.largest_country << " %, two largest " << 100 * pr.two_largest << " %, ten largest " << 100 * pr.ten_largest
+                  << " % (18, 35, 57, PTP-7, PTP-11)\n";
         std::cout << "towns (spec 86): " << pr.million_towns << " of a million or more, " << 100 * pr.million_coastal
                   << " % within 100 km of the sea (Earth 53, PTP-6); sites:";
         for (int k = 0; k < zs::gen::kTownSites; ++k)

@@ -26,11 +26,13 @@ TEST_CASE("placement: people crowd the coast, low land and water as on Earth (sp
     mean.below_100m += r.below_100m / seeds, mean.below_500m += r.below_500m / seeds, mean.median_m += r.median_m / seeds;
     mean.million_coastal += r.million_coastal / seeds;
     mean.largest_country += r.largest_country / seeds;
+    mean.two_largest += r.two_largest / seeds, mean.ten_largest += r.ten_largest / seeds;
     CHECK(r.water_people > r.water_land);  // people gather where rivers and lakes are
   }
   MESSAGE("seeds 1-5: within 100/200/400 km of the sea " << mean.coast_100 << " / " << mean.coast_200 << " / " << mean.coast_400
           << "; below 100 m " << mean.below_100m << ", below 500 m " << mean.below_500m << ", median " << mean.median_m
-          << " m; million-towns near the sea " << mean.million_coastal << "; largest country " << mean.largest_country);
+          << " m; million-towns near the sea " << mean.million_coastal << "; largest country " << mean.largest_country
+          << ", two largest " << mean.two_largest << ", ten largest " << mean.ten_largest);
   CHECK(mean.coast_100 >= 0.32);
   CHECK(mean.coast_100 <= 0.44);
   CHECK(mean.coast_200 >= 0.44);
@@ -45,8 +47,12 @@ TEST_CASE("placement: people crowd the coast, low land and water as on Earth (sp
   CHECK(mean.median_m <= 350);
   CHECK(mean.million_coastal >= 0.45);  // PTP-6: 53 %
   CHECK(mean.million_coastal <= 0.61);
-  CHECK(mean.largest_country >= 0.10);  // PTP-7: 18 %; spec 86 Tests: reported, banded wide
-  CHECK(mean.largest_country <= 0.28);
+  // Spec 87: power falls with distance. PTP-7: 18 % and 35 %; PTP-11: 57 % (still high here: spec 87 As built).
+  CHECK(mean.largest_country >= 0.12);
+  CHECK(mean.largest_country <= 0.24);
+  CHECK(mean.two_largest >= 0.22);
+  CHECK(mean.two_largest <= 0.42);
+  CHECK(mean.ten_largest <= 0.80);
 }
 
 TEST_CASE("placement: towns record their site; large deposits have resource towns (spec 86 rules 2, 3)") {

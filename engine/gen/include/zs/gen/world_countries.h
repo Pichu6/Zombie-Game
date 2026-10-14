@@ -27,6 +27,8 @@ struct CountryParams {
   double sea_weight = 0.1, sea_sigma = 0.33;  // rule 22 (CF-26)
   double fill_limit = 5000;     // rule 24: km-equivalent (about five temperate steps of a frequency-24 cell)
   double people_scale = 1.0;    // spec 84: people per unit of land against today's (spec 48 rule 2)
+  double reach_km = 1300;       // spec 87: a polity's strength at a cell falls by exp(-distance from its capital / reach);
+                                // calibrated on seeds 1-5 (the most populous country 15 %, PTP-7 18 %)
 };
 
 enum class HistoryKind : std::uint8_t { Annex, Secede, Split, Fill };

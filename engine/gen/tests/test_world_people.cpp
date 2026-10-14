@@ -121,7 +121,7 @@ TEST_CASE("world people: countries are connected over the sector graph; the same
 }
 
 TEST_CASE("world people: the one world stands in a temperate town of 10,000 to 200,000 with its country's group") {
-  const Planet p = planet(kOneWorldFrequency, 1);
+  const Planet p = planet(kOneWorldFrequency, 1, load_real_profiles(ZS_DATA_DIR));  // as make_world builds it
   const int town = choose_town(p.fields, p.people, 1);
   REQUIRE(town >= 0);
   const zs::Place place = place_of_town(p.grid, p.fields, p.people, town, 1);
