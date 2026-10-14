@@ -90,7 +90,7 @@ TEST_CASE("world people: income groups hold their real shares; towns follow rank
     for (const Settlement& t : w.towns)
       if (t.country == static_cast<int>(k)) {
         urban += t.people;
-        sizes.push_back(t.people);
+        if (t.site != TownSite::Resource) sizes.push_back(t.people);  // spec 86 rule 3: resource towns stand outside rank-size
         CHECK(w.sector_of[t.cell] >= 0);
         CHECK(w.sectors[static_cast<std::size_t>(w.sector_of[t.cell])].country == static_cast<int>(k));
       }

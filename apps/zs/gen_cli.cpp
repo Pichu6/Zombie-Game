@@ -205,6 +205,19 @@ int gen_main(int argc, char** argv) {
                     << people.formed.countries[order[i]].capital_held << " of " << people.formed.periods << " periods\n";
         }
       }
+      {  // Spec 86 rule 4: where people and towns are, against the real shares (PTP).
+        const zs::gen::PlacementReport pr = zs::gen::placement_report(grid, f, land, people);
+        std::cout << "people (spec 86): within 100/200/400 km of the sea " << 100 * pr.coast_100 << " / " << 100 * pr.coast_200 << " / "
+                  << 100 * pr.coast_400 << " % (Earth 38 / 50 / 67, PTP-1); below 100 m " << 100 * pr.below_100m << " %, below 500 m "
+                  << 100 * pr.below_500m << " % (33.5, 78), median height " << pr.median_m << " m (194, PTP-4); in river or lake cells "
+                  << 100 * pr.water_people << " % of people on " << 100 * pr.water_land << " % of land; largest country "
+                  << 100 * pr.largest_country << " %, two largest " << 100 * pr.two_largest << " % (18, 35, PTP-7)\n";
+        std::cout << "towns (spec 86): " << pr.million_towns << " of a million or more, " << 100 * pr.million_coastal
+                  << " % within 100 km of the sea (Earth 53, PTP-6); sites:";
+        for (int k = 0; k < zs::gen::kTownSites; ++k)
+          std::cout << " " << zs::gen::town_site_name(static_cast<zs::gen::TownSite>(k)) << " " << pr.sites[static_cast<std::size_t>(k)];
+        std::cout << "\n";
+      }
       const std::string bmp = arg(argc, argv, "--bmp", "");
       // Spec 83 rule 6: the map in layers.
       zs::atlas::MapInputs mi;

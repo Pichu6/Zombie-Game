@@ -8,7 +8,9 @@
 #include <functional>
 #include <numeric>
 #include <queue>
+#include <cstdlib>
 #include <stdexcept>
+#include <string>
 
 #include "fields.h"
 #include "toml.hpp"
@@ -20,6 +22,7 @@ namespace zs::gen {
 namespace {
 
 constexpr double kAlpha = 1.5;            // rule 2: concentration (estimate)
+
 constexpr double kSeaCost = 4.0;          // rule 3: a sea crossing costs this times its distance (estimate)
 constexpr double kClimbPerM = 1.0 / 500;  // rule 3: a land step costs (1 + |dh| / 500 m) times its distance (estimate)
 constexpr double kSpacing = 0.7;          // rule 3: seeds at least this times the root of the target area apart
@@ -62,8 +65,82 @@ double suitability(const WorldFields& f, CellId c) {
   if (!f.land(c) || f.biome[c] == Biome::Ice) return 0.0;
   const double t = (f.temp_mean_c[c] - 13.0) / 7.0;
   const double rain = f.rain_mm[c];
-  const double coast = f.sea_cells[c] <= 1 ? 1.5 : 1.0;
-  return detmath::exp(-t * t) * (rain / (rain + 500.0)) * detmath::exp(-std::max(0.0, f.elevation_m[c]) / 1500.0) * coast;
+  return detmath::exp(-t * t) * (rain / (rain + 500.0));
+}
+
+PlacementReport placement_report(const WorldGrid& g, const WorldFields& f, const WorldLand& land, const WorldPeople& w) {
+  PlacementReport r;
+  const double spacing = detmath::sqrt(g.sphere_area_km2() / static_cast<double>(g.size()));
+  auto dist = [&](CellId c) { return std::max(0.0, (static_cast<double>(f.sea_cells[c]) - 0.5) * spacing); };
+  double total = 0, land_area = 0;
+  std::vector<std::pair<double, double>> by_height;  // (height, people)
+  for (CellId c = 0; c < g.size(); ++c) {
+    if (!f.land(c)) continue;
+    const double p = w.people[c], h = std::max(0.0, f.elevation_m[c]), d = dist(c);
+    total += p;
+    land_area += g.area_km2(c);
+    if (d <= 100) r.coast_100 += p;
+    if (d <= 200) r.coast_200 += p;
+    if (d <= 400) r.coast_400 += p;
+    if (h < 100) r.below_100m += p;
+    if (h < 500) r.below_500m += p;
+    bool water = land.river[c] != 0;
+    for (const CellId nb : g.neighbours(c)) water = water || (f.land(nb) && land.lake[nb] == kLakeOpen);
+    if (water) r.water_people += p, r.water_land += g.area_km2(c);
+    by_height.push_back({h, p});
+  }
+  if (total > 0) {
+    for (double* x : {&r.coast_100, &r.coast_200, &r.coast_400, &r.below_100m, &r.below_500m, &r.water_people}) *x /= total;
+    std::sort(by_height.begin(), by_height.end());
+    double acc = 0;
+    for (const auto& [h, p] : by_height)
+      if ((acc += p) >= total / 2) {
+        r.median_m = h;
+        break;
+      }
+  }
+  if (land_area > 0) r.water_land /= land_area;
+  std::vector<double> shares;
+  for (const Country& c : w.countries) shares.push_back(c.people / std::max(1.0, w.total_people));
+  std::sort(shares.rbegin(), shares.rend());
+  if (!shares.empty()) r.largest_country = shares[0];
+  if (shares.size() > 1) r.two_largest = shares[0] + shares[1];
+  int coastal = 0;
+  for (const Settlement& t : w.towns) {
+    ++r.sites[static_cast<std::size_t>(t.site)];
+    if (t.people < 1e6) continue;
+    ++r.million_towns;
+    coastal += dist(t.cell) <= 100;
+  }
+  r.million_coastal = r.million_towns ? static_cast<double>(coastal) / r.million_towns : 0;
+  return r;
+}
+
+const char* town_site_name(TownSite s) {
+  static const char* names[kTownSites] = {"inland", "port", "river mouth", "confluence", "river", "resource"};
+  return names[static_cast<int>(s)];
+}
+
+double people_weight(const WorldGrid& g, const WorldFields& f, const WorldLand& land, CellId c, double food_mean, const PlacementParams& p) {
+  const double s = suitability(f, c);
+  if (s <= 0) return 0.0;
+  const double area = g.area_km2(c);
+  const double food = detmath::pow(std::max(land.capacity_food[c] / area / std::max(food_mean, 1e-9), 1e-3), p.food_exp);
+  double water = 1.0;
+  if (land.river[c] == 2) water *= p.large_river_w;
+  else if (land.river[c] == 1) water *= p.river_w;
+  for (const CellId nb : g.neighbours(c))
+    if (f.land(nb) && land.lake[nb] == kLakeOpen) {
+      water *= p.lake_w;
+      break;
+    }
+  const double pet = pet_mm(f.temp_mean_c[c]);
+  if (pet > 0 && f.rain_mm[c] / pet < p.arid_ai) water *= water;  // PTP-3: in dry lands people cluster at water
+  const double spacing = detmath::sqrt(g.sphere_area_km2() / static_cast<double>(g.size()));
+  const double d = std::max(0.0, (static_cast<double>(f.sea_cells[c]) - 0.5) * spacing);
+  const double coast = 1.0 + p.coast_w * detmath::exp(-d / p.coast_km);
+  const double height = detmath::exp(-std::max(0.0, f.elevation_m[c]) / p.height_m);
+  return area * detmath::pow(s, kAlpha) * food * water * coast * height;
 }
 
 std::vector<RealProfile> load_real_profiles(const std::string& data_dir) {
@@ -107,12 +184,18 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
   w.sector_of.assign(n, -1);
 
   // Rules 1, 2: suitability and people.
+  // Spec 86 rule 1: by climate, food, fresh water, coast and height.
+  const PlacementParams pp{};
+  double food_sum = 0, food_area = 0;
+  for (CellId c = 0; c < n; ++c)
+    if (f.land(c)) food_sum += land.capacity_food[c], food_area += g.area_km2(c);
+  const double food_mean = food_area > 0 ? food_sum / food_area : 1.0;
   double weight_sum = 0;
   std::vector<double> weight(n, 0.0);
   for (CellId c = 0; c < n; ++c) {
     if (f.land(c)) w.land_km2 += g.area_km2(c);
     w.suitability[c] = suitability(f, c);
-    weight[c] = g.area_km2(c) * detmath::pow(std::max(w.suitability[c], 1e-300), kAlpha) * (w.suitability[c] > 0 ? 1 : 0);
+    weight[c] = people_weight(g, f, land, c, food_mean, pp);
     weight_sum += weight[c];
   }
   const double total = tables.world_population * w.land_km2 / kEarthLandKm2 * country_params.people_scale;
@@ -321,11 +404,53 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     }
   }
 
+  // Spec 86 rule 2: a cell's site for a town.
+  std::vector<std::uint8_t> feeders(n, 0);
+  for (CellId c = 0; c < n; ++c)
+    if (f.land(c) && land.river[c] && land.downstream[c] != kNoCell && f.land(land.downstream[c]) && feeders[land.downstream[c]] < 255)
+      ++feeders[land.downstream[c]];
+  auto site_of = [&](CellId c, double& factor) {
+    const bool coastal = f.sea_cells[c] == 1;
+    const bool mouth = land.river[c] && land.downstream[c] != kNoCell && !f.land(land.downstream[c]);
+    factor = 1.0 + (coastal ? pp.port_w : 0.0) + (mouth ? pp.mouth_w : 0.0) + (land.river[c] == 2 ? pp.river_w2 : 0.0) +
+             (feeders[c] >= 2 ? pp.confluence_w : 0.0);
+    return mouth ? TownSite::Mouth : feeders[c] >= 2 ? TownSite::Confluence : coastal ? TownSite::Port
+                                                                                   : land.river[c] ? TownSite::River : TownSite::Inland;
+  };
+  // Spec 86 rule 3: the large deposits on land, by country (a cell once).
+  std::vector<std::vector<CellId>> resource_cells(w.countries.size());
+  {
+    double median[resource_count] = {};
+    for (int r = 0; r < resource_count; ++r) {
+      std::vector<double> a;
+      for (const Deposit& d : deposits.deposits)
+        if (static_cast<int>(d.kind) == r) a.push_back(d.amount);
+      if (a.empty()) continue;
+      std::nth_element(a.begin(), a.begin() + static_cast<std::ptrdiff_t>(a.size() / 2), a.end());
+      median[r] = a[a.size() / 2];
+    }
+    for (const Deposit& d : deposits.deposits) {
+      if (!f.land(d.cell) || median[static_cast<int>(d.kind)] <= 0 || d.amount < pp.resource_rel * median[static_cast<int>(d.kind)]) continue;
+      const int sec = w.sector_of[d.cell];
+      if (sec < 0) continue;
+      const int k = w.sectors[static_cast<std::size_t>(sec)].country;
+      if (k < 0) continue;
+      auto& v = resource_cells[static_cast<std::size_t>(k)];
+      if (std::find(v.begin(), v.end(), d.cell) == v.end()) v.push_back(d.cell);
+    }
+    for (auto& v : resource_cells) std::sort(v.begin(), v.end());
+  }
+
   // Rule 6: towns by rank-size in each country's most populous cells (spec 78 rules 2-3: the largest from primacy, the
   // others by the country's own exponent).
   for (std::size_t k = 0; k < w.countries.size(); ++k) {
     const Country& c = w.countries[k];
-    const double urban = c.people * tables.urban_share[static_cast<std::size_t>(c.income)];
+    const double urban_all = c.people * tables.urban_share[static_cast<std::size_t>(c.income)];
+    if (urban_all < kTownMinPeople) continue;
+    // Spec 86 rule 3: resource towns first, out of the urban people (at most a quarter of them).
+    const std::vector<CellId>& rc = resource_cells[k];
+    const double reserve = std::min(0.25 * urban_all, static_cast<double>(rc.size()) * pp.resource_town);
+    const double urban = urban_all - reserve;
     if (urban < kTownMinPeople) continue;
     // Spec 78 rule 2: the largest town from primacy.
     const double z = Keyed(seed).bell(k, field::Primacy) / 0.2887;  // about a unit normal, as the country's luck
@@ -370,13 +495,40 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     double remaining = urban;
     for (int i = 1; remaining >= kTownMinPeople; ++i) {
       const double size = std::round(std::min(remaining, std::max(kTownMinPeople, first * detmath::pow(i, -1.0 / zeta))));
-      auto it = std::max_element(left.begin(), left.end(), [](const auto& a, const auto& b) {
-        return a.first < b.first || (a.first == b.first && a.second > b.second);
+      // Spec 86 rule 2: the people left in a cell times its site.
+      auto score = [&](const std::pair<double, CellId>& x) {
+        double fac = 1;
+        site_of(x.second, fac);
+        return x.first * fac;
+      };
+      auto it = std::max_element(left.begin(), left.end(), [&](const auto& a, const auto& b) {
+        const double sa = score(a), sb = score(b);
+        return sa < sb || (sa == sb && a.second > b.second);
       });
-      w.towns.push_back({it->second, static_cast<int>(k), i, size});
+      double fac = 1;
+      const TownSite site = site_of(it->second, fac);
+      w.towns.push_back({it->second, static_cast<int>(k), i, size, site});
       it->first -= size;
       remaining -= size;
     }
+    // Spec 86 rule 3: a resource town at each large deposit with no town yet. What the reserve does not use (a deposit
+    // whose cell already has a town, the remainder under the smallest town) goes to the country's last rank-size town,
+    // which already holds what is left (spec 78 rule 3), so the country's towns still hold its urban people.
+    std::size_t last = w.towns.size();
+    int rank = 0;
+    for (std::size_t ti = 0; ti < w.towns.size(); ++ti)
+      if (w.towns[ti].country == static_cast<int>(k) && w.towns[ti].rank > rank) rank = w.towns[ti].rank, last = ti;
+    double left_reserve = reserve;
+    for (const CellId cell : rc) {
+      if (left_reserve < kTownMinPeople) break;
+      bool taken = false;
+      for (const Settlement& t : w.towns) taken = taken || (t.country == static_cast<int>(k) && t.cell == cell);
+      if (taken) continue;
+      const double size = std::min(pp.resource_town, left_reserve);
+      w.towns.push_back({cell, static_cast<int>(k), ++rank, size, TownSite::Resource});
+      left_reserve -= size;
+    }
+    if (left_reserve > 0 && last < w.towns.size()) w.towns[last].people += left_reserve;
     w.countries[k].zeta = zeta;
   }
   return w;

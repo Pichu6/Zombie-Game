@@ -131,7 +131,7 @@ TEST_CASE("food: a dearer border never raises the share traded across borders; t
   const WorldFood a = food_flows(p.land, p.people, p.routes), b = food_flows(p.land, p.people, p.routes);
   CHECK(food_digest(a) == food_digest(b));
   MESSAGE("food digest: " << food_digest(a));
-  CHECK(food_digest(a) == 14169210412975172987ULL);  // re-pinned on MSVC, 2026-10-14 (spec 83: rain by place, biomes by aridity, lakes that balance)
+  CHECK(food_digest(a) == 2141543672793569175ULL);  // re-pinned on MSVC, 2026-10-14 (spec 86: people by food, water, coast and height; towns by site)
 }
 
 TEST_CASE("food: on the one world's grid the share traded across borders lands near 23 % (WSR-44) (A2)" *
@@ -139,7 +139,7 @@ TEST_CASE("food: on the one world's grid the share traded across borders lands n
   for (std::uint64_t seed : {1ull, 4ull}) {
     const Planet& p = planet(seed, kOneWorldFrequency);
     const WorldFood f = food_flows(p.land, p.people, p.routes);
-    CHECK(f.international_share() > 0.14);  // seed 1 14.8 % after spec 83: its two largest countries hold 40 % of the people (0081 step 1)
+    CHECK(f.international_share() > 0.15);  // seed 1 17.2 % after spec 86 (14.8 % after spec 83)
     CHECK(f.international_share() < 0.31);
     MESSAGE("seed " << seed << ": across borders " << f.international_share() << ", traded " << f.traded / f.production
                     << " of production, unmet " << f.unmet / f.demand << " of demand, " << f.flows.size() << " flows, "
@@ -189,7 +189,7 @@ TEST_CASE("food by kind: kinds trade more across borders than one food; the same
   CHECK(d.international_share() > food_flows(p.land, p.people, p.routes).international_share());
   CHECK(diet_digest(d) == diet_digest(food_by_kind(p.fields, p.land, p.people, p.routes)));
   MESSAGE("diet digest: " << diet_digest(d));
-  CHECK(diet_digest(d) == 3142625005619338372ULL);  // re-pinned on MSVC, 2026-10-14 (spec 83: rain by place, biomes by aridity, lakes that balance)
+  CHECK(diet_digest(d) == 18386212249316534126ULL);  // re-pinned on MSVC, 2026-10-14 (spec 86: people by food, water, coast and height; towns by site)
 }
 
 TEST_CASE("food by kind: on the one world's grid the share across borders lands between 18 % and 30 % (WSR-44) (A2)" *
