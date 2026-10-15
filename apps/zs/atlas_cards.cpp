@@ -71,15 +71,8 @@ struct CardsState {
   std::map<std::string, std::string> calendars;  // profile id -> one line (spec 53), read once
   std::map<std::string, TimeUseTable> timeuse;    // profile id -> its table (spec 54), read once
   std::map<std::string, CountryCalendar> cals;    // profile id -> its calendar, read once
-  // Slice 5: the settings and their bands; the draft being edited and the world it belongs to.
+  // Slice 5: the settings and their bands (cards.toml [[setting]]).
   std::vector<SettingBand> bands;
-  gen::WorldSettings draft;
-  std::string draft_world;
-  char date_text[16] = "";
-  char preset_name[64] = "";
-  char fork_name[64] = "";
-  int preset_pick = -1;
-  std::string edit_error, edit_note;
 };
 
 std::shared_ptr<CardsState> make_cards(const std::string& data_dir) {
@@ -235,148 +228,94 @@ void ensure_town(CardsState& st, const WorldCard& world, const CountryCard& c, c
   }
 }
 
-// The settings section of the world card: a draft of the world's settings, a slider per band, the start date, presets,
-// and Apply (unlocked) or Fork (locked). Settings change numbers, never rules (sandbox parameters §1.1).
-void draw_world_settings(CardsState& st, WorldEditor& ed) {
-  if (st.draft_world != ed.world_name) {  // a new world: the draft starts from its record
-    st.draft = *ed.settings;
-    st.draft_world = ed.world_name;
-    std::snprintf(st.date_text, sizeof st.date_text, "%s", zs::worlds::date_text(st.draft.start_day).c_str());
-    st.edit_error.clear();
-    st.edit_note.clear();
-    std::snprintf(st.fork_name, sizeof st.fork_name, "%s 2", ed.world_name.c_str());
-  }
+// A setting's tooltip: what it does, Earth's value and its bands.
+void setting_tip(const SettingBand& b) {
+  ImGui::BeginTooltip();
+  ImGui::PushTextWrapPos(ImGui::GetFontSize() * 30);
+  ImGui::TextUnformatted(b.what.c_str());
+  ImGui::Spacing();
+  ImGui::TextDisabled("Earth %g. Realistic %g to %g (calibrated on Earth); sandbox %g to %g (allowed, the world is tagged "
+                      "sandbox).", b.earth, b.r0, b.r1, b.s0, b.s1);
+  ImGui::PopTextWrapPos();
+  ImGui::EndTooltip();
+}
+
+void plain_tip(const char* text) {
+  ImGui::BeginTooltip();
+  ImGui::PushTextWrapPos(ImGui::GetFontSize() * 30);
+  ImGui::TextUnformatted(text);
+  ImGui::PopTextWrapPos();
+  ImGui::EndTooltip();
+}
+
+// "Monday 11 January 2027".
+std::string long_date(std::int64_t day) {
+  const zs::CivilDate d = zs::civil_from_days(day);
+  static const char* const days[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+  static const char* const months[] = {"", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+  const int wd = static_cast<int>((((day % 7) + 7) % 7 + 3) % 7);  // 1970-01-01 was a Thursday (3, Monday first)
+  return std::string(days[wd]) + " " + std::to_string(d.day) + " " + months[d.month] + " " + std::to_string(d.year);
+}
+
+constexpr const char* kStartDateTip =
+    "The day the game starts, at 08:00. It sets the weekday, the season and each country's holidays and school year on "
+    "the first day (spec 53).";
+
+// The world card's settings: read-only, since the planet was generated from them (another setup is a new world).
+void draw_settings_view(const CardsState& st, const WorldRecord& rec) {
+  const gen::WorldSettings& s0 = *rec.settings;
+  gen::WorldSettings s = s0;
   ImGui::PushFont(nullptr, ImGui::GetFontSize() * 1.2f);
-  ImGui::TextColored({1, 0.95f, 0.8f, 1}, "Settings of %s", ed.world_name.c_str());
+  ImGui::TextColored({1, 0.95f, 0.8f, 1}, "Settings of %s", rec.world_name.c_str());
   ImGui::PopFont();
-  ImGui::TextWrapped("%s", ed.locked ? "This world has saves, so its setup is locked (0074 rule 4): changes go to a fork with the same seed."
-                                     : "No saves yet: changes apply to this world itself.");
-  bool dirty = !(st.draft == *ed.settings);
-  for (const SettingBand& b : st.bands) {
-    double* v = field_of(st.draft, b.field);
-    if (!v) continue;
-    ImGui::PushID(b.field.c_str());
-    const bool realistic = *v >= b.r0 && *v <= b.r1;
-    const bool touched = std::abs(*v - b.earth) > 1e-9;
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, realistic ? ImVec4(0.16f, 0.30f, 0.20f, 1) : ImVec4(0.38f, 0.28f, 0.10f, 1));
-    ImGui::SetNextItemWidth(260);
-    ImGui::SliderScalar("##v", ImGuiDataType_Double, v, &b.s0, &b.s1, b.step >= 0.5 ? "%.1f" : "%.2f");
-    ImGui::PopStyleColor();
-    ImGui::SameLine();
-    ImGui::Text("%s%s", touched ? "* " : "", b.label.c_str());
-    ImGui::SameLine();
-    ImGui::TextDisabled("[%s %.2g to %.2g; sandbox to %.2g]", realistic ? "realistic" : "SANDBOX", b.r0, b.r1, b.s1);
-    if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", b.what.c_str());
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Earth")) *v = b.earth;
-    ImGui::PopID();
+  ImGui::TextDisabled("Set when the world was made; its planet is generated from them. For other settings, make a new world "
+                      "(Worlds, New world). Hover a setting for what it does.");
+  const ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
+  if (ImGui::BeginTable("world settings", 3, flags)) {
+    ImGui::TableSetupColumn("Setting", 0, 3);
+    ImGui::TableSetupColumn("Value", 0, 1.5f);
+    ImGui::TableSetupColumn("Band", 0, 2);
+    ImGui::TableHeadersRow();
+    for (const SettingBand& b : st.bands) {
+      const double* v = field_of(s, b.field);
+      if (!v) continue;
+      const bool realistic = *v >= b.r0 && *v <= b.r1;
+      const bool touched = std::abs(*v - b.earth) > 1e-9;
+      ImGui::TableNextRow();
+      ImGui::TableSetColumnIndex(0);
+      ImGui::Text("%s%s", touched ? "* " : "", b.label.c_str());
+      if (ImGui::IsItemHovered()) setting_tip(b);
+      ImGui::TableSetColumnIndex(1);
+      ImGui::Text(b.step >= 0.5 ? "%.1f" : "%.2f", *v);
+      if (ImGui::IsItemHovered()) setting_tip(b);
+      ImGui::TableSetColumnIndex(2);
+      if (realistic) ImGui::TextColored({0.55f, 0.9f, 0.55f, 1}, "%s", touched ? "realistic" : "Earth");
+      else ImGui::TextColored({0.95f, 0.75f, 0.35f, 1}, "sandbox");
+      if (ImGui::IsItemHovered()) setting_tip(b);
+    }
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::Text("%sStart date", s.start_day != kDefaultStartDay ? "* " : "");
+    if (ImGui::IsItemHovered()) plain_tip(kStartDateTip);
+    ImGui::TableSetColumnIndex(1);
+    ImGui::TextUnformatted(zs::worlds::date_text(s.start_day).c_str());
+    ImGui::TableSetColumnIndex(2);
+    ImGui::TextDisabled("%s, 08:00", long_date(s.start_day).c_str());
+    ImGui::EndTable();
   }
-  ImGui::SetNextItemWidth(120);
-  ImGui::InputText("##date", st.date_text, sizeof st.date_text);
-  ImGui::SameLine();
-  std::int64_t day = 0;
-  const bool date_ok = zs::worlds::parse_date(st.date_text, day);
-  if (date_ok) st.draft.start_day = day;
-  ImGui::Text("%sStart date (YYYY-MM-DD)", st.draft.start_day != kDefaultStartDay ? "* " : "");
-  ImGui::SameLine();
-  if (!date_ok) ImGui::TextColored({1, 0.5f, 0.5f, 1}, "not a date");
-  else {
-    const zs::CivilDate d = zs::civil_from_days(day);
-    static const char* const days[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-    static const char* const months[] = {"", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    const int wd = static_cast<int>((((day % 7) + 7) % 7 + 3) % 7);  // 1970-01-01 was a Thursday (3, Monday first)
-    ImGui::TextDisabled("%s %d %s %d; tick 0 is 08:00 (spec 53)", days[wd], d.day, months[d.month], d.year);
-  }
-  dirty = !(st.draft == *ed.settings);
-  const std::string realism = realism_of(st, st.draft);
+  const std::string realism = realism_of(st, s);
   ImGui::Text("Realism: ");
   ImGui::SameLine();
   ImGui::TextColored(realism == "realistic" ? ImVec4(0.55f, 0.9f, 0.55f, 1) : ImVec4(0.95f, 0.75f, 0.35f, 1), "%s", realism.c_str());
   ImGui::SameLine();
-  ImGui::TextDisabled("(%d of %d settings touched)", touched_count(st, st.draft), static_cast<int>(st.bands.size()) + 1);
-  // Spec 84 rule 3: look before committing.
-  if (ed.preview) {
-    ImGui::BeginDisabled(!date_ok);
-    if (ImGui::Button("Preview")) ed.preview(st.draft);
-    ImGui::EndDisabled();
-    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Generates this draft at coarse cells in about a second; nothing is written");
-    ImGui::SameLine();
-  }
-  // Apply or fork.
-  if (!ed.locked) {
-    ImGui::BeginDisabled(!dirty || !date_ok);
-    if (ImGui::Button(("Apply to " + ed.world_name).c_str())) {
-      *ed.settings = st.draft;
-      ed.apply();
-      st.edit_note = "applied; the planet is regenerated with these settings and Play uses them";
-    }
-    ImGui::EndDisabled();
-  } else {
-    ImGui::SetNextItemWidth(200);
-    ImGui::InputText("##fork", st.fork_name, sizeof st.fork_name);
-    ImGui::SameLine();
-    ImGui::BeginDisabled(!date_ok);
-    if (ImGui::Button("Fork with these settings")) {
-      try {
-        ed.fork(st.fork_name, st.draft);
-        st.edit_note = std::string("forked into ") + st.fork_name;
-        st.edit_error.clear();
-      } catch (const std::exception& ex) {
-        st.edit_error = ex.what();
-      }
-    }
-    ImGui::EndDisabled();
-  }
-  if (ed.draw_preview) ed.draw_preview();
-  ImGui::SameLine();
-  if (ImGui::Button("Back to the world's")) {
-    st.draft = *ed.settings;
-    std::snprintf(st.date_text, sizeof st.date_text, "%s", zs::worlds::date_text(st.draft.start_day).c_str());
-  }
-  // Presets.
-  const std::vector<std::string> presets = ed.presets ? ed.presets() : std::vector<std::string>{};
-  ImGui::SetNextItemWidth(200);
-  if (ImGui::BeginCombo("##preset", st.preset_pick >= 0 && st.preset_pick < static_cast<int>(presets.size()) ? presets[static_cast<std::size_t>(st.preset_pick)].c_str() : "a preset...")) {
-    for (int i = 0; i < static_cast<int>(presets.size()); ++i)
-      if (ImGui::Selectable(presets[static_cast<std::size_t>(i)].c_str(), i == st.preset_pick)) st.preset_pick = i;
-    ImGui::EndCombo();
-  }
-  ImGui::SameLine();
-  ImGui::BeginDisabled(st.preset_pick < 0 || st.preset_pick >= static_cast<int>(presets.size()));
-  if (ImGui::Button("Load preset")) {
-    try {
-      st.draft = ed.load_preset(presets[static_cast<std::size_t>(st.preset_pick)]);
-      std::snprintf(st.date_text, sizeof st.date_text, "%s", zs::worlds::date_text(st.draft.start_day).c_str());
-      st.edit_error.clear();
-    } catch (const std::exception& ex) {
-      st.edit_error = ex.what();
-    }
-  }
-  ImGui::EndDisabled();
-  ImGui::SameLine();
-  ImGui::SetNextItemWidth(160);
-  ImGui::InputTextWithHint("##pname", "preset name", st.preset_name, sizeof st.preset_name);
-  ImGui::SameLine();
-  ImGui::BeginDisabled(!st.preset_name[0] || !date_ok);
-  if (ImGui::Button("Save as preset")) {
-    try {
-      ed.save_preset(st.preset_name, st.draft);
-      st.edit_note = std::string("saved preset ") + st.preset_name;
-      st.edit_error.clear();
-    } catch (const std::exception& ex) {
-      st.edit_error = ex.what();
-    }
-  }
-  ImGui::EndDisabled();
-  if (!st.edit_error.empty()) ImGui::TextColored({1, 0.5f, 0.5f, 1}, "%s", st.edit_error.c_str());
-  else if (!st.edit_note.empty()) ImGui::TextDisabled("%s", st.edit_note.c_str());
+  ImGui::TextDisabled("(%d of %d settings differ from Earth's)", touched_count(st, s), static_cast<int>(st.bands.size()) + 1);
   ImGui::Spacing();
   ImGui::Separator();
 }
 
-void draw_world_card(CardsState& st, const WorldCard& w, WorldEditor* editor) {
-  if (editor && editor->settings) draw_world_settings(st, *editor);
-  const gen::WorldSettings* s = editor && editor->settings ? editor->settings : nullptr;
+void draw_world_card(CardsState& st, const WorldCard& w, const WorldRecord* record) {
+  if (record && record->settings) draw_settings_view(st, *record);
+  const gen::WorldSettings* s = record ? record->settings : nullptr;
   Values v;
   v["seed"] = std::to_string(w.seed);
   v["cells"] = std::to_string(w.cells) + " cells of about 5,000 km2, 70 km apart";
@@ -608,7 +547,7 @@ void draw_house_card(CardsState& st) {
 }  // namespace
 
 void draw_cards(CardsState& st, const WorldCard& world, const std::vector<CountryCard>& countries, int select_country,
-                WorldEditor* editor) {
+                const WorldRecord* record) {
   if (!st.error.empty()) ImGui::TextColored({1, 0.5f, 0.5f, 1}, "cards.toml: %s", st.error.c_str());
   if (select_country >= 0 && select_country != st.country) {
     st.country = select_country;
@@ -648,7 +587,7 @@ void draw_cards(CardsState& st, const WorldCard& world, const std::vector<Countr
   if (st.autopick) ImGui::SetNextWindowScroll(ImVec2(-1.0f, st.scroll_to < 0 ? 1.0e8f : st.scroll_to));  // a check shot: the end of the chain, or a given scroll
   ImGui::BeginChild("cards", ImVec2(0, 0), ImGuiChildFlags_Borders);
   if (st.country < 0 || st.country >= static_cast<int>(countries.size())) {
-    draw_world_card(st, world, editor);
+    draw_world_card(st, world, record);
   } else {
     const CountryCard& c = countries[static_cast<std::size_t>(st.country)];
     draw_country_card(st, world, c);
@@ -667,6 +606,119 @@ void draw_cards(CardsState& st, const WorldCard& world, const std::vector<Countr
     }
   }
   ImGui::EndChild();
+}
+
+void reset_setup(SetupDraft& d, const gen::WorldSettings& s) {
+  d.s = s;
+  std::snprintf(d.date_text, sizeof d.date_text, "%s", zs::worlds::date_text(s.start_day).c_str());
+  d.preset_name[0] = 0;
+  d.preset_pick = -1;
+  d.note.clear();
+  d.error.clear();
+}
+
+// The setup editor (spec 84, in the New world dialog): a slider per band, each explained on hover, the start date,
+// the realism tag, presets and the preview. Settings change numbers, never rules (sandbox parameters §1.1).
+bool draw_world_setup(const CardsState& st, SetupDraft& d, const SetupHooks& h) {
+  ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+  ImGui::TextWrapped("Hover a setting for what it does. Green: realistic (calibrated on Earth); amber: sandbox.");
+  ImGui::PopStyleColor();
+  for (const SettingBand& b : st.bands) {
+    double* v = field_of(d.s, b.field);
+    if (!v) continue;
+    ImGui::PushID(b.field.c_str());
+    const bool realistic = *v >= b.r0 && *v <= b.r1;
+    const bool touched = std::abs(*v - b.earth) > 1e-9;
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, realistic ? ImVec4(0.16f, 0.30f, 0.20f, 1) : ImVec4(0.38f, 0.28f, 0.10f, 1));
+    ImGui::SetNextItemWidth(220);
+    ImGui::SliderScalar("##v", ImGuiDataType_Double, v, &b.s0, &b.s1, b.step >= 0.5 ? "%.1f" : "%.2f");
+    ImGui::PopStyleColor();
+    if (ImGui::IsItemHovered()) setting_tip(b);
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Earth")) *v = b.earth;
+    if (ImGui::IsItemHovered()) plain_tip("Back to Earth's value");
+    ImGui::SameLine();
+    ImGui::Text("%s%s", touched ? "* " : "", b.label.c_str());
+    if (ImGui::IsItemHovered()) setting_tip(b);
+    ImGui::SameLine();
+    if (realistic) ImGui::TextDisabled("realistic");
+    else ImGui::TextColored({0.95f, 0.75f, 0.35f, 1}, "SANDBOX");
+    if (ImGui::IsItemHovered()) setting_tip(b);
+    ImGui::PopID();
+  }
+  ImGui::SetNextItemWidth(120);
+  ImGui::InputText("##date", d.date_text, sizeof d.date_text);
+  if (ImGui::IsItemHovered()) plain_tip(kStartDateTip);
+  ImGui::SameLine();
+  std::int64_t day = 0;
+  const bool date_ok = zs::worlds::parse_date(d.date_text, day);
+  if (date_ok) d.s.start_day = day;
+  ImGui::Text("%sStart date (YYYY-MM-DD)", d.s.start_day != kDefaultStartDay ? "* " : "");
+  if (ImGui::IsItemHovered()) plain_tip(kStartDateTip);
+  ImGui::SameLine();
+  if (!date_ok) ImGui::TextColored({1, 0.5f, 0.5f, 1}, "not a date");
+  else ImGui::TextDisabled("%s; tick 0 is 08:00", long_date(day).c_str());
+  const std::string realism = realism_of(st, d.s);
+  ImGui::Text("Realism: ");
+  ImGui::SameLine();
+  ImGui::TextColored(realism == "realistic" ? ImVec4(0.55f, 0.9f, 0.55f, 1) : ImVec4(0.95f, 0.75f, 0.35f, 1), "%s", realism.c_str());
+  if (ImGui::IsItemHovered())
+    plain_tip("Realistic when every setting is inside its Earth-calibrated band; sandbox otherwise. A sandbox world is "
+              "allowed, and tagged so its numbers are not read as Earth's.");
+  ImGui::SameLine();
+  ImGui::TextDisabled("(%d of %d settings differ from Earth's)", touched_count(st, d.s), static_cast<int>(st.bands.size()) + 1);
+  if (ImGui::Button("All to Earth")) reset_setup(d, {});
+  if (ImGui::IsItemHovered()) plain_tip("Every setting back to Earth's value, the start date to the default");
+  // Presets.
+  const std::vector<std::string> presets = h.presets ? h.presets() : std::vector<std::string>{};
+  ImGui::SameLine();
+  ImGui::SetNextItemWidth(200);
+  if (ImGui::BeginCombo("##preset", d.preset_pick >= 0 && d.preset_pick < static_cast<int>(presets.size()) ? presets[static_cast<std::size_t>(d.preset_pick)].c_str() : "a preset...")) {
+    for (int i = 0; i < static_cast<int>(presets.size()); ++i)
+      if (ImGui::Selectable(presets[static_cast<std::size_t>(i)].c_str(), i == d.preset_pick)) d.preset_pick = i;
+    ImGui::EndCombo();
+  }
+  if (ImGui::IsItemHovered()) plain_tip("Saved setups: small, medium, Earth, large, rich, poor, wet, dry, ice age, hothouse, pangaea, archipelago, and yours");
+  ImGui::SameLine();
+  ImGui::BeginDisabled(d.preset_pick < 0 || d.preset_pick >= static_cast<int>(presets.size()));
+  if (ImGui::Button("Load preset")) {
+    try {
+      const int pick = d.preset_pick;
+      reset_setup(d, h.load_preset(presets[static_cast<std::size_t>(pick)]));
+      d.preset_pick = pick;
+    } catch (const std::exception& ex) {
+      d.error = ex.what();
+    }
+  }
+  ImGui::EndDisabled();
+  ImGui::SetNextItemWidth(200);
+  ImGui::InputTextWithHint("##pname", "preset name", d.preset_name, sizeof d.preset_name);
+  ImGui::SameLine();
+  ImGui::BeginDisabled(!d.preset_name[0] || !date_ok || !h.save_preset);
+  if (ImGui::Button("Save as preset")) {
+    try {
+      h.save_preset(d.preset_name, d.s);
+      d.note = std::string("saved preset ") + d.preset_name;
+      d.error.clear();
+    } catch (const std::exception& ex) {
+      d.error = ex.what();
+    }
+  }
+  ImGui::EndDisabled();
+  if (ImGui::IsItemHovered()) plain_tip("Keeps these settings under a name, for the next new world");
+  if (!d.error.empty()) ImGui::TextColored({1, 0.5f, 0.5f, 1}, "%s", d.error.c_str());
+  else if (!d.note.empty()) ImGui::TextDisabled("%s", d.note.c_str());
+  // Spec 84 rule 3: look before creating.
+  if (h.preview) {
+    ImGui::BeginDisabled(!date_ok);
+    if (ImGui::Button("Preview")) h.preview(d.s);
+    ImGui::EndDisabled();
+    if (ImGui::IsItemHovered())
+      plain_tip("Generates this seed with these settings at coarse cells in a few seconds and shows its maps and key numbers "
+                "beside Earth's. Nothing is written.");
+  }
+  if (h.draw_preview) h.draw_preview();
+  return date_ok;
 }
 
 }  // namespace zs::atlas

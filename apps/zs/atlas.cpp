@@ -404,6 +404,8 @@ struct App {
   char new_name[64] = "";
   char new_seed[24] = "1";
   char new_notes[256] = "";
+  SetupDraft new_setup;          // the New world dialog's settings (spec 84)
+  bool open_new_world = false;   // --new-world: open the dialog without a click (checks)
   char fork_name[64] = "";
   std::string world_error;
   // Tour
@@ -723,39 +725,10 @@ void draw_cards_page(App& a) {
     return;
   }
   if (!a.cards) a.cards = make_cards(a.data_dir);
-  // The editor (slice 5): the world's own record; apply saves it, fork makes a new world with the draft.
-  WorldEditor ed;
-  if (a.world >= 0 && a.world < static_cast<int>(a.worlds.size())) {
-    zs::worlds::World& wr = a.worlds[static_cast<std::size_t>(a.world)];
-    ed.settings = &wr.settings;
-    ed.locked = zs::worlds::settings_locked(wr);
-    ed.world_name = wr.name;
-    ed.apply = [&a, &wr]() {
-      wr.realism = realism_of(*a.cards, wr.settings);
-      try {
-        zs::worlds::save_meta(wr);
-        a.status = "saved the settings of " + wr.name;
-      } catch (const std::exception& ex) {
-        a.status = ex.what();
-      }
-    };
-    ed.fork = [&a, &wr](const std::string& name, const zs::gen::WorldSettings& s) {
-      zs::worlds::World f = zs::worlds::fork(wr, name);
-      f.settings = s;
-      f.realism = realism_of(*a.cards, s);
-      zs::worlds::save_meta(f);
-      refresh_worlds(a);
-      for (std::size_t i = 0; i < a.worlds.size(); ++i)
-        if (a.worlds[i].name == name) a.world = static_cast<int>(i);
-      a.status = "forked " + wr.name + " into " + name;
-    };
-    ed.presets = [] { return zs::worlds::list_presets(); };
-    ed.load_preset = [](const std::string& n) { return zs::worlds::load_preset(n); };
-    ed.save_preset = [](const std::string& n, const zs::gen::WorldSettings& s) { zs::worlds::save_preset(n, s); };
-    ed.preview = [&a, seed = wr.seed](const zs::gen::WorldSettings& s) { a.preview.start(seed, s); };
-    ed.draw_preview = [&a] { a.preview.draw(a.renderer, preview_image); };
-  }
-  draw_cards(*a.cards, p.world_card, p.cards, a.card_country, ed.settings ? &ed : nullptr);
+  // The world's record: its settings, read-only (they are chosen when the world is made, in the New world dialog).
+  WorldRecord rec;
+  if (const zs::worlds::World* wr = current_world(a)) rec.settings = &wr->settings, rec.world_name = wr->name;
+  draw_cards(*a.cards, p.world_card, p.cards, a.card_country, rec.settings ? &rec : nullptr);
   a.card_country = -1;
 }
 
@@ -771,25 +744,71 @@ void draw_worlds(App& a) {
   ImGui::TextWrapped("A world is a folder with its seed and its saves (decision 0074). Pick one; Play and every Try run on it. "
                      "Worlds live in %s", zs::worlds::root().string().c_str());
   ImGui::Spacing();
-  if (ImGui::Button("New world")) {
-    std::snprintf(a.new_seed, sizeof a.new_seed, "%llu", static_cast<unsigned long long>(std::rand() % 1000000 + 1));
-    a.new_name[0] = 0;
-    a.new_notes[0] = 0;
+  if (ImGui::Button("New world") || a.open_new_world) {
+    if (!a.open_new_world) {
+      std::snprintf(a.new_seed, sizeof a.new_seed, "%llu", static_cast<unsigned long long>(std::rand() % 1000000 + 1));
+      a.new_name[0] = 0;
+      a.new_notes[0] = 0;
+      reset_setup(a.new_setup, {});
+    }
+    a.open_new_world = false;
     a.world_error.clear();
     ImGui::OpenPopup("New world");
   }
   ImGui::SameLine();
   if (ImGui::Button("Refresh")) refresh_worlds(a);
-  if (ImGui::BeginPopupModal("New world", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::InputText("Name", a.new_name, sizeof a.new_name);
+  // The New world dialog (decision 0074, spec 84): name, seed and notes, then the setup with its preview; Create makes
+  // the world with these settings, which then stay with it.
+  const ImGuiViewport* vp = ImGui::GetMainViewport();
+  ImGui::SetNextWindowSize({vp->WorkSize.x * 0.85f, vp->WorkSize.y * 0.9f}, ImGuiCond_Appearing);
+  ImGui::SetNextWindowPos({vp->WorkPos.x + vp->WorkSize.x * 0.5f, vp->WorkPos.y + vp->WorkSize.y * 0.5f}, ImGuiCond_Appearing, {0.5f, 0.5f});
+  if (ImGui::BeginPopupModal("New world", nullptr)) {
+    if (!a.cards) a.cards = make_cards(a.data_dir);
+    ImGui::SetNextItemWidth(300);
+    ImGui::InputTextWithHint("Name", "a folder name: letters, digits, spaces, . - _", a.new_name, sizeof a.new_name);
+    ImGui::SetNextItemWidth(300);
     ImGui::InputText("Seed", a.new_seed, sizeof a.new_seed, ImGuiInputTextFlags_CharsDecimal);
+    if (ImGui::IsItemHovered())
+      ImGui::SetTooltip("The number the whole world grows from: the same seed and settings always give the same world");
     ImGui::SameLine();
     if (ImGui::SmallButton("Random")) std::snprintf(a.new_seed, sizeof a.new_seed, "%llu", static_cast<unsigned long long>(std::rand() % 1000000 + 1));
-    ImGui::InputTextMultiline("Notes", a.new_notes, sizeof a.new_notes, ImVec2(360, 60));
+    ImGui::InputTextMultiline("Notes", a.new_notes, sizeof a.new_notes, ImVec2(500, 50));
+    ImGui::Separator();
+    ImGui::PushFont(nullptr, ImGui::GetFontSize() * 1.15f);
+    ImGui::TextColored({1, 0.95f, 0.8f, 1}, "Settings");
+    ImGui::PopFont();
+    SetupHooks hooks;
+    hooks.presets = [] { return zs::worlds::list_presets(); };
+    hooks.load_preset = [](const std::string& n) { return zs::worlds::load_preset(n); };
+    hooks.save_preset = [](const std::string& n, const zs::gen::WorldSettings& st) { zs::worlds::save_preset(n, st); };
+    const float footer = ImGui::GetFrameHeightWithSpacing() * 2.2f;
+    // Two columns: the settings, and the preview of this seed with them (spec 84 rule 3: look before creating).
+    ImGui::BeginChild("setup", {std::max(560.0f, ImGui::GetContentRegionAvail().x * 0.45f), -footer});
+    const bool date_ok = draw_world_setup(*a.cards, a.new_setup, hooks);
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("preview", {0, -footer});
+    ImGui::BeginDisabled(!date_ok || a.preview.busy());
+    if (ImGui::Button("Preview")) a.preview.start(std::strtoull(a.new_seed, nullptr, 10), a.new_setup.s);
+    ImGui::EndDisabled();
+    if (ImGui::IsItemHovered())
+      ImGui::SetTooltip("Generates this seed with these settings at coarse cells in a few seconds and shows its maps and "
+                        "key numbers beside Earth's. Nothing is written.");
+    if (!a.preview.ready() && !a.preview.busy())
+      ImGui::TextDisabled("Pick the settings, then Preview to see this world before creating it.");
+    else if (a.preview.ready() && !(a.preview.settings() == a.new_setup.s))
+      ImGui::TextColored({0.95f, 0.75f, 0.35f, 1}, "The settings changed since this preview: Preview again to see them.");
+    a.preview.draw(a.renderer, preview_image);
+    ImGui::EndChild();
+    ImGui::Separator();
     if (!a.world_error.empty()) ImGui::TextColored({1, 0.5f, 0.5f, 1}, "%s", a.world_error.c_str());
+    ImGui::BeginDisabled(!date_ok);
     if (ImGui::Button("Create")) {
       try {
-        zs::worlds::create(a.new_name, std::strtoull(a.new_seed, nullptr, 10), a.new_notes);
+        zs::worlds::World w = zs::worlds::create(a.new_name, std::strtoull(a.new_seed, nullptr, 10), a.new_notes);
+        w.settings = a.new_setup.s;
+        w.realism = realism_of(*a.cards, w.settings);
+        zs::worlds::save_meta(w);
         refresh_worlds(a);
         for (std::size_t i = 0; i < a.worlds.size(); ++i)
           if (a.worlds[i].name == a.new_name) a.world = static_cast<int>(i);
@@ -798,6 +817,8 @@ void draw_worlds(App& a) {
         a.world_error = ex.what();
       }
     }
+    ImGui::EndDisabled();
+    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Makes the world's folder with this seed and these settings; they stay with it");
     ImGui::SameLine();
     if (ImGui::Button("Cancel")) ImGui::CloseCurrentPopup();
     ImGui::EndPopup();
@@ -845,12 +866,9 @@ void draw_worlds(App& a) {
   ImGui::PopFont();
   if (ImGui::Button("Play from the start")) play_world(a, *w, nullptr);
   ImGui::SameLine();
-  if (ImGui::Button("Settings")) {
+  if (ImGui::Button("Its card")) {  // the world card (no country selected): its settings and what it has
     a.card_country = -1;
-    if (a.cards) {
-      // The world card: no country selected.
-      a.page = Page::Cards;
-    } else a.page = Page::Cards;
+    a.page = Page::Cards;
   }
   ImGui::SameLine();
   if (ImGui::Button("Fork")) {
@@ -1361,11 +1379,12 @@ void draw_nav(App& a) {
 }  // namespace
 
 // zs --atlas [--shot out.bmp] [--page worlds|tour|parts|try|breakthroughs|compute|status|docs] [--stop N]
-//   [--preview | --preview-preset NAME]   spec 84: the world card's preview of the world's settings or a preset
+//   [--new-world] [--preview | --preview-preset NAME]   spec 84: the New world dialog open, with a preview of Earth's
+//   settings or a preset
 // --shot renders the page without a screen and saves it, for checks (like the window's --shot).
 int atlas_main(int argc, char** argv) {
   std::string shot, page_name, try_id, preview_preset;
-  bool preview = false;
+  bool preview = false, new_world = false;
   int stop = 0, card = -1;
   bool pick = false, open_world = false, cold = false, advance = false;
   float scroll_to = -1.0f;
@@ -1380,7 +1399,8 @@ int atlas_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--open")) open_world = true;
     else if (!std::strcmp(argv[i], "--cold")) cold = true;
     else if (!std::strcmp(argv[i], "--advance")) advance = true;
-    else if (!std::strcmp(argv[i], "--preview")) preview = true;  // spec 84: the world card's preview, without a click
+    else if (!std::strcmp(argv[i], "--preview")) preview = true;  // spec 84: the New world dialog's preview, without a click
+    else if (!std::strcmp(argv[i], "--new-world")) new_world = true;
     else if (!std::strcmp(argv[i], "--preview-preset") && i + 1 < argc) preview = true, preview_preset = argv[++i];
   }
   if (!shot.empty()) SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "offscreen");
@@ -1436,12 +1456,13 @@ int atlas_main(int argc, char** argv) {
     a.cards = make_cards(a.data_dir);
     cards_autopick(*a.cards, true, scroll_to);
   }
-  if (preview) {
-    if (page_name.empty()) a.page = Page::Cards;
+  if (new_world || preview) {  // the New world dialog, open; --preview starts its preview (seed 1 unless the world's)
+    a.page = Page::Worlds;
+    a.open_new_world = true;
     const zs::worlds::World* w = current_world(a);
-    zs::gen::WorldSettings s = w ? w->settings : zs::gen::WorldSettings{};
-    if (!preview_preset.empty()) s = zs::worlds::load_preset(preview_preset);
-    a.preview.start(w ? w->seed : 1, s);
+    std::snprintf(a.new_seed, sizeof a.new_seed, "%llu", static_cast<unsigned long long>(w ? w->seed : 1));
+    reset_setup(a.new_setup, preview_preset.empty() ? zs::gen::WorldSettings{} : zs::worlds::load_preset(preview_preset));
+    if (preview) a.preview.start(w ? w->seed : 1, a.new_setup.s);
   }
   // --try ID with --shot: start that Try, wait for it, then shoot the Try page with its output (a check without a click).
   if (!try_id.empty())

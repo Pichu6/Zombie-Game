@@ -95,9 +95,11 @@ void WorldPreview::draw(SDL_Renderer* renderer, void (*image)(SDL_Texture*, cons
       SDL_SetTextureScaleMode(texture_, SDL_SCALEMODE_LINEAR);
     }
   }
-  ImGui::TextDisabled("Preview: %zu cells of about %.0f km2, %.1f s. Create (or Apply) makes the same planet at 5,000 km2 a "
+  ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+  ImGui::TextWrapped("Preview: %zu cells of about %.0f km2, %.1f s. Create makes the same planet at 5,000 km2 a "
                       "cell: the same continents, climate and rivers, with finer detail.",
                       static_cast<std::size_t>(world_->grid.size()), world_->grid.sphere_area_km2() / world_->grid.size(), seconds_);
+  ImGui::PopStyleColor();
   if (texture_) {
     const float w = std::min(ImGui::GetContentRegionAvail().x, 900.0f);
     image(texture_, "preview", w, w / 2);

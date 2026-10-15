@@ -1,4 +1,4 @@
-// Spec 84 rule 3: a preview of a world's draft settings before Create or Apply: the draft generated at coarse cells on a
+// Spec 84 rule 3: a preview of a world's draft settings before Create: the draft generated at coarse cells on a
 // worker thread, drawn in spec 83's layers, with its key numbers beside Earth's. Nothing is written.
 #pragma once
 #include <atomic>

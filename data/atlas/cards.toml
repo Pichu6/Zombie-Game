@@ -25,7 +25,7 @@ rows = [
 [[setting]]
 field = "continents"
 label = "Continents"
-what = "Cratons the continental crust grows from (spec 89): 1 a supercontinent, Earth's look about 8, many an archipelago world"
+what = "How many cores the continents grow from. 1 makes one supercontinent (a Pangaea); about 8 gives Earth's look of a few large continents and some smaller ones; many give an archipelago of mid-sized lands. Cores that meet usually stay apart by a strait. More continents mean more coast, more ports and more sea between peoples (spec 89)"
 earth = 8.0
 realistic = [4.0, 14.0]
 sandbox = [1.0, 40.0]
@@ -122,7 +122,7 @@ rows = [
 [[setting]]
 field = "land_share"
 label = "Land share"
-what = "The share of the sphere above sea level (Earth 0.29)"
+what = "How much of the planet's surface stands above the sea. Earth 0.29: less makes a water world of islands, more a dry world of large interiors far from any coast. It sets where people can live, how far food travels and how much is shipped by sea (spec 31)"
 earth = 0.29
 realistic = [0.15, 0.45]
 sandbox = [0.02, 0.95]
@@ -131,7 +131,7 @@ step = 0.01
 [[setting]]
 field = "global_temp_c"
 label = "Mean temperature (C)"
-what = "The area-weighted mean sea-level temperature (Earth 14)"
+what = "The planet's mean temperature at sea level. Earth 14 C. Colder pushes ice, tundra and boreal forest toward the equator and shrinks farmland; warmer spreads deserts and tropical forest and melts the polar seas. Every place keeps its own range around it (spec 31)"
 earth = 14.0
 realistic = [5.0, 25.0]
 sandbox = [-30.0, 60.0]
@@ -140,7 +140,7 @@ step = 0.5
 [[setting]]
 field = "relief"
 label = "Relief"
-what = "Scales the spread of elevations (Earth 1)"
+what = "How tall the mountains and how deep the sea floor. Earth 1. Higher relief makes taller ranges, more rain shadows and deserts behind them, more rivers and harder roads; lower makes flat lands with slow, wandering rivers (spec 31)"
 earth = 1.0
 realistic = [0.5, 2.0]
 sandbox = [0.1, 5.0]
@@ -149,7 +149,7 @@ step = 0.05
 [[setting]]
 field = "moisture"
 label = "Moisture"
-what = "Scales the rain (Earth 1)"
+what = "How much rain falls everywhere. Earth 1. Wetter makes more forest, rivers, lakes and food; drier makes more desert and grassland, fewer rivers and fewer people the land can feed (spec 31, spec 83)"
 earth = 1.0
 realistic = [0.5, 2.0]
 sandbox = [0.1, 5.0]
@@ -158,7 +158,7 @@ step = 0.05
 [[setting]]
 field = "fragmentation"
 label = "Fragmentation"
-what = "How readily polities split in the contest history: 0.5 gives Earth's country count (spec 52 rule 23)"
+what = "How readily countries split apart in the world's history. Earth 0.5, which gives about Earth's count of countries. Lower makes a few large empires; higher makes many small states and more borders that trade and people must cross (spec 52)"
 earth = 0.5
 realistic = [0.3, 0.7]
 sandbox = [0.0, 1.0]
@@ -168,7 +168,7 @@ step = 0.01
 [[setting]]
 field = "radius_km"
 label = "Planet radius (km)"
-what = "The planet's size; cells stay near 5,000 km2, so a larger planet takes longer (spec 84). Small 3,400, medium 4,800, Earth 6,371, large 8,000"
+what = "The planet's size. Earth 6,371 km. A larger planet has more land, more countries and more people at the same density, and takes longer to generate; its cells stay about 5,000 km2. Small 3,400, medium 4,800, large 8,000 (spec 84)"
 earth = 6371.0
 realistic = [5000.0, 8000.0]
 sandbox = [2000.0, 12000.0]
@@ -177,7 +177,7 @@ step = 10.0
 [[setting]]
 field = "fuel_richness"
 label = "Fuels (coal, oil, gas)"
-what = "Scales every fuel deposit's size; the same deposits, larger or smaller (spec 84)"
+what = "How large the coal, oil and gas deposits are. Earth 1. The same deposits in the same places, larger or smaller: it sets how much fuel there is for power plants, vehicles and generators, and how long it lasts once the world breaks down (spec 84)"
 earth = 1.0
 realistic = [0.5, 2.0]
 sandbox = [0.0, 5.0]
@@ -186,7 +186,7 @@ step = 0.05
 [[setting]]
 field = "metal_richness"
 label = "Metals (iron, copper, bauxite)"
-what = "Scales every ore deposit's size (spec 84)"
+what = "How large the iron, copper and bauxite deposits are. Earth 1. The same deposits in the same places, larger or smaller: it sets how much there is to mine for steel, wire and aluminium (spec 84)"
 earth = 1.0
 realistic = [0.5, 2.0]
 sandbox = [0.0, 5.0]
@@ -195,7 +195,7 @@ step = 0.05
 [[setting]]
 field = "fertility"
 label = "Soil fertility"
-what = "Scales the soil's fertility, so what the land can feed (spec 84)"
+what = "How fertile the soil is. Earth 1. It scales what each field yields, so how many people the land can feed, how far food must travel and how much farmland a town needs around it (spec 84, spec 88)"
 earth = 1.0
 realistic = [0.7, 1.3]
 sandbox = [0.2, 2.0]
@@ -204,7 +204,7 @@ step = 0.05
 [[setting]]
 field = "forest"
 label = "Forest"
-what = "Scales the forest's share and its timber (spec 84)"
+what = "How much of the land is forest. Earth 1. More forest gives more timber and fuel wood and less open land; less forest leaves more grassland and pasture (spec 84)"
 earth = 1.0
 realistic = [0.7, 1.3]
 sandbox = [0.0, 2.0]
@@ -213,7 +213,7 @@ step = 0.05
 [[setting]]
 field = "fish"
 label = "Fish"
-what = "Scales the shelf's catch and stock (spec 84)"
+what = "How rich the seas near the coasts are. Earth 1. It scales the fish the shelves hold and the catch the ports land, so how much coastal towns can eat from the sea (spec 84, spec 88)"
 earth = 1.0
 realistic = [0.5, 1.5]
 sandbox = [0.0, 3.0]
@@ -222,7 +222,7 @@ step = 0.05
 [[setting]]
 field = "people"
 label = "People"
-what = "People per unit of land against today's 8 billion on Earth's land (spec 84)"
+what = "How many people live on the land, against Earth's 8 billion on Earth's land. Earth 1. More people make larger and more towns, more traffic and more demand for food and fuel; fewer make an emptier world (spec 84)"
 earth = 1.0
 realistic = [0.5, 1.5]
 sandbox = [0.05, 3.0]

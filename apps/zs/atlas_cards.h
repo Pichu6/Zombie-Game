@@ -43,20 +43,32 @@ std::shared_ptr<CardsState> make_cards(const std::string& data_dir);
 // For checks without a click: pick the first town, then the first pop and their house, as they become available.
 void cards_autopick(CardsState& st, bool on, float scroll_to = -1.0f);  // scroll_to: pixels, -1 = the end
 
-// Editing on the world card (slice 5, decision 0074 rule 4): the world's own settings, edited as a draft and applied
-// to the world (unlocked) or to a fork of it (locked, once it has a save); presets next to the executable.
-struct WorldEditor {
-  gen::WorldSettings* settings = nullptr;  // the world's record, written on apply
-  bool locked = false;
-  std::string world_name;
-  std::function<void()> apply;                                                   // the record was changed: save it, redraw
-  std::function<void(const std::string& new_name, const gen::WorldSettings&)> fork;
+// The world's setup (decision 0074, spec 84): chosen when a world is made, in the New world dialog, as a draft with a
+// slider per setting, the start date, presets and a preview. A made world's settings are shown read-only on its card:
+// its planet is generated from them, so another setup is another world.
+struct SetupDraft {
+  gen::WorldSettings s;
+  char date_text[16] = "";
+  char preset_name[64] = "";
+  int preset_pick = -1;
+  std::string note, error;
+};
+struct SetupHooks {
   std::function<std::vector<std::string>()> presets;
   std::function<gen::WorldSettings(const std::string&)> load_preset;
   std::function<void(const std::string&, const gen::WorldSettings&)> save_preset;
-  // Spec 84 rule 3: a preview of the draft before Apply or Fork; null leaves the button out.
+  // Spec 84 rule 3: a preview of the draft before Create; null leaves the button out.
   std::function<void(const gen::WorldSettings&)> preview;
   std::function<void()> draw_preview;
+};
+void reset_setup(SetupDraft& d, const gen::WorldSettings& s = {});
+// Draws the setup editor over the draft; false while the start date does not parse.
+bool draw_world_setup(const CardsState& st, SetupDraft& d, const SetupHooks& hooks);
+
+// A made world on its card: its settings, read-only.
+struct WorldRecord {
+  const gen::WorldSettings* settings = nullptr;
+  std::string world_name;
 };
 
 // "realistic" when every setting is in its realistic band, else "sandbox" (sandbox parameters §1.4).
@@ -66,7 +78,7 @@ int touched_count(const CardsState& st, const gen::WorldSettings& s);
 
 // Draws the Cards page for a generated planet. `select_country` (-1: none) comes from the planet click.
 void draw_cards(CardsState& st, const WorldCard& world, const std::vector<CountryCard>& countries, int select_country,
-                WorldEditor* editor = nullptr);
+                const WorldRecord* record = nullptr);
 // The country the cards page shows (-1: none), so the planet can highlight it.
 int cards_country(const CardsState& st);
 
