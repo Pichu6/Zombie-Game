@@ -28,7 +28,8 @@ const char* boundary_name(BoundaryKind k) {
 // Spec 83 rule 3: aridity cuts (rain over potential evapotranspiration), calibrated on seeds 1-5 against Earth's
 // biome shares (WMR-1); they started at the UNEP aridity classes (0.2, 0.5) and 0.9.
 namespace {
-constexpr double kAiDesert = 0.31, kAiGrass = 0.55, kAiSavanna = 0.6;  // recalibrated with spec 89's continents
+constexpr double kAiDesert = 0.31, kAiGrass = 0.55, kAiSavanna = 0.8;  // recalibrated with the hydrology fix (2026-10-15)
+constexpr double kAiDesertWarm = 0.36;  // a warm land is dry at a higher aridity index (Koppen's dry threshold rises with T)
 }  // namespace
 
 double pet_mm(double t) { return 58.93 * std::clamp(t, 0.0, 30.0); }
@@ -47,7 +48,7 @@ Biome classify_biome(bool land, double elev, double t, double rain, double range
   const double pet = pet_mm(t);
   const double ai = pet > 0 ? rain / pet : 1e9;
   if (t < 6) return ai >= kAiDesert ? Biome::BorealForest : Biome::Tundra;
-  if (ai < kAiDesert) return Biome::Desert;
+  if (ai < (t >= 18 ? kAiDesertWarm : kAiDesert)) return Biome::Desert;
   if (t < 18) return ai < kAiGrass ? Biome::Grassland : Biome::TemperateForest;
   return ai < kAiSavanna ? Biome::Savanna : Biome::TropicalForest;
 }
@@ -129,12 +130,12 @@ double piecewise(const double (*knots)[2], std::size_t n, double z) {
   return knots[n - 1][1];
 }
 double lat_rain(double z) {
-  static const double knots[][2] = {{0, 2200}, {0.15, 1900}, {0.35, 700}, {0.5, 350},
+  static const double knots[][2] = {{0, 2800}, {0.15, 2400}, {0.35, 700}, {0.5, 350},
                                     {0.7, 1000}, {0.85, 850}, {1.0, 200}};
   return piecewise(knots, 7, z);
 }
 double wet_rain(double z) {  // the 15-35 degree knots raised to the line from 0.15 to 0.7
-  static const double knots[][2] = {{0, 2200}, {0.15, 1900}, {0.7, 1000}, {0.85, 850}, {1.0, 200}};
+  static const double knots[][2] = {{0, 2800}, {0.15, 2400}, {0.7, 1000}, {0.85, 850}, {1.0, 200}};
   return piecewise(knots, 5, z);
 }
 

@@ -51,7 +51,7 @@ TEST_CASE("land: every land cell drains to the sea or a closed basin, and water 
     }
   }
   const double runoff_m3s = p.land.runoff_km3 * 1e9 / (365.25 * 86400);
-  CHECK(p.land.sea_inflow_m3s + p.land.closed_evap_m3s == doctest::Approx(runoff_m3s).epsilon(1e-6));
+  CHECK(p.land.sea_inflow_m3s + p.land.closed_evap_m3s + p.land.channel_loss_m3s == doctest::Approx(runoff_m3s).epsilon(1e-6));
 }
 
 TEST_CASE("land: runoff ratio and the largest river are Earth-like (A2)") {
@@ -152,5 +152,5 @@ TEST_CASE("land: deterministic, golden pinned (A1)") {
     h = mix64(h, p.land.downstream[i]);
   }
   MESSAGE("land hash: ", h);
-  CHECK(h == 11355842648364058498ULL);  // re-pinned on MSVC, 2026-10-15 (spec 89 second amendment: no continent beyond 60 degrees, ice sheets, arcs in groups)
+  CHECK(h == 9142566009248010510ULL);  // re-pinned on MSVC, 2026-10-15 (the hydrology fix: wetter tropics, channel losses)
 }

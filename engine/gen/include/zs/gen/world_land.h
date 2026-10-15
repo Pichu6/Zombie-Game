@@ -40,6 +40,7 @@ struct WorldLand {
   std::vector<std::uint8_t> river;      // 0 none, 1 river, 2 large river
   std::vector<std::uint8_t> lake;       // spec 83 rule 4: 0 none, 1 open lake, 2 terminal (salt) lake, 3 dry basin
   std::vector<std::uint8_t> endorheic;  // 1 where the water ends in a closed depression, not the sea
+  std::vector<std::uint8_t> arheic;     // hydrology fix: 1 where under a tenth of the water reaches the sea (dry interiors)
   std::vector<double> fertility, arable_share, pasture_share;
   std::vector<double> capacity_food, capacity_water;  // people
   // Slice 2: living resources, today's stocks (rules 10-12). On land: forest and game; at sea: fish.
@@ -49,6 +50,7 @@ struct WorldLand {
   double capacity(CellId i) const { return capacity_food[i] < capacity_water[i] ? capacity_food[i] : capacity_water[i]; }
   // Totals for the checks.
   double land_rain_km3 = 0, runoff_km3 = 0, sea_inflow_m3s = 0;
+  double channel_loss_m3s = 0;  // hydrology fix: lost from rivers crossing dry land (evaporation, seepage)
   double closed_evap_m3s = 0;  // what closed depressions evaporate (spec 83 rule 4)
   int open_lakes = 0, closed_basins = 0;
 };

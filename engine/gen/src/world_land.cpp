@@ -16,6 +16,9 @@ constexpr double kSecondsPerYear = 365.25 * 86400;
 // Spec 83 rule 4: a depression shallower than this is a pit of the coarse terrain that a river would cut through
 // (estimate, calibrated on seeds 1-5 against WMR-8's lake share).
 constexpr double kLakeMinDepthM = 30;
+constexpr double kChannelLoss = 0.15;  // hydrology fix: share of a small river lost crossing a fully dry cell (estimate)
+constexpr double kLossFlow = 100;      // m3/s: rivers above this lose less, by the square root of the ratio (estimate)
+constexpr double kReachSea = 0.1;      // land whose water reaches the sea at under this share drains nowhere
 
 // Rule 5 (estimates).
 double fertility_of(Biome b) {
@@ -104,6 +107,7 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
   w.river.assign(n, 0);
   w.lake.assign(n, 0);
   w.endorheic.assign(n, 0);
+  w.arheic.assign(n, 0);
   w.fertility.assign(n, 0);
   w.arable_share.assign(n, 0);
   w.pasture_share.assign(n, 0);
@@ -161,8 +165,21 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
       w.discharge_m3s[i] = w.runoff_mm[i] * 1e-3 * grid.area_km2(i) * 1e6 / kSecondsPerYear;
       w.catchment_km2[i] = grid.area_km2(i);
     }
+  // Hydrology fix (2026-10-15): a river crossing dry land loses water to evaporation and seepage, a small one more
+  // than a large one (its bed is wider for its flow): the share lost in a cell is kChannelLoss x its dryness (1 less
+  // rain over potential evaporation) x the square root of kLossFlow over the flow, at most the dryness's share.
+  std::vector<double> keep(n, 1.0);
   for (auto it = order.rbegin(); it != order.rend(); ++it) {
     const CellId c = *it, d = w.downstream[c];
+    if (f.land(c)) {
+      const double pet = pet_mm(f.temp_mean_c[c]);
+      const double dry = pet > 0 ? std::clamp(1.0 - f.rain_mm[c] / pet, 0.0, 1.0) : 0.0;
+      const double q = w.discharge_m3s[c];
+      const double loss = q > 0 ? std::min(dry, kChannelLoss * dry * std::sqrt(std::min(1.0, kLossFlow / q))) : 0.0;
+      keep[c] = 1.0 - loss;
+      w.channel_loss_m3s += q * loss;
+      w.discharge_m3s[c] = q * (1.0 - loss);
+    }
     if (d == kNoCell) continue;
     if (f.land(d)) {
       w.discharge_m3s[d] += w.discharge_m3s[c];
@@ -248,10 +265,14 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
         }
       }
     }
-    // Endorheic: the water ends at a land cell with no downstream. Downstream cells come first in `order`.
+    // Endorheic: the water ends at a land cell with no downstream, or so little of it reaches the sea that the land
+    // drains nowhere (the Sahara's and Australia's dry interiors). Downstream cells come first in `order`.
+    std::vector<double> to_sea(n, 0.0);
     for (const CellId c : order) {
       const CellId d = w.downstream[c];
+      to_sea[c] = d == kNoCell ? 0.0 : keep[c] * (f.land(d) ? to_sea[d] : 1.0);
       w.endorheic[c] = d == kNoCell ? 1 : f.land(d) ? w.endorheic[d] : 0;
+      w.arheic[c] = !w.endorheic[c] && f.land(c) && to_sea[c] < kReachSea ? 1 : 0;
     }
   }
   // Rules 4-9.

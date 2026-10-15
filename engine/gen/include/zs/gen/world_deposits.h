@@ -22,7 +22,7 @@ struct DepositParams {
   // Rule 16: the median size per frequency-24 cell's area, in each resource's unit, calibrated on the seed-1 planet
   // of the one world's grid (frequency 101, 0063) so the totals land between today's reserves and resources (coal,
   // oil, gas, iron ore, copper ore, bauxite).
-  double median[resource_count] = {1.34e10, 2.9e9, 2.5e11, 1.05e10, 3.5e10, 5.0e8};  // iron, copper, bauxite recalibrated for spec 89 (fewer arcs)
+  double median[resource_count] = {1.34e10, 2.9e9, 2.5e11, 1.05e10, 3.5e10, 3.5e8};  // iron, copper, bauxite recalibrated for spec 89 (fewer arcs); bauxite again for the wetter tropics (2026-10-15)
   double sigma = 1.0;
   double pareto_cap = 1000;
   std::uint64_t seed = 1;

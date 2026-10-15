@@ -158,6 +158,42 @@ int gen_main(int argc, char** argv) {
       }
       // Spec 52: where the rain goes and what the land can feed.
       const zs::gen::WorldLand& land = gw.land;
+      {  // the largest basins: a river's last land cell before the sea (or its closed depression)
+        std::vector<std::pair<double, zs::gen::CellId>> outlets;
+        for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+          if (!f.land(i)) continue;
+          const zs::gen::CellId d = land.downstream[i];
+          if (d == zs::gen::kNoCell || !f.land(d)) outlets.push_back({land.catchment_km2[i], i});
+        }
+        std::sort(outlets.rbegin(), outlets.rend());
+        std::cout << "basins: the largest";
+        for (std::size_t k = 0; k < 6 && k < outlets.size(); ++k)
+          std::cout << (k ? "," : "") << " " << outlets[k].first / 1e6 << " M km2 (" << static_cast<long long>(land.discharge_m3s[outlets[k].second]) << " m3/s)";
+        int over1m = 0;
+        for (const auto& o : outlets) over1m += o.first >= 1e6;
+        std::cout << "; " << over1m << " over a million km2 (Earth: Amazon 6.3-7.0 M km2 and 209,000 m3/s, Congo 3.7 and 40,500, "
+                  << "Nile 3.3, Mississippi 3.0, Ob 3.0, Yenisei 2.6; about 25 over a million)\n";
+        // Rain and runoff on land, area-weighted: the mean and where the wettest tenth starts.
+        std::vector<std::pair<double, double>> rr;  // (rain, area)
+        double area = 0, rain = 0, run = 0;
+        for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+          if (!f.land(i)) continue;
+          const double a = grid.area_km2(i);
+          rr.push_back({f.rain_mm[i], a});
+          area += a, rain += a * f.rain_mm[i], run += a * land.runoff_mm[i];
+        }
+        std::sort(rr.begin(), rr.end());
+        double acc = 0, p50 = 0, p90 = 0, p99 = 0;
+        for (const auto& [r, a] : rr) {
+          acc += a;
+          if (!p50 && acc >= 0.5 * area) p50 = r;
+          if (!p90 && acc >= 0.9 * area) p90 = r;
+          if (!p99 && acc >= 0.99 * area) p99 = r;
+        }
+        std::cout << "  rain on land: mean " << static_cast<int>(rain / area) << " mm (Earth about 760: 113,000 km3 on 149 M km2), median "
+                  << static_cast<int>(p50) << ", wettest tenth from " << static_cast<int>(p90) << ", wettest hundredth from " << static_cast<int>(p99)
+                  << "; runoff mean " << static_cast<int>(run / area) << " mm (Earth about 250: 37,300 km3)\n";
+      }
       int rivers = 0, large = 0, lakes = 0;
       double arable = 0, capacity = 0, largest = 0, lake_area = 0, endorheic = 0, forest = 0;
       for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
@@ -166,7 +202,7 @@ int gen_main(int argc, char** argv) {
         large += land.river[i] == 2;
         lakes += land.lake[i] != 0;
         if (land.lake[i] == zs::gen::kLakeOpen || land.lake[i] == zs::gen::kLakeTerminal) lake_area += grid.area_km2(i);
-        if (land.endorheic[i]) endorheic += grid.area_km2(i);
+        if (land.endorheic[i] || land.arheic[i]) endorheic += grid.area_km2(i);  // drains nowhere: closed or dry
         forest += land.forest_share[i] * grid.area_km2(i);
         arable += land.arable_share[i] * grid.area_km2(i);
         capacity += land.capacity(i);
@@ -176,7 +212,7 @@ int gen_main(int argc, char** argv) {
                 << " km3/yr); river cells " << rivers << ", large " << large << ", largest " << largest << " m3/s; lake cells " << lakes
                 << "; arable " << 100.0 * arable / land_area << "% of land; capacity " << capacity / 1e9 << " billion people\n";
       std::cout << "water (spec 83): lakes " << 100.0 * lake_area / land_area << "% of land (Earth 1.8, WMR-8); "
-                << land.open_lakes << " open lakes, " << land.closed_basins << " closed basins; endorheic "
+                << land.open_lakes << " open lakes, " << land.closed_basins << " closed basins; endorheic or arheic "
                 << 100.0 * endorheic / land_area << "% of land (Earth 17-18, WMR-10); forest " << 100.0 * forest / land_area
                 << "% of land (Earth 31, WMR-13)\n";
       // Spec 52 slice 3: deposits, with their totals.
