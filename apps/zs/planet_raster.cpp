@@ -208,7 +208,7 @@ std::string layer_legend(MapLayer l) {
     case MapLayer::Topographic:
       return "topographic: height tint (green lowland, yellow, brown, grey, white above 4,000 m), contours every 500 m, sea "
              "depth from light to dark blue, the shelf (above -200 m) lightest";
-    case MapLayer::Temperature: return "temperature: the annual mean, -30 C deep blue through 0 C white to 30 C dark red";
+    case MapLayer::Temperature: return "temperature: the annual mean, one colour every 10 C: -30 deep blue, -20 blue, -10 pale blue, 0 white, 10 pale yellow, 20 orange, 30 dark red (sea a little greyer)";
     case MapLayer::Rain: return "rain: the annual total on a log scale, 50 mm beige to 4,000 mm dark blue";
     case MapLayer::Climate:
       return "climate (Koppen-like main groups): A tropical blue, BW desert red, BS steppe orange, C temperate green, D "
@@ -413,8 +413,10 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
           break;
         case MapLayer::Temperature: {
           const double t = f.temp_mean_c[c];
-          col = ramp({{20, 40, 140}, {80, 140, 220}, {245, 245, 245}, {245, 180, 80}, {200, 40, 30}, {110, 10, 10}}, (t + 30) / 60.0);
-          if (sea) col = mix(col, RGB{40, 60, 100}, 0.35);
+          // One stop every 10 C, white at 0 (the six-stop ramp put white at -6 C and red at 18 C, so temperate land read hot).
+          col = ramp({{20, 40, 140}, {60, 110, 200}, {150, 195, 235}, {245, 245, 245}, {245, 225, 140}, {235, 140, 50}, {150, 20, 20}},
+                     (t + 30) / 60.0);
+          if (sea) col = mix(col, RGB{90, 100, 120}, 0.2);
           break;
         }
         case MapLayer::Rain:
