@@ -4,6 +4,7 @@
 // `zs gen world --bmp` and the Atlas (spec 55), so the screen shows what the file shows.
 #pragma once
 #include "zs/gen/town_layout.h"
+#include "zs/gen/world_industry.h"
 #include <string>
 #include <vector>
 
@@ -27,8 +28,8 @@ struct PlanetRaster {
 // Spec 83 rule 5 (amended 2026-10-14, the user: "different overlays: political, physical, topographic, climatic,
 // geological, urban ... resources, wind", after Cities: Skylines' info views).
 enum class MapLayer { Physical, Political, Topographic, Temperature, Rain, Climate, Wind, Geology, Water, Cover, Resources, People,
-                      Alliances };
-inline constexpr int kMapLayers = 13;
+                      Alliances, Industry };
+inline constexpr int kMapLayers = 14;
 const char* layer_name(MapLayer l);
 bool parse_layer(const std::string& name, MapLayer& out);
 // The legend of a layer, one line per colour, for printing beside the picture.
@@ -45,6 +46,7 @@ struct MapInputs {
   const gen::WorldDeposits* deposits = nullptr;
   const gen::WorldPeople* people = nullptr;
   const gen::WorldLandUse* use = nullptr;  // spec 88: cover shows the land in use; resources the worked sites
+  const gen::WorldIndustry* industry = nullptr;  // spec 93: the industry layer's plants
 };
 PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& fields, const gen::WorldLand& land,
                           const MapInputs& in, MapLayer layer, int w = 2048, int h = 1024);

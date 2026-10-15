@@ -11,6 +11,7 @@
 #include "zs/gen/world_deposits.h"
 #include "zs/gen/world_land.h"
 #include "zs/gen/world_land_use.h"
+#include "zs/gen/world_industry.h"
 #include "zs/gen/world_fields.h"
 #include "zs/gen/world_people.h"
 #include "zs/place.h"
@@ -75,6 +76,7 @@ struct GeneratedWorld {
   WorldDeposits deposits;
   WorldPeople people;
   WorldLandUse use;  // spec 88
+  WorldIndustry industry;  // spec 93
 };
 // The grid for a radius with cells near `cell_km2` (101 at Earth's radius and 5,000 km2, rule 2).
 int world_frequency(double radius_km, double cell_km2 = 5000.0);

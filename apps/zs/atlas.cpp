@@ -232,6 +232,7 @@ struct Planet {
     zs::gen::WorldDeposits deposits;
     zs::gen::WorldPeople people;
     zs::gen::WorldLandUse use;
+    zs::gen::WorldIndustry industry;  // spec 93
   };
   std::shared_ptr<const Data> data;
   MapLayer layer = MapLayer::Political;
@@ -269,6 +270,7 @@ struct Planet {
         mi.deposits = &deposits;
         mi.people = &people;
         mi.use = &gw.use;
+        mi.industry = &gw.industry;
         mi.projection = Projection::EqualEarth;  // spec 89 amendment: poles as curved edges, not bands
         PlanetRaster r = render_layer(grid, f, land, mi, layer, 1024, 512);
         std::vector<CountryInfo> cs;
@@ -287,6 +289,12 @@ struct Planet {
           const auto& v = grid.centre(t.cell);
           tc.lat = std::asin(std::clamp(v.z, -1.0, 1.0)) * 180.0 / 3.14159265358979;
           tc.lon = std::atan2(v.y, v.x) * 180.0 / 3.14159265358979;
+          {  // spec 93: its plants by kind
+            std::map<int, int> by;
+            for (int pl : gw.industry.of_town[i]) ++by[gw.industry.plants[static_cast<std::size_t>(pl)].kind];
+            for (const auto& [k, n] : by)
+              tc.plants += (tc.plants.empty() ? "" : ", ") + std::to_string(n) + " " + gw.industry.kinds[static_cast<std::size_t>(k)].label;
+          }
           cards[static_cast<std::size_t>(t.country)].towns.push_back(tc);
         }
         for (auto& c : cards) std::sort(c.towns.begin(), c.towns.end(), [](const TownCard& a, const TownCard& b) { return a.rank < b.rank; });
@@ -328,6 +336,13 @@ struct Planet {
           cc.area_km2 = c.area_km2;
           cc.people = c.people;
           cc.endowment = c.endowment;
+          {  // spec 93: the country's plants by kind
+            std::map<int, int> by;
+            for (const auto& pl : gw.industry.plants)
+              if (pl.country == static_cast<int>(k)) ++by[pl.kind];
+            for (const auto& [kind, n] : by)
+              cc.industry += (cc.industry.empty() ? "" : ", ") + std::to_string(n) + " " + gw.industry.kinds[static_cast<std::size_t>(kind)].label;
+          }
           cc.landlocked = c.landlocked;
           cc.capital_held = ci.capital_held;
           cc.periods = ci.periods;
@@ -337,7 +352,7 @@ struct Planet {
         std::snprintf(buf, sizeof buf, "%zu cells, %.0f million km2 of land, %.0f million people, %zu countries, %zu towns",
                       static_cast<std::size_t>(grid.size()), people.land_km2 / 1e6, people.total_people / 1e6,
                       people.countries.size(), people.towns.size());
-        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people, gw.use});
+        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people, gw.use, gw.industry});
         std::lock_guard<std::mutex> l(mutex);
         this->data = std::move(kept);
         raster = std::move(r);
@@ -380,6 +395,7 @@ struct Planet {
     mi.deposits = &data->deposits;
     mi.people = &data->people;
     mi.use = &data->use;
+    mi.industry = &data->industry;
     mi.projection = Projection::EqualEarth;
     raster = render_layer(data->grid, data->fields, data->land, mi, layer, 1024, 512);
     if (texture) SDL_DestroyTexture(texture), texture = nullptr;

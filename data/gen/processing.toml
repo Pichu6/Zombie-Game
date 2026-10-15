@@ -1,0 +1,105 @@
+# Processing plants (spec 93; research processing-plants, PRC). Each kind: what it makes, where Weber puts it
+# (materials, market, port, power), what it takes in, and how many Earth has at 8 billion people. A world scales the
+# count by its people. Counts marked estimate are Claude's where PP found no source.
+
+[[kind]]
+id = "oil_refinery"
+label = "Oil refinery"
+output = "fuels"
+rule = "port"
+input = ["oil"]
+earth_plants = 620          # PRC-1: 536 (FracTracker) to 717
+size = "about 140,000 barrels a day"
+
+[[kind]]
+id = "steel_works"
+label = "Steel works"
+output = "steel"
+rule = "port"
+input = ["iron", "coal"]
+earth_plants = 950          # PRC-2: Climate TRACE 953 (blast furnace and electric arc)
+size = "about 2 Mt a year"
+
+[[kind]]
+id = "alumina_refinery"
+label = "Alumina refinery"
+output = "alumina"
+rule = "materials"
+input = ["bauxite"]
+earth_plants = 100          # estimate (PRC-6: 2 t of bauxite a tonne of alumina, so it stays by the mines)
+size = "about 1.4 Mt a year"
+
+[[kind]]
+id = "aluminium_smelter"
+label = "Aluminium smelter"
+output = "aluminium"
+rule = "power"
+input = ["bauxite"]
+earth_plants = 200          # PRC-3: 114 outside China (2019) and China's
+size = "about 0.35 Mt a year"
+
+[[kind]]
+id = "copper_smelter"
+label = "Copper smelter"
+output = "copper"
+rule = "materials"
+input = ["copper"]
+earth_plants = 124          # PRC-4: the USGS map
+size = "about 0.2 Mt a year"
+
+[[kind]]
+id = "cement_plant"
+label = "Cement plant"
+output = "cement"
+rule = "market"
+input = ["people"]
+earth_plants = 3000         # PRC-5: 2,160 (Climate TRACE) to 3,884 (GEM, with planned)
+size = "about 1.5-2.6 Mt a year"
+income_weight = [1.0, 1.4, 1.0, 0.5]  # estimate: building by income group (high, upper-middle, lower-middle, low)
+
+[[kind]]
+id = "flour_mill"
+label = "Flour mill"
+output = "flour"
+rule = "market"
+input = ["crop"]
+earth_plants = 8000         # estimate (PRC-8: 166 in the United States, large; poorer countries many small mills)
+size = "a few hundred tonnes a day"
+income_weight = [0.5, 1.0, 1.4, 1.6]
+
+[[kind]]
+id = "sugar_mill"
+label = "Sugar mill"
+output = "sugar"
+rule = "materials"
+input = ["crop"]
+earth_plants = 1500         # estimate (PRC-7: cane and beet lose weight, so mills stand by the fields)
+size = "thousands of tonnes of cane a day"
+
+[[kind]]
+id = "meat_plant"
+label = "Meat plant"
+output = "meat"
+rule = "market"
+input = ["pasture"]
+earth_plants = 25000        # estimate (PRC-8: 2,923 slaughter plants in the United States)
+size = "from small abattoirs to large packers"
+income_weight = [1.0, 1.0, 0.8, 0.6]
+
+[[kind]]
+id = "sawmill"
+label = "Sawmill"
+output = "lumber"
+rule = "materials"
+input = ["forest"]
+earth_plants = 30000        # estimate (logs lose weight, PRC-7)
+size = "from small mills to large ones"
+
+[[kind]]
+id = "fish_plant"
+label = "Fish plant"
+output = "fish products"
+rule = "materials"
+input = ["fish"]
+earth_plants = 5000         # estimate
+size = "at the ports that land the catch"

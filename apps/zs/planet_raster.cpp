@@ -3,6 +3,7 @@
 #include "toml.hpp"
 
 #include <cstdio>
+#include <map>
 
 #include <algorithm>
 #include <array>
@@ -192,7 +193,7 @@ const RGB kBoundary[7] = {{0, 0, 0}, {200, 30, 30}, {240, 130, 30}, {40, 40, 80}
 const char* layer_name(MapLayer l) {
   static const char* names[kMapLayers] = {"physical", "political", "topographic", "temperature", "rain",   "climate",
                                           "wind",     "geology",   "water",       "cover",       "resources", "people",
-                                          "alliances"};
+                                          "alliances", "industry"};
   return names[static_cast<int>(l)];
 }
 
@@ -211,6 +212,10 @@ std::string layer_legend(MapLayer l) {
              "with discharge; borders thin grey";
     case MapLayer::Political: return "political: a colour per country (a custom country's own); rivers and lakes as in physical; borders dark";
     case MapLayer::Alliances: return "alliances (spec 91): a colour per alliance, countries in none grey; country borders thin";
+    case MapLayer::Industry:
+      return "industry (spec 93): physical faded; plants at their towns, a dot by kind sized by how many: refineries brown, steel "
+             "red, alumina and aluminium pink, copper teal, cement grey, flour and sugar mills yellow, meat plants purple, sawmills "
+             "green, fish plants cyan";
     case MapLayer::Topographic:
       return "topographic: height tint (green lowland, yellow, brown, grey, white above 4,000 m), contours every 500 m, sea "
              "depth from light to dark blue, the shelf (above -200 m) lightest";
@@ -395,6 +400,7 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       switch (layer) {
         case MapLayer::Physical:
         case MapLayer::Resources:
+        case MapLayer::Industry:
         case MapLayer::Wind: break;
         case MapLayer::Political:
           if (!sea) {
@@ -503,10 +509,11 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       if (shows_water && wtr == 2) col = kLakeOpen;
       if (shows_water && wtr == 3) col = kLakeSalt;
       if (shows_water && wtr == 4 && layer != MapLayer::Water) col = kLakeDry;
-      const bool shaded = layer == MapLayer::Physical || layer == MapLayer::Resources || layer == MapLayer::Cover ||
+      const bool shaded = layer == MapLayer::Physical || layer == MapLayer::Resources || layer == MapLayer::Industry || layer == MapLayer::Cover ||
                           layer == MapLayer::Wind || layer == MapLayer::Topographic || layer == MapLayer::Political;
       if (shaded && wtr == 0) for (double& v : col) v *= layer == MapLayer::Political ? 0.85 + 0.15 * hillshade(x, y) : hillshade(x, y);
-      if (layer == MapLayer::Resources || layer == MapLayer::Wind) col = mix(col, RGB{200, 200, 200}, layer == MapLayer::Wind ? 0.25 : 0.4);
+      if (layer == MapLayer::Resources || layer == MapLayer::Industry || layer == MapLayer::Wind)
+        col = mix(col, RGB{200, 200, 200}, layer == MapLayer::Wind ? 0.25 : layer == MapLayer::Industry ? 0.55 : 0.4);
       (void)physical;
       // A border (spec 52 slice 4): land whose country differs from the land to its right or below.
       const int k = r.country[i];
@@ -524,7 +531,7 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
   // Rivers as smooth curves from source to mouth (Catmull-Rom through the cells' centres as the picture shows them),
   // wider downstream with discharge: one pixel at the river threshold, four at 100,000 m3/s.
   const bool draws_rivers = layer == MapLayer::Physical || layer == MapLayer::Political || layer == MapLayer::Topographic ||
-                            layer == MapLayer::Water || layer == MapLayer::Cover || layer == MapLayer::Resources ||
+                            layer == MapLayer::Water || layer == MapLayer::Cover || layer == MapLayer::Resources || layer == MapLayer::Industry ||
                             layer == MapLayer::Wind;
   if (draws_rivers) {
     const double scale = std::max(0.5, static_cast<double>(W) / 2048.0);
@@ -619,6 +626,37 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       const double off = (k - 2.5) * 0.9 * (W / 2048.0);
       cv.disc(x + off, y + off * 0.5, rad, kDeposit[k], worked[di] ? 0.95 : 0.3);  // spec 88: unworked deposits faint
     }
+  }
+
+  if (layer == MapLayer::Industry && in.industry) {  // spec 93: each town's plants by kind, a dot sized by the count
+    static const std::map<std::string, RGB> kColour = {
+        {"oil_refinery", {120, 70, 30}},    {"steel_works", {200, 30, 30}},  {"alumina_refinery", {230, 120, 180}},
+        {"aluminium_smelter", {200, 60, 160}}, {"copper_smelter", {20, 150, 150}}, {"cement_plant", {110, 110, 110}},
+        {"flour_mill", {230, 200, 40}},     {"sugar_mill", {250, 230, 120}}, {"meat_plant", {130, 60, 160}},
+        {"sawmill", {40, 130, 40}},         {"fish_plant", {40, 190, 220}}};
+    const gen::WorldIndustry& ind = *in.industry;
+    // Light industry first (many, small), heavy industry over it.
+    for (int pass = 0; pass < 2; ++pass)
+      for (std::size_t t = 0; t < ind.of_town.size(); ++t) {
+        std::map<int, int> count;
+        for (int p : ind.of_town[t]) ++count[ind.plants[static_cast<std::size_t>(p)].kind];
+        if (count.empty()) continue;
+        double x, y;
+        to_pixel(warp.undo(grid.centre(in.people->towns[t].cell)), W, H, x, y);
+        int slot = 0;
+        for (const auto& [k, n] : count) {
+          const gen::PlantKind& K = ind.kinds[static_cast<std::size_t>(k)];
+          const bool heavy = K.rule != gen::PlantRule::Market && K.id != "sawmill" && K.id != "fish_plant" && K.id != "sugar_mill";
+          if (heavy != (pass == 1)) continue;
+          auto it = kColour.find(K.id);
+          const RGB c = it != kColour.end() ? it->second : RGB{0, 0, 0};
+          // Heavy industry large and solid; light industry (mills, meat plants, sawmills) small and faint beneath it.
+          const double rad = heavy ? std::clamp(1.2 + 0.7 * std::log2(1.0 + n), 1.4, 4.5) * (W / 2048.0 + 0.4)
+                                   : std::clamp(0.4 + 0.25 * std::log2(1.0 + n), 0.5, 1.2) * (W / 2048.0 + 0.4);
+          const double off = (slot++ % 4 - 1.5) * 1.2 * (W / 2048.0 + 0.4);
+          cv.disc(x + off, y + (heavy ? -1.0 : 1.0) * (W / 2048.0 + 0.4), rad, c, heavy ? 0.95 : 0.35);
+        }
+      }
   }
 
   if (layer == MapLayer::People && in.people) {

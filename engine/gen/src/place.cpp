@@ -134,6 +134,8 @@ GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int fr
   w.people = populate_world(w.grid, w.fields, w.land, w.deposits, seed, load_group_tables(data), profiles, cp);
   say("fields, mines and fishing grounds");
   w.use = generate_land_use(w.grid, w.fields, w.land, w.deposits, w.people);  // spec 88
+  say("refineries, mills and plants");
+  w.industry = place_plants(w.grid, w.fields, w.land, w.deposits, w.people, w.use, load_plant_kinds(data + "/gen"));  // spec 93
   return w;
 }
 

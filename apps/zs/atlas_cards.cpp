@@ -543,6 +543,7 @@ void draw_country_card(CardsState& st, const WorldCard& world, const CountryCard
   v["sectors"] = std::to_string(c.sectors);
   v["towns"] = std::to_string(c.towns.size()) + (c.towns.empty() ? "" : ", the largest of " + fmt("%.0f thousand", c.towns.front().people / 1e3));
   if (!c.origin.empty()) v["origin"] = c.origin;
+  v["industry"] = c.industry.empty() ? "none" : c.industry;
   if (!c.alliance.empty()) v["alliance"] = c.alliance;
   v["profile"] = c.profile.empty() ? "the base country of its income group (data/setup/nations/base_" + c.income + ".toml)"
                  : zs::is_custom_profile(c.profile)
@@ -586,6 +587,7 @@ void draw_town_card(CardsState& st, const WorldCard& world, const CountryCard& c
   Values v;
   v["people"] = fmt("%.0f thousand", t.people / 1e3);
   v["rank"] = std::to_string(t.rank) + " in " + c.name;
+  v["plants"] = t.plants.empty() ? "none" : t.plants;
   v["cell"] = std::to_string(t.cell) + fmt(" (lat %.1f", t.lat) + fmt(", lon %.1f)", t.lon);
   if (st.gen_town) {
     const gen::Town& g = *st.gen_town;

@@ -20,11 +20,13 @@ struct TownCard {
   double people = 0;
   std::uint64_t cell = 0;
   double lat = 0, lon = 0;
+  std::string plants;  // spec 93: its plants by kind
 };
 
 struct CountryCard {
   std::string name, income, profile;
   std::string origin, alliance;  // spec 91: how the history made it, the alliance it is in
+  std::string industry;          // spec 93: its plants by kind
   double area_km2 = 0, people = 0, endowment = 0;
   bool landlocked = false;
   int capital_held = 0, periods = 0, sectors = 0;

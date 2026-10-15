@@ -274,6 +274,37 @@ int gen_main(int argc, char** argv) {
                   << " million t (80, EZ-5); worked: " << mines << " mining districts, " << fields_n << " oil and gas fields ("
                   << offshore << " offshore)\n";
       }
+      {  // spec 93: processing plants
+        const zs::gen::WorldIndustry& ind = gw.industry;
+        const double scale = people.total_people / 8.0e9;
+        std::vector<int> count(ind.kinds.size(), 0), at_port(ind.kinds.size(), 0);
+        std::vector<double> feed_km(ind.kinds.size(), 0.0);
+        std::vector<int> feed_n(ind.kinds.size(), 0);
+        for (const auto& pl : ind.plants) {
+          const auto k = static_cast<std::size_t>(pl.kind);
+          ++count[k];
+          const auto site = people.towns[static_cast<std::size_t>(pl.town)].site;
+          at_port[k] += site == zs::gen::TownSite::Port || site == zs::gen::TownSite::Mouth;
+          if (!pl.feeds.empty()) feed_km[k] += grid.distance_km(pl.cell, gw.use.sites[static_cast<std::size_t>(pl.feeds.front())].cell), ++feed_n[k];
+        }
+        std::cout << "processing (spec 93): " << ind.plants.size() << " plants:";
+        for (std::size_t k = 0; k < ind.kinds.size(); ++k) {
+          std::cout << (k ? ";" : "") << " " << ind.kinds[k].label << " " << count[k] << " (Earth's at this many people "
+                    << static_cast<long long>(ind.kinds[k].earth_plants * scale + 0.5) << ", at ports " << (count[k] ? 100 * at_port[k] / count[k] : 0) << " %";
+          if (feed_n[k]) std::cout << ", input " << static_cast<int>(feed_km[k] / feed_n[k]) << " km away";
+          std::cout << ")";
+        }
+        std::vector<std::size_t> order(ind.of_town.size());
+        for (std::size_t t = 0; t < order.size(); ++t) order[t] = t;
+        std::stable_sort(order.begin(), order.end(), [&](std::size_t a, std::size_t b) { return ind.of_town[a].size() > ind.of_town[b].size(); });
+        std::cout << "\n  most industrial towns:";
+        for (std::size_t i = 0; i < 5 && i < order.size(); ++i) {
+          const auto& town = people.towns[order[i]];
+          std::cout << " " << ind.of_town[order[i]].size() << " plants in " << people.countries[static_cast<std::size_t>(town.country)].name
+                    << "'s town of " << static_cast<int>(town.people / 1000) << " thousand;";
+        }
+        std::cout << "\n";
+      }
       const std::string bmp = arg(argc, argv, "--bmp", "");
       // Spec 83 rule 6: the map in layers.
       zs::atlas::MapInputs mi;
@@ -281,6 +312,7 @@ int gen_main(int argc, char** argv) {
       mi.deposits = &deposits;
       mi.people = &people;
       mi.use = &gw.use;
+      mi.industry = &gw.industry;
       if (arg(argc, argv, "--projection", "") == "equal-earth") mi.projection = zs::atlas::Projection::EqualEarth;  // spec 89 amendment
       if (!bmp.empty()) {
         const bool political = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--political"; });
