@@ -7,6 +7,7 @@ add_library(zs_gen
   src/registry_bridge.cpp
   src/world_grid.cpp
   src/world_fields.cpp
+  src/world_shapes.cpp
   src/place.cpp
   src/world_people.cpp
   src/world_land_use.cpp

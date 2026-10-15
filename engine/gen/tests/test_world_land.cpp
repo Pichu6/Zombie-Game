@@ -152,5 +152,5 @@ TEST_CASE("land: deterministic, golden pinned (A1)") {
     h = mix64(h, p.land.downstream[i]);
   }
   MESSAGE("land hash: ", h);
-  CHECK(h == 6510423414019716180ULL);  // re-pinned on MSVC, 2026-10-14 (spec 88: extraction zones; rangeland pasture)
+  CHECK(h == 2820290856926262700ULL);  // re-pinned on MSVC, 2026-10-14 (spec 89: continents from cratons, arcs as chains, sea ice)
 }

@@ -25,6 +25,8 @@ enum : std::uint32_t {
   Primacy = 113,  // spec 78 rule 2: a country's primacy, keyed by country index
   // Spec 31 rules 2-4 revised (2026-10-09): keyed points and noise channels, resolution-independent.
   PlatePoint = 108, NoiseCost = 109, NoiseElev = 110, NoiseWarp = 111, Hotspot = 112,
+  // Spec 89: continental crust from cratons, island arcs as chains.
+  CratonPoint = 114, CratonSize = 115, NoiseCraton = 116, NoiseArc = 117, NoiseIce = 118,
 };
 }  // namespace zs::gen::field
 

@@ -95,5 +95,5 @@ TEST_CASE("deposits: deterministic, golden pinned (A1)") {
     h = mix64(mix64(h, d.cell), mix64(static_cast<std::uint64_t>(d.kind), mix64(a, g)));
   }
   MESSAGE("deposits hash: ", h, ", ", p.deposits.deposits.size(), " deposits");
-  CHECK(h == 3322270544007387515ULL);  // re-pinned on MSVC, 2026-10-14 (spec 83: rain by place, biomes by aridity, lakes that balance)
+  CHECK(h == 2525263740786351682ULL);  // re-pinned on MSVC, 2026-10-14 (spec 89: continents from cratons, arcs as chains, sea ice)
 }

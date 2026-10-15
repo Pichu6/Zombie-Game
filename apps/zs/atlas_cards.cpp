@@ -136,6 +136,7 @@ double* field_of(gen::WorldSettings& s, const std::string& field) {
   if (field == "forest") return &s.forest;
   if (field == "fish") return &s.fish;
   if (field == "people") return &s.people;
+  if (field == "continents") return &s.continents;
   return nullptr;
 }
 

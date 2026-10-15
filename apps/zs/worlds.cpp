@@ -65,7 +65,8 @@ void write_settings(std::ostream& o, const zs::gen::WorldSettings& s) {
     << "fertility = " << s.fertility << "\n"
     << "forest = " << s.forest << "\n"
     << "fish = " << s.fish << "\n"
-    << "people = " << s.people << "\n";
+    << "people = " << s.people << "\n"
+    << "continents = " << s.continents << "\n";
 }
 
 zs::gen::WorldSettings read_settings(const toml::table& t) {
@@ -84,6 +85,7 @@ zs::gen::WorldSettings read_settings(const toml::table& t) {
     s.forest = (*st)["forest"].value_or(s.forest);
     s.fish = (*st)["fish"].value_or(s.fish);
     s.people = (*st)["people"].value_or(s.people);
+    s.continents = (*st)["continents"].value_or(s.continents);
   }
   return s;
 }

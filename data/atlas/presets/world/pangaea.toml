@@ -1,0 +1,5 @@
+# A shipped world preset (spec 89): one supercontinent.
+name = "pangaea"
+
+[settings]
+continents = 1.0

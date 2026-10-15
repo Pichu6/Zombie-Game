@@ -45,6 +45,7 @@
 #include "zs/tier0.h"
 #include "modes.h"
 #include "planet_raster.h"
+#include "zs/gen/world_shapes.h"
 #include "world_numbers.h"
 
 namespace {
@@ -65,7 +66,7 @@ int usage() {
                "       zs gen routes [--seed N] [--freq F] [--detour X] [--bmp FILE]   (spec 74)\n"
                "       zs gen food [--seed N] [--freq F] [--border X]   (spec 76)\n"
                "       zs gen cultures\n"
-               "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--radius KM] [--fuel X] [--metals X] [--fertility X] [--forest X] [--fish X] [--people X] [--preview] [--bmp FILE [--layer L | --political]] [--layers PREFIX]\n";
+               "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--radius KM] [--fuel X] [--metals X] [--fertility X] [--forest X] [--fish X] [--people X] [--continents N] [--preview] [--bmp FILE [--layer L | --political]] [--layers PREFIX]\n";
   return 2;
 }
 
@@ -98,6 +99,7 @@ int gen_main(int argc, char** argv) {
       ws.forest = std::atof(arg(argc, argv, "--forest", "1").c_str());
       ws.fish = std::atof(arg(argc, argv, "--fish", "1").c_str());
       ws.people = std::atof(arg(argc, argv, "--people", "1").c_str());
+      ws.continents = std::atof(arg(argc, argv, "--continents", "8").c_str());  // spec 89
       const bool preview = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--preview"; });
       int freq = std::atoi(arg(argc, argv, "--freq", "0").c_str());
       if (preview) freq = zs::gen::world_frequency(ws.radius_km, zs::gen::kPreviewCellKm2);
@@ -137,6 +139,22 @@ int gen_main(int argc, char** argv) {
           std::cout << "  " << zs::gen::biome_name(static_cast<zs::gen::Biome>(b)) << " " << ours << " (" << earth[b] << ", "
                     << ours / earth[b] << ")\n";
         }
+      }
+      {  // Spec 89: the land's shapes against Earth's (tools/data/earth_shapes.py, CC).
+        const zs::gen::LandShapes ls = zs::gen::land_shapes(grid, f);
+        std::cout << "shapes (spec 89): largest landmasses (% of land):";
+        for (std::size_t i = 0; i < std::min<std::size_t>(6, ls.landmasses_km2.size()); ++i)
+          std::cout << " " << 100 * ls.landmasses_km2[i] / ls.land_km2;
+        std::cout << " (Earth 53.5 26.1 9.3 5.1 1.5 0.6); landmasses of 1M / 100k / 10k km2 " << ls.over_1m << " / " << ls.over_100k
+                  << " / " << ls.over_10k << " (5 / 20 / 62); islands " << 100 * ls.islands << " % (4.4)\n";
+        std::cout << "  land within 50 / 100 / 200 / 400 / 800 km of the sea " << 100 * ls.near_sea[0] << " / " << 100 * ls.near_sea[1]
+                  << " / " << 100 * ls.near_sea[2] << " / " << 100 * ls.near_sea[3] << " / " << 100 * ls.near_sea[4]
+                  << " % (Earth 8.5 / 17.0 / 29.3 / 47.6 / 72.6); median " << ls.median_sea_km << " km (431); thin-strip land "
+                  << 100 * ls.thin << " %; beyond the polar circles N " << 100 * ls.arctic << " S " << 100 * ls.antarctic
+                  << " % (5.4, 9.2); northern hemisphere " << 100 * ls.north << " % (67.3); sea ice " << 100 * ls.sea_ice << " % of the sea (about 6)\n";
+        std::cout << "  land by latitude, -90 to +90 (% of land):";
+        for (double x : ls.by_latitude) std::cout << " " << static_cast<int>(100 * x + 0.5);
+        std::cout << " (Earth 3 6 1 0 1 3 6 6 7 7 8 10 10 11 10 9 2 0)\n";
       }
       // Spec 52: where the rain goes and what the land can feed.
       const zs::gen::WorldLand& land = gw.land;

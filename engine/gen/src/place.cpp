@@ -105,6 +105,7 @@ GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int fr
   wp.global_temp_c = s.global_temp_c;
   wp.relief = s.relief;
   wp.moisture = s.moisture;
+  wp.cratons = std::max(1, static_cast<int>(s.continents + 0.5));  // spec 89
   w.fields = generate_fields(w.grid, wp);
   say("rivers, soil and water");
   LandParams lp;

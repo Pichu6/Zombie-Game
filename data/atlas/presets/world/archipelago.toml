@@ -1,0 +1,5 @@
+# A shipped world preset (spec 89): many small continents and islands.
+name = "archipelago"
+
+[settings]
+continents = 30.0

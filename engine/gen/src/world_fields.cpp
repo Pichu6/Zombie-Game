@@ -28,7 +28,7 @@ const char* boundary_name(BoundaryKind k) {
 // Spec 83 rule 3: aridity cuts (rain over potential evapotranspiration), calibrated on seeds 1-5 against Earth's
 // biome shares (WMR-1); they started at the UNEP aridity classes (0.2, 0.5) and 0.9.
 namespace {
-constexpr double kAiDesert = 0.28, kAiGrass = 0.5, kAiSavanna = 0.52;
+constexpr double kAiDesert = 0.31, kAiGrass = 0.55, kAiSavanna = 0.6;  // recalibrated with spec 89's continents
 }  // namespace
 
 double pet_mm(double t) { return 58.93 * std::clamp(t, 0.0, 30.0); }
@@ -61,10 +61,19 @@ constexpr double kWarp = 0.25;            // domain warp, in unit-sphere lengths
 constexpr double kHotspotsAtEarth = 45;   // Earth: about 40-50 hotspots
 constexpr int kHotspotChain = 6;
 constexpr double kHotspotStepKm = 350, kHotspotSigmaKm = 150, kHotspotM = 8000;
+// Spec 89 (estimates, calibrated in As built): cratons and their size spread; island arcs as chains of islands.
+constexpr int kCratons = 8;
+constexpr double kCratonZipf = 1.5;        // the k-th craton's share of continental crust falls as k^-1.5 (CC)
+constexpr double kArcWavelengthKm = 700;   // arc islands come and go along the arc at about this spacing
+constexpr double kArcM = 4000;             // an arc's uplift at full convergence (was the subduction's 5,000)
+constexpr double kSeaIceC = -10.0;         // annual mean air temperature below which the sea is ice-covered (CC)
+constexpr double kSeaIceNoiseC = 4.0;      // the ice edge wanders by this much with currents and winds (estimate)
+constexpr double kInlandSeaKm2 = 2.0e6;    // an enclosed sea is filled as a low basin (Earth has none larger than the Caspian, CC)
+constexpr double kBasinM = 5;              // how far above the sea a filled basin's floor stands
 
 struct PlateInfo {
   bool continental = false;
-  double base = 0, weight = 1, age = 0;
+  double base = 0, weight = 1, age = 0, offset = 0;
   Vec3 omega;  // rotation axis; velocity at point c is omega x c
 };
 
@@ -228,10 +237,67 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       PlateInfo& pi = plates[static_cast<std::size_t>(p)];
       const double off = (rnd.u01(static_cast<std::uint64_t>(p), field::PlateOffset) - 0.5) * 600.0;
       pi.base = (pi.continental ? 250.0 : -4000.0) + off;
+      pi.offset = off;
     }
   }
 
-  // ---- Boundaries (rule 3): per-cell source from the strongest convergence with a neighbouring plate.
+  // ---- Spec 89 rule 1: continental crust from cratons, apart from the plates (a plate carries both kinds). The k-th
+  // craton takes a share of the continental area falling as k^-1.5 with a keyed spread; each grows from a keyed point
+  // as a noisy flood until it holds its share, so continents are blobs of many sizes, and cratons that meet merge.
+  std::vector<std::uint8_t>& crust = f.crust;
+  crust.assign(N, 0);
+  {
+    const int C = prm.cratons > 0 ? prm.cratons : kCratons;
+    const double total = std::clamp(prm.land_share * 1.35, 0.02, 0.95) * g.sphere_area_km2();
+    std::vector<double> budget(static_cast<std::size_t>(C));
+    double sum = 0;
+    for (int k = 0; k < C; ++k) {
+      budget[static_cast<std::size_t>(k)] =
+          detmath::pow(k + 1.0, -kCratonZipf) * (0.7 + 0.6 * rnd.u01(static_cast<std::uint64_t>(k), field::CratonSize));
+      sum += budget[static_cast<std::size_t>(k)];
+    }
+    for (double& b : budget) b *= total / sum;
+    std::vector<Vec3> at;
+    for (int k = 0; k < C; ++k) {
+      Vec3 best{0, 0, 1};
+      double best_gap = -2;
+      for (std::uint32_t t = 0; t < 8; ++t) {
+        const Vec3 c = random_point(rnd, static_cast<std::uint64_t>(k), field::CratonPoint, t);
+        double nearest = 4;
+        for (const Vec3& s : at) {
+          const Vec3 d{c.x - s.x, c.y - s.y, c.z - s.z};
+          nearest = std::min(nearest, dot(d, d));
+        }
+        if (nearest > best_gap) best_gap = nearest, best = c;
+      }
+      at.push_back(best);
+    }
+    const noise::Fbm craton_noise{1500, 3, 0.5, 0};
+    using Item = std::tuple<double, CellId, int>;
+    std::priority_queue<Item, std::vector<Item>, std::greater<Item>> q;
+    std::vector<double> got(static_cast<std::size_t>(C), 0.0), cost(N, 1e300);
+    for (int k = 0; k < C; ++k) {
+      const CellId s = nearest_cell(g, at[static_cast<std::size_t>(k)]);
+      cost[s] = 0;
+      q.push({0.0, s, k});
+    }
+    while (!q.empty()) {
+      const auto [c, cell, k] = q.top();
+      q.pop();
+      if (crust[cell] || got[static_cast<std::size_t>(k)] >= budget[static_cast<std::size_t>(k)]) continue;
+      crust[cell] = 1;
+      got[static_cast<std::size_t>(k)] += g.area_km2(cell);
+      for (const CellId nb : g.neighbours(cell)) {
+        if (crust[nb]) continue;
+        const double n = noise::fbm(prm.seed, field::NoiseCraton, g.centre(nb), g.radius_km(), craton_noise);
+        const double step = g.distance_km(cell, nb) * detmath::exp(kCostContrast * n);
+        if (c + step < cost[nb]) cost[nb] = c + step, q.push({c + step, nb, k});
+      }
+    }
+  }
+
+  // ---- Boundaries (rule 3): per-cell source from the strongest convergence with a neighbouring plate. Spec 89: the
+  // kind follows the crust on each side, not the plate.
   auto velocity = [&](int p, const Vec3& c) { return cross(plates[static_cast<std::size_t>(p)].omega, c); };
   std::vector<Source> src(N);
   std::vector<std::uint8_t> on_boundary(N, 0);
@@ -249,14 +315,15 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       const double conv = (dot(va, d) - dot(vb, d)) / 2.0;  // [-1, 1]; positive = closing
       Source s;
       if (conv > 0) {
-        if (A.continental && B.continental) s = {7000.0 * conv, BoundaryKind::Collision};
-        else if (A.continental) s = {5000.0 * conv, BoundaryKind::Subduction};
-        else if (B.continental) s = {-6000.0 * conv, BoundaryKind::Trench};
+        const bool ci = crust[i] != 0, cj = crust[j] != 0;
+        if (ci && cj) s = {7000.0 * conv, BoundaryKind::Collision};
+        else if (ci) s = {5000.0 * conv, BoundaryKind::Subduction};
+        else if (cj) s = {-6000.0 * conv, BoundaryKind::Trench};
         else if (A.age >= B.age) s = {-6000.0 * conv, BoundaryKind::Trench};
-        else s = {5000.0 * conv, BoundaryKind::IslandArc};
+        else s = {kArcM * conv, BoundaryKind::IslandArc};
       } else {
         const double a = -conv;
-        if (!A.continental && !B.continental) s = {1500.0 * a, BoundaryKind::Ridge};
+        if (!crust[i] && !crust[j]) s = {1500.0 * a, BoundaryKind::Ridge};
         else s = {-700.0 * a, BoundaryKind::Rift};
       }
       if (std::abs(s.v) > std::abs(src[i].v)) src[i] = s;
@@ -277,7 +344,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     std::vector<Source> next = src;
     for (CellId i = 0; i < N; ++i)
       for (const CellId j : g.neighbours(i)) {
-        if (f.plate[j] != f.plate[i]) continue;
+        if (f.plate[j] != f.plate[i] || crust[j] != crust[i]) continue;  // spec 89: and on its own crust
         const double cand = src[j].v * decay;
         if (std::abs(cand) > std::abs(next[i].v)) next[i] = {cand, src[j].k};
       }
@@ -293,7 +360,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     std::priority_queue<Item, std::vector<Item>, std::greater<Item>> q;
     for (CellId i = 0; i < N; ++i)
       for (const CellId j : g.neighbours(i))
-        if (plates[f.plate[i]].continental != plates[f.plate[j]].continental) {
+        if (crust[i] != crust[j]) {
           margin[i] = 0.5 * g.distance_km(i, j);
           q.push({margin[i], i});
           break;
@@ -303,7 +370,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       q.pop();
       if (d > margin[c]) continue;
       for (const CellId j : g.neighbours(c)) {
-        if (plates[f.plate[j]].continental != plates[f.plate[c]].continental) continue;
+        if (crust[j] != crust[c]) continue;
         const double nd = d + g.distance_km(c, j);
         if (nd < margin[j]) margin[j] = nd, q.push({nd, j});
       }
@@ -312,8 +379,11 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
   auto margin_base = [&](CellId i) {
     const PlateInfo& pl = plates[f.plate[i]];
     const double d = std::min(margin[i], 1e6);
-    if (pl.continental) return kShelfM + (pl.base - kShelfM) * std::min(1.0, d / kPlainKm);
-    return pl.base + (kShelfM - pl.base) * std::max(0.0, 1.0 - d / kSlopeKm);
+    // Spec 89: the crust's base (continental 0 m, oceanic -5,200 m, calibrated on seeds 1-5 to Earth's hypsometry and
+    // ocean depth, MG-24, MG-25), the plate's offset.
+    const double base = (crust[i] ? 0.0 : -5200.0) + pl.offset;
+    if (crust[i]) return kShelfM + (base - kShelfM) * std::min(1.0, d / kPlainKm);
+    return base + (kShelfM - base) * std::max(0.0, 1.0 - d / kSlopeKm);
   };
 
   // ---- Hotspots (rule 3c): keyed points on the sphere; each leaves a chain of volcanic bumps trailing against its
@@ -329,7 +399,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       Vec3 v = cross(pl.omega, c0);
       const double vl = detmath::sqrt(dot(v, v));
       v = vl > 1e-12 ? Vec3{v.x / vl, v.y / vl, v.z / vl} : Vec3{0, 0, 0};
-      const double scale = (pl.continental ? 0.15 : 1.0) * (0.6 + 0.8 * rnd.u01(static_cast<std::uint64_t>(h), field::Hotspot, 9));
+      const double scale = (crust[at] ? 0.15 : 1.0) * (0.6 + 0.8 * rnd.u01(static_cast<std::uint64_t>(h), field::Hotspot, 9));
       for (int k = 0; k < kHotspotChain; ++k) {
         const double back = k * kHotspotStepKm / g.radius_km();
         const Vec3 p = unit({c0.x - v.x * back, c0.y - v.y * back, c0.z - v.z * back});
@@ -347,6 +417,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
   const noise::Fbm warp_noise{4000, 3, 0.5, 2 * spacing};
   const noise::Fbm elev_noise{3000, 8, 0.55, 2 * spacing};
   const noise::Fbm shape_noise{9000, 2, 0.5, 2 * spacing};
+  const noise::Fbm arc_noise{kArcWavelengthKm, 2, 0.5, 0};
   std::vector<double> elev(N);
   for (CellId i = 0; i < N; ++i) {
     const Vec3& c = g.centre(i);
@@ -355,10 +426,15 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
                  noise::fbm(prm.seed, field::NoiseWarp * 4 + 2, c, g.radius_km(), warp_noise)};
     const Vec3 q{c.x + kWarp * w.x, c.y + kWarp * w.y, c.z + kWarp * w.z};
     const double n = noise::fbm(prm.seed, field::NoiseElev, q, g.radius_km(), elev_noise);
-    const double inland = plates[f.plate[i]].continental ? std::min(margin[i], 1e6) : 0.0;
+    const double inland = crust[i] ? std::min(margin[i], 1e6) : 0.0;
     const double amp = kNoiseM * (kNoiseInland + (1.0 - kNoiseInland) * detmath::exp(-inland / kNoiseFadeKm));
     const double shape = noise::fbm(prm.seed, field::NoiseElev + 1, q, g.radius_km(), shape_noise);
-    elev[i] = margin_base(i) + kShapeM * shape + prm.relief * (src[i].v + amp * n + hot[i]);
+    double boundary = src[i].v;
+    if (src[i].k == BoundaryKind::IslandArc) {  // spec 89 rule 3: islands that come and go along the arc, not a wall
+      const double m = noise::fbm(prm.seed, field::NoiseArc, c, g.radius_km(), arc_noise);
+      boundary *= std::clamp((m - 0.05) / 0.35, 0.0, 1.0);
+    }
+    elev[i] = margin_base(i) + kShapeM * shape + prm.relief * (boundary + amp * n + hot[i]);
     f.boundary_kind[i] = src[i].k;
   }
   for (int it = 0; it < 2; ++it) {
@@ -380,10 +456,58 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     });
     const double share = std::clamp(prm.land_share, 0.01, 0.99);
     const double target = share * g.sphere_area_km2();
-    double cum = 0;
-    std::size_t m = 0;
-    while (m + 1 < N && std::abs(cum + g.area_km2(order[m]) - target) < std::abs(cum - target)) cum += g.area_km2(order[m++]);
-    f.sea_level_raw_m = elev[order[m]];
+    // Spec 89 rule 2: a sea shut inside the land and smaller than the Caspian (CC) is not sea but a low basin: it is
+    // raised just above the sea and the level is found again, so the land share stays exact.
+    for (int pass = 0; pass < 4; ++pass) {
+      std::sort(order.begin(), order.end(), [&](CellId a, CellId b) {
+        return elev[a] != elev[b] ? elev[a] > elev[b] : a < b;
+      });
+      double cum = 0;
+      std::size_t m = 0;
+      while (m + 1 < N && std::abs(cum + g.area_km2(order[m]) - target) < std::abs(cum - target)) cum += g.area_km2(order[m++]);
+      f.sea_level_raw_m = elev[order[m]];
+      std::vector<int> comp(N, -1);
+      std::vector<double> area;
+      std::vector<std::vector<CellId>> cells;
+      for (CellId i = 0; i < N; ++i) {
+        if (elev[i] > f.sea_level_raw_m || comp[i] >= 0) continue;
+        const int k = static_cast<int>(area.size());
+        area.push_back(0);
+        cells.emplace_back();
+        std::vector<CellId> stack{i};
+        comp[i] = k;
+        while (!stack.empty()) {
+          const CellId x = stack.back();
+          stack.pop_back();
+          area.back() += g.area_km2(x);
+          cells.back().push_back(x);
+          for (const CellId nb : g.neighbours(x))
+            if (elev[nb] <= f.sea_level_raw_m && comp[nb] < 0) comp[nb] = k, stack.push_back(nb);
+        }
+      }
+      std::size_t ocean = 0;
+      for (std::size_t k = 1; k < area.size(); ++k)
+        if (area[k] > area[ocean]) ocean = k;
+      bool raised = false;
+      for (std::size_t k = 0; k < area.size(); ++k) {
+        if (k == ocean || area[k] >= kInlandSeaKm2) continue;
+        double low = elev[cells[k].front()];
+        for (const CellId x : cells[k]) low = std::min(low, elev[x]);
+        // keep the basin's own relief, lifted so its floor stands just above the sea: its water gathers at the floor
+        for (const CellId x : cells[k])  // a tiny keyed tie-break: two basin floors must not stand at the same height
+          elev[x] = f.sea_level_raw_m + kBasinM + 0.5 * (elev[x] - low) + 1e-6 * static_cast<double>(x % 9973);
+        raised = true;
+      }
+      if (!raised) break;
+    }
+    // The level once more over the filled basins, so the land share is exact to a cell (rule 5).
+    std::sort(order.begin(), order.end(), [&](CellId a, CellId b) { return elev[a] != elev[b] ? elev[a] > elev[b] : a < b; });
+    {
+      double cum = 0;
+      std::size_t m = 0;
+      while (m + 1 < N && std::abs(cum + g.area_km2(order[m]) - target) < std::abs(cum - target)) cum += g.area_km2(order[m++]);
+      f.sea_level_raw_m = elev[order[m]];
+    }
     for (CellId i = 0; i < N; ++i) f.elevation_m[i] = std::clamp(elev[i] - f.sea_level_raw_m, -11000.0, 9000.0);
   }
   std::vector<CellId> sea;
@@ -441,6 +565,15 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       }
       (dir < 0 ? f.west_km : f.east_km)[i] = std::min(km, kSideWalkKm);
     }
+  }
+
+  // ---- Spec 89 rule 4: sea ice where the sea's annual mean is below the freezing of sea water.
+  f.sea_ice.assign(N, 0);
+  {
+    const noise::Fbm ice_noise{1500, 2, 0.5, 0};
+    for (CellId i = 0; i < N; ++i)
+      f.sea_ice[i] = !f.land(i) &&
+                     f.temp_mean_c[i] < kSeaIceC + kSeaIceNoiseC * noise::fbm(prm.seed, field::NoiseIce, g.centre(i), g.radius_km(), ice_noise);
   }
 
   // ---- Rain (rule 7; spec 83 rule 2): the profile without its subtropical dip, the dip taken by side, times

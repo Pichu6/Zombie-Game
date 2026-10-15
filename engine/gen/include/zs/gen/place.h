@@ -54,6 +54,7 @@ struct WorldSettings {
   double fuel_richness = 1.0, metal_richness = 1.0;
   double fertility = 1.0, forest = 1.0, fish = 1.0;
   double people = 1.0;
+  double continents = 8;  // spec 89: cratons (1 a supercontinent, many an archipelago world)
   bool operator==(const WorldSettings&) const = default;
 };
 

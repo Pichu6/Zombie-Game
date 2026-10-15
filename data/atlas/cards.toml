@@ -22,6 +22,15 @@ rows = [
   { field = "", need = "Crust apart from plates, broken island arcs, deeper ocean floor (spec 31 Open)" },
 ]
 
+[[setting]]
+field = "continents"
+label = "Continents"
+what = "Cratons the continental crust grows from (spec 89): 1 a supercontinent, Earth's look about 8, many an archipelago world"
+earth = 8.0
+realistic = [4.0, 14.0]
+sandbox = [1.0, 40.0]
+step = 1.0
+
 [[card]]
 id = "country"
 title = "A country"

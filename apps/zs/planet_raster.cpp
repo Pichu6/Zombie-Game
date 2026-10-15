@@ -151,7 +151,7 @@ std::string layer_legend(MapLayer l) {
     case MapLayer::Physical:
       return "physical: biome colour (ice white, tundra grey-green, boreal dark green, temperate forest green, grassland pale "
              "green, desert sand, savanna yellow-olive, tropical forest deep green, mountain grey-brown) shaded by relief from the "
-             "north-west; open lakes blue, terminal (salt) lakes pale blue, dry basins pale beige; rivers as blue curves, wider "
+             "north-west; sea ice pale blue-white; open lakes blue, terminal (salt) lakes pale blue, dry basins pale beige; rivers as blue curves, wider "
              "with discharge; borders thin grey";
     case MapLayer::Political: return "political: a colour per country; rivers and lakes as in physical; borders dark";
     case MapLayer::Topographic:
@@ -371,6 +371,11 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
           }
           break;
       }
+      // Spec 89 rule 4: sea ice, on the maps that show the surface.
+      if (sea && !f.sea_ice.empty() && f.sea_ice[c] &&
+          (layer == MapLayer::Physical || layer == MapLayer::Political || layer == MapLayer::Topographic || layer == MapLayer::Cover ||
+           layer == MapLayer::Wind || layer == MapLayer::Water))
+        col = RGB{222, 233, 242};
       if (layer == MapLayer::Resources && sea && max_catch > 0) {
         const double t = in.use ? in.use->fish_t[c] : land.fish_catch_t[c];  // spec 88: what is landed
         if (t > 0) col = mix(col, RGB{60, 200, 210}, 0.7 * std::sqrt(t / grid.area_km2(c) / max_catch));

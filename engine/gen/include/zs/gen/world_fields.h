@@ -25,6 +25,7 @@ struct WorldParams {
   double relief = 1.0;           // scales elevation spread
   double moisture = 1.0;         // scales rain
   int plate_count = 0;           // 0 = by planet size (12 at Earth size)
+  int cratons = 0;               // spec 89: 0 = Earth's (9); 1 a supercontinent, many an archipelago world
   std::uint64_t seed = 1;
 };
 
@@ -39,6 +40,8 @@ struct WorldFields {
   std::vector<BoundaryKind> boundary_kind;
   std::vector<std::uint32_t> boundary_cells;  // graph distance to the nearest plate boundary
   std::vector<std::uint32_t> sea_cells;       // graph distance to the nearest sea cell (0 at sea)
+  std::vector<std::uint8_t> crust;           // spec 89: 1 continental, 0 oceanic (from cratons, apart from plates)
+  std::vector<std::uint8_t> sea_ice;         // spec 89: sea whose annual mean is below the freezing of sea water
   std::vector<double> west_km, east_km;       // land: km to the sea walking west and east along the parallel (spec 83 rule 1)
   int plate_count = 0;
   double sea_level_raw_m = 0;                 // the pre-shift elevation that became zero
