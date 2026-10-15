@@ -1,8 +1,8 @@
-# Tongo: a country with the real data of Tonga under a parody name (decision 0053).
+# Tongadawn: a country with the real data of Tonga under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "TON"
-name = "Tongo"
+name = "Tongadawn"
 status = "sourced"
 pop_params = "demography/real/TON.toml"
 

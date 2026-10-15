@@ -1,8 +1,8 @@
-# Denmork: a country with the real data of Denmark under a parody name (decision 0053).
+# Hamletmark: a country with the real data of Denmark under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "DNK"
-name = "Denmork"
+name = "Hamletmark"
 status = "sourced"
 pop_params = "demography/real/DNK.toml"
 

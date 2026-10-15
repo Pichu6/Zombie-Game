@@ -1,8 +1,8 @@
-# Irelund: a country with the real data of Ireland under a parody name (decision 0053).
+# Emeraldia: a country with the real data of Ireland under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "IRL"
-name = "Irelund"
+name = "Emeraldia"
 status = "sourced"
 pop_params = "demography/real/IRL.toml"
 

@@ -1,8 +1,8 @@
-# Argentonga: a country with the real data of Argentina under a parody name (decision 0053).
+# Argentango: a country with the real data of Argentina under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "ARG"
-name = "Argentonga"
+name = "Argentango"
 status = "sourced"
 pop_params = "demography/real/ARG.toml"
 

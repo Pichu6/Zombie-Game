@@ -1,8 +1,8 @@
-# Philippinas: a country with the real data of Philippines under a parody name (decision 0053).
+# Philippineapples: a country with the real data of Philippines under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "PHL"
-name = "Philippinas"
+name = "Philippineapples"
 status = "sourced"
 pop_params = "demography/real/PHL.toml"
 

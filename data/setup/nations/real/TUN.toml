@@ -1,8 +1,8 @@
-# Tunisio: a country with the real data of Tunisia under a parody name (decision 0053).
+# Tunesia: a country with the real data of Tunisia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "TUN"
-name = "Tunisio"
+name = "Tunesia"
 status = "sourced"
 pop_params = "demography/real/TUN.toml"
 

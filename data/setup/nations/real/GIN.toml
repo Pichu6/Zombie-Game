@@ -1,8 +1,8 @@
-# Guinoa: a country with the real data of Guinea under a parody name (decision 0053).
+# Bauxinea: a country with the real data of Guinea under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "GIN"
-name = "Guinoa"
+name = "Bauxinea"
 status = "sourced"
 pop_params = "demography/real/GIN.toml"
 

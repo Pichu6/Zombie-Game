@@ -1,8 +1,8 @@
-# Japanoo: a country with the real data of Japan under a parody name (decision 0053).
+# Nipponica: a country with the real data of Japan under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "JPN"
-name = "Japanoo"
+name = "Nipponica"
 status = "sourced"
 pop_params = "demography/real/JPN.toml"
 

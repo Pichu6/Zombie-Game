@@ -1,8 +1,8 @@
-# Peroo: a country with the real data of Peru under a parody name (decision 0053).
+# Llamaru: a country with the real data of Peru under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "PER"
-name = "Peroo"
+name = "Llamaru"
 status = "sourced"
 pop_params = "demography/real/PER.toml"
 

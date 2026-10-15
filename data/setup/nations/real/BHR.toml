@@ -1,8 +1,8 @@
-# Bahroon: a country with the real data of Bahrain under a parody name (decision 0053).
+# Pearlrain: a country with the real data of Bahrain under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "BHR"
-name = "Bahroon"
+name = "Pearlrain"
 status = "sourced"
 pop_params = "demography/real/BHR.toml"
 

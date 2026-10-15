@@ -1,8 +1,8 @@
-# North Koreo: a country with the real data of Dem. People's Republic of Korea under a parody name (decision 0053).
+# North Hermitea: a country with the real data of Dem. People's Republic of Korea under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "PRK"
-name = "North Koreo"
+name = "North Hermitea"
 status = "sourced"
 pop_params = "demography/real/PRK.toml"
 

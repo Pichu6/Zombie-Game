@@ -1,8 +1,8 @@
-# New Kaledonia: a country with the real data of New Caledonia under a parody name (decision 0053).
+# New Nickeldonia: a country with the real data of New Caledonia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "NCL"
-name = "New Kaledonia"
+name = "New Nickeldonia"
 status = "sourced"
 pop_params = "demography/real/NCL.toml"
 

@@ -1,8 +1,8 @@
-# Singapoor: a country with the real data of Singapore under a parody name (decision 0053).
+# Lionpore: a country with the real data of Singapore under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "SGP"
-name = "Singapoor"
+name = "Lionpore"
 status = "sourced"
 pop_params = "demography/real/SGP.toml"
 

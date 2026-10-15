@@ -1,8 +1,8 @@
-# Gabonne: a country with the real data of Gabon under a parody name (decision 0053).
+# Gabonanza: a country with the real data of Gabon under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "GAB"
-name = "Gabonne"
+name = "Gabonanza"
 status = "sourced"
 pop_params = "demography/real/GAB.toml"
 

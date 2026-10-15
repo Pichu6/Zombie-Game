@@ -1,8 +1,8 @@
-# Swisserland: a country with the real data of Switzerland under a parody name (decision 0053).
+# Switcherland: a country with the real data of Switzerland under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "CHE"
-name = "Swisserland"
+name = "Switcherland"
 status = "sourced"
 pop_params = "demography/real/CHE.toml"
 

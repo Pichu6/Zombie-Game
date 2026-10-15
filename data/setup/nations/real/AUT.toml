@@ -1,8 +1,8 @@
-# Ostria: a country with the real data of Austria under a parody name (decision 0053).
+# Austrudel: a country with the real data of Austria under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "AUT"
-name = "Ostria"
+name = "Austrudel"
 status = "sourced"
 pop_params = "demography/real/AUT.toml"
 

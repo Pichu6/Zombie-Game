@@ -1,8 +1,8 @@
-# Samoo: a country with the real data of Samoa under a parody name (decision 0053).
+# Samoasis: a country with the real data of Samoa under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "WSM"
-name = "Samoo"
+name = "Samoasis"
 status = "sourced"
 pop_params = "demography/real/WSM.toml"
 

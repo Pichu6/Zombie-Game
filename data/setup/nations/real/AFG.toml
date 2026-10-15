@@ -1,8 +1,8 @@
-# Afghanistone: a country with the real data of Afghanistan under a parody name (decision 0053).
+# Kabulistan: a country with the real data of Afghanistan under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "AFG"
-name = "Afghanistone"
+name = "Kabulistan"
 status = "sourced"
 pop_params = "demography/real/AFG.toml"
 

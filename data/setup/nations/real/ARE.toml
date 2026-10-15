@@ -1,8 +1,8 @@
-# United Arab Emiritz: a country with the real data of United Arab Emirates under a parody name (decision 0053).
+# United Arab Emirage: a country with the real data of United Arab Emirates under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "ARE"
-name = "United Arab Emiritz"
+name = "United Arab Emirage"
 status = "sourced"
 pop_params = "demography/real/ARE.toml"
 

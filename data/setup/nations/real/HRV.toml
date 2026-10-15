@@ -1,8 +1,8 @@
-# Croatica: a country with the real data of Croatia under a parody name (decision 0053).
+# Cravatia: a country with the real data of Croatia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "HRV"
-name = "Croatica"
+name = "Cravatia"
 status = "sourced"
 pop_params = "demography/real/HRV.toml"
 

@@ -1,8 +1,8 @@
-# Mongolio: a country with the real data of Mongolia under a parody name (decision 0053).
+# Greatkhania: a country with the real data of Mongolia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "MNG"
-name = "Mongolio"
+name = "Greatkhania"
 status = "sourced"
 pop_params = "demography/real/MNG.toml"
 

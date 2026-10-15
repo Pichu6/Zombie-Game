@@ -1,8 +1,8 @@
-# Nicaraga: a country with the real data of Nicaragua under a parody name (decision 0053).
+# Volcaragua: a country with the real data of Nicaragua under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "NIC"
-name = "Nicaraga"
+name = "Volcaragua"
 status = "sourced"
 pop_params = "demography/real/NIC.toml"
 

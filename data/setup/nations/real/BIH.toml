@@ -1,8 +1,8 @@
-# Bosnio and Herzegovania: a country with the real data of Bosnia and Herzegovina under a parody name (decision 0053).
+# Bosnia and Hertzegovina: a country with the real data of Bosnia and Herzegovina under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "BIH"
-name = "Bosnio and Herzegovania"
+name = "Bosnia and Hertzegovina"
 status = "sourced"
 pop_params = "demography/real/BIH.toml"
 

@@ -1,8 +1,8 @@
-# Hondurra: a country with the real data of Honduras under a parody name (decision 0053).
+# Hondurable: a country with the real data of Honduras under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "HND"
-name = "Hondurra"
+name = "Hondurable"
 status = "sourced"
 pop_params = "demography/real/HND.toml"
 

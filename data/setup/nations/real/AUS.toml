@@ -1,8 +1,8 @@
-# Ostralia: a country with the real data of Australia under a parody name (decision 0053).
+# Strayalia: a country with the real data of Australia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "AUS"
-name = "Ostralia"
+name = "Strayalia"
 status = "sourced"
 pop_params = "demography/real/AUS.toml"
 

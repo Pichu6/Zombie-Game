@@ -1,8 +1,8 @@
-# Makau: a country with the real data of China, Macao SAR under a parody name (decision 0053).
+# Macasino: a country with the real data of China, Macao SAR under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "MAC"
-name = "Makau"
+name = "Macasino"
 status = "sourced"
 pop_params = "demography/real/MAC.toml"
 

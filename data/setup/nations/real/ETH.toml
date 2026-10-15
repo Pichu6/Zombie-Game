@@ -1,8 +1,8 @@
-# Ethiopa: a country with the real data of Ethiopia under a parody name (decision 0053).
+# Ethiopeaks: a country with the real data of Ethiopia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "ETH"
-name = "Ethiopa"
+name = "Ethiopeaks"
 status = "sourced"
 pop_params = "demography/real/ETH.toml"
 

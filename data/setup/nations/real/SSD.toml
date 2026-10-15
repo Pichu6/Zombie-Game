@@ -1,8 +1,8 @@
-# South Sudon: a country with the real data of South Sudan under a parody name (decision 0053).
+# South Sudawn: a country with the real data of South Sudan under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "SSD"
-name = "South Sudon"
+name = "South Sudawn"
 status = "sourced"
 pop_params = "demography/real/SSD.toml"
 

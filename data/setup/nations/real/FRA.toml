@@ -1,8 +1,8 @@
-# Frants: a country with the real data of France under a parody name (decision 0053).
+# Fromance: a country with the real data of France under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "FRA"
-name = "Frants"
+name = "Fromance"
 status = "sourced"
 pop_params = "demography/real/FRA.toml"
 

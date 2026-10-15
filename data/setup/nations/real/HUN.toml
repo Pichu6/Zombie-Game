@@ -1,8 +1,8 @@
-# Hungory: a country with the real data of Hungary under a parody name (decision 0053).
+# Goulashia: a country with the real data of Hungary under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "HUN"
-name = "Hungory"
+name = "Goulashia"
 status = "sourced"
 pop_params = "demography/real/HUN.toml"
 

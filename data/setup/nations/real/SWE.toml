@@ -1,8 +1,8 @@
-# Swedonia: a country with the real data of Sweden under a parody name (decision 0053).
+# Flatpackia: a country with the real data of Sweden under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "SWE"
-name = "Swedonia"
+name = "Flatpackia"
 status = "sourced"
 pop_params = "demography/real/SWE.toml"
 

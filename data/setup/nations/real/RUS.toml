@@ -1,8 +1,8 @@
-# Mussia: a country with the real data of Russian Federation under a parody name (decision 0053).
+# Rushia: a country with the real data of Russian Federation under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "RUS"
-name = "Mussia"
+name = "Rushia"
 status = "sourced"
 pop_params = "demography/real/RUS.toml"
 

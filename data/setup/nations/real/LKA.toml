@@ -1,8 +1,8 @@
-# Sri Lonka: a country with the real data of Sri Lanka under a parody name (decision 0053).
+# Tealanka: a country with the real data of Sri Lanka under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "LKA"
-name = "Sri Lonka"
+name = "Tealanka"
 status = "sourced"
 pop_params = "demography/real/LKA.toml"
 

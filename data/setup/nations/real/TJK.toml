@@ -1,8 +1,8 @@
-# Tajikistun: a country with the real data of Tajikistan under a parody name (decision 0053).
+# Pamiristan: a country with the real data of Tajikistan under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "TJK"
-name = "Tajikistun"
+name = "Pamiristan"
 status = "sourced"
 pop_params = "demography/real/TJK.toml"
 

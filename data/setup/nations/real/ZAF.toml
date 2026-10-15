@@ -1,8 +1,8 @@
-# South Afrika: a country with the real data of South Africa under a parody name (decision 0053).
+# Rainbow Republic: a country with the real data of South Africa under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "ZAF"
-name = "South Afrika"
+name = "Rainbow Republic"
 status = "sourced"
 pop_params = "demography/real/ZAF.toml"
 

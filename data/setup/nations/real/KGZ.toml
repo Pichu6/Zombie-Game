@@ -1,8 +1,8 @@
-# Kyrgyzstun: a country with the real data of Kyrgyzstan under a parody name (decision 0053).
+# Yurtistan: a country with the real data of Kyrgyzstan under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "KGZ"
-name = "Kyrgyzstun"
+name = "Yurtistan"
 status = "sourced"
 pop_params = "demography/real/KGZ.toml"
 

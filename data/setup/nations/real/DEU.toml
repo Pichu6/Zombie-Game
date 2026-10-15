@@ -1,8 +1,8 @@
-# Germonia: a country with the real data of Germany under a parody name (decision 0053).
+# Germoney: a country with the real data of Germany under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "DEU"
-name = "Germonia"
+name = "Germoney"
 status = "sourced"
 pop_params = "demography/real/DEU.toml"
 

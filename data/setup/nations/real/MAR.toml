@@ -1,8 +1,8 @@
-# Morokko: a country with the real data of Morocco under a parody name (decision 0053).
+# Morockco: a country with the real data of Morocco under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "MAR"
-name = "Morokko"
+name = "Morockco"
 status = "sourced"
 pop_params = "demography/real/MAR.toml"
 

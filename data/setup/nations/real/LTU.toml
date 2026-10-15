@@ -1,8 +1,8 @@
-# Lithuvania: a country with the real data of Lithuania under a parody name (decision 0053).
+# Amberania: a country with the real data of Lithuania under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "LTU"
-name = "Lithuvania"
+name = "Amberania"
 status = "sourced"
 pop_params = "demography/real/LTU.toml"
 

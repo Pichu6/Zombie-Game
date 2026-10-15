@@ -1,8 +1,8 @@
-# Armenoa: a country with the real data of Armenia under a parody name (decision 0053).
+# Ararania: a country with the real data of Armenia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "ARM"
-name = "Armenoa"
+name = "Ararania"
 status = "sourced"
 pop_params = "demography/real/ARM.toml"
 

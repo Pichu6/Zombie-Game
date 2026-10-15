@@ -1,8 +1,8 @@
-# Mauritonia: a country with the real data of Mauritania under a parody name (decision 0053).
+# Sandritania: a country with the real data of Mauritania under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "MRT"
-name = "Mauritonia"
+name = "Sandritania"
 status = "sourced"
 pop_params = "demography/real/MRT.toml"
 

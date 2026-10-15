@@ -1,8 +1,8 @@
-# Dominicana Republic: a country with the real data of Dominican Republic under a parody name (decision 0053).
+# Domino Republic: a country with the real data of Dominican Republic under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "DOM"
-name = "Dominicana Republic"
+name = "Domino Republic"
 status = "sourced"
 pop_params = "demography/real/DOM.toml"
 

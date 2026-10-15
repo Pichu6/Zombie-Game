@@ -1,8 +1,8 @@
-# Saudi Arabistan: a country with the real data of Saudi Arabia under a parody name (decision 0053).
+# Saudi Arabesque: a country with the real data of Saudi Arabia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "SAU"
-name = "Saudi Arabistan"
+name = "Saudi Arabesque"
 status = "sourced"
 pop_params = "demography/real/SAU.toml"
 

@@ -1,8 +1,8 @@
-# Kombodia: a country with the real data of Cambodia under a parody name (decision 0053).
+# Angkorbodia: a country with the real data of Cambodia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "KHM"
-name = "Kombodia"
+name = "Angkorbodia"
 status = "sourced"
 pop_params = "demography/real/KHM.toml"
 

@@ -1,8 +1,8 @@
-# Malee: a country with the real data of Mali under a parody name (decision 0053).
+# Malibuktu: a country with the real data of Mali under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "MLI"
-name = "Malee"
+name = "Malibuktu"
 status = "sourced"
 pop_params = "demography/real/MLI.toml"
 

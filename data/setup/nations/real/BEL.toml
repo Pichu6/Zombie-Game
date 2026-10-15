@@ -1,8 +1,8 @@
-# Belgimum: a country with the real data of Belgium under a parody name (decision 0053).
+# Waffelgium: a country with the real data of Belgium under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "BEL"
-name = "Belgimum"
+name = "Waffelgium"
 status = "sourced"
 pop_params = "demography/real/BEL.toml"
 

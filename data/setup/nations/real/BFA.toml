@@ -1,8 +1,8 @@
-# Burkina Fasso: a country with the real data of Burkina Faso under a parody name (decision 0053).
+# Upper Voltonia: a country with the real data of Burkina Faso under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "BFA"
-name = "Burkina Fasso"
+name = "Upper Voltonia"
 status = "sourced"
 pop_params = "demography/real/BFA.toml"
 

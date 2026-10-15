@@ -1,8 +1,8 @@
-# Ivory Coust: a country with the real data of Côte d'Ivoire under a parody name (decision 0053).
+# Cocoa Coast: a country with the real data of Côte d'Ivoire under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "CIV"
-name = "Ivory Coust"
+name = "Cocoa Coast"
 status = "sourced"
 pop_params = "demography/real/CIV.toml"
 

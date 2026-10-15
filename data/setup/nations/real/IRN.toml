@@ -1,8 +1,8 @@
-# Iranistan: a country with the real data of Iran (Islamic Republic of) under a parody name (decision 0053).
+# Persiania: a country with the real data of Iran (Islamic Republic of) under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "IRN"
-name = "Iranistan"
+name = "Persiania"
 status = "sourced"
 pop_params = "demography/real/IRN.toml"
 

@@ -1,8 +1,8 @@
-# Papua New Guinoa: a country with the real data of Papua New Guinea under a parody name (decision 0053).
+# Papua New Guineadise: a country with the real data of Papua New Guinea under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "PNG"
-name = "Papua New Guinoa"
+name = "Papua New Guineadise"
 status = "sourced"
 pop_params = "demography/real/PNG.toml"
 

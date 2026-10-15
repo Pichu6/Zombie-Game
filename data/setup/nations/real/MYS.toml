@@ -1,8 +1,8 @@
-# Malaysa: a country with the real data of Malaysia under a parody name (decision 0053).
+# Malaydurian: a country with the real data of Malaysia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "MYS"
-name = "Malaysa"
+name = "Malaydurian"
 status = "sourced"
 pop_params = "demography/real/MYS.toml"
 

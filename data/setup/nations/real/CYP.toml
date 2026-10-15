@@ -1,8 +1,8 @@
-# Cyprash: a country with the real data of Cyprus under a parody name (decision 0053).
+# Copperus: a country with the real data of Cyprus under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "CYP"
-name = "Cyprash"
+name = "Copperus"
 status = "sourced"
 pop_params = "demography/real/CYP.toml"
 

@@ -1,8 +1,8 @@
-# Guinoa-Bissow: a country with the real data of Guinea-Bissau under a parody name (decision 0053).
+# Cashew-Bissau: a country with the real data of Guinea-Bissau under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "GNB"
-name = "Guinoa-Bissow"
+name = "Cashew-Bissau"
 status = "sourced"
 pop_params = "demography/real/GNB.toml"
 

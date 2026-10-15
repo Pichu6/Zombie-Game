@@ -1,8 +1,8 @@
-# Kubana: a country with the real data of Cuba under a parody name (decision 0053).
+# Cubalibre: a country with the real data of Cuba under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "CUB"
-name = "Kubana"
+name = "Cubalibre"
 status = "sourced"
 pop_params = "demography/real/CUB.toml"
 

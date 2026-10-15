@@ -1,8 +1,8 @@
-# Liberio: a country with the real data of Liberia under a parody name (decision 0053).
+# Libertania: a country with the real data of Liberia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "LBR"
-name = "Liberio"
+name = "Libertania"
 status = "sourced"
 pop_params = "demography/real/LBR.toml"
 

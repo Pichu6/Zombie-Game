@@ -1,8 +1,8 @@
-# Bhutoon: a country with the real data of Bhutan under a parody name (decision 0053).
+# Bhutappy: a country with the real data of Bhutan under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "BTN"
-name = "Bhutoon"
+name = "Bhutappy"
 status = "sourced"
 pop_params = "demography/real/BTN.toml"
 

@@ -1,8 +1,8 @@
-# Little Congoland: a country with the real data of Congo under a parody name (decision 0053).
+# Congo Petit: a country with the real data of Congo under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "COG"
-name = "Little Congoland"
+name = "Congo Petit"
 status = "sourced"
 pop_params = "demography/real/COG.toml"
 

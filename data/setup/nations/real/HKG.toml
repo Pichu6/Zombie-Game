@@ -1,8 +1,8 @@
-# Hong Kang: a country with the real data of China, Hong Kong SAR under a parody name (decision 0053).
+# Fragrant Harbour: a country with the real data of China, Hong Kong SAR under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "HKG"
-name = "Hong Kang"
+name = "Fragrant Harbour"
 status = "sourced"
 pop_params = "demography/real/HKG.toml"
 

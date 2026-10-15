@@ -1,8 +1,8 @@
-# Norwey: a country with the real data of Norway under a parody name (decision 0053).
+# Fjordway: a country with the real data of Norway under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "NOR"
-name = "Norwey"
+name = "Fjordway"
 status = "sourced"
 pop_params = "demography/real/NOR.toml"
 

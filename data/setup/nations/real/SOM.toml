@@ -1,8 +1,8 @@
-# Somalio: a country with the real data of Somalia under a parody name (decision 0053).
+# Hornsomalia: a country with the real data of Somalia under a parody name (decision 0053).
 # Written by tools/data/countries.py; do not edit by hand.
 
 id = "SOM"
-name = "Somalio"
+name = "Hornsomalia"
 status = "sourced"
 pop_params = "demography/real/SOM.toml"
 
