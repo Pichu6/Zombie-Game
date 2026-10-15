@@ -31,6 +31,9 @@ struct RealProfile {
   double population = 0;
 };
 std::vector<RealProfile> load_real_profiles(const std::string& data_dir);  // sorted by iso
+// Spec 90: a user pack's profiles: the sourced countries its pack.toml includes (by ISO; "all" for every one) and its
+// custom countries (<id>.toml with custom = true; iso "custom/<id>"). Sorted by iso. Empty `pack_dir`: the sourced ones.
+std::vector<RealProfile> load_pack_profiles(const std::string& data_dir, const std::string& pack_dir);
 
 struct Sector {
   CellId seed = 0;              // its most populous cell when seeded (rule 3)

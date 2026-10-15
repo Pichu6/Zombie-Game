@@ -193,6 +193,38 @@ std::vector<RealProfile> load_real_profiles(const std::string& data_dir) {
   return out;
 }
 
+std::vector<RealProfile> load_pack_profiles(const std::string& data_dir, const std::string& pack_dir) {
+  std::vector<RealProfile> all = load_real_profiles(data_dir);
+  if (pack_dir.empty()) return all;
+  const std::filesystem::path dir(pack_dir);
+  std::vector<RealProfile> out;
+  const toml::table pack = toml::parse_file((dir / "pack.toml").string());
+  if (const toml::array* inc = pack["include"].as_array()) {
+    bool every = false;
+    std::vector<std::string> want;
+    for (const auto& v : *inc)
+      if (auto s = v.value<std::string>()) (*s == "all" ? every = true : (want.push_back(*s), false));
+    for (const RealProfile& p : all)
+      if (every || std::find(want.begin(), want.end(), p.iso) != want.end()) out.push_back(p);
+  }
+  for (const auto& e : std::filesystem::directory_iterator(dir)) {
+    if (e.path().extension() != ".toml" || e.path().filename() == "pack.toml") continue;
+    const toml::table t = toml::parse_file(e.path().string());
+    if (!t["custom"].value_or(false)) continue;
+    RealProfile p;
+    p.iso = "custom/" + e.path().stem().string();
+    p.name = t["name"].value_or(e.path().stem().string());
+    const std::string income = t["country"]["income"].value_or(std::string{});
+    p.population = t["country"]["population"].value_or(0.0);
+    p.income = -1;
+    for (int i = 0; i < kIncomeGroups; ++i)
+      if (income == kIncomeGroupIds[static_cast<std::size_t>(i)]) p.income = i;
+    if (p.income >= 0 && p.population > 0) out.push_back(std::move(p));
+  }
+  std::sort(out.begin(), out.end(), [](const RealProfile& a, const RealProfile& b) { return a.iso < b.iso; });
+  return out;
+}
+
 double primacy_median(double urban_people) {
   if (urban_people <= 0) return 1.0;
   return std::min(kPrimacyCap, kPrimacyA * detmath::pow(urban_people, -kPrimacyB));

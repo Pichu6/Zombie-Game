@@ -42,6 +42,8 @@ World load(const std::string& name);                         // throws when it i
 void save_meta(const World& w);                              // rewrites world.toml (name, notes)
 // To the recycle bin on Windows; to `worlds/_trash/<name>-<time>` elsewhere. Never erased by this code.
 void remove(const World& w);
+// A file or folder to the recycle bin on Windows; elsewhere to `<fallback_root>/_trash/`.
+void to_trash(const std::filesystem::path& path, const std::filesystem::path& fallback_root);
 // A world's settings are locked once it has a save (decision 0074 rule 4): then a change forks.
 inline bool settings_locked(const World& w) { return !w.saves.empty(); }
 // Presets: `presets/world/<name>.toml` next to the executable, the same [settings] table as world.toml.

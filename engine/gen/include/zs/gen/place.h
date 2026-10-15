@@ -55,6 +55,10 @@ struct WorldSettings {
   double fertility = 1.0, forest = 1.0, fish = 1.0;
   double people = 1.0;
   double continents = 8;  // spec 89: cratons (1 a supercontinent, many an archipelago world)
+  // Spec 90: the country pack ("earth": the sourced profiles) and, at run time, the folder holding a user pack's
+  // pack.toml and custom countries (the world's countries/ copy, or the pack itself for a preview); not saved.
+  std::string pack = "earth";
+  std::string pack_dir;
   bool operator==(const WorldSettings&) const = default;
 };
 

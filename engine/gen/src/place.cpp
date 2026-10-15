@@ -11,6 +11,7 @@
 #include "zs/gen/stations.h"
 #include "zs/gen/town_layout.h"
 #include "zs/demographics.h"
+#include "zs/nations.h"
 #include "zs/players.h"
 #include "zs/police_staff.h"
 
@@ -126,13 +127,15 @@ GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int fr
   CountryParams cp;
   cp.fragmentation = s.fragmentation;
   cp.people_scale = s.people;
-  w.people = populate_world(w.grid, w.fields, w.land, w.deposits, seed, load_group_tables(data), load_real_profiles(data), cp);
+  w.people = populate_world(w.grid, w.fields, w.land, w.deposits, seed, load_group_tables(data),
+                             load_pack_profiles(data, s.pack == "earth" ? std::string{} : s.pack_dir), cp);
   say("fields, mines and fishing grounds");
   w.use = generate_land_use(w.grid, w.fields, w.land, w.deposits, w.people);  // spec 88
   return w;
 }
 
 zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
+  zs::set_custom_nations_dir(settings.pack == "earth" ? std::string{} : settings.pack_dir);  // spec 90
   const GeneratedWorld world = generate_world(seed, settings);
   const WorldGrid& grid = world.grid;
   const WorldFields& f = world.fields;
@@ -205,8 +208,7 @@ std::shared_ptr<const TownRecord> town_record(const zs::Place& place, std::uint6
   spec.culture = r->town.culture;
   spec.income = place.income;
   spec.people = place.town_people;
-  const zs::NationDemographics nation = zs::load_nation(
-      data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml");
+  const zs::NationDemographics nation = zs::load_nation(zs::nation_file(data, place.profile, place.income));
   spec.mean_household_size = zs::mean_household_size(nation);
   spec.household_shares = nation.household_sizes;  // spec 72
   for (const Station& s : r->stations) spec.lots.push_back({"police_station", s.name, s.plan.lot_width, s.plan.lot_depth});

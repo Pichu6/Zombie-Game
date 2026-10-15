@@ -12,6 +12,7 @@
 #include "zs/economy_system.h"
 #include "zs/expectations.h"
 #include "zs/missing_persons.h"
+#include "zs/nations.h"
 #include "zs/grid_system.h"
 #include "zs/orders_system.h"
 #include "zs/dead.h"
@@ -69,7 +70,7 @@ bool has_job(const Person& p) { return !is_dead(p.fate) && p.age >= 18 && p.age 
 std::unique_ptr<PopSystem> make_pops(World& w, const Census& census, const Place& place, const AgencyPlan& agency) {
   const int officers = agency.sworn;
   const std::string data = data_dir();
-  auto pops = std::make_unique<PopSystem>(w, make_pop_params(load_nation(data + (place.profile.empty() ? "/setup/nations/base_" + place.income : "/setup/nations/real/" + place.profile) + ".toml"), data));
+  auto pops = std::make_unique<PopSystem>(w, make_pop_params(load_nation(nation_file(data, place.profile, place.income)), data));
   PopRegistry& reg = pops->setup(w);
   const auto& people = census.people();
   reg.add_cohort({kBlockCohort, kBlockRegion, 0, people.size()});
@@ -159,7 +160,7 @@ std::unique_ptr<GridSystem> make_grids(WorldOwners& ids) {
 // the last reports. Born pops and people nobody lives with are expected nowhere (nobody notices their absence).
 NextCommitment make_commitments(const Census& census, const CalendarSystem& calendar, const Place& place, std::uint64_t world_seed,
                                std::shared_ptr<const Expectations*> lost_jobs, std::shared_ptr<const Bonds*> bonds) {
-  auto table = std::make_shared<TimeUseTable>(timeuse_for(data_dir(), place.profile, place.income));
+  auto table = std::make_shared<TimeUseTable>(timeuse_for(data_dir(), table_profile(place.profile), place.income));
   const Census* people = &census;
   const CalendarSystem* cal = &calendar;
   return [table, people, cal, world_seed, lost_jobs, bonds](PopId pop, std::int64_t from) -> std::optional<Commitment> {
@@ -286,9 +287,9 @@ class WorldHands : public Hands {
 void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   World& w = *t.world;
   // Spec 65: the police force serving the town, sized by its population: officers are pops after the census's, with shifts.
-  const ForceParams force_params = load_force_params(data_dir() + "/institutions/police/force.toml", place.profile, place.income);
+  const ForceParams force_params = load_force_params(data_dir() + "/institutions/police/force.toml", table_profile(place.profile), place.income);
   // Spec 69: its size from the BJS curve for the town's people, at the country's level; women by the class's share.
-  const AgencyPlan agency = plan_agency(load_agency_params(data_dir() + "/services/police.toml", place.profile, place.income), place.town_people,
+  const AgencyPlan agency = plan_agency(load_agency_params(data_dir() + "/services/police.toml", table_profile(place.profile), place.income), place.town_people,
                                         force_params.min_officers);
   const int officers = agency.sworn;
   t.agency = agency;
@@ -345,7 +346,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // Spec 53 rule 10: the calendar of the place's country, from the world's start date (decision 0072; the default
   // unless a world's settings say otherwise, spec 55).
   auto calendar = std::make_unique<CalendarSystem>(
-      start_day, load_country_calendar(calendar_path(data_dir(), calendar_id(place.profile, place.income))));
+      start_day, load_country_calendar(calendar_path(data_dir(), calendar_id(table_profile(place.profile), place.income))));
   t.calendar = calendar.get();
   // Spec 59: broken commitments are noticed. The schedule's commitments and the household's holders (decision 0070).
   // Spec 61: the employer's rule (decision 0070 rule 3); a separated pop's schedule has no more shifts, so the provider
@@ -353,7 +354,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   auto lost_jobs = std::make_shared<const Expectations*>(nullptr);
   auto bonds_link = std::make_shared<const Bonds*>(nullptr);
   // Spec 65: the officers as pops with shifts; their commitments come from the force, everyone else's from the census.
-  auto staff = std::make_shared<PoliceStaff>(force_params, std::make_shared<TimeUseTable>(timeuse_for(data_dir(), place.profile, place.income)),
+  auto staff = std::make_shared<PoliceStaff>(force_params, std::make_shared<TimeUseTable>(timeuse_for(data_dir(), table_profile(place.profile), place.income)),
                                              calendar.get(), w.rng.seed());
   const std::size_t census_size = t.census->people().size();
   for (int i = 0; i < officers; ++i) staff->add_officer(census_pop_id(static_cast<std::uint32_t>(census_size) + static_cast<std::uint32_t>(i)), 25 + (i * 7) % 31, officer_is_woman(agency, i) ? 'f' : 'm');
@@ -365,13 +366,13 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   auto expectations = std::make_unique<Expectations>(
       load_expectation_params(data_dir() + "/life/expectations.toml"),
       commitments,
-      load_employer_policy(data_dir() + "/employment/absence_policy.toml", place.profile, place.income));
+      load_employer_policy(data_dir() + "/employment/absence_policy.toml", table_profile(place.profile), place.income));
   *lost_jobs = expectations.get();
   t.expectations = expectations.get();
   // Spec 60: real people go missing without any player (decision 0070 rule 6): every living founder is a Poisson
   // process of absences at the country's rates by age class; the ladder above reacts to them.
   auto missing = std::make_unique<MissingPersons>(
-      load_missing_params(data_dir() + "/life/missing.toml", place.profile, place.income), expectations.get(),
+      load_missing_params(data_dir() + "/life/missing.toml", table_profile(place.profile), place.income), expectations.get(),
       [people = t.census, census_size, officers](PopId id) {
         if (!is_born(id) && founder_slot_of(id) >= census_size && founder_slot_of(id) < census_size + static_cast<std::size_t>(officers)) return true;  // an officer
         return !is_born(id) && founder_slot_of(id) < people->people().size() && !is_dead(people->people()[founder_slot_of(id)].fate);
@@ -383,7 +384,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // Spec 62: money and labour: the placeholder employer pays each shift worked and nothing for a shift missed; a separation takes
   // the pop off its workplace roster.
   auto payroll = std::make_unique<Payroll>(
-      load_wage_params(data_dir() + "/employment/wages.toml", place.profile, place.income), expectations.get(), commitments,
+      load_wage_params(data_dir() + "/employment/wages.toml", table_profile(place.profile), place.income), expectations.get(), commitments,
       t.owners.employers, kEmployerRoster, [owners = t.owners.pops](PopId id) { return owners[founder_slot_of(id)]; });
   for (std::size_t i = 0; i < t.census->people().size(); ++i)
     if (has_job(t.census->people()[i])) payroll->track(census_pop_id(static_cast<std::uint32_t>(i)));
@@ -401,7 +402,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   // Spec 64: the police's missing-person case: a risk tier, a queue for free searches, the national record. The police own the
   // search (the ladder no longer opens one by itself).
   auto police = std::make_unique<PoliceCases>(
-      load_police_params(data_dir() + "/institutions/police/missing.toml", place.profile, place.income), expectations.get(),
+      load_police_params(data_dir() + "/institutions/police/missing.toml", table_profile(place.profile), place.income), expectations.get(),
       [people = t.census](PopId id) { return !is_born(id) && founder_slot_of(id) < people->people().size() && people->people()[founder_slot_of(id)].age <= 17; });
   expectations->set_external_search(true);
   expectations->add_listener(police.get());

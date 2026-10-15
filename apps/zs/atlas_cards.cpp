@@ -1,5 +1,7 @@
 #include "atlas_cards.h"
 
+#include "zs/nations.h"
+
 #include <imgui.h>
 
 #include <algorithm>
@@ -214,7 +216,7 @@ void ensure_town(CardsState& st, const WorldCard& world, const CountryCard& c, c
     if (!st.catalog) st.catalog = std::make_unique<gen::Catalog>(gen::load_catalog(st.data_dir + "/gen"));
     if (!st.rules) st.rules = gen::load_dwelling_rules(st.data_dir + "/gen");
     gen::Mix mix = gen::load_mix(st.data_dir + "/gen/populations/tier0_block.toml");
-    gen::set_country(mix, c.profile.empty() ? "base_" + c.income : "real/" + c.profile, st.data_dir);
+    gen::set_country(mix, c.profile.empty() ? "base_" + c.income : zs::is_custom_profile(c.profile) ? c.profile : "real/" + c.profile, st.data_dir);
     mix.people = 120;  // a roster worth reading; the planet town's people are the card's own row
     st.gen_seed = gen::mix64(world.seed, t.cell);
     gen::Town town = gen::generate_town(*st.catalog, mix, st.gen_seed);
@@ -336,7 +338,7 @@ void draw_world_card(CardsState& st, const WorldCard& w, const WorldRecord* reco
 
 // One line from the country's calendar file (spec 53): rest days, holidays in the start year, the school year.
 const std::string& calendar_line(CardsState& st, const CountryCard& c) {
-  const std::string id = c.profile.empty() ? "base_" + c.income : c.profile;
+  const std::string id = calendar_id(table_profile(c.profile), c.income);  // spec 90: a custom country's template
   auto it = st.calendars.find(id);
   if (it != st.calendars.end()) return it->second;
   std::string line;
@@ -370,7 +372,10 @@ void draw_country_card(CardsState& st, const WorldCard& world, const CountryCard
   v["sectors"] = std::to_string(c.sectors);
   v["towns"] = std::to_string(c.towns.size()) + (c.towns.empty() ? "" : ", the largest of " + fmt("%.0f thousand", c.towns.front().people / 1e3));
   v["profile"] = c.profile.empty() ? "the base country of its income group (data/setup/nations/base_" + c.income + ".toml)"
-                                   : c.profile + " (data/setup/nations/real/" + c.profile + ".toml), under a parody name";
+                 : zs::is_custom_profile(c.profile)
+                     ? c.profile + ", a custom country of this world's pack (its tables; " +
+                           (table_profile(c.profile).empty() ? "base_" + c.income : table_profile(c.profile)) + "'s calendar and institutions)"
+                     : c.profile + " (data/setup/nations/real/" + c.profile + ".toml), under a parody name";
   draw_card(st, "country", c.name, v);
   if (c.towns.empty()) return;
   ImGui::Spacing();
@@ -482,8 +487,8 @@ void draw_pop_card(CardsState& st) {
   try {
     if (!st.country_card) throw std::runtime_error("no country");
     const CountryCard& c = *st.country_card;
-    const std::string id = c.profile.empty() ? "base_" + c.income : c.profile;
-    if (!st.timeuse.count(id)) st.timeuse.emplace(id, timeuse_for(st.data_dir, c.profile, c.income));
+    const std::string id = calendar_id(table_profile(c.profile), c.income);
+    if (!st.timeuse.count(id)) st.timeuse.emplace(id, timeuse_for(st.data_dir, table_profile(c.profile), c.income));
     if (!st.cals.count(id)) st.cals.emplace(id, load_country_calendar(st.data_dir + "/setup/calendar/" + id + ".toml"));
     const SchedulePerson sp = schedule_person(p, st.gen_seed);
     const ScheduleSkeleton sk = skeleton_of(st.timeuse.at(id), sp);

@@ -34,6 +34,7 @@ add_library(zs_sim
   src/pop_system.cpp
   src/hypergeometric.cpp
   src/demographics.cpp
+  src/nations.cpp
   src/economy.cpp
   src/economy_system.cpp
   src/establishment.cpp

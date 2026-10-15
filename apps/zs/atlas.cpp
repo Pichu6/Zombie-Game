@@ -35,6 +35,9 @@
 #include "zs/gen/world_people.h"
 #include "zs/tier0.h"
 #include "atlas_cards.h"
+#include "atlas_countries.h"
+#include "country_packs.h"
+#include "zs/nations.h"
 #include "atlas_md.h"
 #include "atlas_sim.h"
 #include "modes.h"
@@ -381,7 +384,7 @@ struct Planet {
 
 // ---- The app ----
 
-enum class Page { Worlds, Tour, Cards, Simulation, Parts, Try, Breakthroughs, Compute, Status, Docs };
+enum class Page { Worlds, Tour, Cards, Countries, Simulation, Parts, Try, Breakthroughs, Compute, Status, Docs };
 
 struct DocView {
   fs::path path;  // relative to the repo
@@ -412,6 +415,7 @@ struct App {
   int stop = 0;
   Planet planet;
   std::shared_ptr<CardsState> cards;
+  std::shared_ptr<CountriesState> countries;  // spec 90
   WorldPreview preview;  // spec 84: the world setup's preview
   std::shared_ptr<SimState> sim;
   bool sim_auto_open = false, sim_auto_cold = false, sim_auto_advance = false;  // check shots
@@ -725,6 +729,7 @@ void draw_cards_page(App& a) {
     return;
   }
   if (!a.cards) a.cards = make_cards(a.data_dir);
+  zs::set_custom_nations_dir(settings.pack == "earth" ? std::string{} : settings.pack_dir);  // spec 90
   // The world's record: its settings, read-only (they are chosen when the world is made, in the New world dialog).
   WorldRecord rec;
   if (const zs::worlds::World* wr = current_world(a)) rec.settings = &wr->settings, rec.world_name = wr->name;
@@ -773,6 +778,31 @@ void draw_worlds(App& a) {
     ImGui::SameLine();
     if (ImGui::SmallButton("Random")) std::snprintf(a.new_seed, sizeof a.new_seed, "%llu", static_cast<unsigned long long>(std::rand() % 1000000 + 1));
     ImGui::InputTextMultiline("Notes", a.new_notes, sizeof a.new_notes, ImVec2(500, 50));
+    // Spec 90: the country pack; a user pack is copied into the world when it is made.
+    {
+      std::vector<std::string> ids = {zs::packs::kEarth};
+      for (const std::string& p : zs::packs::list()) ids.push_back(p);
+      zs::gen::WorldSettings& d = a.new_setup.s;
+      ImGui::SetNextItemWidth(300);
+      if (ImGui::BeginCombo("Countries pack", d.pack == "earth" ? "Earth (default)" : d.pack.c_str())) {
+        for (const std::string& id : ids)
+          if (ImGui::Selectable(id == "earth" ? "Earth (default)" : id.c_str(), d.pack == id)) d.pack = id;
+        ImGui::EndCombo();
+      }
+      if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Which countries the world's peoples take: Earth's (real data under parody names) or one of your packs\n"
+                          "(the Countries page). A pack is copied into the world, so editing it later leaves this world as made.");
+      d.pack_dir = zs::packs::dir_of(d.pack);
+      ImGui::SameLine();
+      if (d.pack == "earth") ImGui::TextDisabled("183 countries");
+      else {
+        try {
+          ImGui::TextDisabled("%d countries", zs::packs::country_count(zs::packs::load(d.pack), a.data_dir));
+        } catch (const std::exception& ex) {
+          ImGui::TextColored({1, 0.5f, 0.5f, 1}, "%s", ex.what());
+        }
+      }
+    }
     ImGui::Separator();
     ImGui::PushFont(nullptr, ImGui::GetFontSize() * 1.15f);
     ImGui::TextColored({1, 0.95f, 0.8f, 1}, "Settings");
@@ -808,6 +838,8 @@ void draw_worlds(App& a) {
         zs::worlds::World w = zs::worlds::create(a.new_name, std::strtoull(a.new_seed, nullptr, 10), a.new_notes);
         w.settings = a.new_setup.s;
         w.realism = realism_of(*a.cards, w.settings);
+        zs::packs::copy_into(w.settings.pack, w.dir);  // spec 90: the world keeps its own copy
+        w.settings.pack_dir = w.settings.pack == "earth" ? std::string{} : (w.dir / "countries").string();
         zs::worlds::save_meta(w);
         refresh_worlds(a);
         for (std::size_t i = 0; i < a.worlds.size(); ++i)
@@ -1354,6 +1386,7 @@ void draw_nav(App& a) {
   item("Worlds", Page::Worlds);
   item("Tour", Page::Tour);
   item("Cards", Page::Cards);
+  item("Countries", Page::Countries);
   item("Simulation", Page::Simulation);
   item("Parts", Page::Parts);
   item("Try", Page::Try);
@@ -1384,7 +1417,8 @@ void draw_nav(App& a) {
 // --shot renders the page without a screen and saves it, for checks (like the window's --shot).
 int atlas_main(int argc, char** argv) {
   std::string shot, page_name, try_id, preview_preset;
-  bool preview = false, new_world = false;
+  bool preview = false, new_world = false, advanced_pick = false;
+  std::string country_pick;
   int stop = 0, card = -1;
   bool pick = false, open_world = false, cold = false, advance = false;
   float scroll_to = -1.0f;
@@ -1401,6 +1435,8 @@ int atlas_main(int argc, char** argv) {
     else if (!std::strcmp(argv[i], "--advance")) advance = true;
     else if (!std::strcmp(argv[i], "--preview")) preview = true;  // spec 84: the New world dialog's preview, without a click
     else if (!std::strcmp(argv[i], "--new-world")) new_world = true;
+    else if (!std::strcmp(argv[i], "--country-pick") && i + 1 < argc) country_pick = argv[++i];  // spec 90: PACK/ID
+    else if (!std::strcmp(argv[i], "--advanced")) advanced_pick = true;
     else if (!std::strcmp(argv[i], "--preview-preset") && i + 1 < argc) preview = true, preview_preset = argv[++i];
   }
   if (!shot.empty()) SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "offscreen");
@@ -1441,6 +1477,7 @@ int atlas_main(int argc, char** argv) {
   if (page_name == "worlds") a.page = Page::Worlds;
   else if (page_name == "parts") a.page = Page::Parts;
   else if (page_name == "cards") a.page = Page::Cards;
+  else if (page_name == "countries") a.page = Page::Countries;
   else if (page_name == "try") a.page = Page::Try;
   else if (page_name == "breakthroughs") a.page = Page::Breakthroughs;
   else if (page_name == "compute") a.page = Page::Compute;
@@ -1455,6 +1492,12 @@ int atlas_main(int argc, char** argv) {
   if (pick) {
     a.cards = make_cards(a.data_dir);
     cards_autopick(*a.cards, true, scroll_to);
+  }
+  if (!country_pick.empty()) {
+    a.page = Page::Countries;
+    a.countries = make_countries(a.data_dir);
+    const std::size_t slash = country_pick.find('/');
+    countries_pick(*a.countries, country_pick.substr(0, slash), slash == std::string::npos ? "" : country_pick.substr(slash + 1), advanced_pick);
   }
   if (new_world || preview) {  // the New world dialog, open; --preview starts its preview (seed 1 unless the world's)
     a.page = Page::Worlds;
@@ -1498,6 +1541,10 @@ int atlas_main(int argc, char** argv) {
       case Page::Worlds: draw_worlds(a); break;
       case Page::Tour: draw_tour(a); break;
       case Page::Cards: draw_cards_page(a); break;
+      case Page::Countries:
+        if (!a.countries) a.countries = make_countries(a.data_dir);
+        draw_countries(*a.countries);
+        break;
       case Page::Simulation: draw_sim_page(a); break;
       case Page::Parts: draw_parts(a); break;
       case Page::Try: draw_try(a); break;

@@ -9,6 +9,7 @@
 #include <stdexcept>
 
 #include "fields.h"
+#include "zs/nations.h"
 #include "toml.hpp"
 #include "zs/gen/keyed.h"
 #include "zs/gen/names.h"
@@ -517,7 +518,9 @@ Mix load_mix(const std::string& path) {
 
 void set_country(Mix& mix, const std::string& country, const std::string& data_dir) {
   mix.country = country;
-  mix.nation = std::make_shared<const zs::NationDemographics>(zs::load_nation(data_dir + "/setup/nations/" + country + ".toml"));
+  // Spec 90: a custom country ("custom/<id>") lives in the open world's copy of its pack.
+  const std::string path = zs::is_custom_profile(country) ? zs::nation_file(data_dir, country, "") : data_dir + "/setup/nations/" + country + ".toml";
+  mix.nation = std::make_shared<const zs::NationDemographics>(zs::load_nation(path));
 }
 
 Town generate_town(const Catalog& cat, const Mix& mix, std::uint64_t seed) {

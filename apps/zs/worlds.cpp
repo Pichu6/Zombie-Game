@@ -66,7 +66,8 @@ void write_settings(std::ostream& o, const zs::gen::WorldSettings& s) {
     << "forest = " << s.forest << "\n"
     << "fish = " << s.fish << "\n"
     << "people = " << s.people << "\n"
-    << "continents = " << s.continents << "\n";
+    << "continents = " << s.continents << "\n"
+    << "pack = " << quoted(s.pack) << "\n";  // spec 90
 }
 
 zs::gen::WorldSettings read_settings(const toml::table& t) {
@@ -86,6 +87,7 @@ zs::gen::WorldSettings read_settings(const toml::table& t) {
     s.fish = (*st)["fish"].value_or(s.fish);
     s.people = (*st)["people"].value_or(s.people);
     s.continents = (*st)["continents"].value_or(s.continents);
+    s.pack = (*st)["pack"].value_or(s.pack);
   }
   return s;
 }
@@ -130,6 +132,7 @@ World read_world(const std::filesystem::path& dir) {
   w.forked_from = t["forked_from"].value_or("");
   w.realism = t["realism"].value_or("");
   w.settings = read_settings(t);
+  if (w.settings.pack != "earth") w.settings.pack_dir = (dir / "countries").string();  // spec 90: the world's own copy
   read_saves(w);
   return w;
 }
@@ -202,6 +205,11 @@ World fork(const World& from, const std::string& new_name) {
   w.forked_from = from.name;
   w.settings = from.settings;
   w.realism = from.realism;
+  std::error_code ec;
+  if (std::filesystem::exists(from.dir / "countries", ec)) {  // spec 90: the pack goes with the world
+    std::filesystem::copy(from.dir / "countries", w.dir / "countries", std::filesystem::copy_options::recursive);
+    w.settings.pack_dir = (w.dir / "countries").string();
+  }
   write_meta(w);
   return w;
 }
@@ -262,19 +270,21 @@ World load(const std::string& name) {
 
 void save_meta(const World& w) { write_meta(w); }
 
-void remove(const World& w) {
+void remove(const World& w) { to_trash(w.dir, root()); }
+
+void to_trash(const std::filesystem::path& path, const std::filesystem::path& fallback_root) {
 #ifdef _WIN32
-  std::wstring from = w.dir.wstring();
+  std::wstring from = path.wstring();
   from.push_back(0);
   from.push_back(0);  // double null terminated
   SHFILEOPSTRUCTW op{};
   op.wFunc = FO_DELETE;
   op.pFrom = from.c_str();
   op.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
-  if (SHFileOperationW(&op) != 0) throw std::runtime_error("could not send the world to the recycle bin");
+  if (SHFileOperationW(&op) != 0) throw std::runtime_error("could not send " + path.filename().string() + " to the recycle bin");
 #else
-  std::filesystem::create_directories(root() / "_trash");
-  std::filesystem::rename(w.dir, root() / "_trash" / (w.name + "-" + stamp_text()));
+  std::filesystem::create_directories(fallback_root / "_trash");
+  std::filesystem::rename(path, fallback_root / "_trash" / (path.filename().string() + "-" + stamp_text()));
 #endif
 }
 

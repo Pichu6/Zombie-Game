@@ -73,7 +73,7 @@ DataSource source(const toml::table& t, const std::string& where) {
 
 NationDemographics load_nation(const std::string& path) {
   const toml::table t = toml::parse_file(path);
-  only_keys(t, {"id", "name", "status", "pop_params", "age_pyramid", "education", "labour", "occupations", "sectors", "households", "settlement", "country"}, "the file");
+  only_keys(t, {"id", "name", "status", "pop_params", "age_pyramid", "education", "labour", "occupations", "sectors", "households", "settlement", "country", "custom", "template", "color"}, "the file");
   NationDemographics n;
   if (const toml::table* c = t["country"].as_table()) {  // spec 49
     only_keys(*c, {"income", "population"}, "[country]");
@@ -84,7 +84,9 @@ NationDemographics load_nation(const std::string& path) {
   n.name = t["name"].value_or(std::string{});
   if (n.id.empty() || n.name.empty()) fail("needs an id and a name");
   const std::string status = t["status"].value_or(std::string{});
-  if (status != "placeholder" && status != "sourced") fail("status must be \"placeholder\" or \"sourced\"");
+  // Spec 90: "custom" is a user's country, made from a template and edited; like a placeholder it names no source.
+  if (status != "placeholder" && status != "sourced" && status != "custom")
+    fail("status must be \"placeholder\", \"sourced\" or \"custom\"");
   n.sourced = status == "sourced";
   n.pop_params = t["pop_params"].value_or(std::string{});
 
