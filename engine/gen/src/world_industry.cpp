@@ -120,12 +120,12 @@ WorldIndustry place_plants(const WorldGrid& g, const WorldFields& f, const World
     if (in == "fish") return std::accumulate(fish.begin(), fish.end(), 0.0) > 0;
     return true;  // people
   };
-  // The nearest worked site of any of `res` to a cell, km (a large number with none).
-  auto nearest_km = [&](CellId cell, const std::vector<int>& res) {
-    double best = 1e300;
+  // Whether a worked site of any of `res` lies within `km` of a cell (stops at the first).
+  auto within = [&](CellId cell, const std::vector<int>& res, double km) {
     for (int r : res)
-      for (int s : sites_of[static_cast<std::size_t>(r)]) best = std::min(best, g.distance_km(cell, use.sites[static_cast<std::size_t>(s)].cell));
-    return best;
+      for (int s : sites_of[static_cast<std::size_t>(r)])
+        if (g.distance_km(cell, use.sites[static_cast<std::size_t>(s)].cell) <= km) return true;
+    return false;
   };
   auto large_river_near = [&](CellId cell) {
     if (land.river[cell] == 2) return true;
@@ -156,12 +156,12 @@ WorldIndustry place_plants(const WorldGrid& g, const WorldFields& f, const World
           break;  // below, from the inputs each town gathers
         case PlantRule::Port:
           if (town.people >= kHeavyTownPeople)
-            weight[t] = detmath::pow(town.people, 0.7) * (port ? 2.0 : 1.0) * (nearest_km(town.cell, res) <= kNearKm ? 3.0 : 1.0);
+            weight[t] = detmath::pow(town.people, 0.7) * (port ? 2.0 : 1.0) * (within(town.cell, res, kNearKm) ? 3.0 : 1.0);
           break;
         case PlantRule::Power: {
           if (town.people < kPowerTownPeople) break;
           double energy = 0;
-          if (nearest_km(town.cell, {static_cast<int>(Resource::Gas), static_cast<int>(Resource::Coal)}) <= kPowerKm) energy += 3;
+          if (within(town.cell, {static_cast<int>(Resource::Gas), static_cast<int>(Resource::Coal)}, kPowerKm)) energy += 3;
           if (large_river_near(town.cell)) energy += 2;  // hydro
           if (energy > 0) weight[t] = energy * (port ? 1.5 : 1.0) * detmath::pow(town.people, 0.3);
           break;
@@ -198,8 +198,9 @@ WorldIndustry place_plants(const WorldGrid& g, const WorldFields& f, const World
           std::vector<std::pair<double, int>> near;
           for (int r : res)
             for (int s : sites_of[static_cast<std::size_t>(r)]) near.push_back({g.distance_km(p.cell, use.sites[static_cast<std::size_t>(s)].cell), s});
-          std::sort(near.begin(), near.end());
-          for (std::size_t q = 0; q < near.size() && q < 3; ++q) p.feeds.push_back(near[q].second);
+          const std::size_t top = std::min<std::size_t>(3, near.size());
+          std::partial_sort(near.begin(), near.begin() + static_cast<std::ptrdiff_t>(top), near.end());
+          for (std::size_t q = 0; q < top; ++q) p.feeds.push_back(near[q].second);
         }
         w.of_town[t].push_back(static_cast<int>(w.plants.size()));
         w.plants.push_back(std::move(p));

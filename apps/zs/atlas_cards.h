@@ -27,6 +27,7 @@ struct CountryCard {
   std::string name, income, profile;
   std::string origin, alliance;  // spec 91: how the history made it, the alliance it is in
   std::string industry;          // spec 93: its plants by kind
+  std::string energy;            // spec 94: its electricity: demand and mix
   double area_km2 = 0, people = 0, endowment = 0;
   bool landlocked = false;
   int capital_held = 0, periods = 0, sectors = 0;

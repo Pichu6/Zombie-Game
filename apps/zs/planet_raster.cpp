@@ -193,7 +193,7 @@ const RGB kBoundary[7] = {{0, 0, 0}, {200, 30, 30}, {240, 130, 30}, {40, 40, 80}
 const char* layer_name(MapLayer l) {
   static const char* names[kMapLayers] = {"physical", "political", "topographic", "temperature", "rain",   "climate",
                                           "wind",     "geology",   "water",       "cover",       "resources", "people",
-                                          "alliances", "industry"};
+                                          "alliances", "industry", "energy"};
   return names[static_cast<int>(l)];
 }
 
@@ -212,6 +212,9 @@ std::string layer_legend(MapLayer l) {
              "with discharge; borders thin grey";
     case MapLayer::Political: return "political: a colour per country (a custom country's own); rivers and lakes as in physical; borders dark";
     case MapLayer::Alliances: return "alliances (spec 91): a colour per alliance, countries in none grey; country borders thin";
+    case MapLayer::Energy:
+      return "energy (spec 94): physical faded; high-voltage lines dark (between countries dashed red), power plants by fuel sized "
+             "by MW: coal black, gas orange, oil and other brown, hydro blue, nuclear yellow ringed, wind white, solar gold";
     case MapLayer::Industry:
       return "industry (spec 93): physical faded; plants at their towns, a dot by kind sized by how many: refineries brown, steel "
              "red, alumina and aluminium pink, copper teal, cement grey, flour and sugar mills yellow, meat plants purple, sawmills "
@@ -400,6 +403,7 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       switch (layer) {
         case MapLayer::Physical:
         case MapLayer::Resources:
+        case MapLayer::Energy:
         case MapLayer::Industry:
         case MapLayer::Wind: break;
         case MapLayer::Political:
@@ -509,11 +513,11 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       if (shows_water && wtr == 2) col = kLakeOpen;
       if (shows_water && wtr == 3) col = kLakeSalt;
       if (shows_water && wtr == 4 && layer != MapLayer::Water) col = kLakeDry;
-      const bool shaded = layer == MapLayer::Physical || layer == MapLayer::Resources || layer == MapLayer::Industry || layer == MapLayer::Cover ||
+      const bool shaded = layer == MapLayer::Physical || layer == MapLayer::Resources || layer == MapLayer::Industry || layer == MapLayer::Energy || layer == MapLayer::Cover ||
                           layer == MapLayer::Wind || layer == MapLayer::Topographic || layer == MapLayer::Political;
       if (shaded && wtr == 0) for (double& v : col) v *= layer == MapLayer::Political ? 0.85 + 0.15 * hillshade(x, y) : hillshade(x, y);
-      if (layer == MapLayer::Resources || layer == MapLayer::Industry || layer == MapLayer::Wind)
-        col = mix(col, RGB{200, 200, 200}, layer == MapLayer::Wind ? 0.25 : layer == MapLayer::Industry ? 0.55 : 0.4);
+      if (layer == MapLayer::Resources || layer == MapLayer::Industry || layer == MapLayer::Energy || layer == MapLayer::Wind)
+        col = mix(col, RGB{200, 200, 200}, layer == MapLayer::Wind ? 0.25 : (layer == MapLayer::Industry || layer == MapLayer::Energy) ? 0.55 : 0.4);
       (void)physical;
       // A border (spec 52 slice 4): land whose country differs from the land to its right or below.
       const int k = r.country[i];
@@ -531,7 +535,7 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
   // Rivers as smooth curves from source to mouth (Catmull-Rom through the cells' centres as the picture shows them),
   // wider downstream with discharge: one pixel at the river threshold, four at 100,000 m3/s.
   const bool draws_rivers = layer == MapLayer::Physical || layer == MapLayer::Political || layer == MapLayer::Topographic ||
-                            layer == MapLayer::Water || layer == MapLayer::Cover || layer == MapLayer::Resources || layer == MapLayer::Industry ||
+                            layer == MapLayer::Water || layer == MapLayer::Cover || layer == MapLayer::Resources || layer == MapLayer::Industry || layer == MapLayer::Energy ||
                             layer == MapLayer::Wind;
   if (draws_rivers) {
     const double scale = std::max(0.5, static_cast<double>(W) / 2048.0);
@@ -625,6 +629,32 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       const double rad = std::clamp(0.6 + 1.6 * std::log10(rel), 1.0, 4.5) * (W / 2048.0 + 0.5);
       const double off = (k - 2.5) * 0.9 * (W / 2048.0);
       cv.disc(x + off, y + off * 0.5, rad, kDeposit[k], worked[di] ? 0.95 : 0.3);  // spec 88: unworked deposits faint
+    }
+  }
+
+  if (layer == MapLayer::Energy && in.energy) {  // spec 94: lines first, plants over them
+    const gen::WorldEnergy& en = *in.energy;
+    for (const gen::GridLine& l : en.lines) {
+      double x0, y0, x1, y1;
+      to_pixel(warp.undo(grid.centre(l.a)), W, H, x0, y0);
+      to_pixel(warp.undo(grid.centre(l.b)), W, H, x1, y1);
+      if (std::abs(x1 - x0) > W / 2.0) continue;  // a line across the map's seam
+      const int steps = std::max(2, static_cast<int>(std::hypot(x1 - x0, y1 - y0)));
+      for (int s = 0; s <= steps; ++s) {
+        if (l.country < 0 && (s / 3) % 2) continue;  // between countries: dashed
+        const double t = static_cast<double>(s) / steps;
+        cv.disc(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, 0.45 * (W / 2048.0 + 0.5), l.country < 0 ? RGB{170, 30, 30} : RGB{40, 40, 50}, 0.8);
+      }
+    }
+    static const RGB kFuel[gen::kFuels] = {{20, 20, 20}, {240, 140, 30}, {120, 80, 40}, {30, 90, 220}, {250, 220, 40}, {250, 250, 250}, {230, 180, 30}};
+    for (const gen::PowerPlant& pl : en.plants) {
+      double x, y;
+      to_pixel(warp.undo(grid.centre(pl.cell)), W, H, x, y);
+      const auto q = static_cast<std::size_t>(pl.fuel);
+      const bool small = pl.fuel == gen::Fuel::Wind || pl.fuel == gen::Fuel::Solar || pl.fuel == gen::Fuel::Oil;
+      const double rad = (small ? 0.7 : std::clamp(0.6 + 0.5 * std::log2(1.0 + pl.mw / 200.0), 1.0, 3.5)) * (W / 2048.0 + 0.4);
+      if (pl.fuel == gen::Fuel::Nuclear) cv.disc(x, y, rad + 0.8, RGB{30, 30, 30});
+      cv.disc(x, y, rad, kFuel[q], small ? 0.6 : 0.95);
     }
   }
 

@@ -544,6 +544,7 @@ void draw_country_card(CardsState& st, const WorldCard& world, const CountryCard
   v["towns"] = std::to_string(c.towns.size()) + (c.towns.empty() ? "" : ", the largest of " + fmt("%.0f thousand", c.towns.front().people / 1e3));
   if (!c.origin.empty()) v["origin"] = c.origin;
   v["industry"] = c.industry.empty() ? "none" : c.industry;
+  if (!c.energy.empty()) v["energy"] = c.energy;
   if (!c.alliance.empty()) v["alliance"] = c.alliance;
   v["profile"] = c.profile.empty() ? "the base country of its income group (data/setup/nations/base_" + c.income + ".toml)"
                  : zs::is_custom_profile(c.profile)

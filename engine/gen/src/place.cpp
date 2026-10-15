@@ -3,7 +3,10 @@
 #include "zs/gen/town_food.h"
 #include "zs/gen/town_travel.h"
 
+#include <chrono>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <optional>
 
 #include "toml.hpp"
@@ -94,7 +97,10 @@ int world_frequency(double radius_km, double cell_km2) {
 }
 
 GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int frequency, const std::function<void(const char*)>& stage) {
+  const auto t0 = std::chrono::steady_clock::now();
+  const bool timing = std::getenv("ZS_TIME_GEN") != nullptr;  // ZS_TIME_GEN=1: each stage's start on stderr (finds slow steps)
   auto say = [&](const char* what) {
+    if (timing) std::fprintf(stderr, "%8.2f s  %s\n", std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count(), what);
     if (stage) stage(what);
   };
   say("the grid");
@@ -136,6 +142,8 @@ GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int fr
   w.use = generate_land_use(w.grid, w.fields, w.land, w.deposits, w.people);  // spec 88
   say("refineries, mills and plants");
   w.industry = place_plants(w.grid, w.fields, w.land, w.deposits, w.people, w.use, load_plant_kinds(data + "/gen"));  // spec 93
+  say("power plants and the grid");
+  w.energy = make_energy(w.grid, w.fields, w.land, w.deposits, w.people, w.use);  // spec 94
   return w;
 }
 

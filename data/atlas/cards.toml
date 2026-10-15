@@ -46,6 +46,7 @@ rows = [
   { field = "sectors", need = "Sectors cut inside the country", spec = "48" },
   { field = "towns", need = "Towns", spec = "48" },
   { field = "origin", need = "How it came to be: a founder, a union of two, a split from one", spec = "91" },
+  { field = "energy", need = "Its electricity: demand by people and income, and the mix it makes", spec = "94" },
   { field = "industry", need = "Its processing plants: refineries, steel, smelters, cement, mills, meat and fish plants, sawmills", spec = "93" },
   { field = "alliance", need = "The alliance it is in (as the EU or NATO)", spec = "91" },
   { field = "profile", need = "The real profile it borrows: age, education, work, households", spec = "49" },

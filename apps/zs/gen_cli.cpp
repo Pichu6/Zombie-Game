@@ -305,6 +305,29 @@ int gen_main(int argc, char** argv) {
         }
         std::cout << "\n";
       }
+      {  // spec 94: power plants and the grid
+        const zs::gen::WorldEnergy& en = gw.energy;
+        const zs::gen::EnergyParams ep;
+        double all = 0;
+        for (double x : en.world_twh) all += x;
+        std::cout << "energy (spec 94): " << static_cast<long long>(all) << " TWh a year (Earth about 29,900 at 8 billion; ELS-1); mix:";
+        for (int q = 0; q < zs::gen::kFuels; ++q)
+          std::cout << (q ? "," : "") << " " << zs::gen::fuel_name(static_cast<zs::gen::Fuel>(q)) << " "
+                    << (all > 0 ? 100 * en.world_twh[static_cast<std::size_t>(q)] / all : 0) << " % (" << 100 * ep.world_share[static_cast<std::size_t>(q)] << ")";
+        std::array<double, zs::gen::kFuels> mw{};
+        std::array<int, zs::gen::kFuels> count{};
+        for (const auto& pl : en.plants) mw[static_cast<std::size_t>(pl.fuel)] += pl.mw, ++count[static_cast<std::size_t>(pl.fuel)];
+        const double scale = people.total_people / 8.0e9;
+        std::cout << "\n  plants: coal " << count[0] << " (" << static_cast<int>(mw[0] / 1000) << " GW; Earth about " << static_cast<int>(2175 * scale)
+                  << " GW at these people, ELS-3), gas " << count[1] << " (" << static_cast<int>(mw[1] / 1000) << " GW), oil and other " << count[2]
+                  << ", hydro dams " << count[3] << " (" << static_cast<int>(mw[3] / 1000) << " GW of " << static_cast<int>(en.hydro_potential_mw / 1000)
+                  << " GW of sites; Earth " << static_cast<int>(1443 * scale) << ", ELS-4), nuclear " << count[4] << " (" << static_cast<int>(mw[4] / 1000)
+                  << " GW; Earth " << static_cast<int>(377 * scale) << ", ELS-5), wind " << count[5] << ", solar " << count[6];
+        double km = 0, inter = 0;
+        for (const auto& l : en.lines) (l.country < 0 ? inter : km) += l.km;
+        std::cout << "\n  grid: " << static_cast<long long>(km) << " km of high-voltage lines inside countries, " << static_cast<long long>(inter)
+                  << " km between them\n";
+      }
       const std::string bmp = arg(argc, argv, "--bmp", "");
       // Spec 83 rule 6: the map in layers.
       zs::atlas::MapInputs mi;
@@ -313,6 +336,7 @@ int gen_main(int argc, char** argv) {
       mi.people = &people;
       mi.use = &gw.use;
       mi.industry = &gw.industry;
+      mi.energy = &gw.energy;
       if (arg(argc, argv, "--projection", "") == "equal-earth") mi.projection = zs::atlas::Projection::EqualEarth;  // spec 89 amendment
       if (!bmp.empty()) {
         const bool political = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--political"; });

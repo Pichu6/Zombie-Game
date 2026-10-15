@@ -233,6 +233,7 @@ struct Planet {
     zs::gen::WorldPeople people;
     zs::gen::WorldLandUse use;
     zs::gen::WorldIndustry industry;  // spec 93
+    zs::gen::WorldEnergy energy;      // spec 94
   };
   std::shared_ptr<const Data> data;
   MapLayer layer = MapLayer::Political;
@@ -271,6 +272,7 @@ struct Planet {
         mi.people = &people;
         mi.use = &gw.use;
         mi.industry = &gw.industry;
+        mi.energy = &gw.energy;
         mi.projection = Projection::EqualEarth;  // spec 89 amendment: poles as curved edges, not bands
         PlanetRaster r = render_layer(grid, f, land, mi, layer, 1024, 512);
         std::vector<CountryInfo> cs;
@@ -336,6 +338,20 @@ struct Planet {
           cc.area_km2 = c.area_km2;
           cc.people = c.people;
           cc.endowment = c.endowment;
+          {  // spec 94: its electricity
+            const auto& g2 = gw.energy.gen_twh[k];
+            double all = 0;
+            for (double x : g2) all += x;
+            char eb[256];
+            std::snprintf(eb, sizeof eb, "%.0f TWh a year (%.0f kWh a person); ", gw.energy.demand_twh[k], c.people > 0 ? gw.energy.demand_twh[k] * 1e9 / c.people : 0.0);
+            cc.energy = eb;
+            for (int q = 0; q < zs::gen::kFuels; ++q)
+              if (all > 0 && g2[static_cast<std::size_t>(q)] / all >= 0.005) {
+                std::snprintf(eb, sizeof eb, "%s%s %.0f %%", cc.energy.back() == ' ' ? "" : ", ", zs::gen::fuel_name(static_cast<zs::gen::Fuel>(q)),
+                              100 * g2[static_cast<std::size_t>(q)] / all);
+                cc.energy += eb;
+              }
+          }
           {  // spec 93: the country's plants by kind
             std::map<int, int> by;
             for (const auto& pl : gw.industry.plants)
@@ -352,7 +368,7 @@ struct Planet {
         std::snprintf(buf, sizeof buf, "%zu cells, %.0f million km2 of land, %.0f million people, %zu countries, %zu towns",
                       static_cast<std::size_t>(grid.size()), people.land_km2 / 1e6, people.total_people / 1e6,
                       people.countries.size(), people.towns.size());
-        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people, gw.use, gw.industry});
+        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people, gw.use, gw.industry, gw.energy});
         std::lock_guard<std::mutex> l(mutex);
         this->data = std::move(kept);
         raster = std::move(r);
@@ -396,6 +412,7 @@ struct Planet {
     mi.people = &data->people;
     mi.use = &data->use;
     mi.industry = &data->industry;
+    mi.energy = &data->energy;
     mi.projection = Projection::EqualEarth;
     raster = render_layer(data->grid, data->fields, data->land, mi, layer, 1024, 512);
     if (texture) SDL_DestroyTexture(texture), texture = nullptr;
