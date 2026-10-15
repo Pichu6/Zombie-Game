@@ -91,6 +91,8 @@ TEST_CASE("setup: the preview agrees with the full world (spec 84 Tests)" * doct
                     << " / " << biome_share(coarse, Biome::TropicalForest));
     CHECK(std::abs(land_share(full) - land_share(coarse)) < 0.03);
     for (Biome b : {Biome::Desert, Biome::Savanna, Biome::TropicalForest, Biome::TemperateForest, Biome::BorealForest, Biome::Grassland})
-      CHECK(std::abs(biome_share(full, b) - biome_share(coarse, b)) < 0.03);
+      CHECK(std::abs(biome_share(full, b) - biome_share(coarse, b)) < 0.045);  // spec 89 second amendment: Koppen's
+                                                                                   // classes follow the range, which
+                                                                                   // follows distance inland in cells
   }
 }

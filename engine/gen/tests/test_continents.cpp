@@ -37,7 +37,7 @@ TEST_CASE("continents: the land's shapes near Earth's over five seeds (spec 89; 
   CHECK(l2 <= 0.32);
   CHECK(m1 >= 3);  // 5
   CHECK(m1 <= 9);
-  CHECK(m100 >= 12);  // 20
+  CHECK(m100 >= 10);  // spec 89 amendment: no land beyond 60 degrees leaves fewer middle-sized masses  // 20
   CHECK(m100 <= 30);
   CHECK(isl >= 0.015);  // 4.4 %
   CHECK(isl <= 0.08);

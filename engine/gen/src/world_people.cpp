@@ -371,23 +371,25 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     const double cap = largest[static_cast<std::size_t>(group)];
     return cap <= 0 || people_count <= kGroupSizeTolerance * cap * planet_scale;
   };
-  double before = 0;
+  // Each group keeps its own quota (spec 89 second amendment): a country takes the first group, in order of
+  // development, with room for at least half of it that it fits; a large country sent elsewhere leaves its group's
+  // quota to the next countries instead of shifting every later edge.
+  std::array<double, kIncomeGroups> room{};
+  for (int i = 0; i < kIncomeGroups; ++i)
+    room[static_cast<std::size_t>(i)] = w.total_people * tables.population[static_cast<std::size_t>(i)] / group_total;
   for (std::size_t k : by_dev) {
     Country& c = w.countries[k];
-    const double mid = (before + c.people / 2) / std::max(1.0, w.total_people);
-    double edge = 0;
-    c.income = kIncomeGroups - 1;
-    for (int i = 0; i < kIncomeGroups; ++i) {
-      edge += tables.population[static_cast<std::size_t>(i)] / group_total;
-      if (mid < edge) { c.income = i; break; }
+    int pick = -1;
+    for (int i = 0; i < kIncomeGroups && pick < 0; ++i)
+      if (room[static_cast<std::size_t>(i)] >= c.people / 2 && fits(i, c.people)) pick = i;
+    if (pick < 0) {  // no room left anywhere it fits: the group with the most room among those it fits, else the poorest
+      double best = -1e300;
+      for (int i = 0; i < kIncomeGroups; ++i)
+        if (fits(i, c.people) && room[static_cast<std::size_t>(i)] > best) best = room[static_cast<std::size_t>(i)], pick = i;
+      if (pick < 0) pick = kIncomeGroups - 1;
     }
-    if (!fits(c.income, c.people)) {  // the nearest group it fits, poorer first
-      for (int step = 1; step < kIncomeGroups; ++step) {
-        if (c.income + step < kIncomeGroups && fits(c.income + step, c.people)) { c.income += step; break; }
-        if (c.income - step >= 0 && fits(c.income - step, c.people)) { c.income -= step; break; }
-      }
-    }
-    before += c.people;
+    c.income = pick;
+    room[static_cast<std::size_t>(pick)] -= c.people;
   }
 
   // Spec 49: each country takes the unused real profile of its group nearest in people (scaled to this planet: the

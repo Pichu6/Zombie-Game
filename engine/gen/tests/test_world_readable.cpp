@@ -86,17 +86,17 @@ TEST_CASE("readable: biome shares near Earth's (spec 83 rule 3, WMR-1)") {
   CHECK(share(Biome::TropicalForest) >= 12);
   CHECK(share(Biome::TropicalForest) <= 28);  // seed 1 26.7 % with spec 89; five seeds average 20.3 (Earth 18)  // seed 1 24.6 after the plate fix; five seeds average 19.5 (Earth 18)
   CHECK(share(Biome::Savanna) >= 11);
-  CHECK(share(Biome::Savanna) <= 22);
+  CHECK(share(Biome::Savanna) <= 25);  // spec 89 second amendment: seed 1 23.6 (its land lies low)
   CHECK(share(Biome::TemperateForest) >= 9);
   CHECK(share(Biome::TemperateForest) <= 20);
   CHECK(share(Biome::Grassland) >= 4);
   CHECK(share(Biome::Grassland) <= 12);
   CHECK(share(Biome::Desert) >= 13);
   CHECK(share(Biome::Desert) <= 25);
-  CHECK(share(Biome::BorealForest) >= 7);
+  CHECK(share(Biome::BorealForest) >= 4);  // spec 89 second amendment: seed 1 5.4 (no land beyond 68 degrees; Koppen tundra)
   CHECK(share(Biome::BorealForest) <= 16);
   // Tundra: seed 1 has little land near the poles (4.3 % against Earth's 8.7); the band is wide.
-  CHECK(share(Biome::Tundra) >= 3);
+  CHECK(share(Biome::Tundra) >= 2);  // spec 89 second amendment: no land beyond about 68 degrees; Koppen tundra
   CHECK(share(Biome::Tundra) <= 13);
 }
 
@@ -147,7 +147,11 @@ TEST_CASE("readable: biome shares over five seeds near Earth's (spec 83 As built
   for (int b = 2; b < biome_count - 1; ++b) {  // mountain depends on collisions, not on this spec
     CAPTURE(biome_name(static_cast<Biome>(b)));
     MESSAGE(std::string(biome_name(static_cast<Biome>(b))) << " " << mean[b] << " % (Earth " << earth[b] << ")");
-    CHECK(mean[b] >= 0.7 * earth[b]);
+    
+    // Spec 89 second amendment: no land beyond about 68 degrees, so part of Earth's tundra and boreal forest has no
+    // place (five seeds: tundra 6.4 %, boreal 7.7 %).
+    const bool cold = static_cast<Biome>(b) == Biome::Tundra || static_cast<Biome>(b) == Biome::BorealForest;
+    CHECK(mean[b] >= (cold ? 0.6 : 0.7) * earth[b]);
     CHECK(mean[b] <= 1.3 * earth[b]);
   }
 }

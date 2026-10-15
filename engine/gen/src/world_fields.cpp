@@ -33,11 +33,17 @@ constexpr double kAiDesert = 0.31, kAiGrass = 0.55, kAiSavanna = 0.6;  // recali
 
 double pet_mm(double t) { return 58.93 * std::clamp(t, 0.0, 30.0); }
 
-Biome classify_biome(bool land, double elev, double t, double rain) {
+Biome classify_biome(bool land, double elev, double t, double rain, double range_c) {
   if (!land) return Biome::Ocean;
-  if (t < -15) return Biome::Ice;
-  if (elev >= 2500) return Biome::Mountain;
-  if (t < -3) return Biome::Tundra;
+  if (elev >= 2500) return Biome::Mountain;  // second amendment: high glaciers are part of the range, in its country
+  if (range_c >= 0) {  // Koppen's EF and ET by the warmest month (AMS glossary; Kottek et al. 2006)
+    const double warmest = t + range_c / 2;
+    if (warmest <= 0) return Biome::Ice;
+    if (warmest < 10) return Biome::Tundra;
+  } else {
+    if (t < -15) return Biome::Ice;
+    if (t < -3) return Biome::Tundra;
+  }
   const double pet = pet_mm(t);
   const double ai = pet > 0 ? rain / pet : 1e9;
   if (t < 6) return ai >= kAiDesert ? Biome::BorealForest : Biome::Tundra;
@@ -63,12 +69,38 @@ constexpr int kHotspotChain = 6;
 constexpr double kHotspotStepKm = 350, kHotspotSigmaKm = 150, kHotspotM = 8000;
 // Spec 89 (estimates, calibrated in As built): cratons and their size spread; island arcs as chains of islands.
 constexpr int kCratons = 8;
-constexpr double kCratonZipf = 1.5;        // the k-th craton's share of continental crust falls as k^-1.5 (CC)
-constexpr double kArcWavelengthKm = 700;   // arc islands come and go along the arc at about this spacing
+constexpr double kCratonZipf = 1.3;        // second amendment: 1.3 (1.5 gave the largest landmass 62 % against Earth's 53.5)
+constexpr int kMicroCratons = 12;          // micro-continents: Earth's 100,000-1,000,000 km2 landmasses are mostly
+constexpr double kMicroShare = 0.04;       // continental fragments (Madagascar, Borneo, New Zealand, Britain), about 4 % of land (CC-1)
+// Second amendment: Earth's land is lopsided (CC-3): 67 % in the north, reaching 72 N (Siberia, Canada), while beyond
+// Antarctica the south's land ends near 55 S (0.2 % of land at 50-60 S). One hemisphere, keyed, is the landed one.
+// Craton centres are drawn by Earth's land by 10-degree band without Antarctica (CC-3), from 60 S to 70 N, the landed
+// hemisphere taking Earth's north.
+constexpr double kCratonBands[13] = {0.2, 0.7, 2.8, 6.3, 6.4, 7.1, 6.8, 7.6, 10.2, 10.4, 10.7, 9.8, 9.0};
+constexpr int kCratonTries = 32;             // candidate centres per craton; the one farthest from the others wins
+constexpr double kPolarSlowFrom = 0.883, kPolarSlowTo = 0.951;  // landed hemisphere: crust spreads slower from 62 to
+constexpr double kPolarSlow = 0.0;           // 72 degrees by up to e^1 per km ...
+constexpr double kCapDeg = 68;               // ... and no land beyond about 68 degrees (Earth: 2.4 % of land at 70-80 N, mostly islands, CC-3)
+constexpr double kOtherSlowFrom = 0.766, kOtherSlowTo = 0.848;  // the other: slower from 50 to 58 degrees ...
+constexpr double kCapDegOther = 58;          // ... no land beyond about 58 (Tierra del Fuego, 55 S)
+constexpr double kCapWanderDeg = 4;          // the limit wanders by this much
+constexpr double kCratonMerge = 0.1;          // the chance two cratons that meet join (Africa and Eurasia); else a strait        // the k-th craton's share of continental crust falls as k^-1.5 (CC)
+constexpr double kArcWavelengthKm = 2000;  // arc islands come in a few groups along the arc (Japan, the Philippines)
 constexpr double kArcM = 3500;             // an arc's uplift at full convergence (was the subduction's 5,000)
-constexpr double kSeaIceC = -10.0;         // annual mean air temperature below which the sea is ice-covered (CC)
+constexpr double kSeaIceC = -13.0;         // annual mean air temperature below which the sea is ice-covered (CC)
+constexpr double kIceSheetPolar = 0.5;     // a landmass at least half beyond 60 degrees ...
+constexpr double kIceSheetC = -5.0;        // ... and colder than this on average carries an ice sheet ...
+constexpr double kIceSheetCellC = -6.0;    // ... over its cells colder than this; its milder fringe stays tundra (Greenland's coast)
+constexpr int kIceShelfRings = 3;         // the sea this many cells out from an ice sheet freezes ...
+constexpr double kIceShelfC = -3.0;        // ... where its annual mean is below this (east Greenland's coast, estimate)
+constexpr double kSeaIceGyreC = 12.0;       // the edge's large bends: the Antarctic edge lies at 55-65 S (estimate)
 constexpr double kSeaIceNoiseC = 2.0;      // the ice edge's small wander (estimate)
-constexpr double kCurrentC = 8.0;          // high-latitude anomaly from currents, both ways (estimate; Norway is about 10 C
+constexpr double kSideC = 6.0;             // second amendment: an ocean's western side is colder and its eastern side
+                                           // warmer at high latitude, by up to this each way (Nain, Labrador, -3 C at
+                                           // 56 N against Bergen 7.6 C at 60 N; the Labrador Current and the Norwegian
+                                           // Atlantic Current)
+constexpr double kSideKm = 1500;           // the side effect fades over this distance from the coast
+constexpr double kCurrentC = 3.0;          // high-latitude anomaly from currents, both ways (estimate; Norway is about 10 C
                                            // warmer than its latitude's mean, Labrador several colder)
 constexpr double kInlandSeaKm2 = 2.0e6;    // an enclosed sea is filled as a low basin (Earth has none larger than the Caspian, CC)
 constexpr double kBasinM = 5;              // how far above the sea a filled basin's floor stands
@@ -247,24 +279,54 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
   // craton takes a share of the continental area falling as k^-1.5 with a keyed spread; each grows from a keyed point
   // as a noisy flood until it holds its share, so continents are blobs of many sizes, and cratons that meet merge.
   std::vector<std::uint8_t>& crust = f.crust;
+  // Second amendment: the landed hemisphere (keyed) and each cell's polar limit: 72 degrees on the landed side, 58 on
+  // the other, wandering by 4 degrees over 2,500 km so the high coasts are not a parallel. No land lies beyond it.
+  const double landed = rnd.u01(0, field::CratonSize + 2000) < 0.5 ? 1.0 : -1.0;
+  std::vector<double> cap_sin(N);
+  {
+    const noise::Fbm cap_noise{2500, 2, 0.5, 0};
+    for (CellId i = 0; i < N; ++i) {
+      const bool home = g.centre(i).z * landed >= 0;
+      const double deg = (home ? kCapDeg : kCapDegOther) +
+                         kCapWanderDeg * noise::fbm(prm.seed, field::NoiseCraton + 3000, g.centre(i), g.radius_km(), cap_noise);
+      cap_sin[i] = detmath::sin(deg * 3.141592653589793 / 180.0);
+    }
+  }
   crust.assign(N, 0);
   {
-    const int C = prm.cratons > 0 ? prm.cratons : kCratons;
+    const int big = prm.cratons > 0 ? prm.cratons : kCratons;
+    const int C = big + kMicroCratons;  // second amendment: micro-continents after the cratons (Madagascar, New Zealand)
     const double total = std::clamp(prm.land_share * 1.35, 0.02, 0.95) * g.sphere_area_km2();
     std::vector<double> budget(static_cast<std::size_t>(C));
     double sum = 0;
-    for (int k = 0; k < C; ++k) {
+    for (int k = 0; k < big; ++k) {
       budget[static_cast<std::size_t>(k)] =
           detmath::pow(k + 1.0, -kCratonZipf) * (0.7 + 0.6 * rnd.u01(static_cast<std::uint64_t>(k), field::CratonSize));
       sum += budget[static_cast<std::size_t>(k)];
     }
-    for (double& b : budget) b *= total / sum;
+    for (int k = 0; k < big; ++k) budget[static_cast<std::size_t>(k)] *= (1.0 - kMicroShare) * total / sum;
+    for (int k = big; k < C; ++k)
+      budget[static_cast<std::size_t>(k)] =
+          kMicroShare * total / kMicroCratons * (0.4 + 1.2 * rnd.u01(static_cast<std::uint64_t>(k), field::CratonSize));
     std::vector<Vec3> at;
     for (int k = 0; k < C; ++k) {
       Vec3 best{0, 0, 1};
       double best_gap = -2;
-      for (std::uint32_t t = 0; t < 8; ++t) {
-        const Vec3 c = random_point(rnd, static_cast<std::uint64_t>(k), field::CratonPoint, t);
+      for (std::uint32_t t = 0; t < kCratonTries; ++t) {
+        Vec3 c;
+        {
+          double total_w = 0;
+          for (const double w : kCratonBands) total_w += w;
+          double u = rnd.u01(static_cast<std::uint64_t>(k), field::CratonPoint, 2 * t) * total_w;
+          int band = 0;
+          while (band < 12 && u > kCratonBands[band]) u -= kCratonBands[band++];
+          const double lo = (-60.0 + 10.0 * band) * 3.141592653589793 / 180.0, hi = lo + 10.0 * 3.141592653589793 / 180.0;
+          const double v = rnd.u01(static_cast<std::uint64_t>(k), field::CratonPoint + 2000, 2 * t);
+          const double z = landed * (detmath::sin(lo) + v * (detmath::sin(hi) - detmath::sin(lo)));  // area-uniform in the band
+          const double phi = 6.283185307179586 * rnd.u01(static_cast<std::uint64_t>(k), field::CratonPoint, 2 * t + 1);
+          const double r = detmath::sqrt(std::max(0.0, 1.0 - z * z));
+          c = {r * detmath::cos(phi), r * detmath::sin(phi), z};
+        }
         double nearest = 4;
         for (const Vec3& s : at) {
           const Vec3 d{c.x - s.x, c.y - s.y, c.z - s.z};
@@ -278,6 +340,13 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     using Item = std::tuple<double, CellId, int>;
     std::priority_queue<Item, std::vector<Item>, std::greater<Item>> q;
     std::vector<double> got(static_cast<std::size_t>(C), 0.0), cost(N, 1e300);
+    std::vector<int> owner(N, -1);
+    // Second amendment (the user: continents too clustered): two cratons join only by a keyed chance; otherwise a
+    // strait of at least one cell stays between them.
+    auto joins = [&](int a, int b) {
+      const int lo = std::min(a, b), hi = std::max(a, b);
+      return rnd.u01(static_cast<std::uint64_t>(lo * 64 + hi), field::CratonSize + 1000) < kCratonMerge;
+    };
     for (int k = 0; k < C; ++k) {
       const CellId s = nearest_cell(g, at[static_cast<std::size_t>(k)]);
       cost[s] = 0;
@@ -287,12 +356,26 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       const auto [c, cell, k] = q.top();
       q.pop();
       if (crust[cell] || got[static_cast<std::size_t>(k)] >= budget[static_cast<std::size_t>(k)]) continue;
+      bool apart = false;  // a strait two cells wide, so the shelves do not close it
+      for (const CellId nb : g.neighbours(cell)) {
+        if (owner[nb] >= 0 && owner[nb] != k && !joins(owner[nb], k)) apart = true;
+        for (const CellId n2 : g.neighbours(nb))
+          if (owner[n2] >= 0 && owner[n2] != k && !joins(owner[n2], k)) apart = true;
+      }
+      if (apart) continue;
       crust[cell] = 1;
+      owner[cell] = k;
       got[static_cast<std::size_t>(k)] += g.area_km2(cell);
       for (const CellId nb : g.neighbours(cell)) {
-        if (crust[nb]) continue;
+        const bool home = g.centre(nb).z * landed >= 0;
+        if (crust[nb] || std::abs(g.centre(nb).z) > cap_sin[nb]) continue;  // no continent reaches a pole
         const double n = noise::fbm(prm.seed, field::NoiseCraton, g.centre(nb), g.radius_km(), craton_noise);
-        const double step = g.distance_km(cell, nb) * detmath::exp(kCostContrast * n);
+        // Spread is slow toward the poles, so continents reach polar seas only at their edges (the user's call).
+        // Second amendment: up to 72 degrees, as Siberia's and Canada's tundra coasts.
+        const double az = std::abs(g.centre(nb).z);
+        const double polar = home ? std::clamp((az - kPolarSlowFrom) / (kPolarSlowTo - kPolarSlowFrom), 0.0, 1.0)
+                                  : std::clamp((az - kOtherSlowFrom) / (kOtherSlowTo - kOtherSlowFrom), 0.0, 1.0);
+        const double step = g.distance_km(cell, nb) * detmath::exp(kCostContrast * n + kPolarSlow * polar);
         if (c + step < cost[nb]) cost[nb] = c + step, q.push({c + step, nb, k});
       }
     }
@@ -405,7 +488,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       for (int k = 0; k < kHotspotChain; ++k) {
         const double back = k * kHotspotStepKm / g.radius_km();
         const Vec3 p = unit({c0.x - v.x * back, c0.y - v.y * back, c0.z - v.z * back});
-        const double height = scale * kHotspotM * detmath::pow(0.7, k);
+        const double height = scale * kHotspotM * detmath::pow(0.55, k);  // spec 89: older volcanoes sink fast (Hawaii's chain)
         for (CellId i = 0; i < N; ++i) {
           const Vec3 d{g.centre(i).x - p.x, g.centre(i).y - p.y, g.centre(i).z - p.z};
           const double r2 = dot(d, d) / (sigma * sigma);
@@ -434,7 +517,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     double boundary = src[i].v;
     if (src[i].k == BoundaryKind::IslandArc) {  // spec 89 rule 3: islands that come and go along the arc, not a wall
       const double m = noise::fbm(prm.seed, field::NoiseArc, c, g.radius_km(), arc_noise);
-      boundary *= std::clamp((m - 0.25) / 0.3, 0.0, 1.0);  // amendment: fewer, more scattered arc islands
+      boundary *= std::clamp((m - 0.3) / 0.25, 0.0, 1.0);  // amendment: a few island groups, not a dotted line
     }
     elev[i] = margin_base(i) + kShapeM * shape + prm.relief * (boundary + amp * n + hot[i]);
     f.boundary_kind[i] = src[i].k;
@@ -447,6 +530,12 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       next[i] = 0.5 * elev[i] + 0.5 * s / static_cast<double>(g.neighbours(i).size());
     }
     elev.swap(next);
+  }
+
+  // Second amendment: beyond the polar limit the floor stays deep, whatever the plates raised there.
+  for (CellId i = 0; i < N; ++i) {
+    const double az = std::abs(g.centre(i).z);
+    if (az > cap_sin[i]) elev[i] = std::min(elev[i], -1500.0 - 20000.0 * (az - cap_sin[i]));
   }
 
   // ---- Sea level (rule 5): the elevation that makes the area-weighted land share exact to a cell.
@@ -527,24 +616,6 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
         return knots[i - 1][1] + (a - knots[i - 1][0]) / (knots[i][0] - knots[i - 1][0]) * (knots[i][1] - knots[i - 1][1]);
     return knots[5][1];
   };
-  const noise::Fbm current_noise{5000, 2, 0.5, 0};  // spec 89 amendment
-  double mean = 0;
-  for (CellId i = 0; i < N; ++i) mean += profile(g.sin_lat(i)) * g.area_km2(i);
-  const double shift = prm.global_temp_c - mean / g.sphere_area_km2();
-  for (CellId i = 0; i < N; ++i) {
-    const double z = g.sin_lat(i), az = z < 0 ? -z : z;
-    const double h = std::max(0.0, f.elevation_m[i]);
-    // Spec 89 amendment: a large-scale anomaly at high latitudes, as ocean currents warm or chill a whole coast (the
-    // Gulf Stream's Norway, the Labrador Current's Canada), applied to land and sea alike so the ice and the land beside
-    // it agree.
-    const double polar = std::clamp((az - 0.64) / 0.3, 0.0, 1.0);  // from about 40 degrees, full beyond about 70
-    const double anomaly = polar * kCurrentC * noise::fbm(prm.seed, field::NoiseIce + 1000, g.centre(i), g.radius_km(), current_noise);
-    f.temp_mean_c[i] = profile(z) + shift + anomaly - 6.5 * h / 1000.0;
-    const double inland_km = static_cast<double>(f.sea_cells[i]) * spacing;
-    const double continentality = f.land(i) ? 0.5 + 0.8 * (1.0 - detmath::exp(-inland_km / 1200.0)) : 0.35;
-    f.temp_range_c[i] = (3.0 + 32.0 * detmath::pow(az + 1e-9, 1.2)) * continentality;
-  }
-
   // ---- Spec 83 rule 1: which side of its continent each land cell is on, by walking along the parallel.
   f.west_km.assign(N, 0);
   f.east_km.assign(N, 0);
@@ -575,13 +646,69 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     }
   }
 
+  // Second amendment: the same walk over the sea, for how far a sea cell lies from the land to its west and east.
+  std::vector<double> sea_west(N, kSideWalkKm), sea_east(N, kSideWalkKm);
+  for (CellId i = 0; i < N; ++i) {
+    if (f.land(i)) continue;
+    for (const double dir : {-1.0, 1.0}) {
+      CellId c = i;
+      double km = 0;
+      while (!f.land(c) && km < kSideWalkKm) {
+        const Vec3& p = g.centre(c);
+        const double el = detmath::sqrt(p.x * p.x + p.y * p.y);
+        if (el < 1e-9) {
+          km = kSideWalkKm;
+          break;
+        }
+        const Vec3 east{dir * -p.y / el, dir * p.x / el, 0};
+        CellId best = c;
+        double bd = -2;
+        for (const CellId nb : g.neighbours(c)) {
+          const Vec3& q = g.centre(nb);
+          const double d = dot(unit(Vec3{q.x - p.x, q.y - p.y, q.z - p.z}), east);
+          if (d > bd) bd = d, best = nb;
+        }
+        km += g.distance_km(c, best);
+        c = best;
+      }
+      (dir < 0 ? sea_west : sea_east)[i] = std::min(km, kSideWalkKm);
+    }
+  }
+  const noise::Fbm current_noise{5000, 2, 0.5, 0};  // spec 89 amendment
+  double mean = 0;
+  for (CellId i = 0; i < N; ++i) mean += profile(g.sin_lat(i)) * g.area_km2(i);
+  const double shift = prm.global_temp_c - mean / g.sphere_area_km2();
+  for (CellId i = 0; i < N; ++i) {
+    const double z = g.sin_lat(i), az = z < 0 ? -z : z;
+    const double h = std::max(0.0, f.elevation_m[i]);
+    // Spec 89 amendment: a large-scale anomaly at high latitudes, as ocean currents warm or chill a whole coast (the
+    // Gulf Stream's Norway, the Labrador Current's Canada), applied to land and sea alike so the ice and the land beside
+    // it agree.
+    const double polar = std::clamp((az - 0.57) / 0.3, 0.0, 1.0);  // from about 35 degrees, full beyond about 62
+    // Second amendment: the side of the ocean. Sea with land close to its west is an ocean's western side (cold
+    // currents from the pole: Labrador, Oyashio); sea with land close to its east is its eastern side (warm currents
+    // from the tropics: Norway, Alaska's panhandle). A coast takes its sea's side: a continent's east coast is cold,
+    // its west coast mild.
+    const double to_w = f.land(i) ? f.east_km[i] : sea_west[i];  // land: its sea lies east when the east coast is near
+    const double to_e = f.land(i) ? f.west_km[i] : sea_east[i];
+    const double side = detmath::exp(-to_e / kSideKm) - detmath::exp(-to_w / kSideKm);
+    const double anomaly = polar * (kSideC * side +
+                                    kCurrentC * noise::fbm(prm.seed, field::NoiseIce + 1000, g.centre(i), g.radius_km(), current_noise));
+    f.temp_mean_c[i] = profile(z) + shift + anomaly - 6.5 * h / 1000.0;
+    const double inland_km = static_cast<double>(f.sea_cells[i]) * spacing;
+    const double continentality = f.land(i) ? 0.5 + 0.8 * (1.0 - detmath::exp(-inland_km / 1200.0)) : 0.35;
+    f.temp_range_c[i] = (3.0 + 32.0 * detmath::pow(az + 1e-9, 1.2)) * continentality;
+  }
+
   // ---- Spec 89 rule 4: sea ice where the sea's annual mean is below the freezing of sea water.
   f.sea_ice.assign(N, 0);
   {
     const noise::Fbm ice_noise{1500, 2, 0.5, 0};
+    const noise::Fbm ice_gyre{3000, 2, 0.5, 0};  // second amendment: gyres bend the edge (the Weddell and Ross seas)
     for (CellId i = 0; i < N; ++i)
       f.sea_ice[i] = !f.land(i) &&
-                     f.temp_mean_c[i] < kSeaIceC + kSeaIceNoiseC * noise::fbm(prm.seed, field::NoiseIce, g.centre(i), g.radius_km(), ice_noise);
+                     f.temp_mean_c[i] < kSeaIceC + kSeaIceNoiseC * noise::fbm(prm.seed, field::NoiseIce, g.centre(i), g.radius_km(), ice_noise) +
+                                            kSeaIceGyreC * noise::fbm(prm.seed, field::NoiseIce + 2000, g.centre(i), g.radius_km(), ice_gyre);
   }
 
   // ---- Rain (rule 7; spec 83 rule 2): the profile without its subtropical dip, the dip taken by side, times
@@ -645,7 +772,50 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
 
   // ---- Biome (rule 8).
   for (CellId i = 0; i < N; ++i)
-    f.biome[i] = classify_biome(f.land(i), f.elevation_m[i], f.temp_mean_c[i], f.rain_mm[i]);
+    f.biome[i] = classify_biome(f.land(i), f.elevation_m[i], f.temp_mean_c[i], f.rain_mm[i], f.temp_range_c[i]);
+  // Spec 89 amendment: a landmass mostly beyond 60 degrees and cold as a whole carries an ice sheet (Antarctica,
+  // Greenland): its cold cells are ice, so no river, lake or settled country on them.
+  {
+    std::vector<int> comp(N, -1);
+    for (CellId s = 0; s < N; ++s) {
+      if (!f.land(s) || comp[s] >= 0) continue;
+      std::vector<CellId> cells{s}, stack{s};
+      comp[s] = static_cast<int>(s);
+      while (!stack.empty()) {
+        const CellId x = stack.back();
+        stack.pop_back();
+        for (const CellId nb : g.neighbours(x))
+          if (f.land(nb) && comp[nb] < 0) comp[nb] = static_cast<int>(s), stack.push_back(nb), cells.push_back(nb);
+      }
+      double area = 0, polar = 0, temp = 0;
+      for (const CellId x : cells) {
+        const double a = g.area_km2(x), az = g.sin_lat(x) < 0 ? -g.sin_lat(x) : g.sin_lat(x);
+        area += a;
+        temp += a * f.temp_mean_c[x];
+        if (az >= 0.866) polar += a;  // beyond 60 degrees
+      }
+      if (polar < kIceSheetPolar * area || temp / area >= kIceSheetC) {
+        continue;
+      }
+      for (const CellId x : cells)
+        if (f.temp_mean_c[x] < kIceSheetCellC) f.biome[x] = Biome::Ice;
+    }
+    // The sea along an ice sheet freezes too (ice shelves, fast ice), so the cap reads as one: land ice and sea ice
+    // meet, as around Antarctica and east Greenland, instead of a landmass lying on the ice band.
+    std::vector<int> dist(N, -1);
+    std::vector<CellId> front;
+    for (CellId i = 0; i < N; ++i)
+      if (f.biome[i] == Biome::Ice) dist[i] = 0, front.push_back(i);
+    for (int ring = 1; ring <= kIceShelfRings && !front.empty(); ++ring) {
+      std::vector<CellId> next;
+      for (const CellId x : front)
+        for (const CellId nb : g.neighbours(x))
+          if (!f.land(nb) && dist[nb] < 0 && f.temp_mean_c[nb] < kIceShelfC) {
+            dist[nb] = ring, f.sea_ice[nb] = 1, next.push_back(nb);
+          }
+      front.swap(next);
+    }
+  }
   return f;
 }
 

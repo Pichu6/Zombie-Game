@@ -95,5 +95,5 @@ TEST_CASE("deposits: deterministic, golden pinned (A1)") {
     h = mix64(mix64(h, d.cell), mix64(static_cast<std::uint64_t>(d.kind), mix64(a, g)));
   }
   MESSAGE("deposits hash: ", h, ", ", p.deposits.deposits.size(), " deposits");
-  CHECK(h == 12145143873865944402ULL);  // re-pinned on MSVC, 2026-10-14 (spec 89 amendment: currents anomaly, no water on ice, sparser arcs)
+  CHECK(h == 15640413458612194846ULL);  // re-pinned on MSVC, 2026-10-15 (spec 89 second amendment: no continent beyond 60 degrees, ice sheets, arcs in groups)
 }

@@ -338,6 +338,27 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       for (int k = -R; k <= R; ++k) s += tmp[static_cast<std::size_t>(std::clamp(y + k, 0, H - 1)) * W + x];
       sm[static_cast<std::size_t>(y) * W + x] = static_cast<float>(s / (2 * R + 1));
     }
+  // The sea's depth, blurred wide, so ridges and trenches read as soft shading, not lines (spec 89 amendment).
+  std::vector<float> deep(elev.size());
+  {
+    const int RS = std::max(2, W / 300);
+    std::vector<float> t1(elev.size());
+    for (std::size_t i = 0; i < elev.size(); ++i) deep[i] = std::min(0.0f, elev[i]);
+    for (int pass = 0; pass < 2; ++pass) {
+      for (int y = 0; y < H; ++y)
+        for (int x = 0; x < W; ++x) {
+          double s = 0;
+          for (int k = -RS; k <= RS; ++k) s += deep[static_cast<std::size_t>(y) * W + ((x + k) % W + W) % W];
+          t1[static_cast<std::size_t>(y) * W + x] = static_cast<float>(s / (2 * RS + 1));
+        }
+      for (int y = 0; y < H; ++y)
+        for (int x = 0; x < W; ++x) {
+          double s = 0;
+          for (int k = -RS; k <= RS; ++k) s += t1[static_cast<std::size_t>(std::clamp(y + k, 0, H - 1)) * W + x];
+          deep[static_cast<std::size_t>(y) * W + x] = static_cast<float>(s / (2 * RS + 1));
+        }
+    }
+  }
   const double km_per_px = 2 * kPi * grid.radius_km() / W;
   auto hillshade = [&](int x, int y) {
     const double nw = sm[static_cast<std::size_t>(std::clamp(y - 1, 0, H - 1)) * W + ((x - 1) % W + W) % W];
@@ -361,6 +382,10 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       RGB col = cv.px[i];
       const RGB physical = col;
       const bool sea = wtr == 1;
+      if (sea) {  // shelf light, deep sea dark, from the blurred depth; the political map keeps only a hint of it
+        const double d = std::clamp(-static_cast<double>(deep[i]) / 5500.0, 0.0, 1.0);
+        col = mix(RGB{62, 118, 178}, RGB{22, 52, 112}, layer == MapLayer::Political ? 0.55 + 0.15 * d : std::sqrt(d));
+      }
       switch (layer) {
         case MapLayer::Physical:
         case MapLayer::Resources:
@@ -433,9 +458,13 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
       }
       // Spec 89 rule 4: sea ice, on the maps that show the surface.
       if (sea && !f.sea_ice.empty() && f.sea_ice[c] &&
-          (layer == MapLayer::Physical || layer == MapLayer::Political || layer == MapLayer::Topographic || layer == MapLayer::Cover ||
+          (layer == MapLayer::Physical || layer == MapLayer::Topographic || layer == MapLayer::Cover ||  // political maps leave it out
            layer == MapLayer::Wind || layer == MapLayer::Water))
         col = RGB{222, 233, 242};
+      // Spec 89 amendment: an ice sheet is no one's and draws as ice, one cap with the sea ice around it.
+      if (!sea && f.biome[c] == gen::Biome::Ice &&
+          (layer == MapLayer::Political || layer == MapLayer::Wind || layer == MapLayer::Water || layer == MapLayer::Cover))
+        col = RGB{236, 241, 246};
       if (layer == MapLayer::Resources && sea && max_catch > 0) {
         const double t = in.use ? in.use->fish_t[c] : land.fish_catch_t[c];  // spec 88: what is landed
         if (t > 0) col = mix(col, RGB{60, 200, 210}, 0.7 * std::sqrt(t / grid.area_km2(c) / max_catch));

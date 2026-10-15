@@ -74,7 +74,7 @@ TEST_CASE("fields: golden hash for n = 8, seed 1, is pinned") {
   // Re-pinned on MSVC 2026-10-09 for spec 31's revised terrain (rules 2-4); GCC and Clang must reproduce it.
   const std::uint64_t h = fields_hash(make(g, 1));
   MESSAGE("fields hash: " << h);
-  CHECK(h == 7127405700416829419ull);  // re-pinned on MSVC, 2026-10-14 (spec 89 amendment: currents anomaly, no water on ice, sparser arcs)
+  CHECK(h == 12097763075301642719ull);  // re-pinned on MSVC, 2026-10-15 (spec 89 second amendment: no continent beyond 60 degrees, ice sheets, arcs in groups)
 }
 
 TEST_CASE("fields: land share is exact to one cell") {
@@ -148,7 +148,9 @@ TEST_CASE("fields: biome table rules and purity") {
   const auto& g = grid16();
   const auto f = make(g, 9);
   for (CellId i = 0; i < g.size(); ++i)
-    CHECK(f.biome[i] == classify_biome(f.land(i), f.elevation_m[i], f.temp_mean_c[i], f.rain_mm[i]));
+    // Spec 89 amendment: a cold polar landmass's ice sheet overrides the table.
+    CHECK((f.biome[i] == classify_biome(f.land(i), f.elevation_m[i], f.temp_mean_c[i], f.rain_mm[i], f.temp_range_c[i]) ||
+           f.biome[i] == Biome::Ice));
 }
 
 TEST_CASE("fields: hypsometry sits near Earth's") {
@@ -340,6 +342,6 @@ TEST_CASE("fields: land forms continents with islands, not holes (A2)") {
                        << " islands of 1-3 cells holding " << island_land / seeds << " of land; enclosed seas "
                        << enclosed / seeds << " of the sea");
   CHECK(masses / seeds >= 8);
-  CHECK(islands / seeds >= 2.5);  // spec 89: arcs are chains of small islands, below this grid's cell (one world: 3 % of land)
+  CHECK(islands / seeds >= 2.0);  // spec 89 (2.0 since old hotspot volcanoes sink): arcs are chains of small islands, below this grid's cell (one world: 3 % of land)
   CHECK(enclosed / seeds <= 0.02);
 }

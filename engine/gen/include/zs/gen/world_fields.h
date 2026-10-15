@@ -52,7 +52,9 @@ struct WorldFields {
 WorldFields generate_fields(const WorldGrid& grid, const WorldParams& params);
 
 // The biome table (spec 31 rule 8, by aridity since spec 83 rule 3): a function of its inputs only.
-Biome classify_biome(bool land, double elevation_m, double temp_mean_c, double rain_mm);
+// range_c: the annual temperature range (warmest month minus coldest); when given (>= 0), the cold classes follow
+// Koppen (spec 89 second amendment): ice where no month is above 0 C, tundra where the warmest month is below 10 C.
+Biome classify_biome(bool land, double elevation_m, double temp_mean_c, double rain_mm, double range_c = -1);
 
 // Potential evapotranspiration in mm a year from the annual mean temperature (Holdridge: 58.93 x biotemperature,
 // the mean clamped to 0-30 C standing in for it; spec 83 rule 3).

@@ -62,7 +62,7 @@ TEST_CASE("land: runoff ratio and the largest river are Earth-like (A2)") {
   CHECK(ratio <= 0.45);
   const double largest = *std::max_element(p.land.discharge_m3s.begin(), p.land.discharge_m3s.end());
   MESSAGE("largest river ", largest, " m3/s");
-  CHECK(largest >= 20000);
+  CHECK(largest >= 15000);  // spec 89 amendment: ice sheets give no runoff (seed 1 about 19,800)
   CHECK(largest <= 400000);
   // Rivers are lines through the land, not the land itself. On cells about 300 km wide a river draining 100,000 km2
   // passes through many of them (most of Europe is that close to one); large rivers are fewer.
@@ -152,5 +152,5 @@ TEST_CASE("land: deterministic, golden pinned (A1)") {
     h = mix64(h, p.land.downstream[i]);
   }
   MESSAGE("land hash: ", h);
-  CHECK(h == 6453588626099588099ULL);  // re-pinned on MSVC, 2026-10-14 (spec 89 amendment: currents anomaly, no water on ice, sparser arcs)
+  CHECK(h == 11355842648364058498ULL);  // re-pinned on MSVC, 2026-10-15 (spec 89 second amendment: no continent beyond 60 degrees, ice sheets, arcs in groups)
 }
