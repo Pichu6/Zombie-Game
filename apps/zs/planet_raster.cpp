@@ -109,11 +109,62 @@ struct Canvas {
   }
 };
 
+// Equal Earth (Savric, Patterson and Jenny 2018): forward and inverse on radians, fitted to the picture with a margin.
+constexpr double kA1 = 1.340264, kA2 = -0.081106, kA3 = 0.000893, kA4 = 0.003796, kM = 0.8660254037844386;  // sqrt(3)/2
+constexpr double kEeX = 2.7066299836891155, kEeY = 1.3173627591574133;  // the projection's half-width and half-height
+void ee_forward(double lat, double lon, double& x, double& y) {
+  const double t = std::asin(kM * std::sin(lat)), t2 = t * t, t6 = t2 * t2 * t2;
+  x = lon * std::cos(t) / (kM * (kA1 + 3 * kA2 * t2 + t6 * (7 * kA3 + 9 * kA4 * t2)));
+  y = t * (kA1 + kA2 * t2 + t6 * (kA3 + kA4 * t2));
+}
+bool ee_inverse(double x, double y, double& lat, double& lon) {
+  if (std::abs(y) > kEeY) return false;
+  double t = y / kA1;
+  for (int k = 0; k < 12; ++k) {  // Newton on y(t)
+    const double t2 = t * t, t6 = t2 * t2 * t2;
+    const double f = t * (kA1 + kA2 * t2 + t6 * (kA3 + kA4 * t2)) - y;
+    const double d = kA1 + 3 * kA2 * t2 + t6 * (7 * kA3 + 9 * kA4 * t2);
+    t -= f / d;
+  }
+  const double t2 = t * t, t6 = t2 * t2 * t2;
+  lon = kM * x * (kA1 + 3 * kA2 * t2 + t6 * (7 * kA3 + 9 * kA4 * t2)) / std::cos(t);
+  if (std::abs(lon) > kPi) return false;
+  lat = std::asin(std::clamp(std::sin(t) / kM, -1.0, 1.0));
+  return true;
+}
+// The picture's scale for Equal Earth: fit the outline with a 2 % margin, centred.
+void ee_frame(int W, int H, double& s, double& cx, double& cy) {
+  s = 0.98 * std::min(W / (2 * kEeX), H / (2 * kEeY));
+  cx = W / 2.0, cy = H / 2.0;
+}
+
+// A pixel's latitude and longitude (radians); false outside the projection's outline.
+bool pixel_latlon(Projection proj, int W, int H, double px, double py, double& lat, double& lon) {
+  if (proj == Projection::Equirectangular) {
+    lat = (90.0 - 180.0 * py / H) * kPi / 180.0;
+    lon = (-180.0 + 360.0 * px / W) * kPi / 180.0;
+    return true;
+  }
+  double s, cx, cy;
+  ee_frame(W, H, s, cx, cy);
+  return ee_inverse((px - cx) / s, (cy - py) / s, lat, lon);
+}
+
+Projection g_projection = Projection::Equirectangular;  // the projection of the picture being drawn (one at a time)
+
 void to_pixel(const gen::Vec3& v, int W, int H, double& x, double& y) {
-  const double lat = std::asin(std::clamp(v.z, -1.0, 1.0)) * 180.0 / kPi;
-  const double lon = std::atan2(v.y, v.x) * 180.0 / kPi;
-  x = (lon + 180.0) / 360.0 * W;
-  y = (90.0 - lat) / 180.0 * H;
+  const double lat = std::asin(std::clamp(v.z, -1.0, 1.0));
+  const double lon = std::atan2(v.y, v.x);
+  if (g_projection == Projection::Equirectangular) {
+    x = (lon * 180.0 / kPi + 180.0) / 360.0 * W;
+    y = (90.0 - lat * 180.0 / kPi) / 180.0 * H;
+    return;
+  }
+  double s, cx, cy, ex, ey;
+  ee_frame(W, H, s, cx, cy);
+  ee_forward(lat, lon, ex, ey);
+  x = cx + ex * s;
+  y = cy - ey * s;
 }
 
 // Köppen-like main group from the fields (spec 83 rule 5's climate layer): A tropical, B arid (BW desert, BS steppe),
@@ -204,10 +255,19 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
   gen::CellId hint = 0;
   std::vector<gen::CellId> near;
   std::vector<double> wgt;
+  g_projection = in.projection;
+  std::vector<std::uint8_t> outside(at.size(), 0);  // spec 89 amendment: pixels beyond the projection's outline
   for (int y = 0; y < H; ++y) {
-    const double lat = (90.0 - 180.0 * (y + 0.5) / H) * kPi / 180.0;
     for (int x = 0; x < W; ++x) {
-      const double lon = (-180.0 + 360.0 * (x + 0.5) / W) * kPi / 180.0;
+      double lat = 0, lon = 0;
+      if (!pixel_latlon(in.projection, W, H, x + 0.5, y + 0.5, lat, lon)) {
+        const std::size_t i = static_cast<std::size_t>(y) * W + x;
+        outside[i] = 1;
+        at[i] = hint;
+        water[i] = 1;
+        elev[i] = -4000;
+        continue;
+      }
       const gen::Vec3 p{std::cos(lat) * std::cos(lon), std::cos(lat) * std::sin(lon), std::sin(lat)};
       const gen::Vec3 q = warp.apply(p);
       const gen::CellId c = grid.nearest_cell(q, hint);
@@ -399,6 +459,9 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
         col = layer == MapLayer::Political ? RGB{40, 40, 40} : mix(col, RGB{60, 60, 60}, 0.45);
       cv.px[i] = col;
     }
+
+  for (std::size_t i = 0; i < outside.size(); ++i)
+    if (outside[i]) cv.px[i] = RGB{18, 20, 26}, r.country[i] = -1;  // beyond the outline
 
   // Rivers as smooth curves from source to mouth (Catmull-Rom through the cells' centres as the picture shows them),
   // wider downstream with discharge: one pixel at the river threshold, four at 100,000 m3/s.

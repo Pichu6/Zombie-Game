@@ -117,7 +117,8 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
   w.fish_k_t.assign(n, 0);
   for (CellId i = 0; i < n; ++i) {
     if (!f.land(i)) continue;
-    w.runoff_mm[i] = runoff_mm(f.rain_mm[i], f.temp_mean_c[i], p);
+    // Spec 89 amendment: an ice sheet holds its water as ice: no runoff, so no river starts on it.
+    w.runoff_mm[i] = f.biome[i] == Biome::Ice ? 0.0 : runoff_mm(f.rain_mm[i], f.temp_mean_c[i], p);
     w.land_rain_km3 += f.rain_mm[i] * 1e-6 * grid.area_km2(i);
     w.runoff_km3 += w.runoff_mm[i] * 1e-6 * grid.area_km2(i);
   }
@@ -149,7 +150,7 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
       seen[nb] = 1;
       fill[nb] = std::max(f.elevation_m[nb], level);
       w.downstream[nb] = c;
-      w.lake[nb] = fill[nb] > f.elevation_m[nb] ? 1 : 0;
+      w.lake[nb] = fill[nb] > f.elevation_m[nb] && f.biome[nb] != Biome::Ice ? 1 : 0;  // no lake on an ice sheet
       open.emplace(fill[nb], nb);
       order.push_back(nb);
     }

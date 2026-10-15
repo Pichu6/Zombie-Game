@@ -53,6 +53,7 @@ void WorldPreview::render() {
   mi.deposits = &world_->deposits;
   mi.people = &world_->people;
   mi.use = &world_->use;
+  mi.projection = Projection::EqualEarth;
   raster_ = render_layer(world_->grid, world_->fields, world_->land, mi, layer_, 1024, 512);
 }
 

@@ -265,6 +265,7 @@ int gen_main(int argc, char** argv) {
       mi.deposits = &deposits;
       mi.people = &people;
       mi.use = &gw.use;
+      if (arg(argc, argv, "--projection", "") == "equal-earth") mi.projection = zs::atlas::Projection::EqualEarth;  // spec 89 amendment
       if (!bmp.empty()) {
         const bool political = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--political"; });
         zs::atlas::MapLayer layer = political ? zs::atlas::MapLayer::Political : zs::atlas::MapLayer::Physical;

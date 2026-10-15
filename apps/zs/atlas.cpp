@@ -265,6 +265,7 @@ struct Planet {
         mi.deposits = &deposits;
         mi.people = &people;
         mi.use = &gw.use;
+        mi.projection = Projection::EqualEarth;  // spec 89 amendment: poles as curved edges, not bands
         PlanetRaster r = render_layer(grid, f, land, mi, layer, 1024, 512);
         std::vector<CountryInfo> cs;
         std::vector<CountryCard> cards(people.countries.size());
@@ -368,6 +369,7 @@ struct Planet {
     mi.deposits = &data->deposits;
     mi.people = &data->people;
     mi.use = &data->use;
+    mi.projection = Projection::EqualEarth;
     raster = render_layer(data->grid, data->fields, data->land, mi, layer, 1024, 512);
     if (texture) SDL_DestroyTexture(texture), texture = nullptr;
   }

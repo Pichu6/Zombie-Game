@@ -65,9 +65,11 @@ constexpr double kHotspotStepKm = 350, kHotspotSigmaKm = 150, kHotspotM = 8000;
 constexpr int kCratons = 8;
 constexpr double kCratonZipf = 1.5;        // the k-th craton's share of continental crust falls as k^-1.5 (CC)
 constexpr double kArcWavelengthKm = 700;   // arc islands come and go along the arc at about this spacing
-constexpr double kArcM = 4000;             // an arc's uplift at full convergence (was the subduction's 5,000)
+constexpr double kArcM = 3500;             // an arc's uplift at full convergence (was the subduction's 5,000)
 constexpr double kSeaIceC = -10.0;         // annual mean air temperature below which the sea is ice-covered (CC)
-constexpr double kSeaIceNoiseC = 4.0;      // the ice edge wanders by this much with currents and winds (estimate)
+constexpr double kSeaIceNoiseC = 2.0;      // the ice edge's small wander (estimate)
+constexpr double kCurrentC = 8.0;          // high-latitude anomaly from currents, both ways (estimate; Norway is about 10 C
+                                           // warmer than its latitude's mean, Labrador several colder)
 constexpr double kInlandSeaKm2 = 2.0e6;    // an enclosed sea is filled as a low basin (Earth has none larger than the Caspian, CC)
 constexpr double kBasinM = 5;              // how far above the sea a filled basin's floor stands
 
@@ -432,7 +434,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     double boundary = src[i].v;
     if (src[i].k == BoundaryKind::IslandArc) {  // spec 89 rule 3: islands that come and go along the arc, not a wall
       const double m = noise::fbm(prm.seed, field::NoiseArc, c, g.radius_km(), arc_noise);
-      boundary *= std::clamp((m - 0.05) / 0.35, 0.0, 1.0);
+      boundary *= std::clamp((m - 0.25) / 0.3, 0.0, 1.0);  // amendment: fewer, more scattered arc islands
     }
     elev[i] = margin_base(i) + kShapeM * shape + prm.relief * (boundary + amp * n + hot[i]);
     f.boundary_kind[i] = src[i].k;
@@ -525,13 +527,19 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
         return knots[i - 1][1] + (a - knots[i - 1][0]) / (knots[i][0] - knots[i - 1][0]) * (knots[i][1] - knots[i - 1][1]);
     return knots[5][1];
   };
+  const noise::Fbm current_noise{5000, 2, 0.5, 0};  // spec 89 amendment
   double mean = 0;
   for (CellId i = 0; i < N; ++i) mean += profile(g.sin_lat(i)) * g.area_km2(i);
   const double shift = prm.global_temp_c - mean / g.sphere_area_km2();
   for (CellId i = 0; i < N; ++i) {
     const double z = g.sin_lat(i), az = z < 0 ? -z : z;
     const double h = std::max(0.0, f.elevation_m[i]);
-    f.temp_mean_c[i] = profile(z) + shift - 6.5 * h / 1000.0;
+    // Spec 89 amendment: a large-scale anomaly at high latitudes, as ocean currents warm or chill a whole coast (the
+    // Gulf Stream's Norway, the Labrador Current's Canada), applied to land and sea alike so the ice and the land beside
+    // it agree.
+    const double polar = std::clamp((az - 0.64) / 0.3, 0.0, 1.0);  // from about 40 degrees, full beyond about 70
+    const double anomaly = polar * kCurrentC * noise::fbm(prm.seed, field::NoiseIce + 1000, g.centre(i), g.radius_km(), current_noise);
+    f.temp_mean_c[i] = profile(z) + shift + anomaly - 6.5 * h / 1000.0;
     const double inland_km = static_cast<double>(f.sea_cells[i]) * spacing;
     const double continentality = f.land(i) ? 0.5 + 0.8 * (1.0 - detmath::exp(-inland_km / 1200.0)) : 0.35;
     f.temp_range_c[i] = (3.0 + 32.0 * detmath::pow(az + 1e-9, 1.2)) * continentality;

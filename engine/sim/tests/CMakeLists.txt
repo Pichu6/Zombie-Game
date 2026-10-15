@@ -1,5 +1,4 @@
-add_executable(zs_sim_tests
-  main.cpp
+set(ZS_ZS_SIM_TESTS_SOURCES
   test_quantity.cpp
   test_schedule.cpp
   test_probes.cpp
@@ -58,9 +57,14 @@ add_executable(zs_sim_tests
   test_movement.cpp
   test_zstd.cpp
   test_one_world.cpp
-  test_global_tables.cpp
-)
+  test_global_tables.cpp)
+add_executable(zs_sim_tests main.cpp ${ZS_ZS_SIM_TESTS_SOURCES})
 target_include_directories(zs_sim_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)
 target_link_libraries(zs_sim_tests PRIVATE zs_sim rapidcheck zs_zstd)
 target_compile_definitions(zs_sim_tests PRIVATE ZS_FIXTURES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/fixtures")
-add_test(NAME zs_sim_tests COMMAND zs_sim_tests)
+# One ctest entry per test file, so ctest runs them in parallel (testPresets jobs): a full run takes the time of the
+# slowest file, not the sum. doctest's --source-file filter picks each file's test cases.
+foreach(src ${ZS_ZS_SIM_TESTS_SOURCES})
+  get_filename_component(name ${src} NAME_WE)
+  add_test(NAME zs_sim_tests.${name} COMMAND zs_sim_tests --source-file=*${src})
+endforeach()

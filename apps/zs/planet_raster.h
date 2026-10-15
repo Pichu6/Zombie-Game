@@ -32,8 +32,13 @@ bool parse_layer(const std::string& name, MapLayer& out);
 // The legend of a layer, one line per colour, for printing beside the picture.
 std::string layer_legend(MapLayer l);
 
+// Spec 89 amendment: how the sphere is laid flat. Equirectangular stretches each pole into a whole row (polar caps read
+// as bands); Equal Earth (Savric, Patterson and Jenny 2018) keeps areas and draws the poles as short curved edges.
+enum class Projection { Equirectangular, EqualEarth };
+
 // What a layer may draw; any pointer may be null (the layer then leaves that part out).
 struct MapInputs {
+  Projection projection = Projection::Equirectangular;
   const gen::WorldCountries* countries = nullptr;
   const gen::WorldDeposits* deposits = nullptr;
   const gen::WorldPeople* people = nullptr;
