@@ -29,6 +29,9 @@ struct FoodSetup {
   std::vector<Outlet> outlets;
   double centre_days = 0;            // spec 79 rule 4
   double centre_hours = 0;           // its road hours to the town (spec 79 rule 5)
+  // Spec 95 rule 3: the town's region's supply from the flows: the share of the need that arrives, the share of it
+  // grown in the region (arriving at once) and the hours the rest takes. 1, 1, 0: as before (a day's need, at once).
+  double supply_share = 1, local_share = 1, import_hours = 0;
   // Spec 81: households' stocks and trips by the country's income group (spec 79 rule 6).
   double pantry_days = 3, fridge_days = 2, trips_per_week = 4;
 };
@@ -77,6 +80,7 @@ class FoodChain : public System {
   std::int64_t household_stock(const World& w, std::size_t h) const;
   std::int64_t household_low(std::size_t h) const;  // rule 2: full less one interval's need
 
+  static constexpr std::size_t kToCentre = 0xFFFFFFFFu;  // spec 95: a delivery to the centre from the region's suppliers
   struct Delivery {
     std::size_t outlet = 0;
     std::int64_t amount = 0, arrives = 0;

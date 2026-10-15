@@ -77,6 +77,37 @@ TEST_CASE("spec 80: the town eats its day, the outlets are refilled after the ro
   CHECK(c.outlet_stock(*t.world, 1) == c.outlet_target(1));
 }
 
+TEST_CASE("spec 95: the centre is fed by its region's flows: its own produce at once, the rest after the suppliers' hours") {
+  FoodSetup s = town();
+  s.supply_share = 0.5;   // a region that gets half of what it needs
+  s.local_share = 0.4;    // 40 % of that grown at home
+  s.import_hours = 30;
+  tier0::Tier0 t = tier0::make_run(1, default_place(), kDefaultStartDay, {}, s);
+  t.world->check_every_tick = false;
+  const FoodChain& c = *t.food;
+  const std::int64_t full = c.centre_stock(*t.world);
+  // The first morning the centre is full; by the second it has sent a day's orders out and half a day's need comes in:
+  // 40 % of it now, 60 % on its way.
+  t.world->jump(45 * kTicksPerGameHour + 1);
+  std::int64_t to_centre = 0, arrives = 0;
+  for (const auto& d : c.deliveries())
+    if (d.outlet == FoodChain::kToCentre) to_centre += d.amount, arrives = d.arrives;
+  const double day = 20000.0 * 10000 * 1000;
+  CHECK(static_cast<double>(to_centre) == doctest::Approx(0.5 * 0.6 * day).epsilon(1e-6));
+  CHECK(arrives == 45 * kTicksPerGameHour + 30 * kTicksPerGameHour);
+  // Short of food, the centre falls day by day.
+  t.world->jump(6 * kTicksPerGameDay);
+  CHECK(c.centre_stock(*t.world) < full);
+}
+
+TEST_CASE("spec 95: a region that grows all it eats refills the centre at once, as spec 80 did") {
+  tier0::Tier0 t = tier0::make_run(1, default_place(), kDefaultStartDay, {}, town());
+  t.world->check_every_tick = false;
+  const FoodChain& c = *t.food;
+  t.world->jump(3 * kTicksPerGameDay);
+  for (const auto& d : c.deliveries()) CHECK(d.outlet != FoodChain::kToCentre);
+}
+
 TEST_CASE("spec 80: an errand brings what one can carry home after the trip; refusals for away, off-limits and empty (A1)") {
   tier0::Tier0 t = tier0::make_run(1, default_place(), kDefaultStartDay, {}, town());
   t.world->check_every_tick = false;

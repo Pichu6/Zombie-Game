@@ -50,6 +50,8 @@ std::shared_ptr<CardsState> make_cards(const std::string& data_dir);
 // town the one world would open there (spec 73's record), made on a worker thread; the world's seed for its plots.
 void cards_set_town_source(CardsState& st, SDL_Renderer* renderer,
                            std::function<std::shared_ptr<const gen::TownRecord>(int town)> record_of, std::uint64_t seed);
+// Spec 95: a town's food supply as a line for its card (by town index), asked once per town.
+void cards_set_supply_source(CardsState& st, std::function<std::string(int town)> supply_of);
 // True while a town's streets are being laid out (checks wait for them).
 bool cards_busy(const CardsState& st);
 // For checks without a click: pick the first town, then the first pop and their house, as they become available.

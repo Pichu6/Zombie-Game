@@ -1,6 +1,8 @@
 // Spec 79: the town's food. docs/tier0/specs/79-the-towns-food-shops-and-pantries.md (research food-retail-and-stocks, FR)
 #include "zs/gen/town_food.h"
 
+#include <map>
+
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -231,6 +233,66 @@ std::uint64_t town_food_digest(const TownFood& f) {
     h = mix64(h, mix64(static_cast<std::uint64_t>(o.kind) << 32 | static_cast<std::uint32_t>(o.plot + 1), bits));
   }
   return h;
+}
+
+TownSupply town_supply(const WorldRoutes& routes, const WorldDiet& diet, CellId town_cell) {
+  TownSupply out;
+  if (town_cell >= routes.region_of.size()) return out;
+  const int n = routes.region_of[town_cell];
+  out.region = n;
+  if (n < 0) return out;
+  // Route hours from the region's node to every node (routes run both ways).
+  std::vector<double> hours(routes.nodes.size(), 1e300);
+  {
+    using Item = std::pair<double, int>;
+    std::priority_queue<Item, std::vector<Item>, std::greater<>> q;
+    hours[static_cast<std::size_t>(n)] = 0;
+    q.push({0.0, n});
+    while (!q.empty()) {
+      const auto [d, x] = q.top();
+      q.pop();
+      if (d > hours[static_cast<std::size_t>(x)]) continue;
+      for (int r : routes.of_node[static_cast<std::size_t>(x)]) {
+        const Route& route = routes.routes[static_cast<std::size_t>(r)];
+        const int m = route.a == x ? route.b : route.a;
+        if (d + route.hours < hours[static_cast<std::size_t>(m)]) hours[static_cast<std::size_t>(m)] = d + route.hours, q.push({d + route.hours, m});
+      }
+    }
+  }
+  double eaten = 0, received = 0, unmet = 0, hour_sum = 0;
+  std::map<int, double> by_from;
+  std::map<int, bool> abroad;
+  for (const WorldFood& k : diet.kinds) {
+    if (static_cast<std::size_t>(n) >= k.nodes.size()) continue;
+    const NodeFood& nf = k.nodes[static_cast<std::size_t>(n)];
+    out.need += nf.demand;
+    eaten += nf.eaten;
+    received += nf.received;
+    unmet += nf.unmet;
+    for (const FoodFlow& fl : k.flows) {
+      if (fl.to != n) continue;
+      by_from[fl.from] += fl.amount;
+      abroad[fl.from] = abroad[fl.from] || fl.international;
+      const double h = hours[static_cast<std::size_t>(fl.from)];
+      hour_sum += fl.amount * (h < 1e299 ? h : 0.0);
+    }
+  }
+  if (out.need > 0) out.supplied = std::clamp(1.0 - unmet / out.need, 0.0, 1.0);
+  if (eaten + received > 0) out.local = eaten / (eaten + received);
+  if (received > 0) out.import_hours = hour_sum / received;
+  std::vector<std::pair<double, int>> top;
+  for (const auto& [node, amount] : by_from) top.push_back({amount, node});
+  std::sort(top.rbegin(), top.rend());
+  for (std::size_t i = 0; i < top.size() && i < 3; ++i) {
+    TownSupply::From f;
+    f.node = top[i].second;
+    f.cell = routes.nodes[static_cast<std::size_t>(f.node)].cell;
+    f.share = received > 0 ? top[i].first / received : 0;
+    f.hours = hours[static_cast<std::size_t>(f.node)] < 1e299 ? hours[static_cast<std::size_t>(f.node)] : -1;
+    f.international = abroad[f.node];
+    out.from.push_back(f);
+  }
+  return out;
 }
 
 }  // namespace zs::gen

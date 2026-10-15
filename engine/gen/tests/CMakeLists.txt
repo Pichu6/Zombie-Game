@@ -25,7 +25,8 @@ set(ZS_ZS_GEN_TESTS_SOURCES
   test_country_packs.cpp
   test_history.cpp
   test_industry.cpp
-  test_energy.cpp)
+  test_energy.cpp
+  test_town_supply.cpp)
 add_executable(zs_gen_tests main.cpp ${ZS_ZS_GEN_TESTS_SOURCES})
 target_include_directories(zs_gen_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest)
 target_link_libraries(zs_gen_tests PRIVATE zs_gen)

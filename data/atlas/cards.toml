@@ -73,6 +73,7 @@ rows = [
   { field = "dwellings", need = "A dwelling with an address per household", spec = "51" },
   { field = "layout", need = "Streets and plots laid out in the town", spec = "71" },
   { field = "plants", need = "Its processing plants", spec = "93" },
+  { field = "supply", need = "Where its food comes from: its region's own, and what the routes bring in from where", spec = "95" },
   { field = "", need = "Zones of spec 48 inside the town" },
   { field = "", need = "Services by settlement size (research SV)" },
   { field = "", need = "Business premises from the business records" },

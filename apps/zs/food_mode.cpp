@@ -46,6 +46,9 @@ int food_main(int argc, char** argv) {
   std::printf("The food of the block's town (spec 80): %.0f people (%.0f of them on the block), %zu outlets; the distribution "
               "centre %.1f h away holding %.1f days\n",
               s.town_people, s.block_people, s.outlets.size(), s.centre_hours, s.centre_days);
+  std::printf("its supply (spec 95): %.0f %% of its region's need arrives; %.0f %% of that is grown in the region, the rest comes "
+              "in over %.1f h of routes\n",
+              100 * s.supply_share, 100 * s.local_share, s.import_hours);
   std::size_t big = 0;
   for (std::size_t o = 0; o < s.outlets.size(); ++o)
     if (s.outlets[o].share > s.outlets[big].share) big = o;

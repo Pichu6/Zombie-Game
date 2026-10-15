@@ -178,10 +178,20 @@ void FoodChain::daily(World& w) {
   Ledger& l = w.ledger;
   const std::int64_t now = w.clock.tick;
   const std::int64_t day_need = joules(setup_.town_people * setup_.kj_per_person_day);
-  // Spec 80 rule 3: the centre's supply from the wider chain, up to its days of stock.
+  // Spec 80 rule 3, spec 95 rule 3: the centre's supply from the region's flows, up to its days of stock: the region's
+  // own produce at once, what it brings in after the suppliers' hours; a region short of food sends less.
   const std::int64_t centre_target = joules(setup_.town_people * setup_.kj_per_person_day * setup_.centre_days);
-  const std::int64_t supply = std::min(day_need, centre_target - l.balance(centre_, food_));
-  if (supply > 0) l.declare_inflow(now, centre_, food_, supply, 0);
+  std::int64_t inbound = 0;
+  for (const Delivery& d : deliveries_)
+    if (d.outlet == kToCentre) inbound += d.amount;
+  const std::int64_t supply =
+      std::min(static_cast<std::int64_t>(std::llround(static_cast<double>(day_need) * setup_.supply_share)), centre_target - l.balance(centre_, food_) - inbound);
+  if (supply > 0) {
+    const std::int64_t local = static_cast<std::int64_t>(std::llround(static_cast<double>(supply) * setup_.local_share));
+    if (local > 0) l.declare_inflow(now, centre_, food_, local, 0);
+    if (supply - local > 0)
+      deliveries_.push_back({kToCentre, supply - local, now + static_cast<std::int64_t>(std::llround(setup_.import_hours * kTicksPerGameHour))});
+  }
   // The town's people who are not the block's buy their day from the outlets by their shares (the day's sales come
   // before the order that replaces them).
   const std::int64_t need = town_need_j();
@@ -197,7 +207,7 @@ void FoodChain::daily(World& w) {
   for (std::size_t o = 0; o < outlets_.size(); ++o) {
     std::int64_t on_road = 0;
     for (const Delivery& d : deliveries_)
-      if (d.outlet == o) on_road += d.amount;
+      if (d.outlet == o) on_road += d.amount;  // never kToCentre: o is an outlet
     const std::int64_t want = outlet_target(o) - l.balance(outlets_[o], food_) - on_road;
     if (want <= 0) continue;
     const std::int64_t sent = l.transfer(now, centre_, transit_, food_, want, 0);
@@ -226,7 +236,8 @@ void FoodChain::update(World& w) {
   // Deliveries that arrived.
   for (auto it = deliveries_.begin(); it != deliveries_.end();) {
     if (it->arrives <= now) {
-      w.ledger.transfer(now, transit_, outlets_[it->outlet], food_, it->amount, 0);
+      if (it->outlet == kToCentre) w.ledger.declare_inflow(now, centre_, food_, it->amount, 0);  // spec 95: from the suppliers
+      else w.ledger.transfer(now, transit_, outlets_[it->outlet], food_, it->amount, 0);
       it = deliveries_.erase(it);
     } else {
       ++it;

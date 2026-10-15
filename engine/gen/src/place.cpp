@@ -144,6 +144,10 @@ GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int fr
   w.industry = place_plants(w.grid, w.fields, w.land, w.deposits, w.people, w.use, load_plant_kinds(data + "/gen"));  // spec 93
   say("power plants and the grid");
   w.energy = make_energy(w.grid, w.fields, w.land, w.deposits, w.people, w.use);  // spec 94
+  say("routes between the towns");
+  w.routes = build_routes(w.grid, w.fields, w.land, w.people);  // spec 95 rule 1
+  say("food over the routes");
+  w.diet = food_by_kind(w.fields, w.land, w.people, w.routes, {}, {}, lp, &w.use);
   return w;
 }
 
@@ -165,7 +169,7 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
     int income = 0;
     for (int g = 0; g < kIncomeGroups; ++g)
       if (place.income == kIncomeGroupIds[static_cast<std::size_t>(g)]) income = g;
-    const ServingCentre centre = nearest_centre(grid, f, people, town, fr);
+    const ServingCentre centre = serving_centre(grid, f, people, world.routes, town, fr);  // spec 95 rule 2
     const TownFood tf = plan_town_food(town_rec->town, town_rec->layout, town_rec->spec.people, income, fr, seed, centre);
     const TownTravel travel = load_town_travel(data + "/gen");
     const int block = town_rec->layout.lot_plot.empty() ? -1 : town_rec->layout.lot_plot.back();
@@ -173,6 +177,10 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
     food.kj_per_person_day = town_rec->dwelling.food_kj_per_person_day;
     food.centre_days = kCentreDryShare * fr.dc_dry_days + (1 - kCentreDryShare) * fr.dc_fresh_days;
     food.centre_hours = centre.hours;
+    const TownSupply sup = town_supply(world.routes, world.diet, people.towns[static_cast<std::size_t>(town)].cell);  // spec 95
+    food.supply_share = sup.supplied;
+    food.local_share = sup.local;
+    food.import_hours = sup.import_hours;
     food.pantry_days = tf.pantry_days;  // spec 81: the country's households (spec 79 rule 6)
     food.fridge_days = tf.fridge_days;
     food.trips_per_week = tf.trips_per_week;

@@ -3,6 +3,7 @@
 // distribution centre that serves the town over the routes; households' pantry and fridge days. Records only: spec 80
 // runs them. A pure function of the town's record, the planet's routes and the seed.
 #pragma once
+#include "zs/gen/world_food.h"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -64,5 +65,23 @@ struct TownFood {
 TownFood plan_town_food(const Town& town, const TownLayout& layout, double people, int income, const FoodRetailParams& params,
                         std::uint64_t seed, const ServingCentre& centre = {});
 std::uint64_t town_food_digest(const TownFood& food);
+
+// Spec 95 rule 3: where a town's food comes from, by its region (spec 76 rule 3's node) over all kinds of food.
+struct TownSupply {
+  int region = -1;               // the route node whose region the town is in
+  double need = 0;               // the region's food need, people-years a year
+  double supplied = 1;           // the share of the need it eats
+  double local = 1;              // of what it eats, the share grown in the region
+  double import_hours = 0;       // the supplying flows' route hours, weighted by amount
+  struct From {
+    int node = -1;
+    CellId cell = 0;
+    double share = 0;            // of what the region receives
+    double hours = 0;
+    bool international = false;
+  };
+  std::vector<From> from;        // the largest suppliers, largest first (up to three)
+};
+TownSupply town_supply(const WorldRoutes& routes, const WorldDiet& diet, CellId town_cell);
 
 }  // namespace zs::gen

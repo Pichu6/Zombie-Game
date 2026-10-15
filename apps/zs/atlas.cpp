@@ -37,6 +37,7 @@
 #include "atlas_cards.h"
 #include "atlas_countries.h"
 #include "country_packs.h"
+#include "zs/gen/town_food.h"
 #include "zs/nations.h"
 #include "atlas_md.h"
 #include "atlas_sim.h"
@@ -234,6 +235,8 @@ struct Planet {
     zs::gen::WorldLandUse use;
     zs::gen::WorldIndustry industry;  // spec 93
     zs::gen::WorldEnergy energy;      // spec 94
+    zs::gen::WorldRoutes routes;      // spec 95
+    zs::gen::WorldDiet diet;
   };
   std::shared_ptr<const Data> data;
   MapLayer layer = MapLayer::Political;
@@ -368,7 +371,7 @@ struct Planet {
         std::snprintf(buf, sizeof buf, "%zu cells, %.0f million km2 of land, %.0f million people, %zu countries, %zu towns",
                       static_cast<std::size_t>(grid.size()), people.land_km2 / 1e6, people.total_people / 1e6,
                       people.countries.size(), people.towns.size());
-        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people, gw.use, gw.industry, gw.energy});
+        auto kept = std::make_shared<Data>(Data{grid, f, land, deposits, people, gw.use, gw.industry, gw.energy, gw.routes, gw.diet});
         std::lock_guard<std::mutex> l(mutex);
         this->data = std::move(kept);
         raster = std::move(r);
@@ -784,6 +787,27 @@ void draw_cards_page(App& a) {
                           return zs::gen::town_record(place, seed);
                         },
                         seed);
+  // Spec 95: a town's food supply over the routes, worked out when its card opens.
+  cards_set_supply_source(*a.cards, [data = p.data](int town) {
+    const auto& t = data->people.towns[static_cast<std::size_t>(town)];
+    const zs::gen::TownSupply s = zs::gen::town_supply(data->routes, data->diet, t.cell);
+    char buf[512];
+    std::snprintf(buf, sizeof buf, "%.0f %% of its region's food need met; %.0f %% of it grown in the region, the rest over %.1f h of routes",
+                  100 * s.supplied, 100 * s.local, s.import_hours);
+    std::string out = buf;
+    for (const auto& f : s.from) {
+      int big = -1;  // the supplying region's largest town
+      for (int ti : data->routes.nodes[static_cast<std::size_t>(f.node)].towns)
+        if (big < 0 || data->people.towns[static_cast<std::size_t>(ti)].people > data->people.towns[static_cast<std::size_t>(big)].people) big = ti;
+      if (big < 0) continue;
+      const auto& bt = data->people.towns[static_cast<std::size_t>(big)];
+      std::snprintf(buf, sizeof buf, "; %.0f %% from %s's town of %.0f thousand (%.0f h%s)", 100 * f.share,
+                    data->people.countries[static_cast<std::size_t>(bt.country)].name.c_str(), bt.people / 1e3, f.hours,
+                    f.international ? ", abroad" : "");
+      out += buf;
+    }
+    return out;
+  });
   // The world's record: its settings, read-only (they are chosen when the world is made, in the New world dialog).
   WorldRecord rec;
   if (const zs::worlds::World* wr = current_world(a)) rec.settings = &wr->settings, rec.world_name = wr->name;

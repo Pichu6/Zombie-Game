@@ -97,7 +97,12 @@ struct CardsState {
   SDL_Texture* plot_tex = nullptr;
   int plot_w = 0, plot_h = 0;
   std::string plot_line;
+  // Spec 95: the food supply line, by town.
+  std::function<std::string(int)> supply_of;
+  std::map<int, std::string> supply;
 };
+
+void cards_set_supply_source(CardsState& st, std::function<std::string(int)> supply_of) { st.supply_of = std::move(supply_of); }
 
 bool cards_busy(const CardsState& st) {
   return !st.rec && st.rec_job.valid() && st.rec_job.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
@@ -589,6 +594,11 @@ void draw_town_card(CardsState& st, const WorldCard& world, const CountryCard& c
   v["people"] = fmt("%.0f thousand", t.people / 1e3);
   v["rank"] = std::to_string(t.rank) + " in " + c.name;
   v["plants"] = t.plants.empty() ? "none" : t.plants;
+  if (st.supply_of) {  // spec 95
+    auto it = st.supply.find(t.index);
+    if (it == st.supply.end()) it = st.supply.emplace(t.index, st.supply_of(t.index)).first;
+    v["supply"] = it->second;
+  }
   v["cell"] = std::to_string(t.cell) + fmt(" (lat %.1f", t.lat) + fmt(", lon %.1f)", t.lon);
   if (st.gen_town) {
     const gen::Town& g = *st.gen_town;
