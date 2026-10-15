@@ -5,9 +5,17 @@
 #include <cstdio>
 #include <vector>
 
+#include <SDL3/SDL.h>
+
+#include <filesystem>
+#include <map>
+#include <mutex>
+
 #include "country_packs.h"
+#include "flags.h"
 #include "imgui.h"
 #include "toml.hpp"
+#include "zs/nations.h"
 
 namespace zs::atlas {
 
@@ -113,6 +121,11 @@ std::string color_text(const float c[3]) {
 
 struct CountriesState {
   std::string data_dir;
+  SDL_Renderer* renderer = nullptr;
+  std::map<std::string, SDL_Texture*> textures;  // flags drawn, by their pattern and colours or their image file
+  std::mutex picked_mutex;
+  std::string picked;  // the file the open dialog returned (it may answer from another thread)
+  std::map<std::string, flags::Flag> profile_flags;  // read once per profile for other pages
   std::vector<packs::Default> defaults;
   std::vector<std::string> user_packs;
   int pack = -1;  // -1: earth; else an index into user_packs
@@ -132,12 +145,104 @@ struct CountriesState {
   toml::table card;
 };
 
-std::shared_ptr<CountriesState> make_countries(const std::string& data_dir) {
+std::shared_ptr<CountriesState> make_countries(const std::string& data_dir, SDL_Renderer* renderer) {
   auto st = std::make_shared<CountriesState>();
   st->data_dir = data_dir;
+  st->renderer = renderer;
   st->defaults = packs::defaults(data_dir);
   st->user_packs = packs::list();
   return st;
+}
+
+namespace {
+
+// A flag as a texture: drawn from its pattern, or loaded from its image (PNG or BMP) in `dir`; cached.
+SDL_Texture* flag_texture(CountriesState& st, const flags::Flag& f, const std::filesystem::path& dir) {
+  if (!st.renderer) return nullptr;
+  std::string key;
+  if (!f.image.empty()) {
+    std::error_code ec;
+    const auto when = std::filesystem::last_write_time(dir / f.image, ec);
+    key = (dir / f.image).string() + "@" + std::to_string(ec ? 0 : when.time_since_epoch().count());
+  } else {
+    key = flags::pattern_id(f.pattern);
+    for (std::uint32_t c : f.colors) key += flags::hex(c);
+  }
+  if (auto it = st.textures.find(key); it != st.textures.end()) return it->second;
+  SDL_Texture* tex = nullptr;
+  if (!f.image.empty()) {
+    if (SDL_Surface* s = SDL_LoadSurface((dir / f.image).string().c_str())) {
+      tex = SDL_CreateTextureFromSurface(st.renderer, s);
+      SDL_DestroySurface(s);
+    }
+  } else {
+    const int w = 96, h = 64;
+    const std::vector<unsigned char> px = flags::draw(f, w, h);
+    tex = SDL_CreateTexture(st.renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, w, h);
+    if (tex) SDL_UpdateTexture(tex, nullptr, px.data(), w * 4);
+  }
+  if (tex) SDL_SetTextureScaleMode(tex, SDL_SCALEMODE_LINEAR);
+  st.textures[key] = tex;
+  return tex;
+}
+
+void show_flag(CountriesState& st, const flags::Flag& f, const std::filesystem::path& dir, float height) {
+  if (SDL_Texture* t = flag_texture(st, f, dir)) ImGui::Image(reinterpret_cast<ImTextureID>(t), ImVec2(height * 1.5f, height));
+  else ImGui::Dummy(ImVec2(height * 1.5f, height));
+}
+
+ImVec4 rgb4(std::uint32_t c) { return {((c >> 16) & 255) / 255.0f, ((c >> 8) & 255) / 255.0f, (c & 255) / 255.0f, 1}; }
+
+// A colour chooser: the basic swatches, then "More..." for the full picker (wheel, RGB, HSV, hex). True when changed.
+bool color_choice(const char* id, std::uint32_t& c) {
+  bool changed = false;
+  ImGui::PushID(id);
+  if (ImGui::ColorButton("##now", rgb4(c), ImGuiColorEditFlags_NoTooltip, ImVec2(28, 20))) ImGui::OpenPopup("pick");
+  if (ImGui::BeginPopup("pick")) {
+    const auto& basic = flags::basic_colors();
+    ImGui::TextDisabled("Basic colours");
+    for (std::size_t i = 0; i < basic.size(); ++i) {
+      if (i % 8) ImGui::SameLine();
+      ImGui::PushID(static_cast<int>(i));
+      if (ImGui::ColorButton("##b", rgb4(basic[i]), 0, ImVec2(24, 24))) c = basic[i], changed = true;
+      ImGui::PopID();
+    }
+    ImGui::Separator();
+    ImGui::TextDisabled("Any colour");
+    float f[3] = {((c >> 16) & 255) / 255.0f, ((c >> 8) & 255) / 255.0f, (c & 255) / 255.0f};
+    if (ImGui::ColorPicker3("##full", f, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHex)) {
+      c = (static_cast<std::uint32_t>(f[0] * 255 + 0.5f) << 16) | (static_cast<std::uint32_t>(f[1] * 255 + 0.5f) << 8) |
+          static_cast<std::uint32_t>(f[2] * 255 + 0.5f);
+      changed = true;
+    }
+    ImGui::EndPopup();
+  }
+  ImGui::PopID();
+  return changed;
+}
+
+void SDLCALL on_flag_file(void* user, const char* const* files, int) {
+  auto* st = static_cast<CountriesState*>(user);
+  if (!files || !files[0]) return;
+  std::lock_guard<std::mutex> l(st->picked_mutex);
+  st->picked = files[0];
+}
+
+}  // namespace
+
+void draw_country_flag(CountriesState& st, const std::string& profile, float height) {
+  auto it = st.profile_flags.find(profile);
+  if (it == st.profile_flags.end()) {
+    flags::Flag f = flags::default_flag(profile);
+    if (zs::is_custom_profile(profile)) {
+      try {
+        f = flags::read_flag(toml::parse_file(zs::nation_file(st.data_dir, profile, "")), profile);
+      } catch (const std::exception&) {
+      }
+    }
+    it = st.profile_flags.emplace(profile, f).first;
+  }
+  show_flag(st, it->second, zs::custom_nations_dir(), height);
 }
 
 namespace {
@@ -340,6 +445,9 @@ void draw_default(CountriesState& st) {
   ImGui::TextColored({1, 0.95f, 0.8f, 1}, "%s", d->name.c_str());
   ImGui::PopFont();
   ImGui::TextDisabled("A default country (%s): real data under a parody name. Read-only: copy it into your pack to edit.", d->iso.c_str());
+  show_flag(st, flags::default_flag(d->iso), {}, 48);
+  ImGui::SameLine();
+  ImGui::TextDisabled("its parody flag (not the real one)");
   const std::vector<double> ages = numbers(st.card["age_pyramid"]["shares"]);
   ImGui::Text("Income group: %s", kIncomeLabels[income_index(d->income)]);
   ImGui::Text("People: %.1f million", d->population / 1e6);
@@ -435,11 +543,74 @@ void draw_custom(CountriesState& st) {
   ImGui::SetNextItemWidth(300);
   if (ImGui::InputText("Name", name, sizeof name)) t.insert_or_assign("name", std::string(name)), st.dirty = true;
   tip("The country's name on maps and cards");
-  float col[3];
-  const ImVec4 c = parse_color(t["color"].value_or(std::string("#808080")));
-  col[0] = c.x, col[1] = c.y, col[2] = c.z;
-  if (ImGui::ColorEdit3("Colour", col, ImGuiColorEditFlags_NoInputs)) t.insert_or_assign("color", color_text(col)), st.dirty = true;
-  tip("Its colour on the political map");
+  {
+    std::uint32_t mc = flags::parse_hex(t["color"].value_or(std::string("#808080")), 0x808080);
+    if (color_choice("map", mc)) t.insert_or_assign("color", flags::hex(mc)), st.dirty = true;
+    tip("Its colour on the political map: a basic colour, or any colour with the full picker");
+    ImGui::SameLine();
+    ImGui::TextUnformatted("Map colour");
+  }
+  // The flag: a pattern in three colours, or an image of its own (PNG or BMP), copied beside the country.
+  {
+    flags::Flag fl = flags::read_flag(t, st.sel_custom);
+    bool changed = false;
+    show_flag(st, fl, st.open.dir, 64);
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+    ImGui::BeginDisabled(!fl.image.empty());
+    int pat = static_cast<int>(fl.pattern);
+    ImGui::SetNextItemWidth(220);
+    if (ImGui::BeginCombo("Flag", flags::pattern_label(fl.pattern))) {
+      for (int i = 0; i < flags::kPatterns; ++i) {
+        flags::Flag sample = fl;
+        sample.pattern = static_cast<flags::Pattern>(i);
+        ImGui::PushID(i);
+        show_flag(st, sample, {}, 18);
+        ImGui::SameLine();
+        if (ImGui::Selectable(flags::pattern_label(sample.pattern), i == pat)) fl.pattern = sample.pattern, changed = true;
+        ImGui::PopID();
+      }
+      ImGui::EndCombo();
+    }
+    tip("The flag's design; its three colours below");
+    for (int k = 0; k < 3; ++k) {
+      if (k) ImGui::SameLine();
+      changed |= color_choice(k == 0 ? "f0" : k == 1 ? "f1" : "f2", fl.colors[static_cast<std::size_t>(k)]);
+    }
+    ImGui::SameLine();
+    ImGui::TextDisabled("colours");
+    ImGui::EndDisabled();
+    if (ImGui::Button("Load an image...")) {
+      static const SDL_DialogFileFilter filters[] = {{"Flag image (PNG, BMP)", "png;bmp"}};
+      SDL_ShowOpenFileDialog(on_flag_file, &st, nullptr, filters, 1, nullptr, false);
+    }
+    tip("Use a picture of your own as the flag (PNG or BMP, about 3:2); it is copied into the pack");
+    if (!fl.image.empty()) {
+      ImGui::SameLine();
+      if (ImGui::Button("Use the pattern")) fl.image.clear(), changed = true;
+      tip("Back to the drawn flag; the image stays in the pack's folder");
+    }
+    ImGui::EndGroup();
+    std::string picked;
+    {
+      std::lock_guard<std::mutex> l(st.picked_mutex);
+      picked.swap(st.picked);
+    }
+    if (!picked.empty()) {
+      try {
+        const std::filesystem::path src(picked);
+        std::string ext = src.extension().string();
+        for (char& ch : ext) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+        const std::string name = st.sel_custom + "_flag" + ext;
+        std::filesystem::copy_file(src, st.open.dir / name, std::filesystem::copy_options::overwrite_existing);
+        fl.image = name;
+        changed = true;
+      } catch (const std::exception& ex) {
+        st.error = std::string("could not copy the flag image: ") + ex.what();
+      }
+    }
+    if (changed) flags::write_flag(t, fl), st.dirty = true;
+  }
   toml::table* country = t["country"].as_table();
   if (country) {
     int inc = income_index((*country)["income"].value_or(std::string("upper_middle")));

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "flags.h"
 #include "worlds.h"
 #include "zs/tier0.h"
 
@@ -143,6 +144,7 @@ std::string new_country(const Pack& p, const std::string& data_dir, const std::s
     t.insert_or_assign("color", c.str());
   }
   if (toml::table* c = t["country"].as_table(); c && !c->contains("population")) c->insert_or_assign("population", 10000000.0);
+  if (!t.contains("flag")) flags::write_flag(t, flags::default_flag(id));  // spec 92: a keyed flag to start from
   save_country(p, id, t);
   return id;
 }

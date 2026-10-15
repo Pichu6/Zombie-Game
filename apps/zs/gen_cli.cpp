@@ -628,29 +628,19 @@ int gen_main(int argc, char** argv) {
           std::ofstream(out, std::ios::binary) << toml;
           std::cout << "wrote " << out << "\n";
         }
+        if (const std::string bmp = arg(argc, argv, "--bmp", ""); !bmp.empty()) {  // spec 92: the plot seen from above
+          const zs::atlas::PlanetRaster img = zs::atlas::site_picture(toml, 8);
+          zs::atlas::write_bmp(bmp, img);
+          std::cout << "wrote " << bmp << " (" << img.w << " x " << img.h << " px, 8 a cell)\n";
+          return 0;
+        }
         std::cout << toml;
         return 0;
       }
       std::cout << zs::gen::layout_summary(spec, layout);
       if (const std::string bmp = arg(argc, argv, "--bmp", ""); !bmp.empty()) {
-        // 2 m a pixel: streets grey, then each plot by its use, with its outline darker.
-        const int scale = 2;
-        zs::atlas::PlanetRaster img;
-        img.w = std::max(1, layout.width_m / scale);
-        img.h = std::max(1, layout.height_m / scale);
-        img.rgb.assign(static_cast<std::size_t>(img.w * img.h * 3), 110);
-        static const unsigned char colour[5][3] = {{236, 222, 196}, {242, 168, 92}, {170, 140, 200}, {120, 190, 110}, {90, 140, 230}};
-        for (const auto& p : layout.plots) {
-          const bool empty = p.use == zs::gen::LandUse::Residential && p.households == 0;
-          for (int y = p.y / scale; y < (p.y + p.h) / scale && y < img.h; ++y)
-            for (int x = p.x / scale; x < (p.x + p.w) / scale && x < img.w; ++x) {
-              const bool edge = x == p.x / scale || y == p.y / scale;
-              const auto* c = colour[static_cast<int>(p.use)];
-              const std::size_t i = static_cast<std::size_t>((y * img.w + x) * 3);
-              for (int k = 0; k < 3; ++k)
-                img.rgb[i + static_cast<std::size_t>(k)] = static_cast<unsigned char>(edge ? c[k] * 0.6 : empty ? 250 : (p.units > 1 ? c[k] * 0.85 : c[k]));
-            }
-        }
+        // 2 m a pixel: streets grey, then each plot by its use, with its outline darker (spec 92 rule 5: one picture code).
+        const zs::atlas::PlanetRaster img = zs::atlas::town_picture(layout).img;
         zs::atlas::write_bmp(bmp, img);
         std::cout << "wrote " << bmp << " (" << img.w << " x " << img.h << " px, 2 m a pixel)\n";
       }

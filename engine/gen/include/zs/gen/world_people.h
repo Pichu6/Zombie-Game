@@ -27,6 +27,7 @@ GroupTables load_group_tables(const std::string& data_dir);
 // Spec 49: a real country's profile (data/setup/nations/real/<iso>.toml): its parody name, income group and people.
 struct RealProfile {
   std::string iso, name;
+  std::string color;  // spec 92: a custom country's map colour ("#rrggbb"); empty: keyed
   int income = 0;
   double population = 0;
 };
@@ -53,6 +54,7 @@ struct Country {
   std::string profile, name;    // spec 49: the real profile it takes (ISO3) and its parody name; empty: the base country
   double zeta = 0;              // spec 78 rule 3: its towns' rank-size exponent (0: no towns)
   std::string origin;           // spec 91: "founded", "union of A and B in period P", "split from A in period P"
+  std::string color;            // spec 92: its map colour ("#rrggbb"; empty: keyed by the map)
   int alliance = -1;            // spec 91: index into WorldPeople::alliance_names, -1 none
 };
 

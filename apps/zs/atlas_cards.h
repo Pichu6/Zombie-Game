@@ -9,6 +9,8 @@
 
 #include "zs/gen/place.h"
 
+struct SDL_Renderer;
+
 namespace zs::atlas {
 
 struct TownCard {
@@ -41,6 +43,12 @@ struct WorldCard {
 
 struct CardsState;
 std::shared_ptr<CardsState> make_cards(const std::string& data_dir);
+// Spec 92: what the town card needs from the Atlas: the renderer for its pictures and, for a planet town (by index), the
+// town the one world would open there (spec 73's record), made on a worker thread; the world's seed for its plots.
+void cards_set_town_source(CardsState& st, SDL_Renderer* renderer,
+                           std::function<std::shared_ptr<const gen::TownRecord>(int town)> record_of, std::uint64_t seed);
+// True while a town's streets are being laid out (checks wait for them).
+bool cards_busy(const CardsState& st);
 // For checks without a click: pick the first town, then the first pop and their house, as they become available.
 void cards_autopick(CardsState& st, bool on, float scroll_to = -1.0f);  // scroll_to: pixels, -1 = the end
 

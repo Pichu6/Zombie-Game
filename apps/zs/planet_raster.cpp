@@ -1,5 +1,9 @@
 #include "planet_raster.h"
 
+#include "toml.hpp"
+
+#include <cstdio>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -187,7 +191,8 @@ const RGB kBoundary[7] = {{0, 0, 0}, {200, 30, 30}, {240, 130, 30}, {40, 40, 80}
 
 const char* layer_name(MapLayer l) {
   static const char* names[kMapLayers] = {"physical", "political", "topographic", "temperature", "rain",   "climate",
-                                          "wind",     "geology",   "water",       "cover",       "resources", "people"};
+                                          "wind",     "geology",   "water",       "cover",       "resources", "people",
+                                          "alliances"};
   return names[static_cast<int>(l)];
 }
 
@@ -204,7 +209,8 @@ std::string layer_legend(MapLayer l) {
              "green, desert sand, savanna yellow-olive, tropical forest deep green, mountain grey-brown) shaded by relief from the "
              "north-west; sea ice pale blue-white; open lakes blue, terminal (salt) lakes pale blue, dry basins pale beige; rivers as blue curves, wider "
              "with discharge; borders thin grey";
-    case MapLayer::Political: return "political: a colour per country; rivers and lakes as in physical; borders dark";
+    case MapLayer::Political: return "political: a colour per country (a custom country's own); rivers and lakes as in physical; borders dark";
+    case MapLayer::Alliances: return "alliances (spec 91): a colour per alliance, countries in none grey; country borders thin";
     case MapLayer::Topographic:
       return "topographic: height tint (green lowland, yellow, brown, grey, white above 4,000 m), contours every 500 m, sea "
              "depth from light to dark blue, the shelf (above -200 m) lightest";
@@ -393,11 +399,32 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
         case MapLayer::Political:
           if (!sea) {
             const int k = r.country[i];
-            if (k >= 0) {
+            const std::string* own = in.people && k >= 0 && k < static_cast<int>(in.people->countries.size()) &&
+                                             in.people->countries[static_cast<std::size_t>(k)].color.size() == 7
+                                         ? &in.people->countries[static_cast<std::size_t>(k)].color
+                                         : nullptr;
+            unsigned v = 0;
+            if (own && std::sscanf(own->c_str() + 1, "%x", &v) == 1) {  // spec 92: a custom country's colour
+              col = {static_cast<double>((v >> 16) & 255), static_cast<double>((v >> 8) & 255), static_cast<double>(v & 255)};
+            } else if (k >= 0) {
               const std::uint64_t h = gen::mix64(static_cast<std::uint64_t>(k) + 1);
               col = {90.0 + ((h >> 0) & 127), 90.0 + ((h >> 8) & 127), 90.0 + ((h >> 16) & 127)};
             } else {
               col = {205, 205, 205};
+            }
+          }
+          break;
+        case MapLayer::Alliances:
+          if (!sea) {
+            const int k = r.country[i];
+            const int al = in.people && k >= 0 && k < static_cast<int>(in.people->countries.size())
+                               ? in.people->countries[static_cast<std::size_t>(k)].alliance
+                               : -1;
+            if (al >= 0) {
+              const std::uint64_t h = gen::mix64(static_cast<std::uint64_t>(al) * 7919 + 17);
+              col = {60.0 + ((h >> 0) & 175), 60.0 + ((h >> 8) & 175), 60.0 + ((h >> 16) & 175)};
+            } else {
+              col = k >= 0 ? RGB{200, 200, 200} : RGB{225, 225, 225};
             }
           }
           break;
@@ -668,6 +695,138 @@ void write_bmp(const std::string& path, const PlanetRaster& r) {
     }
     for (int k = 0; k < pad; ++k) o.put(0);
   }
+}
+
+TownPicture town_picture(const gen::TownLayout& t, int scale) {
+  TownPicture out;
+  out.m_per_px = scale;
+  PlanetRaster& img = out.img;
+  img.w = std::max(1, t.width_m / scale);
+  img.h = std::max(1, t.height_m / scale);
+  img.rgb.assign(static_cast<std::size_t>(img.w) * img.h * 3, 110);
+  out.plot.assign(static_cast<std::size_t>(img.w) * img.h, -1);
+  static const unsigned char colour[5][3] = {{236, 222, 196}, {242, 168, 92}, {170, 140, 200}, {120, 190, 110}, {90, 140, 230}};
+  for (std::size_t k = 0; k < t.plots.size(); ++k) {
+    const auto& p = t.plots[k];
+    const bool empty = p.use == gen::LandUse::Residential && p.households == 0;
+    for (int y = p.y / scale; y < (p.y + p.h) / scale && y < img.h; ++y)
+      for (int x = p.x / scale; x < (p.x + p.w) / scale && x < img.w; ++x) {
+        const bool edge = x == p.x / scale || y == p.y / scale;
+        const auto* c = colour[static_cast<int>(p.use)];
+        const std::size_t i = static_cast<std::size_t>(y) * img.w + x;
+        for (int q = 0; q < 3; ++q)
+          img.rgb[i * 3 + static_cast<std::size_t>(q)] =
+              static_cast<unsigned char>(edge ? c[q] * 0.6 : empty ? 250 : (p.units > 1 ? c[q] * 0.85 : c[q]));
+        out.plot[i] = static_cast<int>(k);
+      }
+  }
+  return out;
+}
+
+PlanetRaster site_picture(const std::string& site_toml, int px) {
+  PlanetRaster img;
+  std::string grid;
+  struct Thing {
+    std::string kind;
+    int x = 0, y = 0;
+  };
+  std::vector<Thing> things;  // the ground level's furniture and fittings
+  try {
+    const toml::table t = toml::parse(site_toml);
+    if (const toml::array* levels = t["level"].as_array())
+      for (const auto& l : *levels)
+        if (const toml::table* lt = l.as_table(); lt && (*lt)["z"].value_or(0) == 0) grid = (*lt)["grid"].value_or(std::string{});
+    if (const toml::array* objs = t["object"].as_array())
+      for (const auto& o : *objs)
+        if (const toml::table* ot = o.as_table())
+          if (const toml::array* at = (*ot)["at"].as_array(); at && at->size() == 3 && (*at)[0].value_or(-1) == 0)
+            things.push_back({(*ot)["kind"].value_or(std::string{}), static_cast<int>((*at)[1].value_or(0)), static_cast<int>((*at)[2].value_or(0))});
+  } catch (const std::exception&) {
+    return img;
+  }
+  // The grid: edge rows ("+" corners, the edge above each cell) and cell rows (the edge left of each cell, then the cell).
+  std::vector<std::string> rows;
+  {
+    std::string line;
+    for (char c : grid) {
+      if (c == '\n') {
+        if (!line.empty()) rows.push_back(line);
+        line.clear();
+      } else if (c != '\r') {
+        line += c;
+      }
+    }
+    if (!line.empty()) rows.push_back(line);
+  }
+  if (rows.size() < 2) return img;
+  const int H = static_cast<int>(rows.size() / 2), W = static_cast<int>(rows[1].size() / 2);
+  img.w = W * px;
+  img.h = H * px;
+  img.rgb.assign(static_cast<std::size_t>(img.w) * img.h * 3, 0);
+  auto fill = [&](int x0, int y0, int w, int h, const unsigned char c[3]) {
+    for (int y = std::max(0, y0); y < std::min(img.h, y0 + h); ++y)
+      for (int x = std::max(0, x0); x < std::min(img.w, x0 + w); ++x)
+        for (int q = 0; q < 3; ++q) img.rgb[(static_cast<std::size_t>(y) * img.w + x) * 3 + static_cast<std::size_t>(q)] = c[q];
+  };
+  auto ground = [](char c) -> const unsigned char* {
+    static const unsigned char street[3] = {95, 95, 100}, pave[3] = {175, 175, 170}, grass[3] = {120, 175, 95},
+                               floor[3] = {222, 205, 170}, path[3] = {200, 185, 150}, other[3] = {160, 150, 140};
+    switch (c) {
+      case ' ': return street;
+      case '_': return pave;
+      case '"': return grass;
+      case '.': return floor;
+      case ':': return path;
+      default: return other;
+    }
+  };
+  auto edge = [](char c) -> const unsigned char* {
+    static const unsigned char wall[3] = {45, 40, 38}, inner[3] = {110, 95, 80}, window[3] = {120, 190, 235}, door[3] = {150, 90, 40},
+                               fence[3] = {90, 80, 60};
+    switch (c) {
+      case '#': return wall;
+      case '-':
+      case '|': return inner;
+      case 'W': return window;
+      case 'D':
+      case 'E': return door;
+      case '=': return fence;
+      default: return nullptr;
+    }
+  };
+  const int t = std::max(1, px / 4);  // a wall's thickness in pixels
+  for (int y = 0; y < H; ++y)
+    for (int x = 0; x < W; ++x) {
+      const std::string& cell = rows[static_cast<std::size_t>(2 * y + 1)];
+      const char g = static_cast<std::size_t>(2 * x + 1) < cell.size() ? cell[static_cast<std::size_t>(2 * x + 1)] : ' ';
+      fill(x * px, y * px, px, px, ground(g));
+    }
+  for (int y = 0; y < H; ++y)
+    for (int x = 0; x < W; ++x) {
+      const std::string& above = rows[static_cast<std::size_t>(2 * y)];
+      const std::string& cell = rows[static_cast<std::size_t>(2 * y + 1)];
+      if (const char e = static_cast<std::size_t>(2 * x + 1) < above.size() ? above[static_cast<std::size_t>(2 * x + 1)] : ' '; edge(e))
+        fill(x * px, y * px - t / 2, px, t, edge(e));
+      if (const char e = static_cast<std::size_t>(2 * x) < cell.size() ? cell[static_cast<std::size_t>(2 * x)] : ' '; edge(e))
+        fill(x * px - t / 2, y * px, t, px, edge(e));
+    }
+  // Furniture and fittings as small squares by kind: beds blue, seats and tables brown, the kitchen white, the bathroom
+  // pale blue, storage orange, lamps yellow.
+  for (const Thing& th : things) {
+    static const unsigned char bed[3] = {70, 110, 190}, wood[3] = {130, 85, 45}, kitchen[3] = {245, 245, 240}, bath[3] = {160, 210, 230},
+                               store[3] = {225, 140, 50}, lamp[3] = {245, 215, 70}, other[3] = {90, 90, 90};
+    const unsigned char* c = other;
+    if (th.kind == "bed") c = bed;
+    else if (th.kind == "sofa" || th.kind == "table" || th.kind == "wardrobe" || th.kind == "bench") c = wood;
+    else if (th.kind == "fridge" || th.kind == "stove" || th.kind == "hot_plate") c = kitchen;
+    else if (th.kind == "toilet" || th.kind == "bathtub" || th.kind == "sink") c = bath;
+    else if (th.kind == "pantry" || th.kind == "stockpile" || th.kind == "shelf") c = store;
+    else if (th.kind == "lamp") c = lamp;
+    else if (th.kind == "plot" || th.kind == "tree") continue;
+    const int m = std::max(1, px / 5);
+    fill(th.x * px + m, th.y * px + m, px - 2 * m, px - 2 * m, c);
+  }
+  return img;
 }
 
 }  // namespace zs::atlas

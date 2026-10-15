@@ -1,5 +1,13 @@
 #include "atlas_cards.h"
 
+#include <SDL3/SDL.h>
+
+#include <chrono>
+#include <future>
+
+#include "planet_raster.h"
+#include "zs/gen/plot_contents.h"
+
 #include "zs/nations.h"
 
 #include <imgui.h>
@@ -75,7 +83,33 @@ struct CardsState {
   std::map<std::string, CountryCalendar> cals;    // profile id -> its calendar, read once
   // Slice 5: the settings and their bands (cards.toml [[setting]]).
   std::vector<SettingBand> bands;
+  // Spec 92: the town's streets and plots, and a plot seen from above.
+  SDL_Renderer* renderer = nullptr;
+  std::function<std::shared_ptr<const gen::TownRecord>(int)> record_of;
+  std::uint64_t world_seed = 1;
+  int rec_for = -1;
+  std::future<std::shared_ptr<const gen::TownRecord>> rec_job;
+  std::shared_ptr<const gen::TownRecord> rec;
+  std::string rec_error;
+  TownPicture pic;
+  SDL_Texture* town_tex = nullptr;
+  int plot = -1, plot_tex_for = -1;
+  SDL_Texture* plot_tex = nullptr;
+  int plot_w = 0, plot_h = 0;
+  std::string plot_line;
 };
+
+bool cards_busy(const CardsState& st) {
+  return !st.rec && st.rec_job.valid() && st.rec_job.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
+}
+
+void cards_set_town_source(CardsState& st, SDL_Renderer* renderer, std::function<std::shared_ptr<const gen::TownRecord>(int)> record_of,
+                           std::uint64_t seed) {
+  st.renderer = renderer;
+  st.record_of = std::move(record_of);
+  if (st.world_seed != seed) st.rec_for = -1;  // another world: lay the town out again
+  st.world_seed = seed;
+}
 
 std::shared_ptr<CardsState> make_cards(const std::string& data_dir) {
   auto st = std::make_shared<CardsState>();
@@ -201,6 +235,126 @@ void draw_card(const CardsState& st, const char* id, const std::string& heading,
       if (!r.spec.empty()) ImGui::TextDisabled("%s", r.spec.c_str());
     }
     ImGui::EndTable();
+  }
+}
+
+
+// An RGB picture as a texture (nearest pixels, so plots stay crisp).
+SDL_Texture* upload(SDL_Renderer* r, const PlanetRaster& img) {
+  if (!r || img.w <= 0) return nullptr;
+  std::vector<unsigned char> rgba(static_cast<std::size_t>(img.w) * img.h * 4);
+  for (std::size_t i = 0; i < static_cast<std::size_t>(img.w) * img.h; ++i) {
+    for (int q = 0; q < 3; ++q) rgba[i * 4 + static_cast<std::size_t>(q)] = img.rgb[i * 3 + static_cast<std::size_t>(q)];
+    rgba[i * 4 + 3] = 255;
+  }
+  SDL_Texture* t = SDL_CreateTexture(r, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, img.w, img.h);
+  if (t) SDL_UpdateTexture(t, nullptr, rgba.data(), img.w * 4), SDL_SetTextureScaleMode(t, SDL_SCALEMODE_NEAREST);
+  return t;
+}
+
+// Spec 92 rules 3 and 4: the town's layout as a picture (hover names a plot, a click opens it), then the plot from above.
+void draw_town_streets(CardsState& st, const TownCard& t) {
+  if (!st.record_of) return;
+  if (st.rec_for != t.index) {
+    if (st.rec_job.valid()) st.rec_job.wait();  // a town still being laid out finishes first
+    st.rec_for = t.index;
+    st.rec.reset();
+    st.rec_error.clear();
+    st.plot = st.plot_tex_for = -1;
+    if (st.town_tex) SDL_DestroyTexture(st.town_tex), st.town_tex = nullptr;
+    if (st.plot_tex) SDL_DestroyTexture(st.plot_tex), st.plot_tex = nullptr;
+    st.rec_job = std::async(std::launch::async, st.record_of, t.index);
+  }
+  ImGui::Spacing();
+  ImGui::PushFont(nullptr, ImGui::GetFontSize() * 1.15f);
+  ImGui::TextColored({1, 0.95f, 0.8f, 1}, "Streets and plots");
+  ImGui::PopFont();
+  if (!st.rec && st.rec_job.valid()) {
+    if (st.rec_job.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+      ImGui::TextDisabled("Laying out the town's streets and plots (spec 71)...");
+      return;
+    }
+    try {
+      st.rec = st.rec_job.get();
+    } catch (const std::exception& ex) {
+      st.rec_error = ex.what();
+    }
+  }
+  if (!st.rec) {
+    if (!st.rec_error.empty()) ImGui::TextColored({1, 0.5f, 0.5f, 1}, "%s", st.rec_error.c_str());
+    return;
+  }
+  const gen::TownLayout& lay = st.rec->layout;
+  if (!st.town_tex) {
+    // 2 m a pixel, coarser for a large town so the picture stays within a texture's size (2,048 on its longer side).
+    const int scale = std::max(2, (std::max(lay.width_m, lay.height_m) + 2047) / 2048);
+    st.pic = town_picture(lay, scale);
+    st.town_tex = upload(st.renderer, st.pic.img);
+  }
+  ImGui::TextDisabled("%s: %zu plots, %.1f x %.1f km; the town the game opens here (spec 73). Hover a plot; click it to see what "
+                      "stands on it.",
+                      st.rec->spec.name.c_str(), lay.plots.size(), lay.width_m / 1000.0, lay.height_m / 1000.0);
+  ImGui::TextDisabled("Streets grey; houses beige (pale: empty), apartment houses darker; shops orange, workshops purple, parks green, "
+                      "civic blue.");
+  if (!st.town_tex) return;
+  const float w = std::min(ImGui::GetContentRegionAvail().x, 900.0f);
+  const float h = w * static_cast<float>(st.pic.img.h) / static_cast<float>(std::max(1, st.pic.img.w));
+  const ImVec2 at = ImGui::GetCursorScreenPos();
+  {  // in 16 x 8 tiles, as the planet (one large quad overflows the software renderer of the offscreen shots)
+    ImGui::InvisibleButton("town picture", ImVec2(w, h));
+    ImDrawList* d = ImGui::GetWindowDrawList();
+    for (int j = 0; j < 8; ++j)
+      for (int i = 0; i < 16; ++i)
+        d->AddImage(reinterpret_cast<ImTextureID>(st.town_tex), ImVec2(at.x + w * i / 16, at.y + h * j / 8),
+                    ImVec2(at.x + w * (i + 1) / 16, at.y + h * (j + 1) / 8), ImVec2(i / 16.0f, j / 8.0f),
+                    ImVec2((i + 1) / 16.0f, (j + 1) / 8.0f));
+  }
+  if (ImGui::IsItemHovered()) {
+    const ImVec2 m = ImGui::GetIO().MousePos;
+    const int px = static_cast<int>((m.x - at.x) / w * static_cast<float>(st.pic.img.w));
+    const int py = static_cast<int>((m.y - at.y) / h * static_cast<float>(st.pic.img.h));
+    if (px >= 0 && py >= 0 && px < st.pic.img.w && py < st.pic.img.h) {
+      const int k = st.pic.plot[static_cast<std::size_t>(py) * st.pic.img.w + px];
+      if (k >= 0) {
+        const gen::Plot& p = lay.plots[static_cast<std::size_t>(k)];
+        ImGui::SetTooltip("%s\n%s, %d x %d m%s", p.address.c_str(), gen::land_use_name(p.use), p.w, p.h,
+                          p.use == gen::LandUse::Residential
+                              ? (", " + std::to_string(p.households) + " of " + std::to_string(p.units) + " units taken").c_str()
+                              : "");
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) st.plot = k;
+      } else {
+        ImGui::SetTooltip("a street");
+      }
+    }
+  }
+  if (st.autopick && st.plot < 0)  // checks without a click: the first house with people in it
+    for (std::size_t k = 0; k < lay.plots.size() && st.plot < 0; ++k)
+      if (lay.plots[k].use == gen::LandUse::Residential && lay.plots[k].households > 0) st.plot = static_cast<int>(k);
+  if (st.plot < 0 || st.plot >= static_cast<int>(lay.plots.size())) return;
+  if (st.plot_tex_for != st.plot) {
+    if (st.plot_tex) SDL_DestroyTexture(st.plot_tex), st.plot_tex = nullptr;
+    st.plot_tex_for = st.plot;
+    const std::string toml = gen::plot_toml(st.rec->spec, lay, st.plot, st.rec->dwelling, st.rec->plots, st.world_seed);
+    const gen::PlotPlan plan = gen::plan_plot(st.rec->spec, lay, st.plot, st.rec->dwelling, st.rec->plots, st.world_seed);
+    st.plot_line = lay.plots[static_cast<std::size_t>(st.plot)].address + ": " + plan.kind;
+    if (const std::size_t a = toml.find("): "), b = toml.find('\n'); a != std::string::npos && b != std::string::npos && a < b)
+      st.plot_line = toml.substr(a + 3, b - a - 3);
+    if (!toml.empty()) {
+      const PlanetRaster img = site_picture(toml, 10);
+      st.plot_w = img.w, st.plot_h = img.h;
+      st.plot_tex = upload(st.renderer, img);
+    } else {
+      st.plot_line += plan.kind == "block" ? " (the Tier 0 block: its own hand-made map, played in the window)"
+                                           : " (a police station: drawn by its own generator, spec 69)";
+    }
+  }
+  ImGui::Spacing();
+  ImGui::TextColored({1, 0.95f, 0.8f, 1}, "%s", st.plot_line.c_str());
+  if (st.plot_tex) {
+    ImGui::TextDisabled("Its ground floor from above, a metre a cell (spec 72): walls dark, inner walls brown, windows blue, doors "
+                        "orange; beds blue, tables and sofas brown, the kitchen white, the bathroom pale blue, stores orange.");
+    const float pw = std::min(ImGui::GetContentRegionAvail().x, static_cast<float>(st.plot_w) * 1.5f);
+    ImGui::Image(reinterpret_cast<ImTextureID>(st.plot_tex), ImVec2(pw, pw * static_cast<float>(st.plot_h) / std::max(1, st.plot_w)));
   }
 }
 
@@ -444,8 +598,12 @@ void draw_town_card(CardsState& st, const WorldCard& world, const CountryCard& c
                       (c.profile.empty() ? "base_" + c.income : c.profile) + "'s tables";
     v["dwellings"] = std::to_string(st.dwellings.size()) + " dwellings, " + st.gen_income + " income";
   }
+  if (st.rec && st.rec_for == t.index)
+    v["layout"] = std::to_string(st.rec->layout.plots.size()) + " plots on " + fmt("%.1f", st.rec->layout.width_m / 1000.0) + " x " +
+                  fmt("%.1f km (below)", st.rec->layout.height_m / 1000.0);
   draw_card(st, "town", "Town " + std::to_string(t.rank) + " of " + c.name, v);
   if (!st.gen_error.empty()) ImGui::TextColored({1, 0.5f, 0.5f, 1}, "%s", st.gen_error.c_str());
+  draw_town_streets(st, t);  // spec 92
   if (!st.gen_town) return;
   ImGui::TextWrapped("The people below are a stand-in: households, schooling, work and occupations follow this country's tables "
                      "(spec 47), but names, birthplaces and the town's name still come from the block's culture pack, and the "

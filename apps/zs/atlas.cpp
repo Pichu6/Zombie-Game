@@ -209,6 +209,7 @@ std::string ctest_of(const fs::path& repo) {
 
 struct CountryInfo {
   std::string name, income;
+  std::string profile, origin, alliance;  // specs 90-92
   double area_km2 = 0, people = 0, endowment = 0;
   bool landlocked = false;
   int capital_held = 0, periods = 0, sectors = 0, towns = 0;
@@ -303,6 +304,10 @@ struct Planet {
           const zs::gen::Country& c = people.countries[k];
           CountryInfo ci;
           ci.name = c.name.empty() ? "(unnamed)" : c.name;
+          ci.profile = c.profile;
+          ci.origin = c.origin;
+          if (c.alliance >= 0 && c.alliance < static_cast<int>(people.alliance_names.size()))
+            ci.alliance = people.alliance_names[static_cast<std::size_t>(c.alliance)];
           ci.income = zs::gen::kIncomeGroupIds[static_cast<std::size_t>(c.income)];
           ci.area_km2 = c.area_km2;
           ci.people = c.people;
@@ -685,8 +690,11 @@ void draw_planet(App& a) {
     const CountryInfo& c = p.countries[static_cast<std::size_t>(p.selected)];
     ImGui::SameLine();
     ImGui::BeginChild("country", ImVec2(300, size.y), ImGuiChildFlags_Borders);
+    if (!a.countries) a.countries = make_countries(a.data_dir, a.renderer);
+    draw_country_flag(*a.countries, c.profile.empty() ? c.name : c.profile, 40);  // spec 92
+    ImGui::SameLine();
     ImGui::PushFont(nullptr, ImGui::GetFontSize() * 1.3f);
-    ImGui::TextUnformatted(c.name.c_str());
+    ImGui::TextWrapped("%s", c.name.c_str());
     ImGui::PopFont();
     ImGui::Separator();
     if (ImGui::BeginTable("card", 2, ImGuiTableFlags_RowBg)) {
@@ -710,6 +718,8 @@ void draw_planet(App& a) {
       row("Capital held", buf);
       row("Sectors", std::to_string(c.sectors));
       row("Towns", std::to_string(c.towns));
+      if (!c.origin.empty()) row("Origin", c.origin);
+      row("Alliance", c.alliance.empty() ? "none" : c.alliance);
       ImGui::EndTable();
     }
     ImGui::Spacing();
@@ -734,6 +744,13 @@ void draw_cards_page(App& a) {
   }
   if (!a.cards) a.cards = make_cards(a.data_dir);
   zs::set_custom_nations_dir(settings.pack == "earth" ? std::string{} : settings.pack_dir);  // spec 90
+  // Spec 92: a clicked town's streets: the town the one world would open there (place_of_town, then town_record).
+  cards_set_town_source(*a.cards, a.renderer,
+                        [data = p.data, seed](int town) {
+                          const zs::Place place = zs::gen::place_of_town(data->grid, data->fields, data->people, town, seed);
+                          return zs::gen::town_record(place, seed);
+                        },
+                        seed);
   // The world's record: its settings, read-only (they are chosen when the world is made, in the New world dialog).
   WorldRecord rec;
   if (const zs::worlds::World* wr = current_world(a)) rec.settings = &wr->settings, rec.world_name = wr->name;
@@ -1508,7 +1525,7 @@ int atlas_main(int argc, char** argv) {
   }
   if (!country_pick.empty()) {
     a.page = Page::Countries;
-    a.countries = make_countries(a.data_dir);
+    a.countries = make_countries(a.data_dir, a.renderer);
     const std::size_t slash = country_pick.find('/');
     countries_pick(*a.countries, country_pick.substr(0, slash), slash == std::string::npos ? "" : country_pick.substr(slash + 1), advanced_pick);
   }
@@ -1555,7 +1572,7 @@ int atlas_main(int argc, char** argv) {
       case Page::Tour: draw_tour(a); break;
       case Page::Cards: draw_cards_page(a); break;
       case Page::Countries:
-        if (!a.countries) a.countries = make_countries(a.data_dir);
+        if (!a.countries) a.countries = make_countries(a.data_dir, a.renderer);
         draw_countries(*a.countries);
         break;
       case Page::Simulation: draw_sim_page(a); break;
@@ -1579,6 +1596,7 @@ int atlas_main(int argc, char** argv) {
       if (a.planet.ready && ready_frame < 0) ready_frame = frame;
       bool waiting = a.planet.busy || ((a.page == Page::Cards || (a.page == Page::Tour && a.stop == 0)) && !a.planet.ready && frame < 2000);
       if (a.page == Page::Cards && (ready_frame < 0 || frame < ready_frame + 14)) waiting = true;  // frames to draw, pick and scroll
+      if (a.page == Page::Cards && a.cards && cards_busy(*a.cards) && frame < 6000) waiting = true, ready_frame = frame;  // spec 92
       if (a.page == Page::Simulation) {
         if (!a.sim || sim_busy(*a.sim) || frame < 4) waiting = true;
         if (a.sim && !sim_busy(*a.sim) && (open_world || cold) && ready_frame < 0) ready_frame = frame;  // reuse: frames after the sim is idle

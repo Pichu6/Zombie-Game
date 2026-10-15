@@ -69,7 +69,7 @@ rows = [
   { field = "businesses", need = "Businesses and institutions people work at", spec = "47" },
   { field = "households", need = "Households and people from the country's tables", spec = "47" },
   { field = "dwellings", need = "A dwelling with an address per household", spec = "51" },
-  { field = "", need = "Streets and plots laid out in the town (status step 5, next)" },
+  { field = "layout", need = "Streets and plots laid out in the town", spec = "71" },
   { field = "", need = "Zones of spec 48 inside the town" },
   { field = "", need = "Services by settlement size (research SV)" },
   { field = "", need = "Business premises from the business records" },

@@ -3,6 +3,7 @@
 // rivers are smooth curves from source to mouth. Shared by
 // `zs gen world --bmp` and the Atlas (spec 55), so the screen shows what the file shows.
 #pragma once
+#include "zs/gen/town_layout.h"
 #include <string>
 #include <vector>
 
@@ -25,8 +26,9 @@ struct PlanetRaster {
 
 // Spec 83 rule 5 (amended 2026-10-14, the user: "different overlays: political, physical, topographic, climatic,
 // geological, urban ... resources, wind", after Cities: Skylines' info views).
-enum class MapLayer { Physical, Political, Topographic, Temperature, Rain, Climate, Wind, Geology, Water, Cover, Resources, People };
-inline constexpr int kMapLayers = 12;
+enum class MapLayer { Physical, Political, Topographic, Temperature, Rain, Climate, Wind, Geology, Water, Cover, Resources, People,
+                      Alliances };
+inline constexpr int kMapLayers = 13;
 const char* layer_name(MapLayer l);
 bool parse_layer(const std::string& name, MapLayer& out);
 // The legend of a layer, one line per colour, for printing beside the picture.
@@ -55,5 +57,17 @@ void draw_routes(PlanetRaster& r, const gen::WorldGrid& grid, const gen::WorldFi
                  const gen::WorldRoutes& routes);
 // 24-bit BMP, bottom row first.
 void write_bmp(const std::string& path, const PlanetRaster& r);
+
+// Spec 92 rule 5: a town's layout as a picture (spec 71): streets grey, plots by use with their outlines, empty houses
+// pale, apartment houses darker; `plot` gives each pixel's plot index (-1 a street). Used by the Atlas and `zs gen layout`.
+struct TownPicture {
+  PlanetRaster img;
+  std::vector<int> plot;
+  int m_per_px = 2;
+};
+TownPicture town_picture(const gen::TownLayout& t, int m_per_px = 2);
+// Spec 92 rule 4: a plot's site map (spec 72's TOML) seen from above, its ground level: street, pavement, grass, floors,
+// walls, windows and doors, `px` pixels a cell.
+PlanetRaster site_picture(const std::string& site_toml, int px = 8);
 
 }  // namespace zs::atlas

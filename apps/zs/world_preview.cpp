@@ -74,7 +74,7 @@ void WorldPreview::draw(SDL_Renderer* renderer, void (*image)(SDL_Texture*, cons
   // Spec 83's layers, the same row as the planet's.
   for (int k = 0; k < kMapLayers; ++k) {
     const auto l = static_cast<MapLayer>(k);
-    if (k % 6) ImGui::SameLine();  // two rows of six
+    if (k % 7) ImGui::SameLine();  // two rows
     if (ImGui::RadioButton((std::string(layer_name(l)) + "##pv").c_str(), layer_ == l) && layer_ != l) layer_ = l, dirty_ = true;
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", layer_legend(l).c_str());
   }

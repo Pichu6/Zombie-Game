@@ -215,6 +215,7 @@ std::vector<RealProfile> load_pack_profiles(const std::string& data_dir, const s
     RealProfile p;
     p.iso = "custom/" + e.path().stem().string();
     p.name = t["name"].value_or(e.path().stem().string());
+    p.color = t["color"].value_or(std::string{});
     const std::string income = t["country"]["income"].value_or(std::string{});
     p.population = t["country"]["population"].value_or(0.0);
     p.income = -1;
@@ -342,7 +343,7 @@ void assign_by_history(WorldPeople& w, const WorldGrid& g, const std::vector<Rea
     const int k = F.country_of[F.entities[e].capital];
     if (k >= 0) income[e] = w.countries[static_cast<std::size_t>(k)].income;
   }
-  std::vector<std::string> profile(ne), name(ne);
+  std::vector<std::string> profile(ne), name(ne), color(ne);
   std::vector<bool> used(profiles.size(), false);
   std::vector<int> reused(profiles.size(), 0);
   std::set<std::string> names;
@@ -385,6 +386,7 @@ void assign_by_history(WorldPeople& w, const WorldGrid& g, const std::vector<Rea
     }
     used[static_cast<std::size_t>(best)] = true;
     profile[e] = profiles[static_cast<std::size_t>(best)].iso;
+    color[e] = profiles[static_cast<std::size_t>(best)].color;
     income[e] = profiles[static_cast<std::size_t>(best)].income;  // a pack country keeps its own group (spec 90)
     name[e] = unique(prefix + profiles[static_cast<std::size_t>(best)].name);
   }
@@ -396,6 +398,7 @@ void assign_by_history(WorldPeople& w, const WorldGrid& g, const std::vector<Rea
       const std::size_t big = people[a] >= people[b] ? a : b;
       people[e] = people[a] + people[b];
       profile[e] = profile[big];
+      color[e] = color[big];  // spec 92: a union keeps its larger parent's colour
       income[e] = income[big];
       name[e] = unique(union_name(name[a], name[b], e * 2654435761u + static_cast<std::uint64_t>(E.period)));
     } else {
@@ -415,6 +418,7 @@ void assign_by_history(WorldPeople& w, const WorldGrid& g, const std::vector<Rea
     if (e < 0) continue;
     const Entity& E = F.entities[static_cast<std::size_t>(e)];
     c.profile = profile[static_cast<std::size_t>(e)];
+    c.color = color[static_cast<std::size_t>(e)];
     c.name = name[static_cast<std::size_t>(e)];
     c.income = income[static_cast<std::size_t>(e)];
     c.origin = E.origin == Origin::Founder ? "founded"
@@ -682,6 +686,7 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
       }
       used[static_cast<std::size_t>(best)] = true;
       c.profile = profiles[static_cast<std::size_t>(best)].iso;
+      c.color = profiles[static_cast<std::size_t>(best)].color;
       c.name = prefix + profiles[static_cast<std::size_t>(best)].name;
     }
   }
