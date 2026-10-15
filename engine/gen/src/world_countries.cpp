@@ -53,6 +53,9 @@ const char* history_name(HistoryKind k) {
     case HistoryKind::Secede: return "secede";
     case HistoryKind::Split: return "split";
     case HistoryKind::Fill: return "fill";
+    case HistoryKind::Found: return "found";
+    case HistoryKind::Unite: return "unite";
+    case HistoryKind::Divide: return "divide";
   }
   return "?";
 }
@@ -121,6 +124,300 @@ LandGraph build_land_graph(const WorldGrid& g, const WorldFields& f) {
     std::sort(out.begin(), out.end(), [](const LandLink& a, const LandLink& b) { return a.sea != b.sea ? !a.sea : a.to < b.to; });
   return lg;
 }
+
+namespace {
+
+// Spec 91: N founding states take the land by rule 22's contest (no secession; capitals held), then a recorded history
+// of border contests, divisions and unions; alliances last. `w` arrives with its core and terrain (rules 19, 20).
+WorldCountries found_and_history(const WorldGrid& g, const WorldFields& f, const WorldLand& land, const LandGraph& lg,
+                                 std::uint64_t seed, const CountryParams& p, WorldCountries w, double ratio, int rounds) {
+  const std::size_t n = g.size();
+  std::vector<int> owner(n, kSea);
+  std::vector<CellId> cand;
+  double land_km2 = 0;
+  for (CellId c = 0; c < n; ++c) {
+    if (!f.land(c) || f.biome[c] == Biome::Ice) continue;
+    owner[c] = kUnruled;
+    land_km2 += g.area_km2(c);
+    if (w.core[c] > 0) cand.push_back(c);
+  }
+  std::stable_sort(cand.begin(), cand.end(), [&](CellId a, CellId b) { return w.core[a] > w.core[b]; });
+  // Rule 1: the N best cores kept apart; the spacing shrinks until N fit.
+  const int want = std::min<int>(p.founders, static_cast<int>(cand.size()));
+  std::vector<CellId> caps;
+  for (double d = detmath::sqrt(land_km2 / std::max(1, want)); static_cast<int>(caps.size()) < want && d > 1; d *= 0.85) {
+    caps.clear();
+    for (CellId c : cand) {
+      bool far = true;
+      for (CellId x : caps)
+        if (g.distance_km(c, x) < d) { far = false; break; }
+      if (far) caps.push_back(c);
+      if (static_cast<int>(caps.size()) == want) break;
+    }
+  }
+  std::vector<Polity> pol;
+  std::vector<int> entity_of;  // polity -> entity
+  std::vector<char> is_capital(n, 0);
+  for (CellId c : caps) {
+    owner[c] = static_cast<int>(pol.size());
+    pol.push_back({w.core[c], c, 1, 0, 0});
+    entity_of.push_back(static_cast<int>(w.entities.size()));
+    w.entities.push_back({Origin::Founder, -1, -1, 0, c});
+    is_capital[c] = 1;
+    w.events.push_back({0, HistoryKind::Found, c, static_cast<int>(pol.size()) - 1, kUnruled});
+  }
+  w.start_polities = static_cast<int>(pol.size());
+  double ymax = 0;
+  for (CellId c = 0; c < n; ++c) ymax = std::max(ymax, w.core[c]);
+  const double alpha = ymax > 0 ? 1.0 / ymax : 0.0;
+  // Rule 5: the history seed draws the contest and the events; the planet seed only the capitals above.
+  const std::uint64_t hs = p.history_seed ? p.history_seed : seed * 0x9E3779B97F4A7C15ull + 0x5851F42D4C957F2Dull;
+  const Keyed r(hs);
+  auto move = [&](CellId c, int to) {
+    const int from = owner[c];
+    if (from >= 0) pol[static_cast<std::size_t>(from)].Y -= w.core[c], --pol[static_cast<std::size_t>(from)].cells;
+    owner[c] = to;
+    pol[static_cast<std::size_t>(to)].Y += w.core[c];
+    ++pol[static_cast<std::size_t>(to)].cells;
+  };
+  std::vector<double> weight;
+  std::vector<CellId> cs;
+  std::vector<bool> cs_sea;
+  // Rule 22's annexation pass; capitals are never taken (a state ends only by union).
+  auto contest = [&](std::uint32_t key) {
+    for (CellId c = 0; c < n; ++c) {
+      const int i = owner[c];
+      if (i < 0) continue;
+      weight.clear();
+      cs.clear();
+      cs_sea.clear();
+      for (const LandLink& l : lg.links[c]) {
+        if (owner[l.to] == i || owner[l.to] == kSea || is_capital[l.to]) continue;
+        cs.push_back(l.to);
+        cs_sea.push_back(l.sea);
+        weight.push_back(std::max(w.core[l.to], 1e-9 * ymax) * (l.sea ? p.sea_weight : 1.0));
+      }
+      if (cs.empty()) continue;
+      // An unruled neighbour is always worth a try for a state next to it (the founding takes all the land).
+      if (!r.chance(c, field::Conflict, std::max(alpha * w.core[c], 0.05), key)) continue;
+      const std::size_t k = r.weighted(c, field::Opponent, weight, key);
+      const CellId d = cs[k];
+      const int j = owner[d];
+      auto at = [&](int q) { return detmath::exp(-g.distance_km(pol[static_cast<std::size_t>(q)].capital, d) / p.reach_km); };
+      const double yi = pol[static_cast<std::size_t>(i)].Y * (cs_sea[k] ? p.sea_sigma : 1.0) * at(i);
+      const double yj = j >= 0 ? pol[static_cast<std::size_t>(j)].Y * at(j) : w.core[d];
+      const double win = yi / (yi + yj) / (1.0 + w.terrain[d]);
+      if (!r.chance(c, field::Win, win, key)) continue;
+      move(d, i);
+      w.events.push_back({static_cast<int>(key), HistoryKind::Annex, d, i, j});
+    }
+  };
+  // The founding (rule 1): every founder grows from its capital by travel cost (rule 24's: distance, climbs, deserts,
+  // cold and sea crossings) over its power, a keyed draw with a heavy tail (a few founders very large, as on Earth), so
+  // the land is shared out and each founder holds a connected realm.
+  {
+    std::vector<double> power(pol.size());
+    double core_mean = 0;
+    for (const Polity& q : pol) core_mean += q.Y / static_cast<double>(pol.size());
+    for (std::size_t i = 0; i < pol.size(); ++i)  // richer cores found stronger states (the river valleys' empires)
+      power[i] = detmath::exp(p.founder_power_sigma * r.bell(i, field::AllianceSeed, 7) / 0.2887) *
+                 detmath::pow(std::max(1e-9, pol[i].Y / std::max(1e-12, core_mean)), p.founder_core_power);
+    std::vector<double> best(n, 1e300);
+    std::vector<int> reach(n, -1);
+    using Item = std::tuple<double, int, CellId>;
+    std::priority_queue<Item, std::vector<Item>, std::greater<>> q;
+    for (std::size_t i = 0; i < pol.size(); ++i) best[pol[i].capital] = 0, reach[pol[i].capital] = static_cast<int>(i), q.emplace(0.0, static_cast<int>(i), pol[i].capital);
+    while (!q.empty()) {
+      const auto [d, k, c] = q.top();
+      q.pop();
+      if (d > best[c] || k != reach[c]) continue;
+      for (const LandLink& l : lg.links[c]) {
+        if (owner[l.to] == kSea) continue;
+        const double dist = g.distance_km(c, l.to);
+        const double step = (l.sea ? kCrossingCost * dist : dist * (1.0 + std::abs(f.elevation_m[c] - f.elevation_m[l.to]) * kClimbPerM)) *
+                            biome_factor(f.biome[l.to]) / power[static_cast<std::size_t>(k)];
+        const double nd = d + step;
+        if (nd < best[l.to] || (nd == best[l.to] && k < reach[l.to])) best[l.to] = nd, reach[l.to] = k, q.emplace(nd, k, l.to);
+      }
+    }
+    for (CellId c = 0; c < n; ++c) {
+      if (owner[c] != kUnruled) continue;
+      int k = reach[c];
+      if (k < 0) {  // land no founder reaches over land or a short crossing: the nearest capital
+        double bd = 1e300;
+        for (std::size_t i = 0; i < pol.size(); ++i)
+          if (const double d = g.distance_km(c, pol[i].capital); d < bd) bd = d, k = static_cast<int>(i);
+      }
+      if (k >= 0) move(c, k);
+    }
+  }
+  w.founded_of.assign(n, -1);
+  for (CellId c = 0; c < n; ++c)
+    if (owner[c] >= 0) w.founded_of[c] = entity_of[static_cast<std::size_t>(owner[c])];
+
+  // Rule 3: the recorded history.
+  const int hist = std::max(0, static_cast<int>(p.history_periods * ratio + 0.5));
+  const double div_p = hist > 0 ? p.history * p.division_rate / hist : 0.0;
+  const double uni_p = hist > 0 ? p.history * p.union_rate / hist : 0.0;
+  const std::uint32_t base = 1;
+  for (int period = 0; period < hist; ++period) {
+    const std::uint32_t key = base + static_cast<std::uint32_t>(period);
+    contest(key);
+    // Divisions: a state may lose the region around its best core far from its capital.
+    const std::size_t live = pol.size();
+    for (std::size_t i = 0; i < live; ++i) {
+      if (pol[i].cells < 4 || !r.chance(i, field::Divide, div_p * detmath::sqrt(static_cast<double>(pol[i].cells) / 50.0), key)) continue;
+      std::vector<CellId> mine;
+      for (CellId c = 0; c < n; ++c)
+        if (owner[c] == static_cast<int>(i)) mine.push_back(c);
+      CellId seed_cell = pol[i].capital;
+      double best = 0;
+      for (CellId c : mine)
+        if (const double v = w.core[c] * g.distance_km(c, pol[i].capital); v > best) best = v, seed_cell = c;
+      if (seed_cell == pol[i].capital) continue;
+      // The region: the state's cells nearer the new seat than the capital, joined to it over the state's land.
+      std::vector<char> in(n, 0);
+      for (CellId c : mine) in[c] = g.distance_km(c, seed_cell) < g.distance_km(c, pol[i].capital);
+      std::vector<CellId> piece{seed_cell}, stack{seed_cell};
+      std::vector<char> seen(n, 0);
+      seen[seed_cell] = 1;
+      while (!stack.empty()) {
+        const CellId x = stack.back();
+        stack.pop_back();
+        for (const LandLink& l : lg.links[x])
+          if (!seen[l.to] && in[l.to] && owner[l.to] == static_cast<int>(i) && !is_capital[l.to]) seen[l.to] = 1, piece.push_back(l.to), stack.push_back(l.to);
+      }
+      if (piece.size() < 2 || piece.size() * 10 > mine.size() * 6) continue;  // not a sliver, not most of the state
+      const int ni = static_cast<int>(pol.size());
+      pol.push_back({0, seed_cell, 0, period + 1, period + 1});
+      entity_of.push_back(static_cast<int>(w.entities.size()));
+      w.entities.push_back({Origin::Division, entity_of[i], -1, period + 1, seed_cell});
+      is_capital[seed_cell] = 1;
+      for (CellId x : piece) move(x, ni);
+      w.events.push_back({static_cast<int>(key), HistoryKind::Divide, seed_cell, ni, static_cast<int>(i)});
+    }
+    // Unions: two neighbouring states of comparable strength may unite into a new one.
+    // Real unions joined smaller states (Germany, Italy, Tanzania, the Emirates): none whose stronger side is in the
+    // strongest 30 %.
+    double y_cap = 0;
+    {
+      std::vector<double> ys;
+      for (const Polity& q : pol)
+        if (q.cells > 0) ys.push_back(q.Y);
+      std::sort(ys.begin(), ys.end());
+      if (!ys.empty()) y_cap = ys[static_cast<std::size_t>(0.7 * static_cast<double>(ys.size() - 1))];
+    }
+    std::vector<char> merged(pol.size(), 0);
+    for (CellId c = 0; c < n; ++c) {
+      const int i = owner[c];
+      if (i < 0 || merged[static_cast<std::size_t>(i)]) continue;
+      for (const LandLink& l : lg.links[c]) {
+        const int j = owner[l.to];
+        if (j < 0 || j <= i || merged[static_cast<std::size_t>(j)]) continue;
+        const double yi = pol[static_cast<std::size_t>(i)].Y, yj = pol[static_cast<std::size_t>(j)].Y;
+        if (std::min(yi, yj) < 0.25 * std::max(yi, yj) || std::max(yi, yj) > y_cap) continue;
+        // Per border link, so a long shared border unites more readily; scaled so the rate is per state.
+        if (!r.chance(c * 8 + (l.to & 7), field::Unite, uni_p / 4.0 / ratio, key)) continue;
+        const int ni = static_cast<int>(pol.size());
+        const int big = yi >= yj ? i : j;
+        pol.push_back({0, pol[static_cast<std::size_t>(big)].capital, 0, period + 1, period + 1});
+        entity_of.push_back(static_cast<int>(w.entities.size()));
+        w.entities.push_back({Origin::Union, entity_of[static_cast<std::size_t>(i)], entity_of[static_cast<std::size_t>(j)], period + 1,
+                              pol[static_cast<std::size_t>(big)].capital});
+        merged.resize(pol.size(), 0);
+        merged[static_cast<std::size_t>(i)] = merged[static_cast<std::size_t>(j)] = merged[static_cast<std::size_t>(ni)] = 1;
+        is_capital[pol[static_cast<std::size_t>(i == big ? j : i)].capital] = 0;  // the smaller seat is a town again
+        for (CellId x = 0; x < n; ++x)
+          if (owner[x] == i || owner[x] == j) move(x, ni);
+        w.events.push_back({static_cast<int>(key), HistoryKind::Unite, pol[static_cast<std::size_t>(ni)].capital, ni, i == big ? j : i});
+        break;
+      }
+    }
+  }
+  w.periods = hist;
+
+  // Countries: the states that hold land, in polity order.
+  std::vector<int> country_of_polity(pol.size(), -1);
+  int next = 0;
+  for (std::size_t i = 0; i < pol.size(); ++i)
+    if (pol[i].cells > 0) country_of_polity[i] = next++;
+  w.countries.resize(static_cast<std::size_t>(next));
+  for (std::size_t i = 0; i < pol.size(); ++i) {
+    if (country_of_polity[i] < 0) continue;
+    CountryShape& sh = w.countries[static_cast<std::size_t>(country_of_polity[i])];
+    sh.polity = static_cast<int>(i);
+    sh.capital = pol[i].capital;
+    sh.founded = pol[i].founded;
+    sh.capital_held = w.periods - pol[i].capital_since;
+    sh.entity = entity_of[i];
+  }
+  for (CellId c = 0; c < n; ++c)
+    if (owner[c] >= 0) w.country_of[c] = country_of_polity[static_cast<std::size_t>(owner[c])];
+
+  // Alliances: around the strongest states, neighbours join by keyed draws until about alliance_share are in one.
+  {
+    const std::size_t nc = w.countries.size();
+    std::vector<std::vector<int>> nb(nc);
+    for (CellId c = 0; c < n; ++c) {
+      const int a = w.country_of[c];
+      if (a < 0) continue;
+      for (const LandLink& l : lg.links[c]) {
+        const int b = w.country_of[l.to];
+        if (b >= 0 && b != a) nb[static_cast<std::size_t>(a)].push_back(b);
+      }
+    }
+    for (auto& v : nb) std::sort(v.begin(), v.end()), v.erase(std::unique(v.begin(), v.end()), v.end());
+    std::vector<std::size_t> by_y(nc);
+    for (std::size_t k = 0; k < nc; ++k) by_y[k] = k;
+    std::stable_sort(by_y.begin(), by_y.end(), [&](std::size_t a, std::size_t b) {
+      return pol[static_cast<std::size_t>(w.countries[a].polity)].Y > pol[static_cast<std::size_t>(w.countries[b].polity)].Y;
+    });
+    std::vector<int> in(nc, -1);
+    const std::size_t blocs = std::max<std::size_t>(1, nc / 14);
+    std::size_t members = 0;
+    for (std::size_t k : by_y) {
+      if (w.alliances.size() >= blocs) break;
+      if (in[k] >= 0 || nb[k].empty()) continue;
+      bool near = false;  // two leaders are not neighbours
+      for (int b : nb[k]) near |= in[static_cast<std::size_t>(b)] >= 0;
+      if (near) continue;
+      in[k] = static_cast<int>(w.alliances.size());
+      w.alliances.push_back({{static_cast<int>(k)}, static_cast<int>(k)});
+      ++members;
+    }
+    for (int pass = 0; pass < 6 && members < static_cast<std::size_t>(p.alliance_share * nc); ++pass)
+      for (std::size_t k = 0; k < nc; ++k) {
+        if (in[k] >= 0) continue;
+        for (int b : nb[k]) {
+          const int a = in[static_cast<std::size_t>(b)];
+          if (a < 0 || !r.chance(k, field::AllianceJoin, 0.35, static_cast<std::uint32_t>(pass))) continue;
+          in[k] = a;
+          w.alliances[static_cast<std::size_t>(a)].members.push_back(static_cast<int>(k));
+          ++members;
+          break;
+        }
+      }
+    w.alliances.erase(std::remove_if(w.alliances.begin(), w.alliances.end(), [](const Alliance& a) { return a.members.size() < 2; }),
+                      w.alliances.end());
+    for (Alliance& a : w.alliances) std::sort(a.members.begin(), a.members.end());
+  }
+
+  // Rule 27: what each country records.
+  for (CellId c = 0; c < n; ++c) {
+    const int k = w.country_of[c];
+    if (k < 0) continue;
+    CountryShape& sh = w.countries[static_cast<std::size_t>(k)];
+    sh.cells.push_back(c);
+    sh.area_km2 += g.area_km2(c);
+    sh.core += w.core[c];
+    if (f.sea_cells[c] <= 1) sh.coast = true;
+  }
+  for (CountryShape& sh : w.countries) sh.landlocked = !sh.coast;
+  (void)land;
+  return w;
+}
+
+}  // namespace
 
 WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const WorldLand& land, const LandGraph& lg,
                               std::uint64_t seed, const CountryParams& p) {
@@ -197,6 +494,8 @@ WorldCountries form_countries(const WorldGrid& g, const WorldFields& f, const Wo
     if (k90 > 0) x = std::max(x, cold[c] / k90);
     w.terrain[c] = theta * x;
   }
+
+  if (p.founders > 0) return found_and_history(g, f, land, lg, seed, p, std::move(w), ratio, rounds);  // spec 91
 
   // Rule 21: the start.
   std::vector<int> owner(n, kSea);

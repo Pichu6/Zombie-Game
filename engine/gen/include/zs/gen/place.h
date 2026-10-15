@@ -59,6 +59,11 @@ struct WorldSettings {
   // pack.toml and custom countries (the world's countries/ copy, or the pack itself for a preview); not saved.
   std::string pack = "earth";
   std::string pack_dir;
+  // Spec 91: how many states found the world (0: the pack's size), how eventful its history (0: no unions or
+  // divisions), and the history seed (0: drawn from the planet seed).
+  double countries = 0;
+  double history = 1.0;
+  std::uint64_t history_seed = 0;
   bool operator==(const WorldSettings&) const = default;
 };
 

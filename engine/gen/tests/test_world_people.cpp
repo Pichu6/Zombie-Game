@@ -135,32 +135,30 @@ TEST_CASE("world people: the one world stands in a temperate town of 10,000 to 2
   MESSAGE("the block's town: " << place.town_people << " people, " << place.biome << ", " << place.income << " income");
 }
 
-TEST_CASE("real profiles (spec 49): each country takes a real profile of its own income group, with a distinct name") {
+TEST_CASE("real profiles (spec 49, spec 91): each founder takes a distinct profile of its group; history's states are named anew") {
   const auto profiles = load_real_profiles(ZS_DATA_DIR);
   REQUIRE(profiles.size() > 150);
   const Planet p = planet(kOneWorldFrequency, 1, profiles);
   std::set<std::string> taken, names;
-  // A profile is used twice only once all are used (an Earth-size world forms more countries than there are profiles).
-  for (const Country& c : p.people.countries) taken.insert(c.profile);
-  const bool all_used = taken.size() == profiles.size();
-  if (!all_used) CHECK(taken.size() == p.people.countries.size());
+  int founders = 0, born = 0;
   for (const Country& c : p.people.countries) {
     REQUIRE_FALSE(c.profile.empty());
-    CHECK(names.insert(c.name).second);
+    CHECK(names.insert(c.name).second);  // every name distinct
     const auto it = std::find_if(profiles.begin(), profiles.end(), [&](const RealProfile& r) { return r.iso == c.profile; });
     REQUIRE(it != profiles.end());
-    // Its own group's profile, unless that group's are all taken.
-    std::size_t own = 0, own_taken = 0;
-    for (const RealProfile& r : profiles)
-      if (r.income == c.income) {
-        ++own;
-        for (const Country& o : p.people.countries) own_taken += o.profile == r.iso;
-      }
-    if (it->income != c.income) CHECK(own_taken >= own);  // counts a reused profile once per country
-    CHECK(c.name.size() >= it->name.size());
-    CHECK(c.name.compare(c.name.size() - it->name.size(), it->name.size(), it->name) == 0);  // the name, maybe "New ..."
-    MESSAGE(c.name << " (" << c.profile << "), " << kIncomeGroupIds[static_cast<std::size_t>(c.income)] << ", " << c.people / 1e6 << " million");
+    CHECK(it->income == c.income);  // a pack country keeps its own group (spec 90)
+    if (c.origin == "founded") {
+      ++founders;
+      CHECK(taken.insert(c.profile).second);  // founders never share a profile while the pack has enough
+      CHECK(c.name == it->name);
+    } else {
+      ++born;
+      CHECK((c.origin.rfind("union of ", 0) == 0 || c.origin.rfind("split from ", 0) == 0));
+    }
   }
+  MESSAGE(founders << " founders today, " << born << " countries born of the history");
+  CHECK(founders > 100);
+  CHECK(born > 0);
   const auto t = make_world(1);
   CHECK_FALSE(t.place->place().country_name.empty());
   CHECK_FALSE(t.place->place().profile.empty());

@@ -29,9 +29,20 @@ struct CountryParams {
   double people_scale = 1.0;    // spec 84: people per unit of land against today's (spec 48 rule 2)
   double reach_km = 2000;       // spec 87: a polity's strength at a cell falls by exp(-distance from its capital / reach);
                                 // calibrated on seeds 1-5 (the most populous country 15 %, PTP-7 18 %)
+  // Spec 91: N founding states, then a recorded history. 0 or less: the contest of rule 21 from every polity, as before
+  // (populate_world reads 0 as the pack's size).
+  int founders = 0;
+  std::uint64_t history_seed = 0;   // 0: drawn from the planet seed
+  int history_periods = 20;         // in frequency-24 periods, scaled like rule 23
+  double history = 1.0;             // the setting: scales divisions and unions (0: none)
+  double division_rate = 0.08;      // expected divisions per country over the history at history 1 (estimate, calibrated)
+  double union_rate = 0.6;          // expected unions per country over the history at history 1 (estimate, calibrated)
+  double alliance_share = 0.5;      // the share of countries in an alliance (estimate: NATO, the EU, the AU, ASEAN...)
+  double founder_power_sigma = 0.65;  // the spread of founders' power (log scale; calibrated on country sizes)
+  double founder_core_power = 0.3;    // its rise with the founder's core (calibrated on the largest country's people)
 };
 
-enum class HistoryKind : std::uint8_t { Annex, Secede, Split, Fill };
+enum class HistoryKind : std::uint8_t { Annex, Secede, Split, Fill, Found, Unite, Divide };
 const char* history_name(HistoryKind k);
 
 struct HistoryEvent {
@@ -49,6 +60,21 @@ struct CountryShape {
   int founded = 0;              // period the polity appeared (0: at the start)
   int capital_held = 0;         // periods its capital cell was held
   bool coast = false, landlocked = true;
+  int entity = -1;              // spec 91: the entity it is (a founder, a union, a division); -1 without founders
+};
+
+// Spec 91: every state the history made: the founders first (0..N-1), then unions and divisions in order.
+enum class Origin : std::uint8_t { Founder, Union, Division };
+struct Entity {
+  Origin origin = Origin::Founder;
+  int a = -1, b = -1;   // parents (entity ids): a union's two, a division's one
+  int period = 0;       // the history period it was born in (0 for founders)
+  CellId capital = 0;
+};
+// An alliance groups countries without merging them (0082 rule 4).
+struct Alliance {
+  std::vector<int> members;  // country indices
+  int leader = -1;           // the member it formed around
 };
 
 struct WorldCountries {
@@ -57,6 +83,10 @@ struct WorldCountries {
   std::vector<CountryShape> countries;
   std::vector<HistoryEvent> events;
   int start_polities = 0, periods = 0;
+  // Spec 91 (empty without founders).
+  std::vector<Entity> entities;
+  std::vector<int> founded_of;  // per cell: its founder at the end of the founding (-1 at sea and ice)
+  std::vector<Alliance> alliances;
 };
 
 WorldCountries form_countries(const WorldGrid& grid, const WorldFields& fields, const WorldLand& land,

@@ -132,6 +132,8 @@ double* field_of(gen::WorldSettings& s, const std::string& field) {
   if (field == "fish") return &s.fish;
   if (field == "people") return &s.people;
   if (field == "continents") return &s.continents;
+  if (field == "countries") return &s.countries;  // spec 91
+  if (field == "history") return &s.history;
   return nullptr;
 }
 
@@ -297,6 +299,21 @@ void draw_settings_view(const CardsState& st, const WorldRecord& rec) {
     }
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(0);
+    ImGui::TextUnformatted("Countries pack");
+    ImGui::TableSetColumnIndex(1);
+    ImGui::TextUnformatted(s.pack == "earth" ? "Earth" : s.pack.c_str());
+    ImGui::TableSetColumnIndex(2);
+    ImGui::TextDisabled(s.pack == "earth" ? "the default countries" : "a copy kept with this world");
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::TextUnformatted("History seed");
+    if (ImGui::IsItemHovered()) plain_tip("The number the world's history grows from (spec 91)");
+    ImGui::TableSetColumnIndex(1);
+    ImGui::Text("%llu", static_cast<unsigned long long>(s.history_seed));
+    ImGui::TableSetColumnIndex(2);
+    ImGui::TextDisabled(s.history_seed ? "set when the world was made" : "drawn from the planet seed");
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
     ImGui::Text("%sStart date", s.start_day != kDefaultStartDay ? "* " : "");
     if (ImGui::IsItemHovered()) plain_tip(kStartDateTip);
     ImGui::TableSetColumnIndex(1);
@@ -371,6 +388,8 @@ void draw_country_card(CardsState& st, const WorldCard& world, const CountryCard
   v["capital"] = "held " + std::to_string(c.capital_held) + " of " + std::to_string(c.periods) + " periods";
   v["sectors"] = std::to_string(c.sectors);
   v["towns"] = std::to_string(c.towns.size()) + (c.towns.empty() ? "" : ", the largest of " + fmt("%.0f thousand", c.towns.front().people / 1e3));
+  if (!c.origin.empty()) v["origin"] = c.origin;
+  if (!c.alliance.empty()) v["alliance"] = c.alliance;
   v["profile"] = c.profile.empty() ? "the base country of its income group (data/setup/nations/base_" + c.income + ".toml)"
                  : zs::is_custom_profile(c.profile)
                      ? c.profile + ", a custom country of this world's pack (its tables; " +

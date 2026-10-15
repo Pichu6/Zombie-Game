@@ -52,6 +52,8 @@ struct Country {
   int income = 0;               // index into kIncomeGroupIds (rule 5)
   std::string profile, name;    // spec 49: the real profile it takes (ISO3) and its parody name; empty: the base country
   double zeta = 0;              // spec 78 rule 3: its towns' rank-size exponent (0: no towns)
+  std::string origin;           // spec 91: "founded", "union of A and B in period P", "split from A in period P"
+  int alliance = -1;            // spec 91: index into WorldPeople::alliance_names, -1 none
 };
 
 // Spec 86 rule 2: why a town stands where it does.
@@ -87,7 +89,13 @@ struct WorldPeople {
   std::vector<Country> countries;
   std::vector<Settlement> towns;
   WorldCountries formed;                     // spec 52 slice 4: the history and the shapes, country i = countries[i]
+  // Spec 91: every entity's name (founders, unions, divisions; by entity id) and each alliance's name.
+  std::vector<std::string> entity_names, alliance_names;
 };
+// Spec 91 rule 4: parody names for states the history makes, keyed by `key`.
+std::string union_name(const std::string& a, const std::string& b, std::uint64_t key);
+std::string division_name(const std::string& parent, const char* direction, std::uint64_t key);
+std::string alliance_name(const std::string& leader, const std::string& second, const char* direction, std::uint64_t key);
 
 inline constexpr double kEarthLandKm2 = 148.9e6;
 inline constexpr double kSectorTargetKm2 = 3.0e6;

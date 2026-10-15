@@ -216,6 +216,22 @@ int gen_main(int argc, char** argv) {
                   << two << " of two cells or more, " << big89 << " of 89,000 km2 or more (Earth 110), " << million << " over 1 million km2, " << landlocked
                   << " landlocked); the ten largest hold " << 100.0 * top10 / std::max(1.0, held) << "% of the land held (ice is no one's); history: "
                   << people.formed.start_polities << " start polities, " << people.formed.events.size() << " events\n";
+        if (!people.formed.entities.empty()) {  // spec 91
+          int unions = 0, divisions = 0, members = 0;
+          for (const auto& e : people.formed.entities)
+            unions += e.origin == zs::gen::Origin::Union, divisions += e.origin == zs::gen::Origin::Division;
+          for (const auto& a : people.formed.alliances) members += static_cast<int>(a.members.size());
+          std::cout << "history (spec 91): " << people.formed.start_polities << " founders, " << unions << " unions, " << divisions
+                    << " divisions, " << people.countries.size() << " countries today; " << people.formed.alliances.size()
+                    << " alliances of " << members << " countries:";
+          for (std::size_t i = 0; i < people.alliance_names.size(); ++i)
+            std::cout << (i ? "; " : " ") << people.alliance_names[i] << " (" << people.formed.alliances[i].members.size() << ")";
+          std::cout << "\n  born of the history:";
+          int shown = 0;
+          for (const auto& c : people.countries)
+            if (c.origin != "founded" && !c.origin.empty() && shown++ < 8) std::cout << " " << c.name << " (" << c.origin << ");";
+          std::cout << "\n";
+        }
         for (std::size_t i = 0; i < std::min<std::size_t>(12, order.size()); ++i) {
           const zs::gen::Country& c = people.countries[order[i]];
           std::cout << "  " << (c.name.empty() ? "(unnamed)" : c.name) << ": " << c.area_km2 / 1e6 << " million km2, "

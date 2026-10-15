@@ -127,8 +127,11 @@ GeneratedWorld generate_world(std::uint64_t seed, const WorldSettings& s, int fr
   CountryParams cp;
   cp.fragmentation = s.fragmentation;
   cp.people_scale = s.people;
-  w.people = populate_world(w.grid, w.fields, w.land, w.deposits, seed, load_group_tables(data),
-                             load_pack_profiles(data, s.pack == "earth" ? std::string{} : s.pack_dir), cp);
+  const std::vector<RealProfile> profiles = load_pack_profiles(data, s.pack == "earth" ? std::string{} : s.pack_dir);
+  cp.founders = s.countries >= 1 ? static_cast<int>(s.countries + 0.5) : static_cast<int>(profiles.size());  // spec 91
+  cp.history = s.history;
+  cp.history_seed = s.history_seed;
+  w.people = populate_world(w.grid, w.fields, w.land, w.deposits, seed, load_group_tables(data), profiles, cp);
   say("fields, mines and fishing grounds");
   w.use = generate_land_use(w.grid, w.fields, w.land, w.deposits, w.people);  // spec 88
   return w;

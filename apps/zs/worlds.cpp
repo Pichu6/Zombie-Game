@@ -67,7 +67,10 @@ void write_settings(std::ostream& o, const zs::gen::WorldSettings& s) {
     << "fish = " << s.fish << "\n"
     << "people = " << s.people << "\n"
     << "continents = " << s.continents << "\n"
-    << "pack = " << quoted(s.pack) << "\n";  // spec 90
+    << "pack = " << quoted(s.pack) << "\n"  // spec 90
+    << "countries = " << s.countries << "\n"  // spec 91
+    << "history = " << s.history << "\n"
+    << "history_seed = " << static_cast<std::int64_t>(s.history_seed) << "\n";
 }
 
 zs::gen::WorldSettings read_settings(const toml::table& t) {
@@ -88,6 +91,9 @@ zs::gen::WorldSettings read_settings(const toml::table& t) {
     s.people = (*st)["people"].value_or(s.people);
     s.continents = (*st)["continents"].value_or(s.continents);
     s.pack = (*st)["pack"].value_or(s.pack);
+    s.countries = (*st)["countries"].value_or(s.countries);
+    s.history = (*st)["history"].value_or(s.history);
+    s.history_seed = static_cast<std::uint64_t>((*st)["history_seed"].value_or<std::int64_t>(0));
   }
   return s;
 }

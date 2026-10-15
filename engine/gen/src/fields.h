@@ -27,6 +27,8 @@ enum : std::uint32_t {
   PlatePoint = 108, NoiseCost = 109, NoiseElev = 110, NoiseWarp = 111, Hotspot = 112,
   // Spec 89: continental crust from cratons, island arcs as chains.
   CratonPoint = 114, CratonSize = 115, NoiseCraton = 116, NoiseArc = 117, NoiseIce = 118,
+  // Spec 91: the founding and the recorded history, keyed by polity or cell and period.
+  Divide = 119, Unite = 120, AllianceJoin = 121, AllianceSeed = 122,
 };
 }  // namespace zs::gen::field
 

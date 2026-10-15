@@ -2,6 +2,7 @@
 #include "zs/gen/world_people.h"
 
 #include <algorithm>
+#include <set>
 #include <array>
 #include <cmath>
 #include <filesystem>
@@ -235,6 +236,210 @@ double primacy_share(double urban_people, double z) {
   return s < kPrimacyMin ? kPrimacyMin : s > 1.0 ? 1.0 : s;
 }
 
+namespace {
+
+bool starts_with(const std::string& s, const char* p) { return s.rfind(p, 0) == 0; }
+
+// The word of a name to build on (blends, alliances): its longest word that is not a title or a direction
+// ("United Arab Emirage" -> "Emirage"); hyphenated words stay whole ("E-stonia").
+std::string core_word(const std::string& name) {
+  static const char* kSkip[] = {"United", "Union", "Federation", "Republic", "Commonwealth", "Free", "State", "of", "and",
+                                "the", "The", "North", "South", "East", "West", "New", "Old", "Upper", "Lower", "Greater",
+                                "Northeast", "Northwest", "Southeast", "Southwest", "Saint", "Islands", "Coast"};
+  std::string best, word;
+  auto take = [&] {
+    bool skip = word.empty();
+    for (const char* k : kSkip) skip |= word == k;
+    if (!skip && word.size() > best.size()) best = word;
+    word.clear();
+  };
+  for (char c : name) {
+    if (c == ' ') take();
+    else word += c;
+  }
+  take();
+  return best.empty() ? name : best;
+}
+
+// A compass direction from `from` to `to` on the sphere, without trigonometry: north by z, east along the parallel.
+const char* direction(const WorldGrid& g, CellId from, CellId to) {
+  const Vec3& a = g.centre(from);
+  const Vec3& b = g.centre(to);
+  const double north = b.z - a.z;
+  const double el = detmath::sqrt(a.x * a.x + a.y * a.y);
+  const double east = el > 1e-9 ? ((b.x - a.x) * -a.y + (b.y - a.y) * a.x) / el : 0.0;
+  const double an = north < 0 ? -north : north, ae = east < 0 ? -east : east;
+  if (an > 2 * ae) return north > 0 ? "North" : "South";
+  if (ae > 2 * an) return east > 0 ? "East" : "West";
+  return north > 0 ? (east > 0 ? "Northeast" : "Northwest") : (east > 0 ? "Southeast" : "Southwest");
+}
+
+}  // namespace
+
+std::string union_name(const std::string& a, const std::string& b, std::uint64_t key) {
+  const std::string x = core_word(a), y = core_word(b);
+  switch (key % 5) {
+    case 0: return "United " + x + " and " + y;
+    case 1: return x + "-" + y + " Union";
+    case 2: return "Federation of " + x + " and " + y;
+    case 3: return "Commonwealth of " + x + "-" + y;
+    default: {  // a blend: the first half of one and the second half of the other
+      const std::size_t hx = std::max<std::size_t>(3, (x.size() + 1) / 2), hy = y.size() / 2;
+      std::string tail = y.substr(std::min(hy, y.size()));
+      for (char& c : tail) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+      return x.substr(0, std::min(hx, x.size())) + tail;
+    }
+  }
+}
+
+// A name to build on: the whole name when it is a plain one ("Fragrant Harbour"), its core word when the history already
+// made it compound ("United Fjordway and Saunaland").
+std::string base_name(const std::string& name) {
+  static const char* kMarks[] = {" of ", "Union", "United", "Federation", "Commonwealth", "Republic", "Free State", "-",
+                                 "North ", "South ", "East ", "West "};
+  for (const char* m : kMarks)
+    if (name.find(m) != std::string::npos) return core_word(name);
+  return name;
+}
+
+std::string division_name(const std::string& parent, const char* dir, std::uint64_t key) {
+  const std::string x = base_name(parent);
+  switch (key % 4) {
+    case 0: return std::string(dir) + " " + x;
+    case 1: return "Free State of " + std::string(dir) + " " + x;
+    case 2: return std::string(dir) + " " + x + " Republic";
+    default: return "Republic of " + std::string(dir) + " " + x;
+  }
+}
+
+std::string alliance_name(const std::string& leader, const std::string& second, const char* dir, std::uint64_t key) {
+  const std::string x = core_word(leader), y = core_word(second);
+  switch (key % 6) {
+    case 0: return x + " Pact";
+    case 1: return "League of " + x;
+    case 2: return x + "-" + y + " Accord";
+    case 3: return std::string(dir) + "ern Treaty Organisation";
+    case 4: return "Concord of " + x;
+    default: return "Organisation of " + std::string(dir) + "ern States";
+  }
+}
+
+namespace {
+
+// Spec 91: the founders take the pack's countries by people within their income group (spec 49's matching, on the
+// founding map); the history's states inherit (a union its larger parent's profile, a division an unused profile of its
+// parent's group or its parent's) under new names; the countries of today take their entity's.
+void assign_by_history(WorldPeople& w, const WorldGrid& g, const std::vector<RealProfile>& profiles, const GroupTables& tables) {
+  const WorldCountries& F = w.formed;
+  const std::size_t ne = F.entities.size();
+  std::size_t nf = 0;
+  while (nf < ne && F.entities[nf].origin == Origin::Founder) ++nf;
+  std::vector<double> people(ne, 0.0);
+  for (CellId c = 0; c < F.founded_of.size(); ++c)
+    if (F.founded_of[c] >= 0) people[static_cast<std::size_t>(F.founded_of[c])] += w.people[c];
+  std::vector<int> income(ne, kIncomeGroups - 1);
+  for (std::size_t e = 0; e < nf; ++e) {  // a founder's group: that of today's country holding its capital
+    const int k = F.country_of[F.entities[e].capital];
+    if (k >= 0) income[e] = w.countries[static_cast<std::size_t>(k)].income;
+  }
+  std::vector<std::string> profile(ne), name(ne);
+  std::vector<bool> used(profiles.size(), false);
+  std::vector<int> reused(profiles.size(), 0);
+  std::set<std::string> names;
+  const double scale = tables.world_population > 0 ? w.total_people / tables.world_population : 1.0;
+  auto nearest = [&](int group, double ppl, bool unused_only) {
+    int best = -1;
+    double gap = 1e300;
+    for (std::size_t i = 0; i < profiles.size(); ++i) {
+      if ((unused_only && used[i]) || profiles[i].income != group) continue;
+      const double d = std::abs(detmath::log(std::max(1.0, ppl)) - detmath::log(profiles[i].population * scale));
+      if (d < gap) gap = d, best = static_cast<int>(i);
+    }
+    return best;
+  };
+  auto unique = [&](std::string n) {
+    static const char* kPrefixes[] = {"New", "Greater", "Upper", "Lower", "Old", "Free"};
+    for (int k = 0; names.count(n); ++k) n = std::string(kPrefixes[k % 6]) + (k >= 6 ? " " + std::to_string(k / 6 + 1) : "") + " " + n;
+    names.insert(n);
+    return n;
+  };
+  std::vector<std::size_t> by_people(nf);
+  std::iota(by_people.begin(), by_people.end(), std::size_t{0});
+  std::stable_sort(by_people.begin(), by_people.end(), [&](std::size_t a, std::size_t b) { return people[a] > people[b]; });
+  for (std::size_t e : by_people) {
+    int best = -1;
+    for (int step = 0; step < kIncomeGroups && best < 0; ++step)
+      for (int sgn : {1, -1}) {
+        const int grp = income[e] + sgn * step;
+        if (best < 0 && grp >= 0 && grp < kIncomeGroups) best = nearest(grp, people[e], true);
+        if (step == 0) break;
+      }
+    std::string prefix;
+    if (best < 0) {  // the pack is spent: its own group's nearest under a derived name
+      best = nearest(income[e], people[e], false);
+      for (int step = 1; best < 0 && step < kIncomeGroups; ++step)
+        for (int sgn : {1, -1})
+          if (best < 0 && income[e] + sgn * step >= 0 && income[e] + sgn * step < kIncomeGroups) best = nearest(income[e] + sgn * step, people[e], false);
+      if (best < 0) continue;
+      ++reused[static_cast<std::size_t>(best)];
+    }
+    used[static_cast<std::size_t>(best)] = true;
+    profile[e] = profiles[static_cast<std::size_t>(best)].iso;
+    income[e] = profiles[static_cast<std::size_t>(best)].income;  // a pack country keeps its own group (spec 90)
+    name[e] = unique(prefix + profiles[static_cast<std::size_t>(best)].name);
+  }
+  for (std::size_t e = nf; e < ne; ++e) {
+    const Entity& E = F.entities[e];
+    const auto a = static_cast<std::size_t>(E.a);
+    if (E.origin == Origin::Union) {
+      const auto b = static_cast<std::size_t>(E.b);
+      const std::size_t big = people[a] >= people[b] ? a : b;
+      people[e] = people[a] + people[b];
+      profile[e] = profile[big];
+      income[e] = income[big];
+      name[e] = unique(union_name(name[a], name[b], e * 2654435761u + static_cast<std::uint64_t>(E.period)));
+    } else {
+      people[e] = 0.3 * people[a];
+      people[a] *= 0.7;
+      income[e] = income[a];
+      const int fresh = nearest(income[e], people[e], true);
+      if (fresh >= 0) used[static_cast<std::size_t>(fresh)] = true;
+      profile[e] = fresh >= 0 ? profiles[static_cast<std::size_t>(fresh)].iso : profile[a];
+      name[e] = unique(division_name(name[a], direction(g, F.entities[a].capital, E.capital), e * 40503u + static_cast<std::uint64_t>(E.period)));
+    }
+  }
+  w.entity_names = name;
+  for (std::size_t k = 0; k < w.countries.size(); ++k) {
+    Country& c = w.countries[k];
+    const int e = F.countries[k].entity;
+    if (e < 0) continue;
+    const Entity& E = F.entities[static_cast<std::size_t>(e)];
+    c.profile = profile[static_cast<std::size_t>(e)];
+    c.name = name[static_cast<std::size_t>(e)];
+    c.income = income[static_cast<std::size_t>(e)];
+    c.origin = E.origin == Origin::Founder ? "founded"
+               : E.origin == Origin::Union ? "union of " + name[static_cast<std::size_t>(E.a)] + " and " + name[static_cast<std::size_t>(E.b)] +
+                                                 " in history period " + std::to_string(E.period)
+                                           : "split from " + name[static_cast<std::size_t>(E.a)] + " in history period " + std::to_string(E.period);
+  }
+  for (std::size_t i = 0; i < F.alliances.size(); ++i) {
+    const Alliance& al = F.alliances[i];
+    const std::string& lead = w.countries[static_cast<std::size_t>(al.leader)].name;
+    const std::string& second = w.countries[static_cast<std::size_t>(al.members.front() == al.leader && al.members.size() > 1 ? al.members[1] : al.members.front())].name;
+    // The bloc's direction from the planet's centre of land is not needed: from its leader to its first other member.
+    const CellId from = w.countries[static_cast<std::size_t>(al.leader)].capital_cell;
+    const int other = al.members.front() == al.leader && al.members.size() > 1 ? al.members[1] : al.members.front();
+    std::string an = alliance_name(lead, second, direction(g, from, w.countries[static_cast<std::size_t>(other)].capital_cell), i * 97 + 13);
+    for (std::uint64_t k = 1; std::find(w.alliance_names.begin(), w.alliance_names.end(), an) != w.alliance_names.end() && k < 12; ++k)
+      an = alliance_name(lead, second, "North", i * 97 + 13 + k);  // a taken name: another form
+    if (std::find(w.alliance_names.begin(), w.alliance_names.end(), an) != w.alliance_names.end()) an = lead + " Alliance";
+    w.alliance_names.push_back(an);
+    for (int m : al.members) w.countries[static_cast<std::size_t>(m)].alliance = static_cast<int>(i);
+  }
+}
+
+}  // namespace
+
 WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const WorldLand& land, const WorldDeposits& deposits,
                            std::uint64_t seed, const GroupTables& tables, const std::vector<RealProfile>& profiles,
                            const CountryParams& country_params) {
@@ -271,7 +476,10 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     if (f.land(c) && f.biome[c] != Biome::Ice) land_cells.push_back(c);  // ice is in no country (spec 52 rule 24)
   if (land_cells.empty()) return w;
   const LandGraph graph = build_land_graph(g, f);
-  w.formed = form_countries(g, f, land, graph, seed, country_params);
+  // Spec 91: unless told otherwise, as many founding states as the pack has countries (no profiles: the old contest).
+  CountryParams cp = country_params;
+  if (cp.founders == 0) cp.founders = profiles.empty() ? -1 : static_cast<int>(profiles.size());
+  w.formed = form_countries(g, f, land, graph, seed, cp);
   const double spacing = kSpacing * detmath::sqrt(kSectorTargetKm2);
   w.countries.resize(w.formed.countries.size());
   {
@@ -315,6 +523,15 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     for (std::size_t s = 0; s < seeds.size(); ++s) {
       w.sectors[s].seed = seeds[s];
       w.sectors[s].country = w.formed.country_of[seeds[s]];
+    }
+    // Spec 91: a founder's exclave (an island or a piece cut off) is reached by no path inside its country: it takes
+    // its country's nearest sector seat.
+    for (CellId c : land_cells) {
+      if (w.sector_of[c] >= 0 || w.formed.country_of[c] < 0) continue;
+      double bd = 1e300;
+      for (std::size_t s = 0; s < seeds.size(); ++s)
+        if (w.sectors[s].country == w.formed.country_of[c])
+          if (const double d = g.distance_km(c, seeds[s]); d < bd) bd = d, w.sector_of[c] = static_cast<int>(s);
     }
     for (CellId c : land_cells) {
       if (w.sector_of[c] < 0 || w.formed.country_of[c] < 0)
@@ -424,6 +641,8 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
     room[static_cast<std::size_t>(pick)] -= c.people;
   }
 
+  if (!w.formed.entities.empty()) assign_by_history(w, g, profiles, tables);  // spec 91
+  else {
   // Spec 49: each country takes the unused real profile of its group nearest in people (scaled to this planet: the
   // profile's people times this planet's people over Earth's), largest countries first.
   {
@@ -465,6 +684,7 @@ WorldPeople populate_world(const WorldGrid& g, const WorldFields& f, const World
       c.profile = profiles[static_cast<std::size_t>(best)].iso;
       c.name = prefix + profiles[static_cast<std::size_t>(best)].name;
     }
+  }
   }
 
   // Spec 86 rule 2: a cell's site for a town.

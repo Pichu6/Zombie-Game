@@ -45,6 +45,8 @@ rows = [
   { field = "capital", need = "Capital cell and how long it was held", spec = "52" },
   { field = "sectors", need = "Sectors cut inside the country", spec = "48" },
   { field = "towns", need = "Towns", spec = "48" },
+  { field = "origin", need = "How it came to be: a founder, a union of two, a split from one", spec = "91" },
+  { field = "alliance", need = "The alliance it is in (as the EU or NATO)", spec = "91" },
   { field = "profile", need = "The real profile it borrows: age, education, work, households", spec = "49" },
   { field = "calendar", need = "Weekends, holidays, school days", spec = "53" },
   { field = "", need = "Towns named from the country's culture (status step 3, next)" },
@@ -156,13 +158,22 @@ sandbox = [0.1, 5.0]
 step = 0.05
 
 [[setting]]
-field = "fragmentation"
-label = "Fragmentation"
-what = "How readily countries split apart in the world's history. Earth 0.5, which gives about Earth's count of countries. Lower makes a few large empires; higher makes many small states and more borders that trade and people must cross (spec 52)"
-earth = 0.5
-realistic = [0.3, 0.7]
-sandbox = [0.0, 1.0]
-step = 0.01
+field = "countries"
+label = "Countries at the founding"
+what = "How many states the world starts with (0: as many as the pack has; Earth's pack 183). They share the land, each growing from its capital by how hard the land is to cross; the pack's countries go to them by people within their income group. The history then unites and divides them, so today's count differs a little (spec 91)"
+earth = 0.0
+realistic = [0.0, 250.0]
+sandbox = [0.0, 600.0]
+step = 1.0
+
+[[setting]]
+field = "history"
+label = "History (unions and divisions)"
+what = "How eventful the world's recorded history is. Earth 1: some regions break away as new countries and some smaller neighbours unite into new ones, each with its own name. 0 keeps the founders as they were; higher makes more new countries. The history seed (in the New world dialog) decides which (spec 91)"
+earth = 1.0
+realistic = [0.5, 2.0]
+sandbox = [0.0, 5.0]
+step = 0.05
 
 
 [[setting]]

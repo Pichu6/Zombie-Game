@@ -317,6 +317,9 @@ struct Planet {
           cc.name = ci.name;
           cc.income = ci.income;
           cc.profile = c.profile;
+          cc.origin = c.origin;  // spec 91
+          if (c.alliance >= 0 && c.alliance < static_cast<int>(people.alliance_names.size()))
+            cc.alliance = people.alliance_names[static_cast<std::size_t>(c.alliance)];
           cc.area_km2 = c.area_km2;
           cc.people = c.people;
           cc.endowment = c.endowment;
@@ -407,6 +410,7 @@ struct App {
   char new_name[64] = "";
   char new_seed[24] = "1";
   char new_notes[256] = "";
+  char new_history_seed[24] = "";  // spec 91
   SetupDraft new_setup;          // the New world dialog's settings (spec 84)
   bool open_new_world = false;   // --new-world: open the dialog without a click (checks)
   char fork_name[64] = "";
@@ -755,6 +759,7 @@ void draw_worlds(App& a) {
       a.new_name[0] = 0;
       a.new_notes[0] = 0;
       reset_setup(a.new_setup, {});
+      std::snprintf(a.new_history_seed, sizeof a.new_history_seed, "%llu", static_cast<unsigned long long>(std::rand() % 1000000 + 1));
     }
     a.open_new_world = false;
     a.world_error.clear();
@@ -777,6 +782,14 @@ void draw_worlds(App& a) {
       ImGui::SetTooltip("The number the whole world grows from: the same seed and settings always give the same world");
     ImGui::SameLine();
     if (ImGui::SmallButton("Random")) std::snprintf(a.new_seed, sizeof a.new_seed, "%llu", static_cast<unsigned long long>(std::rand() % 1000000 + 1));
+    ImGui::SetNextItemWidth(300);
+    ImGui::InputText("History seed", a.new_history_seed, sizeof a.new_history_seed, ImGuiInputTextFlags_CharsDecimal);
+    if (ImGui::IsItemHovered())
+      ImGui::SetTooltip("The number the world's history grows from (spec 91): the same planet seed with another history seed keeps\n"
+                        "the planet and its founders' capitals but gives other borders, unions, divisions and alliances.");
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Random##hs")) std::snprintf(a.new_history_seed, sizeof a.new_history_seed, "%llu", static_cast<unsigned long long>(std::rand() % 1000000 + 1));
+    a.new_setup.s.history_seed = std::strtoull(a.new_history_seed, nullptr, 10);
     ImGui::InputTextMultiline("Notes", a.new_notes, sizeof a.new_notes, ImVec2(500, 50));
     // Spec 90: the country pack; a user pack is copied into the world when it is made.
     {
