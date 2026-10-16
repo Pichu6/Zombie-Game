@@ -1,0 +1,33 @@
+# The town's fuel (spec 97): its filling stations by the country's income group, their tanks and stock, how much the town's
+# vehicles take a day, and the share of stations that can pump without the mains. From research fuel-stations-and-stocks
+# (FST). Lines marked ESTIMATE are defaults taken by Claude where FST gives only a band or a direction.
+
+[errand]
+fill_minutes = 15        # ESTIMATE: at the pump, filling cans
+hand_pump_minutes = 45   # ESTIMATE: without power, the tank's fill pipe opened and the fuel drawn up by a hand pump
+
+# Per income group (high first).
+[group.high]
+people_per_station = 4500    # FST-1: US about 2,900, Italy 2,700, Germany 5,850, UK 8,250 people a station
+litres_per_person_day = 2.5  # FST-2: US gasoline alone 4.2 L a person a day; FST-3: an average US station sells about 9,800 L a day (2.5 x 4,500 = 11,250)
+tank_l = 150000              # FST-4: a station's tanks hold 30,000-60,000 US gallons (114,000-227,000 L)
+stock_share = 0.5            # ESTIMATE: tanks are reordered before they run dry, half full on average
+generator_share = 0.2        # FST-5: most stations had no generator in Florida after Irma (about 40 % closed); ESTIMATE
+[group.upper_middle]
+people_per_station = 8000    # FST-1: Brazil about 4,700, China 13,100
+litres_per_person_day = 0.8  # ESTIMATE between FST-2's high and lower-middle values
+tank_l = 100000              # ESTIMATE
+stock_share = 0.5
+generator_share = 0.15       # ESTIMATE
+[group.lower_middle]
+people_per_station = 14000   # FST-1: India about 14,400
+litres_per_person_day = 0.3  # FST-2: Nigeria's petrol about 0.22 L a person a day, diesel besides
+tank_l = 60000               # ESTIMATE
+stock_share = 0.5
+generator_share = 0.1        # ESTIMATE
+[group.low]
+people_per_station = 30000   # ESTIMATE: no count found
+litres_per_person_day = 0.1  # ESTIMATE
+tank_l = 40000               # ESTIMATE
+stock_share = 0.5
+generator_share = 0.05       # ESTIMATE

@@ -38,6 +38,7 @@
 #include "atlas_countries.h"
 #include "country_packs.h"
 #include "zs/gen/town_food.h"
+#include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
 #include "zs/nations.h"
 #include "atlas_md.h"
@@ -788,6 +789,29 @@ void draw_cards_page(App& a) {
                           return zs::gen::town_record(place, seed);
                         },
                         seed);
+  // Spec 97: a town's filling stations and their depot, worked out when its card opens.
+  cards_set_fuel_source(*a.cards, [data = p.data, seed](int town) {
+    const auto& t = data->people.towns[static_cast<std::size_t>(town)];
+    const int income = t.country >= 0 ? data->people.countries[static_cast<std::size_t>(t.country)].income : 0;
+    static const zs::gen::FuelRetailParams fp = zs::gen::load_fuel_retail(zs::tier0::data_dir() + "/gen");
+    const zs::gen::FuelDepot depot = zs::gen::fuel_depot(data->routes, data->people, data->industry, town);
+    const zs::gen::TownFuel f = zs::gen::plan_town_fuel({}, t.people, income, fp, seed, depot);
+    double stock = 0;
+    int gens = 0;
+    for (const auto& s : f.stations) stock += s.stock_l, gens += s.generator;
+    char buf[512];
+    std::snprintf(buf, sizeof buf, "%zu filling stations (%d with their own generator) holding %.0f thousand L, %.1f days of the "
+                  "%.0f thousand L its vehicles take a day", f.stations.size(), gens, stock / 1e3, f.litres_per_day > 0 ? stock / f.litres_per_day : 0.0,
+                  f.litres_per_day / 1e3);
+    std::string out = buf;
+    if (depot.town >= 0) {
+      const auto& d = data->people.towns[static_cast<std::size_t>(depot.town)];
+      std::snprintf(buf, sizeof buf, "; tankers from %s in %s's town of %.0f thousand, %.0f h away", depot.refinery ? "a refinery" : "a port terminal",
+                    data->people.countries[static_cast<std::size_t>(d.country)].name.c_str(), d.people / 1e3, depot.hours);
+      out += buf;
+    }
+    return out;
+  });
   // Spec 96: a town's power and its outage, worked out when its card opens.
   cards_set_power_source(*a.cards, [data = p.data, seed](int town) {
     const zs::gen::TownFeed feed = zs::gen::town_feed(data->grid, data->people, data->energy, town);

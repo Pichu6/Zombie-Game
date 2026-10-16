@@ -42,6 +42,7 @@
 #include "zs/gen/world_routes.h"
 #include "zs/gen/world_food.h"
 #include "zs/gen/town_food.h"
+#include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
@@ -464,6 +465,34 @@ int gen_main(int argc, char** argv) {
       }
       std::cout << "legend: '~' large river, ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
+      return 0;
+    }
+    if (cmd == "fuel") {  // spec 97: the block's town's filling stations and their depot
+      const zs::gen::GeneratedWorld gw = zs::gen::generate_world(seed, {});
+      const int town = zs::gen::choose_town(gw.fields, gw.people, seed);
+      if (town < 0) throw std::runtime_error("no town for the block");
+      const zs::Place place = zs::gen::place_of_town(gw.grid, gw.fields, gw.people, town, seed);
+      const auto rec = zs::gen::town_record(place, seed);
+      int income = 0;
+      for (int g = 0; g < zs::gen::kIncomeGroups; ++g)
+        if (place.income == zs::gen::kIncomeGroupIds[static_cast<std::size_t>(g)]) income = g;
+      const auto fp = zs::gen::load_fuel_retail(data + "/gen");
+      const auto depot = zs::gen::fuel_depot(gw.routes, gw.people, gw.industry, town);
+      const auto fuel = zs::gen::plan_town_fuel(rec->layout, rec->spec.people, income, fp, seed, depot);
+      std::cout << "The fuel of " << rec->spec.name << " (" << rec->spec.people << " people, " << place.income << " income, "
+                << place.country_name << "), spec 97: " << fuel.stations.size() << " filling stations; the town's vehicles take "
+                << fuel.litres_per_day << " L a day\n";
+      for (const auto& s : fuel.stations)
+        std::cout << "  - " << s.name << ": tanks " << s.tank_l << " L, holding " << s.stock_l << " L ("
+                  << (fuel.litres_per_day > 0 ? s.stock_l / (fuel.litres_per_day * s.share) : 0.0) << " days)"
+                  << (s.generator ? ", its own generator" : "") << "\n";
+      if (depot.town >= 0) {
+        const auto& d = gw.people.towns[static_cast<std::size_t>(depot.town)];
+        std::cout << "depot: " << (depot.refinery ? "a refinery" : "a port terminal") << " in a town of " << d.people << " people, "
+                  << depot.hours << " h away by the routes\n";
+      } else {
+        std::cout << "depot: none reachable by the routes\n";
+      }
       return 0;
     }
     if (cmd == "power") {  // spec 96: the block's town's grid and its outage; the outage over every town

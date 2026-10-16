@@ -136,6 +136,10 @@ enum class EventType : std::uint16_t {
   FoodErrandBegan = 104,   // subject = the body, a = the outlet, b = the tick it will be back
   FoodErrandEnded = 105,   // subject = the body, a = the outlet, b = food brought home (J)
   FoodRefused = 106,       // subject = the body, a = the outlet, b = FoodRefusal (spec 80 rule 4)
+  // Spec 97: the town's fuel.
+  FuelErrandBegan = 107,   // subject = the body, a = the station, b = the tick it will be back
+  FuelErrandEnded = 108,   // subject = the body, a = the station, b = fuel brought home (uL)
+  FuelRefused = 109,       // subject = the body, a = the station, b = FuelRefusal (spec 97 rule 4)
 };
 
 struct Event {

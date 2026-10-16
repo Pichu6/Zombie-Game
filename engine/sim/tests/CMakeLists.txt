@@ -1,4 +1,4 @@
-set(ZS_ZS_SIM_TESTS_SOURCES
+﻿set(ZS_ZS_SIM_TESTS_SOURCES
   test_quantity.cpp
   test_schedule.cpp
   test_probes.cpp
@@ -10,6 +10,7 @@ set(ZS_ZS_SIM_TESTS_SOURCES
   test_police_staff.cpp
   test_players.cpp
   test_food_chain.cpp
+  test_fuel_chain.cpp
   test_power_buildings.cpp
   test_possession_body.cpp
   test_police_agency.cpp

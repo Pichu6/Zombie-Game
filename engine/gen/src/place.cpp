@@ -1,6 +1,7 @@
 // The block's place on a generated planet. Spec: docs/tier0/specs/42-place.md
 #include "zs/gen/place.h"
 #include "zs/gen/town_food.h"
+#include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
 #include "zs/gen/town_travel.h"
 
@@ -162,8 +163,10 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   const int town = choose_town(f, people, seed);
   zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
   // Spec 96: the town's mains fail when its grid does.
+  double staff_leave_h = -1;
   if (town >= 0) {
     const OutageTimeline out = outage_timeline(town_feed(grid, people, world.energy, town), world.energy, {}, seed);
+    staff_leave_h = out.staff_leave_h;
     place.grid_fail_tick = static_cast<std::int64_t>(out.dark_h * zs::kTicksPerGameHour);
     place.grid_fail_cause = outage_cause_name(out.cause);
   }
@@ -171,6 +174,7 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   const auto town_rec = town_record(place, seed);
   // Spec 80: the town's food chain from spec 79 (decision 0079).
   zs::FoodSetup food;
+  zs::FuelSetup fuel;
   if (town >= 0) {
     const FoodRetailParams fr = load_food_retail(data + "/gen");
     int income = 0;
@@ -194,8 +198,23 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
     for (const Outlet& o : tf.outlets)
       food.outlets.push_back({o.name, outlet_kind_name(o.kind), o.share, o.stock_days,
                               o.plot >= 0 && block >= 0 ? plot_minutes(town_rec->layout, block, o.plot, travel) : kNoPlotMinutes});
+    // Spec 97: the town's filling stations on plots the food outlets left, fed from the depot until its staff leave.
+    const FuelRetailParams fp = load_fuel_retail(data + "/gen");
+    std::vector<int> taken;
+    for (const Outlet& o : tf.outlets) taken.push_back(o.plot);
+    const TownFuel tfu = plan_town_fuel(town_rec->layout, town_rec->spec.people, income, fp, seed,
+                                        fuel_depot(world.routes, people, world.industry, town), taken);
+    fuel.town_litres_day = tfu.litres_per_day;
+    fuel.depot_hours = tfu.depot.town >= 0 ? tfu.depot.hours : 0;
+    fuel.depot_until = static_cast<std::int64_t>(staff_leave_h * zs::kTicksPerGameHour);
+    fuel.mains_until = place.grid_fail_tick;
+    fuel.fill_minutes = fp.fill_minutes;
+    fuel.hand_pump_minutes = fp.hand_pump_minutes;
+    for (const FuelStation& s : tfu.stations)
+      fuel.stations.push_back({s.name, s.share, s.stock_l, s.generator,
+                               s.plot >= 0 && block >= 0 ? plot_minutes(town_rec->layout, block, s.plot, travel) : kNoPlotMinutes});
   }
-  zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed), food);
+  zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed), food, fuel);
   if (t.places) t.places->set_source(plot_source(town_rec, seed));
   // Spec 75: a released pop gets home by the town's streets, from the plot its body stood on to the plot it lives on.
   if (t.players && t.census) t.players->set_travel(travel_in_town(town_rec, t.places, t.census->people().size(), seed));

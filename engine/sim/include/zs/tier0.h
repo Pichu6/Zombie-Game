@@ -10,6 +10,7 @@
 #include "zs/actions.h"
 #include "zs/dead.h"
 #include "zs/food_chain.h"
+#include "zs/fuel_chain.h"
 #include "zs/grid.h"
 #include "zs/calendar.h"
 #include "zs/place.h"
@@ -89,6 +90,7 @@ struct Tier0 {
   Players* players = nullptr;            // spec 66: players and possession (the one world only)
   std::shared_ptr<Hands> hands;          // spec 67: how the players reach bodies (the one world only)
   FoodChain* food = nullptr;             // spec 80: the town's food chain (the one world from zs::gen::make_world)
+  FuelChain* fuel = nullptr;             // spec 97: the town's fuel stations (the one world from zs::gen::make_world)
   Places* places = nullptr;              // spec 73: places opened in play (the one world only; its plots set by zs::gen::make_world)
   AgencyPlan agency;                     // spec 69: the town's police agency by its size (the one world only)
   std::vector<Site> sites;               // spec 70: the places loaded beside the block (the one world from zs::gen::make_world)
@@ -111,8 +113,9 @@ Tier0 make_world(std::uint64_t seed, bool with_dead = false, int group = 0);
 // Spec 42: `place` is the block's cell on a generated planet (zs::gen::make_world); the default is a placeholder.
 // Spec 70: `fragments` are loaded beside the block (the town's police stations); none by default.
 // Spec 80: `food` is the block's town's food chain (zs::gen::make_world from spec 79); empty outlets: no chain.
+// Spec 97: `fuel` is the block's town's filling stations; no stations: no chain.
 Tier0 make_run(std::uint64_t seed, const Place& place = default_place(), std::int64_t start_day = kDefaultStartDay,
-               const std::vector<Fragment>& fragments = {}, const FoodSetup& food = {});
+               const std::vector<Fragment>& fragments = {}, const FoodSetup& food = {}, const FuelSetup& fuel = {});
 
 // Spec 41: adds the world-scale systems to a run under setup (called by make_run; src/one_world.cpp).
 void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day = kDefaultStartDay);
