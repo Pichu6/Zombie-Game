@@ -8,7 +8,7 @@
 namespace zs::gen {
 
 zs::WorkTable place_in_work(const TownEconomy& economy, const Catalog& cat, const TownLayout& layout, const TownTravel& travel,
-                            const std::vector<WorkRow>& rows, std::size_t census_size, std::uint64_t seed) {
+                            const std::vector<WorkRow>& rows, std::size_t census_size, std::uint64_t seed, const SchoolAges& school) {
   zs::WorkTable out(rows.size());
   const Keyed rnd(seed ^ hash_str("work"));
   // The jobs in the catalog's order with their counts in the town (rule 1's weights).
@@ -24,9 +24,11 @@ zs::WorkTable place_in_work(const TownEconomy& economy, const Catalog& cat, cons
     zs::PopWork& w = out[i];
     if (!r.alive) continue;
     const int home = home_plot(layout, r.pop, census_size, seed);
-    if (r.age >= 5 && r.age < 18) {
-      // Rule 3: the nearest school of the pupil's stage.
-      const std::string stage = r.age < 14 ? "elementary_school" : "high_school";
+    if (r.age < 18) {
+      // Rule 3 (amended): the nearest school of the pupil's stage by the country's school ages; before school or past it,
+      // at home.
+      const std::string stage = school_stage(school, r.age);
+      if (stage.empty()) continue;
       const TownWorkplace* best = nullptr;
       int best_min = 0;
       for (const TownWorkplace& x : economy.workplaces) {

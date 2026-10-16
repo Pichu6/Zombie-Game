@@ -800,7 +800,8 @@ void draw_cards_page(App& a) {
     const zs::NationDemographics nation = zs::load_nation(zs::nation_file(zs::tier0::data_dir(), place.profile, place.income));
     const zs::gen::TownEconomy e = zs::gen::plan_town_economy(
         cat, nation, ep, t.people, zs::gen::town_plants(data->industry, data->energy, data->people, town, ep),
-        t.site == zs::gen::TownSite::Resource, {}, "Town", cat.cultures.front().id, seed);
+        t.site == zs::gen::TownSite::Resource, {}, "Town", cat.cultures.front().id, seed, {}, {},
+        zs::gen::load_school_ages(zs::tier0::data_dir(), place.profile, place.income));
     return zs::gen::describe_economy(e);
   });
   // Spec 97: a town's filling stations and their depot, worked out when its card opens.

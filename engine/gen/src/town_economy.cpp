@@ -30,9 +30,6 @@ LandUse use_of(const std::string& type) {
     return LandUse::Civic;
   return LandUse::Commercial;
 }
-// Jobs whose workplace is "school" work at any "_school" type (data/gen/jobs.toml): elementary and high schools by
-// their grades (ESTIMATE: 55 % and 45 %).
-double school_share(const std::string& type) { return type == "elementary_school" ? 0.55 : type == "high_school" ? 0.45 : 0.0; }
 }  // namespace
 
 TownEconomyParams load_town_economy(const std::string& gen_dir) {
@@ -87,7 +84,13 @@ std::vector<TownPlant> town_plants(const WorldIndustry& industry, const WorldEne
 TownEconomy plan_town_economy(const Catalog& cat, const zs::NationDemographics& n, const TownEconomyParams& params, double people,
                               const std::vector<TownPlant>& plants, bool resource_town, const TownLayout& layout,
                               const std::string& town_name, const std::string& culture, std::uint64_t seed,
-                              const std::map<std::string, std::vector<GivenWorkplace>>& given, const std::vector<int>& taken) {
+                              const std::map<std::string, std::vector<GivenWorkplace>>& given, const std::vector<int>& taken,
+                              const SchoolAges& school) {
+  // Jobs whose workplace is "school" work at any "_school" type (data/gen/jobs.toml): elementary schools hold primary,
+  // high schools secondary, each by its share of the country's school years.
+  auto school_share = [&](const std::string& type) {
+    return type == "elementary_school" ? primary_share(school) : type == "high_school" ? 1.0 - primary_share(school) : 0.0;
+  };
   TownEconomy e;
   e.people = people;
   // Rule 1: the labour force by age band (five-year bands from 15) and the country's participation; then the employed.

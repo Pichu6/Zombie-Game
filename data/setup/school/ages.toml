@@ -1,0 +1,2014 @@
+# School stages by country (spec 99 amendment). Written by tools/data/school_ages.py from UNESCO UIS (CC BY-SA 3.0 IGO);
+# do not edit by hand. Ages are the official entry ages; years the stages' lengths.
+
+[ABW]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 3
+compulsory_years = 13
+
+[AFG]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[AGO]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[AIA]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 12
+
+[ALB]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[AND]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+compulsory_years = 10
+
+[ARE]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 4
+upper_entry = 14
+upper_years = 4
+compulsory_years = 12
+
+[ARG]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 14
+
+[ARM]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 5
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[ASM]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+
+[ATG]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 11
+
+[AUS]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+compulsory_years = 11
+
+[AUT]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 4
+upper_entry = 14
+upper_years = 4
+compulsory_years = 13
+
+[AZE]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 5
+upper_entry = 15
+upper_years = 2
+compulsory_years = 9
+
+[BDI]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+
+[BEL]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 13
+
+[BEN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 6
+
+[BFA]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[BGD]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 5
+
+[BGR]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 5
+compulsory_years = 12
+
+[BHR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[BHS]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 3
+compulsory_years = 12
+
+[BIH]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 9
+
+[BLR]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 5
+upper_entry = 15
+upper_years = 2
+compulsory_years = 11
+
+[BLZ]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 2
+compulsory_years = 8
+
+[BMU]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 13
+
+[BOL]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 14
+
+[BRA]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 14
+
+[BRB]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 2
+compulsory_years = 11
+
+[BRN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 5
+compulsory_years = 9
+
+[BTN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+
+[BWA]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 2
+
+[CAF]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[CAN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[CHE]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+compulsory_years = 11
+
+[CHL]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 12
+
+[CHN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[CIV]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[CMR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 6
+
+[COD]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 6
+
+[COG]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[COK]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[COL]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 2
+compulsory_years = 12
+
+[COM]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 6
+
+[CPV]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[CRI]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 13
+
+[CUB]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[CUW]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+compulsory_years = 14
+
+[CYM]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 3
+compulsory_years = 12
+
+[CYP]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[CZE]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 10
+
+[DEU]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 6
+upper_entry = 16
+upper_years = 3
+compulsory_years = 13
+
+[DJI]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[DMA]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 12
+
+[DNK]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[DOM]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 15
+
+[DZA]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[ECU]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 15
+
+[EGY]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[ERI]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 8
+
+[ESH]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 3
+
+[ESP]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[EST]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[ETH]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 4
+upper_entry = 17
+upper_years = 2
+compulsory_years = 8
+
+[FIN]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 12
+
+[FJI]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+
+[FRA]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 13
+
+[FSM]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 8
+
+[GAB]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[GBR]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 11
+
+[GEO]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[GHA]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 11
+
+[GIB]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 13
+
+[GIN]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 4
+upper_entry = 17
+upper_years = 3
+compulsory_years = 6
+
+[GLP]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+
+[GMB]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[GNB]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[GNQ]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 4
+upper_entry = 17
+upper_years = 2
+compulsory_years = 6
+
+[GRC]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[GRD]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 12
+
+[GTM]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 16
+
+[GUF]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+
+[GUY]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 6
+
+[HKG]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[HND]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 12
+
+[HRV]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 8
+
+[HTI]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+compulsory_years = 6
+
+[HUN]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 13
+
+[IDN]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[IND]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 8
+
+[IRL]
+primary_entry = 5
+primary_years = 8
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 2
+compulsory_years = 10
+
+[IRN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[IRQ]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 6
+
+[ISL]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 4
+compulsory_years = 10
+
+[ISR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 15
+
+[ITA]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 5
+compulsory_years = 12
+
+[JAM]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 6
+
+[JOR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+compulsory_years = 10
+
+[JPN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[KAZ]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 5
+upper_entry = 15
+upper_years = 2
+compulsory_years = 9
+
+[KEN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 12
+
+[KGZ]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 5
+upper_entry = 16
+upper_years = 2
+compulsory_years = 10
+
+[KHM]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+
+[KIR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+compulsory_years = 9
+
+[KNA]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 12
+
+[KOR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[KWT]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[LAO]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[LBN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[LBR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 6
+
+[LBY]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[LCA]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 10
+
+[LIE]
+primary_entry = 7
+primary_years = 5
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[LKA]
+primary_entry = 5
+primary_years = 5
+lower_entry = 10
+lower_years = 4
+upper_entry = 14
+upper_years = 4
+compulsory_years = 11
+
+[LSO]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 2
+compulsory_years = 7
+
+[LTU]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 6
+upper_entry = 17
+upper_years = 2
+compulsory_years = 11
+
+[LUX]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+compulsory_years = 12
+
+[LVA]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 11
+
+[MAC]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[MAR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[MCO]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 11
+
+[MDA]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 5
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[MDG]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 5
+
+[MDV]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+compulsory_years = 12
+
+[MEX]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 14
+
+[MHL]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 13
+
+[MKD]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 13
+
+[MLI]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[MLT]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 11
+
+[MMR]
+primary_entry = 5
+primary_years = 5
+lower_entry = 10
+lower_years = 4
+upper_entry = 14
+upper_years = 2
+compulsory_years = 5
+
+[MNE]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 9
+
+[MNG]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[MOZ]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 2
+
+[MRT]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[MSR]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 12
+
+[MTQ]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 0
+
+[MUS]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 12
+
+[MWI]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+compulsory_years = 8
+
+[MYS]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 6
+
+[NAM]
+primary_entry = 7
+primary_years = 7
+lower_entry = 14
+lower_years = 3
+upper_entry = 17
+upper_years = 2
+compulsory_years = 7
+
+[NCL]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 0
+
+[NER]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 4
+upper_entry = 17
+upper_years = 3
+
+[NGA]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[NIC]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 7
+
+[NIU]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 11
+
+[NLD]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 13
+
+[NOR]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[NPL]
+primary_entry = 5
+primary_years = 5
+lower_entry = 10
+lower_years = 3
+upper_entry = 13
+upper_years = 4
+compulsory_years = 9
+
+[NRU]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+compulsory_years = 14
+
+[NZL]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[OMN]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 6
+upper_entry = 16
+upper_years = 2
+compulsory_years = 10
+
+[PAK]
+primary_entry = 5
+primary_years = 5
+lower_entry = 10
+lower_years = 3
+upper_entry = 13
+upper_years = 4
+compulsory_years = 12
+
+[PAN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 11
+
+[PER]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 14
+
+[PHL]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 2
+compulsory_years = 13
+
+[PLW]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 12
+
+[PNG]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 4
+upper_entry = 17
+upper_years = 2
+
+[POL]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 9
+
+[PRI]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 13
+
+[PRK]
+primary_entry = 7
+primary_years = 5
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[PRT]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[PRY]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 13
+
+[PSE]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 5
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[PYF]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+
+[QAT]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[REU]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 0
+
+[ROU]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 10
+
+[RUS]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 5
+upper_entry = 16
+upper_years = 2
+compulsory_years = 11
+
+[RWA]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 6
+
+[SAU]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[SDN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 8
+
+[SEN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 11
+
+[SGP]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 2
+compulsory_years = 6
+
+[SHN]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 3
+compulsory_years = 0
+
+[SLB]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+
+[SLE]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+compulsory_years = 9
+
+[SLV]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 15
+
+[SMR]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 5
+compulsory_years = 10
+
+[SOM]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 4
+upper_entry = 14
+upper_years = 4
+compulsory_years = 8
+
+[SPM]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+
+[SRB]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 8
+
+[SSD]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 4
+compulsory_years = 8
+
+[STP]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 6
+
+[SUR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 6
+
+[SVK]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 5
+upper_entry = 15
+upper_years = 4
+compulsory_years = 11
+
+[SVN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+compulsory_years = 9
+
+[SWE]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[SWZ]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 3
+upper_entry = 16
+upper_years = 2
+compulsory_years = 7
+
+[SXM]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 2
+upper_entry = 14
+upper_years = 3
+compulsory_years = 14
+
+[SYC]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+compulsory_years = 11
+
+[SYR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[TCA]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 13
+
+[TCD]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[TGO]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 10
+
+[THA]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[TJK]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 5
+upper_entry = 16
+upper_years = 2
+compulsory_years = 9
+
+[TKL]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 5
+upper_entry = 16
+upper_years = 2
+compulsory_years = 11
+
+[TKM]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 6
+upper_entry = 16
+upper_years = 2
+compulsory_years = 12
+
+[TLS]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[TON]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 15
+
+[TTO]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 7
+
+[TUN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 4
+compulsory_years = 9
+
+[TUR]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 4
+upper_entry = 14
+upper_years = 4
+compulsory_years = 12
+
+[TUV]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[TZA]
+primary_entry = 7
+primary_years = 7
+lower_entry = 14
+lower_years = 4
+upper_entry = 18
+upper_years = 2
+compulsory_years = 7
+
+[UGA]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 4
+upper_entry = 17
+upper_years = 2
+compulsory_years = 7
+
+[UKR]
+primary_entry = 6
+primary_years = 4
+lower_entry = 10
+lower_years = 5
+upper_entry = 15
+upper_years = 2
+compulsory_years = 11
+
+[URY]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 14
+
+[USA]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[UZB]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 5
+upper_entry = 16
+upper_years = 2
+compulsory_years = 11
+
+[VCT]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 12
+
+[VEN]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 2
+compulsory_years = 17
+
+[VGB]
+primary_entry = 5
+primary_years = 7
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+
+[VIR]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+
+[VNM]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 3
+compulsory_years = 10
+
+[VUT]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 4
+upper_entry = 16
+upper_years = 3
+
+[WSM]
+primary_entry = 5
+primary_years = 6
+lower_entry = 11
+lower_years = 2
+upper_entry = 13
+upper_years = 5
+compulsory_years = 8
+
+[YEM]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 9
+
+[ZAF]
+primary_entry = 7
+primary_years = 7
+lower_entry = 14
+lower_years = 2
+upper_entry = 16
+upper_years = 3
+compulsory_years = 9
+
+[ZMB]
+primary_entry = 7
+primary_years = 7
+lower_entry = 14
+lower_years = 2
+upper_entry = 16
+upper_years = 3
+compulsory_years = 7
+
+[ZWE]
+primary_entry = 6
+primary_years = 7
+lower_entry = 13
+lower_years = 2
+upper_entry = 15
+upper_years = 4
+compulsory_years = 7
+
+[base_high]
+primary_entry = 6
+primary_years = 6
+lower_entry = 12
+lower_years = 3
+upper_entry = 15
+upper_years = 3
+compulsory_years = 12
+from = "USA"
+
+[base_low]
+primary_entry = 7
+primary_years = 6
+lower_entry = 13
+lower_years = 4
+upper_entry = 17
+upper_years = 2
+compulsory_years = 8
+from = "ETH"
+
+[base_lower_middle]
+primary_entry = 6
+primary_years = 5
+lower_entry = 11
+lower_years = 3
+upper_entry = 14
+upper_years = 4
+compulsory_years = 8
+from = "IND"
+
+[base_upper_middle]
+primary_entry = 7
+primary_years = 4
+lower_entry = 11
+lower_years = 4
+upper_entry = 15
+upper_years = 4
+compulsory_years = 8
+from = "SRB"

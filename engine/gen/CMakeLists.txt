@@ -28,6 +28,7 @@ add_library(zs_gen
   src/town_fuel.cpp
   src/town_economy.cpp
   src/town_work.cpp
+  src/school_ages.cpp
 )
 target_include_directories(zs_gen PUBLIC include)
 target_include_directories(zs_gen PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

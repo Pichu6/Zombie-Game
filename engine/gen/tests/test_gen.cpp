@@ -190,5 +190,5 @@ TEST_CASE("lifepaths only name what exists and add up to the present") {
 TEST_CASE("golden: town seed 1 is the same on every compiler") {
   const Town t = generate_town(catalog(), block_mix(), 1);
   const std::uint64_t h = hash_str(all_text(t) + census_toml(t));
-  CHECK(h == 1412021876019485665ull);  // re-pinned on MSVC for spec 47 (three technician jobs); update only on a deliberate generator or data change
+  CHECK(h == 11539935412495936765ull);  // re-pinned on MSVC, 2026-10-16 (school stages by UIS ages)
 }

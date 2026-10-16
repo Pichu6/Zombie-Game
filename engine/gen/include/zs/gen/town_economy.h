@@ -11,6 +11,7 @@
 
 #include "zs/demographics.h"
 #include "zs/gen/catalog.h"
+#include "zs/gen/school_ages.h"
 #include "zs/gen/town_layout.h"
 #include "zs/gen/world_energy.h"
 #include "zs/gen/world_industry.h"
@@ -63,7 +64,8 @@ struct TownEconomy {
 TownEconomy plan_town_economy(const Catalog& cat, const zs::NationDemographics& nation, const TownEconomyParams& params, double people,
                               const std::vector<TownPlant>& plants, bool resource_town, const TownLayout& layout,
                               const std::string& town_name, const std::string& culture, std::uint64_t seed,
-                              const std::map<std::string, std::vector<GivenWorkplace>>& given = {}, const std::vector<int>& taken = {});
+                              const std::map<std::string, std::vector<GivenWorkplace>>& given = {}, const std::vector<int>& taken = {},
+                              const SchoolAges& school = {});
 
 // A line for the town card and `zs gen economy`.
 std::string describe_economy(const TownEconomy& e);

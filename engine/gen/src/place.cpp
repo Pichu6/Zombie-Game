@@ -233,7 +233,7 @@ zs::WorkTable census_work(const GeneratedWorld& world, int town, const zs::Place
   for (std::size_t i = 0; i < people.size(); ++i)
     rows.push_back({zs::census_pop_id(static_cast<std::uint32_t>(i)), people[i].age, !zs::is_dead(people[i].fate)});
   return place_in_work(town_economy(world, town, place, rec, seed), rec.cat, rec.layout, load_town_travel(zs::tier0::data_dir() + "/gen"), rows,
-                       people.size(), seed);
+                       people.size(), seed, load_school_ages(zs::tier0::data_dir(), place.profile, place.income));
 }
 
 TownEconomy town_economy(const GeneratedWorld& world, int town, const zs::Place& place, const TownRecord& rec, std::uint64_t seed) {
@@ -259,7 +259,7 @@ TownEconomy town_economy(const GeneratedWorld& world, int town, const zs::Place&
   const zs::NationDemographics nation = zs::load_nation(zs::nation_file(data, place.profile, place.income));
   const bool resource = town >= 0 && world.people.towns[static_cast<std::size_t>(town)].site == TownSite::Resource;
   return plan_town_economy(rec.cat, nation, ep, rec.spec.people, town_plants(world.industry, world.energy, world.people, town, ep), resource,
-                           rec.layout, rec.spec.name, rec.spec.culture, seed, given, taken);
+                           rec.layout, rec.spec.name, rec.spec.culture, seed, given, taken, load_school_ages(data, place.profile, place.income));
 }
 
 zs::Players::Travel travel_in_town(std::shared_ptr<const TownRecord> town, const zs::Places* places, std::size_t census_size,

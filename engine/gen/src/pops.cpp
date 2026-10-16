@@ -1,5 +1,6 @@
 // The pop creator. docs/design/content-tools.md section 4.
 #include "zs/gen/pops.h"
+#include "zs/gen/school_ages.h"
 
 #include <algorithm>
 #include <array>
@@ -290,15 +291,18 @@ struct Builder {
   }
 
   void work(Pop& p) {
-    if (p.age < 5) {
-      p.occupation = "small child";
-      p.education = "none";
-      return;
-    }
     if (p.age < 18) {
-      p.occupation = "student";
+      // Spec 99 amendment: primary and secondary by the country's official ages (UNESCO UIS); the default is the United
+      // States' (the Tier 0 town's model).
+      const SchoolAges ages = mix.nation ? load_school_ages(zs::tier0::data_dir(), mix.nation->id) : SchoolAges{};
+      const std::string stage = school_stage(ages, p.age);
       p.education = "none";
-      p.workplace = business_at(p.age < 14 ? "elementary_school" : "high_school", p.id, field::School);
+      if (stage.empty()) {
+        p.occupation = p.age < ages.primary_entry ? "small child" : "left school";
+        return;
+      }
+      p.occupation = "student";
+      p.workplace = business_at(stage, p.id, field::School);
       return;
     }
     if (mix.nation) return work_in_country(p);

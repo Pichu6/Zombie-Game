@@ -70,3 +70,16 @@ TEST_CASE("town work: the one world's living census has its workplaces, on the t
   CHECK(placed > 0);
   CHECK(timed > 0);
 }
+
+TEST_CASE("town work: school stages by the country's official ages (UNESCO UIS), not one cut for all (rule 3 amended)") {
+  const std::string data = zs::tier0::data_dir();
+  const SchoolAges deu = load_school_ages(data, "DEU"), arg = load_school_ages(data, "ARG"), usa = load_school_ages(data, "base_high");
+  CHECK(std::string(school_stage(deu, 9)) == "elementary_school");
+  CHECK(std::string(school_stage(deu, 11)) == "high_school");   // Germany's lower secondary starts at 10
+  CHECK(std::string(school_stage(arg, 11)) == "elementary_school");
+  CHECK(std::string(school_stage(arg, 12)) == "high_school");   // Argentina's at 12
+  CHECK(std::string(school_stage(arg, 5)).empty());             // primary from 6
+  CHECK(std::string(school_stage(usa, 17)) == "high_school");
+  CHECK(std::string(school_stage(load_school_ages(data, "", "low"), 5)).empty());  // the low-income base (Ethiopia) starts at 7
+  CHECK(primary_share(deu) < primary_share(arg));
+}
