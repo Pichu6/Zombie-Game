@@ -78,7 +78,7 @@ rows = [
   { field = "fuel", need = "Its filling stations, their stock, and the depot whose tankers refill them", spec = "97" },
   { field = "", need = "Zones of spec 48 inside the town" },
   { field = "", need = "Services by settlement size (research SV)" },
-  { field = "", need = "Business premises from the business records" },
+  { field = "economy", need = "Business premises from the business records: its workforce, jobs and workplaces by its size and region", spec = "98" },
 ]
 
 [[card]]

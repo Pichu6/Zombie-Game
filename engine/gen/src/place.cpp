@@ -1,5 +1,6 @@
 // The block's place on a generated planet. Spec: docs/tier0/specs/42-place.md
 #include "zs/gen/place.h"
+#include "zs/gen/town_economy.h"
 #include "zs/gen/town_food.h"
 #include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
@@ -219,6 +220,32 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   // Spec 75: a released pop gets home by the town's streets, from the plot its body stood on to the plot it lives on.
   if (t.players && t.census) t.players->set_travel(travel_in_town(town_rec, t.places, t.census->people().size(), seed));
   return t;
+}
+
+TownEconomy town_economy(const GeneratedWorld& world, int town, const zs::Place& place, const TownRecord& rec, std::uint64_t seed) {
+  const std::string data = zs::tier0::data_dir();
+  int income = 0;
+  for (int g = 0; g < kIncomeGroups; ++g)
+    if (place.income == kIncomeGroupIds[static_cast<std::size_t>(g)]) income = g;
+  std::map<std::string, std::vector<GivenWorkplace>> given;
+  std::vector<int> taken;
+  const FoodRetailParams fr = load_food_retail(data + "/gen");
+  const TownFood tf = plan_town_food(rec.town, rec.layout, rec.spec.people, income, fr, seed);
+  for (const Outlet& o : tf.outlets) {
+    given["grocery"].push_back({o.name, o.address, o.plot, o.share});
+    taken.push_back(o.plot);
+  }
+  const TownFuel tfu = plan_town_fuel(rec.layout, rec.spec.people, income, load_fuel_retail(data + "/gen"), seed, {}, taken);
+  for (const FuelStation& s : tfu.stations) {
+    given["gas_station"].push_back({s.name, s.address, s.plot, s.share});
+    taken.push_back(s.plot);
+  }
+  for (const Station& s : rec.stations) given["police"].push_back({s.name, s.address, -1, static_cast<double>(s.sworn + s.civilians)});
+  const TownEconomyParams ep = load_town_economy(data + "/gen");
+  const zs::NationDemographics nation = zs::load_nation(zs::nation_file(data, place.profile, place.income));
+  const bool resource = town >= 0 && world.people.towns[static_cast<std::size_t>(town)].site == TownSite::Resource;
+  return plan_town_economy(rec.cat, nation, ep, rec.spec.people, town_plants(world.industry, world.energy, world.people, town, ep), resource,
+                           rec.layout, rec.spec.name, rec.spec.culture, seed, given, taken);
 }
 
 zs::Players::Travel travel_in_town(std::shared_ptr<const TownRecord> town, const zs::Places* places, std::size_t census_size,

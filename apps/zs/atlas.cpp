@@ -38,6 +38,8 @@
 #include "atlas_countries.h"
 #include "country_packs.h"
 #include "zs/gen/town_food.h"
+#include "zs/demographics.h"
+#include "zs/gen/town_economy.h"
 #include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
 #include "zs/nations.h"
@@ -789,6 +791,18 @@ void draw_cards_page(App& a) {
                           return zs::gen::town_record(place, seed);
                         },
                         seed);
+  // Spec 98: a town's workforce, jobs and workplaces (counts; the streets come with its town record).
+  cards_set_economy_source(*a.cards, [data = p.data, seed](int town) {
+    const auto& t = data->people.towns[static_cast<std::size_t>(town)];
+    static const zs::gen::TownEconomyParams ep = zs::gen::load_town_economy(zs::tier0::data_dir() + "/gen");
+    static const zs::gen::Catalog cat = zs::gen::load_catalog(zs::tier0::data_dir() + "/gen");
+    const zs::Place place = zs::gen::place_of_town(data->grid, data->fields, data->people, town, seed);
+    const zs::NationDemographics nation = zs::load_nation(zs::nation_file(zs::tier0::data_dir(), place.profile, place.income));
+    const zs::gen::TownEconomy e = zs::gen::plan_town_economy(
+        cat, nation, ep, t.people, zs::gen::town_plants(data->industry, data->energy, data->people, town, ep),
+        t.site == zs::gen::TownSite::Resource, {}, "Town", cat.cultures.front().id, seed);
+    return zs::gen::describe_economy(e);
+  });
   // Spec 97: a town's filling stations and their depot, worked out when its card opens.
   cards_set_fuel_source(*a.cards, [data = p.data, seed](int town) {
     const auto& t = data->people.towns[static_cast<std::size_t>(town)];

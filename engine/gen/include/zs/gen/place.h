@@ -12,6 +12,7 @@
 #include "zs/gen/world_land.h"
 #include "zs/gen/world_land_use.h"
 #include "zs/gen/world_energy.h"
+#include "zs/gen/town_economy.h"
 #include "zs/gen/world_food.h"
 #include "zs/gen/world_routes.h"
 #include "zs/gen/world_industry.h"
@@ -108,6 +109,9 @@ struct TownRecord {
   Frame frame;  // the block map's size: what a place of the one world must fit
 };
 std::shared_ptr<const TownRecord> town_record(const zs::Place& place, std::uint64_t seed);
+// Spec 98: the town scaled: its workforce, jobs and workplaces, given its food outlets (spec 79), police stations
+// (spec 69) and filling stations (spec 97), on the plots they leave.
+TownEconomy town_economy(const GeneratedWorld& world, int town, const zs::Place& place, const TownRecord& rec, std::uint64_t seed);
 // Spec 70: the town's police stations as fragments for make_run, loaded from level 10, 20, ...
 std::vector<zs::tier0::Fragment> station_fragments(const TownRecord& town, std::uint64_t seed);
 std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::uint64_t seed);

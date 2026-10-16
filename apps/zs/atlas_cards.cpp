@@ -104,7 +104,11 @@ struct CardsState {
   std::map<int, std::string> power;
   std::function<std::string(int)> fuel_of;   // spec 97
   std::map<int, std::string> fuel;
+  std::function<std::string(int)> economy_of;  // spec 98
+  std::map<int, std::string> economy;
 };
+
+void cards_set_economy_source(CardsState& st, std::function<std::string(int)> economy_of) { st.economy_of = std::move(economy_of); }
 
 void cards_set_fuel_source(CardsState& st, std::function<std::string(int)> fuel_of) { st.fuel_of = std::move(fuel_of); }
 
@@ -616,6 +620,11 @@ void draw_town_card(CardsState& st, const WorldCard& world, const CountryCard& c
     auto it = st.fuel.find(t.index);
     if (it == st.fuel.end()) it = st.fuel.emplace(t.index, st.fuel_of(t.index)).first;
     v["fuel"] = it->second;
+  }
+  if (st.economy_of) {  // spec 98
+    auto it = st.economy.find(t.index);
+    if (it == st.economy.end()) it = st.economy.emplace(t.index, st.economy_of(t.index)).first;
+    v["economy"] = it->second;
   }
   v["cell"] = std::to_string(t.cell) + fmt(" (lat %.1f", t.lat) + fmt(", lon %.1f)", t.lon);
   if (st.gen_town) {

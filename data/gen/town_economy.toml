@@ -1,0 +1,69 @@
+# The town scaled (spec 98): how many people work in a workplace of each kind, so the town's jobs (its workforce by the
+# country's ILO occupation shares, data/gen/jobs.toml's jobs) become a count of workplaces; what the region puts in the
+# town (spec 93's plants, spec 94's power stations); how much farm work a town holds. From research town-jobs-and-
+# workplaces (TJW). Values marked ESTIMATE are defaults taken by Claude.
+
+# A town too small for a workplace of a kind: its jobs of that kind are held by people who work in a larger town nearby
+# when they would fill less than this share of one workplace.
+min_fill = 0.35
+
+# A resource town (spec 86) works its mine or field (ESTIMATE).
+resource_staff = 500
+
+# Farm work: the country's agriculture share of the employed (ILO) times this factor: farmers live in villages more
+# than towns, the more so the larger the town (ESTIMATE): factor = clamp(farm_factor x (farm_people / people)^farm_exp,
+# farm_min, farm_max).
+farm_factor = 0.5
+farm_people = 20000
+farm_exp = 0.3
+farm_min = 0.1
+farm_max = 0.6
+
+# Staff of one workplace, by business type (data/gen/businesses.toml). TJW-1: US establishments average about 17
+# employees; the kinds below are ESTIMATES in the direction of County Business Patterns' industries.
+[staff]
+grocery = 25            # the food outlets of spec 79 are the town's groceries: this only sizes their jobs
+hardware = 10
+diner = 15
+pharmacy = 12
+auto_repair = 6
+warehouse = 40
+factory = 40            # a workshop or small plant; the region's large plants come from [plant_staff]
+office = 10
+hospital = 600
+care_home = 60
+elementary_school = 40
+high_school = 70
+college = 300
+police = 30             # the police stations of spec 69 are the town's police: this only sizes their jobs
+fire_station = 20
+salon = 4
+bank = 12
+church = 4
+gas_station = 6         # the filling stations of spec 97
+
+# Spec 93's plants: staff of one (ESTIMATES; TJW-2: a Philippine meat plant averages 70 and a flour mill 105; a refinery
+# group of three plants in Haifa employs about 1,400).
+[plant_staff]
+oil_refinery = 800
+steel_works = 2000
+alumina_refinery = 700
+aluminium_smelter = 600
+copper_smelter = 800
+cement_plant = 150
+flour_mill = 80
+sugar_mill = 300
+meat_plant = 150
+sawmill = 40
+fish_plant = 100
+
+# Spec 94's power stations: local direct jobs per MW (TJW-3: nuclear 0.50, coal 0.19, large hydro 0.11, combined-cycle
+# gas and wind 0.05; oil and solar ESTIMATES).
+[power_staff_per_mw]
+coal = 0.19
+gas = 0.05
+oil = 0.10
+hydro = 0.11
+nuclear = 0.50
+wind = 0.05
+solar = 0.03

@@ -467,6 +467,26 @@ int gen_main(int argc, char** argv) {
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
       return 0;
     }
+    if (cmd == "economy") {  // spec 98: the block's town scaled: workforce, jobs and workplaces
+      const zs::gen::GeneratedWorld gw = zs::gen::generate_world(seed, {});
+      const int town = zs::gen::choose_town(gw.fields, gw.people, seed);
+      if (town < 0) throw std::runtime_error("no town for the block");
+      const zs::Place place = zs::gen::place_of_town(gw.grid, gw.fields, gw.people, town, seed);
+      const auto rec = zs::gen::town_record(place, seed);
+      const zs::gen::TownEconomy e = zs::gen::town_economy(gw, town, place, *rec, seed);
+      std::cout << "The economy of " << rec->spec.name << " (" << rec->spec.people << " people, " << place.income << " income, "
+                << place.country_name << "), spec 98: " << zs::gen::describe_economy(e) << "\n";
+      std::vector<std::pair<double, std::string>> jobs;
+      for (const auto& [id, n] : e.jobs) jobs.push_back({n, id});
+      std::sort(jobs.rbegin(), jobs.rend());
+      std::cout << "jobs:";
+      for (const auto& [n, id] : jobs) std::cout << " " << id << " " << static_cast<long long>(std::lround(n)) << ",";
+      std::cout << "\n";
+      for (const auto& w : e.workplaces)
+        std::cout << "  - " << w.name << " (" << w.type << ", " << static_cast<long long>(std::lround(w.staff)) << " staff"
+                  << (w.address.empty() ? "" : ", " + w.address) << ")\n";
+      return 0;
+    }
     if (cmd == "fuel") {  // spec 97: the block's town's filling stations and their depot
       const zs::gen::GeneratedWorld gw = zs::gen::generate_world(seed, {});
       const int town = zs::gen::choose_town(gw.fields, gw.people, seed);
