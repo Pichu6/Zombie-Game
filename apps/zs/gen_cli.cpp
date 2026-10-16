@@ -42,6 +42,7 @@
 #include "zs/gen/world_routes.h"
 #include "zs/gen/world_food.h"
 #include "zs/gen/town_food.h"
+#include "zs/gen/town_power.h"
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
 #include "modes.h"
@@ -463,6 +464,30 @@ int gen_main(int argc, char** argv) {
       }
       std::cout << "legend: '~' large river, ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
+      return 0;
+    }
+    if (cmd == "power") {  // spec 96: the block's town's grid and its outage; the outage over every town
+      const zs::gen::GeneratedWorld gw = zs::gen::generate_world(seed, {});
+      const int town = zs::gen::choose_town(gw.fields, gw.people, seed);
+      if (town < 0) throw std::runtime_error("no town for the block");
+      const auto& t = gw.people.towns[static_cast<std::size_t>(town)];
+      const zs::gen::TownFeed feed = zs::gen::town_feed(gw.grid, gw.people, gw.energy, town);
+      const zs::gen::OutageTimeline out = zs::gen::outage_timeline(feed, gw.energy, {}, seed);
+      std::cout << "The block's town (" << t.people << " people, " << gw.people.countries[static_cast<std::size_t>(t.country)].name
+                << "), spec 96: " << zs::gen::describe_feed(feed, out) << "\n";
+      std::vector<double> days;
+      int causes[3] = {};
+      for (std::size_t i = 0; i < gw.people.towns.size(); i += 25) {
+        const zs::gen::TownFeed fi = zs::gen::town_feed(gw.grid, gw.people, gw.energy, static_cast<int>(i));
+        const zs::gen::OutageTimeline oi = zs::gen::outage_timeline(fi, gw.energy, {}, seed);
+        days.push_back(oi.dark_h / 24);
+        ++causes[static_cast<int>(oi.cause)];
+      }
+      std::sort(days.begin(), days.end());
+      auto at = [&](double q) { return days.empty() ? 0.0 : days[static_cast<std::size_t>(q * static_cast<double>(days.size() - 1))]; };
+      std::cout << "every 25th town (" << days.size() << "): dark on day " << at(0) << " / " << at(0.1) << " / " << at(0.5) << " / "
+                << at(0.9) << " / " << at(1) << " (least, tenth, median, ninth tenth, most); causes: plants " << causes[0] << ", lines "
+                << causes[1] << ", feeder " << causes[2] << "\n";
       return 0;
     }
     if (cmd == "shops") {  // spec 79: the block's town's food: outlets, distribution centre, household stocks

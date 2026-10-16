@@ -145,6 +145,7 @@ Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Pl
   t.actors->load_processes(data + "/tier0/processes.toml");
   t.actors->populate(w);
   t.power->load_file(data + "/tier0/power.toml");
+  t.power->set_failure_tick(place.grid_fail_tick);  // spec 96
   t.power->setup(w);
   BodySpec spec;  // an average adult (spec 11 defaults)
   t.player = t.bodies->create(w, spec, "player");

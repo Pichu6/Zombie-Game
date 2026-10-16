@@ -38,6 +38,7 @@
 #include "atlas_countries.h"
 #include "country_packs.h"
 #include "zs/gen/town_food.h"
+#include "zs/gen/town_power.h"
 #include "zs/nations.h"
 #include "atlas_md.h"
 #include "atlas_sim.h"
@@ -787,6 +788,11 @@ void draw_cards_page(App& a) {
                           return zs::gen::town_record(place, seed);
                         },
                         seed);
+  // Spec 96: a town's power and its outage, worked out when its card opens.
+  cards_set_power_source(*a.cards, [data = p.data, seed](int town) {
+    const zs::gen::TownFeed feed = zs::gen::town_feed(data->grid, data->people, data->energy, town);
+    return zs::gen::describe_feed(feed, zs::gen::outage_timeline(feed, data->energy, {}, seed));
+  });
   // Spec 95: a town's food supply over the routes, worked out when its card opens.
   cards_set_supply_source(*a.cards, [data = p.data](int town) {
     const auto& t = data->people.towns[static_cast<std::size_t>(town)];

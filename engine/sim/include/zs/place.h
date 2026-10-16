@@ -23,6 +23,10 @@ struct Place {
   std::string income = "upper_middle";
   // Spec 49: the real profile the country takes (ISO3; empty: the base country of its group) and its parody name.
   std::string profile, country_name;
+  // Spec 96: when the town's mains fail (ticks from the run's start, from its grid's outage timeline) and why; -1: spec 17
+  // rule 5's draw in [day 2, day 5). Read at setup; the tick is saved by Power, these are not.
+  std::int64_t grid_fail_tick = -1;
+  std::string grid_fail_cause;
 };
 
 // Rule 3: the placeholder place used when no planet was generated.

@@ -141,9 +141,10 @@ void Power::setup(World& w) {
   if (!gen_object_ || !panel_object_) throw std::runtime_error("power: the map needs a generator and a power_panel");
   if (!actors_.store_of(gen_object_)) throw std::runtime_error("power: the generator needs a tank (gasoline_l)");
   build_spaces();
-  // Grid failure: a scheduled world event in [day 2, day 5) (spec 17 rule 5).
-  grid_fail_tick_ = 2 * kTicksPerGameDay +
-                    static_cast<std::int64_t>(w.rng.uniform_int(0, Purpose::GridFailure, 3 * kTicksPerGameDay));
+  // Grid failure: a scheduled world event in [day 2, day 5) (spec 17 rule 5), or when the town's grid fails (spec 96).
+  grid_fail_tick_ = fixed_fail_tick_ >= 0 ? fixed_fail_tick_
+                                          : 2 * kTicksPerGameDay +
+                                                static_cast<std::int64_t>(w.rng.uniform_int(0, Purpose::GridFailure, 3 * kTicksPerGameDay));
   w.scheduler.schedule({grid_fail_tick_, EventType::GridFailed, 0, 0, 0, 0});
   // The executor reaches power and light through hooks.
   actors_.power_check = [this](const World& wr, EntityId body, EntityId target, const std::string& how) {

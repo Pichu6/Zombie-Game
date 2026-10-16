@@ -29,6 +29,8 @@ enum : std::uint32_t {
   CratonPoint = 114, CratonSize = 115, NoiseCraton = 116, NoiseArc = 117, NoiseIce = 118,
   // Spec 91: the founding and the recorded history, keyed by polity or cell and period.
   Divide = 119, Unite = 120, AllianceJoin = 121, AllianceSeed = 122,
+  // Spec 96: the outage, keyed by plant or town.
+  Outage = 123,
 };
 }  // namespace zs::gen::field
 

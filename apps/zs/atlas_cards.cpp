@@ -100,7 +100,11 @@ struct CardsState {
   // Spec 95: the food supply line, by town.
   std::function<std::string(int)> supply_of;
   std::map<int, std::string> supply;
+  std::function<std::string(int)> power_of;  // spec 96
+  std::map<int, std::string> power;
 };
+
+void cards_set_power_source(CardsState& st, std::function<std::string(int)> power_of) { st.power_of = std::move(power_of); }
 
 void cards_set_supply_source(CardsState& st, std::function<std::string(int)> supply_of) { st.supply_of = std::move(supply_of); }
 
@@ -598,6 +602,11 @@ void draw_town_card(CardsState& st, const WorldCard& world, const CountryCard& c
     auto it = st.supply.find(t.index);
     if (it == st.supply.end()) it = st.supply.emplace(t.index, st.supply_of(t.index)).first;
     v["supply"] = it->second;
+  }
+  if (st.power_of) {  // spec 96
+    auto it = st.power.find(t.index);
+    if (it == st.power.end()) it = st.power.emplace(t.index, st.power_of(t.index)).first;
+    v["power"] = it->second;
   }
   v["cell"] = std::to_string(t.cell) + fmt(" (lat %.1f", t.lat) + fmt(", lon %.1f)", t.lon);
   if (st.gen_town) {

@@ -24,6 +24,7 @@ add_library(zs_gen
   src/town_travel.cpp
   src/world_food.cpp
   src/town_food.cpp
+  src/town_power.cpp
 )
 target_include_directories(zs_gen PUBLIC include)
 target_include_directories(zs_gen PRIVATE ${PROJECT_SOURCE_DIR}/third_party/tomlplusplus)

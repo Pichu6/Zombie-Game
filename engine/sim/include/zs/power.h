@@ -94,6 +94,8 @@ class Power : public System {
   // Setup, after Actors::populate: finds receivers, the generator, its tank and the fridge, wires
   // the action hooks into Actors and schedules the grid failure (drawn in [day 2, day 5)).
   void load_file(const std::string& path);
+  // Spec 96: the grid's failure at a given tick (from the town's grid) instead of spec 17's draw; before setup.
+  void set_failure_tick(std::int64_t tick) { fixed_fail_tick_ = tick; }
   void setup(World& w);
   // Spec 42 rule 6: in the one world the fridge warms towards the place's indoor temperature, not room_c.
   void attach_place(const PlaceSystem* place) { place_ = place; }
@@ -197,6 +199,7 @@ class Power : public System {
   std::vector<Fridge> fridges_;
   double burn_rest_ul_ = 0;
   std::int64_t grid_fail_tick_ = -1;
+  std::int64_t fixed_fail_tick_ = -1;  // spec 96, set by the setup (not saved)
 };
 
 }  // namespace zs

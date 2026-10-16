@@ -1,6 +1,7 @@
 // The block's place on a generated planet. Spec: docs/tier0/specs/42-place.md
 #include "zs/gen/place.h"
 #include "zs/gen/town_food.h"
+#include "zs/gen/town_power.h"
 #include "zs/gen/town_travel.h"
 
 #include <chrono>
@@ -159,7 +160,13 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   const WorldPeople& people = world.people;
   const std::string data = zs::tier0::data_dir();
   const int town = choose_town(f, people, seed);
-  const zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
+  zs::Place place = town >= 0 ? place_of_town(grid, f, people, town, seed) : place_of(grid, f, choose_place(grid, f, seed), seed);
+  // Spec 96: the town's mains fail when its grid does.
+  if (town >= 0) {
+    const OutageTimeline out = outage_timeline(town_feed(grid, people, world.energy, town), world.energy, {}, seed);
+    place.grid_fail_tick = static_cast<std::int64_t>(out.dark_h * zs::kTicksPerGameHour);
+    place.grid_fail_cause = outage_cause_name(out.cause);
+  }
   // Specs 70-73: the block's town: its stations loaded beside the block, its plots opened when someone asks.
   const auto town_rec = town_record(place, seed);
   // Spec 80: the town's food chain from spec 79 (decision 0079).
