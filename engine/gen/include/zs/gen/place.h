@@ -112,6 +112,9 @@ std::shared_ptr<const TownRecord> town_record(const zs::Place& place, std::uint6
 // Spec 98: the town scaled: its workforce, jobs and workplaces, given its food outlets (spec 79), police stations
 // (spec 69) and filling stations (spec 97), on the plots they leave.
 TownEconomy town_economy(const GeneratedWorld& world, int town, const zs::Place& place, const TownRecord& rec, std::uint64_t seed);
+// Spec 99: where each census row works or studies in that town.
+zs::WorkTable census_work(const GeneratedWorld& world, int town, const zs::Place& place, const TownRecord& rec, const zs::Census& census,
+                          std::uint64_t seed);
 // Spec 70: the town's police stations as fragments for make_run, loaded from level 10, 20, ...
 std::vector<zs::tier0::Fragment> station_fragments(const TownRecord& town, std::uint64_t seed);
 std::vector<zs::tier0::Fragment> station_fragments(const zs::Place& place, std::uint64_t seed);

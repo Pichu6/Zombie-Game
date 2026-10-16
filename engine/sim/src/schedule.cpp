@@ -196,6 +196,7 @@ ScheduleSkeleton skeleton_of(const TimeUseTable& t, const SchedulePerson& p) {
   // Lognormal commute: median = mean / exp(sigma^2 / 2).
   const double median = t.commute_mean_min / detmath::exp(t.commute_sigma * t.commute_sigma / 2);
   s.commute_min = p.has_workplace ? std::clamp(static_cast<int>(median * detmath::exp(t.commute_sigma * z01(p.key, 0, Commute))), 3, 180) : 0;
+  if (p.has_workplace && p.commute_min >= 0) s.commute_min = std::clamp(p.commute_min, 1, 180);  // spec 99
   return s;
 }
 

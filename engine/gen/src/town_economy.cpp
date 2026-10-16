@@ -184,6 +184,7 @@ TownEconomy plan_town_economy(const Catalog& cat, const zs::NationDemographics& 
   std::uint64_t id = 0;
   auto place = [&](TownWorkplace w) {
     if (w.plot < 0) w.plot = take_plot(use_of(w.type));
+    if (w.plot < 0 && use_of(w.type) == LandUse::Civic) w.plot = take_plot(LandUse::Commercial);  // civic plots are the stations' lots
     if (w.plot >= 0) w.address = layout.plots[static_cast<std::size_t>(w.plot)].address;
     e.workplaces.push_back(std::move(w));
   };
@@ -194,7 +195,15 @@ TownEconomy plan_town_economy(const Catalog& cat, const zs::NationDemographics& 
     factory_left -= p.staff;
   }
   at["factory"] = std::max(0.0, factory_left);
-  for (const BusinessType& b : cat.businesses) {
+  // Civic workplaces first (schools, the hospital, a church): the town's few civic plots go to the stations, so they take
+  // commercial plots before the shops and offices fill them.
+  std::vector<const BusinessType*> order;
+  for (const BusinessType& b : cat.businesses)
+    if (use_of(b.id) == LandUse::Civic) order.push_back(&b);
+  for (const BusinessType& b : cat.businesses)
+    if (use_of(b.id) != LandUse::Civic) order.push_back(&b);
+  for (const BusinessType* bp : order) {
+    const BusinessType& b = *bp;
     const double jobs = at[b.id];
     if (jobs <= 0) continue;
     if (const auto g = given.find(b.id); g != given.end() && !g->second.empty()) {

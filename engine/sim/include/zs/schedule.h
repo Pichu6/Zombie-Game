@@ -59,6 +59,7 @@ struct SchedulePerson {
   char sex = 'm';
   Employment employment = Employment::FullTime;
   bool has_workplace = true;  // false: works from home (TU-6) or the workplace is not placed
+  int commute_min = -1;       // spec 99: the town's streets to the workplace, one way; -1: drawn from the survey
   bool married = false, young_child = false;
 };
 

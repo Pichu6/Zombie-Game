@@ -44,6 +44,7 @@
 #include "zs/gen/town_food.h"
 #include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
+#include "zs/dead.h"
 #include "zs/gen/place.h"
 #include "zs/tier0.h"
 #include "modes.h"
@@ -465,6 +466,22 @@ int gen_main(int argc, char** argv) {
       }
       std::cout << "legend: '~' large river, ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
+      return 0;
+    }
+    if (cmd == "work") {  // spec 99: the one world's census in the town's workplaces
+      const auto t = zs::gen::make_world(seed);
+      std::cout << "The block's people at work (spec 99):\n";
+      const auto& people = t.census->people();
+      for (std::size_t i = 0; i < people.size() && i < t.work->size(); ++i) {
+        const zs::PopWork& w = (*t.work)[i];
+        std::cout << "  " << people[i].name << ", " << people[i].age << ": ";
+        if (zs::is_dead(people[i].fate) || people[i].fate == zs::Fate::Fled) std::cout << zs::to_string(people[i].fate) << " at the start\n";
+        else if (!w.placed) std::cout << (people[i].age >= 65 ? "retired" : people[i].age < 5 ? "a small child" : "at home") << "\n";
+        else
+          std::cout << (w.school ? std::string("pupil") : w.job) << (w.workplace.rfind("around", 0) == 0 ? ", " : " at ") << w.workplace
+                    << (w.address.empty() ? "" : ", " + w.address)
+                    << (w.commute_min >= 0 ? ", " + std::to_string(w.commute_min) + " min away" : std::string{}) << "\n";
+      }
       return 0;
     }
     if (cmd == "economy") {  // spec 98: the block's town scaled: workforce, jobs and workplaces

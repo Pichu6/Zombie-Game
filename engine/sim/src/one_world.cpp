@@ -159,11 +159,12 @@ std::unique_ptr<GridSystem> make_grids(WorldOwners& ids) {
 // way back (arriving home). The holders are the household's other living adults, in census order: the first phones,
 // the last reports. Born pops and people nobody lives with are expected nowhere (nobody notices their absence).
 NextCommitment make_commitments(const Census& census, const CalendarSystem& calendar, const Place& place, std::uint64_t world_seed,
-                               std::shared_ptr<const Expectations*> lost_jobs, std::shared_ptr<const Bonds*> bonds) {
+                               std::shared_ptr<const Expectations*> lost_jobs, std::shared_ptr<const Bonds*> bonds,
+                               std::shared_ptr<const WorkTable> work) {
   auto table = std::make_shared<TimeUseTable>(timeuse_for(data_dir(), table_profile(place.profile), place.income));
   const Census* people = &census;
   const CalendarSystem* cal = &calendar;
-  return [table, people, cal, world_seed, lost_jobs, bonds](PopId pop, std::int64_t from) -> std::optional<Commitment> {
+  return [table, people, cal, world_seed, lost_jobs, bonds, work](PopId pop, std::int64_t from) -> std::optional<Commitment> {
     const auto& all = people->people();
     if (is_born(pop) || founder_slot_of(pop) >= all.size()) return std::nullopt;
     const Person& p = all[founder_slot_of(pop)];
@@ -182,6 +183,10 @@ NextCommitment make_commitments(const Census& census, const CalendarSystem& cale
     sp.employment = p.age < 5 ? Employment::Child : p.age < 18 ? Employment::Student : p.age < 65 ? Employment::FullTime : Employment::Retired;
     if (sp.employment == Employment::FullTime && *lost_jobs && (*lost_jobs)->lost_job(pop)) sp.employment = Employment::NotEmployed;  // separated: no more shifts
     sp.has_workplace = false;  // the block has no workplaces placed: work is done at home with no commute (spec 54 rule 4)
+    if (const std::size_t row = founder_slot_of(pop); work && row < work->size() && (*work)[row].placed) {  // spec 99
+      sp.has_workplace = true;
+      sp.commute_min = (*work)[row].commute_min;
+    }
     const std::int64_t start_day = cal->start_day();
     const std::int64_t first_day = civil_time(start_day, from).day_number;
     bool found = false;
@@ -359,7 +364,7 @@ void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day) {
   const std::size_t census_size = t.census->people().size();
   for (int i = 0; i < officers; ++i) staff->add_officer(census_pop_id(static_cast<std::uint32_t>(census_size) + static_cast<std::uint32_t>(i)), 25 + (i * 7) % 31, officer_is_woman(agency, i) ? 'f' : 'm');
   t.force = staff;
-  const NextCommitment census_commitments = make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs, bonds_link);
+  const NextCommitment census_commitments = make_commitments(*t.census, *calendar, place, w.rng.seed(), lost_jobs, bonds_link, t.work);
   const NextCommitment commitments = [census_commitments, staff](PopId pop, std::int64_t from) -> std::optional<Commitment> {
     return staff->is_officer(pop) ? staff->next_commitment(pop, from) : census_commitments(pop, from);
   };

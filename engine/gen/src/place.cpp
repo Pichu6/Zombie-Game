@@ -5,6 +5,7 @@
 #include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
 #include "zs/gen/town_travel.h"
+#include "zs/gen/town_work.h"
 
 #include <chrono>
 #include <cmath>
@@ -16,6 +17,7 @@
 #include "zs/fields.h"
 #include "zs/gen/stations.h"
 #include "zs/gen/town_layout.h"
+#include "zs/dead.h"
 #include "zs/demographics.h"
 #include "zs/nations.h"
 #include "zs/players.h"
@@ -217,9 +219,21 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
   }
   zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed), food, fuel);
   if (t.places) t.places->set_source(plot_source(town_rec, seed));
+  // Spec 99: the census in the town's workplaces (spec 98), its schedules commuting by the town's streets.
+  if (town >= 0 && t.census) *t.work = census_work(world, town, place, *town_rec, *t.census, seed);
   // Spec 75: a released pop gets home by the town's streets, from the plot its body stood on to the plot it lives on.
   if (t.players && t.census) t.players->set_travel(travel_in_town(town_rec, t.places, t.census->people().size(), seed));
   return t;
+}
+
+zs::WorkTable census_work(const GeneratedWorld& world, int town, const zs::Place& place, const TownRecord& rec, const zs::Census& census,
+                          std::uint64_t seed) {
+  std::vector<WorkRow> rows;
+  const auto& people = census.people();
+  for (std::size_t i = 0; i < people.size(); ++i)
+    rows.push_back({zs::census_pop_id(static_cast<std::uint32_t>(i)), people[i].age, !zs::is_dead(people[i].fate)});
+  return place_in_work(town_economy(world, town, place, rec, seed), rec.cat, rec.layout, load_town_travel(zs::tier0::data_dir() + "/gen"), rows,
+                       people.size(), seed);
 }
 
 TownEconomy town_economy(const GeneratedWorld& world, int town, const zs::Place& place, const TownRecord& rec, std::uint64_t seed) {

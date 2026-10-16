@@ -11,6 +11,7 @@
 #include "zs/dead.h"
 #include "zs/food_chain.h"
 #include "zs/fuel_chain.h"
+#include "zs/work.h"
 #include "zs/grid.h"
 #include "zs/calendar.h"
 #include "zs/place.h"
@@ -91,6 +92,9 @@ struct Tier0 {
   std::shared_ptr<Hands> hands;          // spec 67: how the players reach bodies (the one world only)
   FoodChain* food = nullptr;             // spec 80: the town's food chain (the one world from zs::gen::make_world)
   FuelChain* fuel = nullptr;             // spec 97: the town's fuel stations (the one world from zs::gen::make_world)
+  // Spec 99: where each census row works or studies, filled by zs::gen::make_world after the run is built (empty: nobody's
+  // workplace is placed); the schedules read it.
+  std::shared_ptr<WorkTable> work = std::make_shared<WorkTable>();
   Places* places = nullptr;              // spec 73: places opened in play (the one world only; its plots set by zs::gen::make_world)
   AgencyPlan agency;                     // spec 69: the town's police agency by its size (the one world only)
   std::vector<Site> sites;               // spec 70: the places loaded beside the block (the one world from zs::gen::make_world)
