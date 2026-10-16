@@ -16,7 +16,7 @@ constexpr double kSecondsPerYear = 365.25 * 86400;
 // Spec 83 rule 4: a depression shallower than this is a pit of the coarse terrain that a river would cut through
 // (estimate, calibrated on seeds 1-5 against WMR-8's lake share).
 constexpr double kLakeMinDepthM = 30;
-constexpr double kChannelLoss = 0.15;  // hydrology fix: share of a small river lost crossing a fully dry cell (estimate)
+constexpr double kChannelLoss = 0.2;  // hydrology fix: share of a small river lost crossing a fully dry cell (estimate)
 constexpr double kLossFlow = 100;      // m3/s: rivers above this lose less, by the square root of the ratio (estimate)
 constexpr double kReachSea = 0.1;      // land whose water reaches the sea at under this share drains nowhere
 

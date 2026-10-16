@@ -18,6 +18,7 @@
 //                                                  world fields, land, deposits and countries: summary and a text map
 //                                                  (specs 31, 52); --bmp draws rivers and borders, --political a colour per country
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -166,13 +167,61 @@ int gen_main(int argc, char** argv) {
           if (d == zs::gen::kNoCell || !f.land(d)) outlets.push_back({land.catchment_km2[i], i});
         }
         std::sort(outlets.rbegin(), outlets.rend());
+        // Each land cell's outlet, for the basins' mean latitude and rain.
+        std::vector<zs::gen::CellId> outlet_of(grid.size(), zs::gen::kNoCell);
+        for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+          if (!f.land(i) || outlet_of[i] != zs::gen::kNoCell) continue;
+          std::vector<zs::gen::CellId> path;
+          zs::gen::CellId c = i;
+          while (outlet_of[c] == zs::gen::kNoCell) {
+            path.push_back(c);
+            const zs::gen::CellId d = land.downstream[c];
+            if (d == zs::gen::kNoCell || !f.land(d)) break;
+            c = d;
+          }
+          const zs::gen::CellId out = outlet_of[c] != zs::gen::kNoCell ? outlet_of[c] : c;
+          for (zs::gen::CellId x : path) outlet_of[x] = out;
+        }
+        std::map<zs::gen::CellId, std::array<double, 3>> basin;  // area, area x |lat|, area x rain
+        for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+          if (!f.land(i)) continue;
+          auto& b = basin[outlet_of[i]];
+          const double a = grid.area_km2(i);
+          b[0] += a, b[1] += a * std::abs(std::asin(grid.sin_lat(i))) * 57.29578, b[2] += a * f.rain_mm[i];
+        }
         std::cout << "basins: the largest";
-        for (std::size_t k = 0; k < 6 && k < outlets.size(); ++k)
-          std::cout << (k ? "," : "") << " " << outlets[k].first / 1e6 << " M km2 (" << static_cast<long long>(land.discharge_m3s[outlets[k].second]) << " m3/s)";
-        int over1m = 0;
-        for (const auto& o : outlets) over1m += o.first >= 1e6;
+        for (std::size_t k = 0; k < 6 && k < outlets.size(); ++k) {
+          const auto& b = basin[outlets[k].second];
+          std::cout << (k ? "," : "") << " " << outlets[k].first / 1e6 << " M km2 (" << static_cast<long long>(land.discharge_m3s[outlets[k].second])
+                    << " m3/s, " << static_cast<int>(b[1] / b[0]) << " deg, " << static_cast<int>(b[2] / b[0]) << " mm)";
+        }
+        int over1m = 0, over10k = 0;
+        for (const auto& o : outlets) over1m += o.first >= 1e6, over10k += land.discharge_m3s[o.second] >= 10000;
+
         std::cout << "; " << over1m << " over a million km2 (Earth: Amazon 6.3-7.0 M km2 and 209,000 m3/s, Congo 3.7 and 40,500, "
                   << "Nile 3.3, Mississippi 3.0, Ob 3.0, Yenisei 2.6; about 25 over a million)\n";
+        // Rivers: land drained from 100,000 km2 or more, and the share of it carrying 100 m3/s (spec 52 rule 4); the
+        // rivers' length (cell to its downstream cell) and the mouths' share of what reaches the sea.
+        double land_a = 0, wide = 0, wide_wet = 0, len4 = 0, len_large = 0, to_sea = 0;
+        std::vector<double> mouths;
+        for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+          if (!f.land(i)) continue;
+          land_a += grid.area_km2(i);
+          if (land.catchment_km2[i] >= 1e5) wide += grid.area_km2(i), wide_wet += land.discharge_m3s[i] >= 100 ? grid.area_km2(i) : 0.0;
+          const zs::gen::CellId d = land.downstream[i];
+          if (land.river[i] && d != zs::gen::kNoCell) (land.river[i] == 2 ? len_large : len4) += grid.distance_km(i, d);
+          if (d != zs::gen::kNoCell && !f.land(d)) mouths.push_back(land.discharge_m3s[i]), to_sea += land.discharge_m3s[i];
+        }
+        len4 += len_large;
+        std::sort(mouths.rbegin(), mouths.rend());
+        double top1 = 0, top10 = 0;
+        for (std::size_t k = 0; k < mouths.size() && k < 10; ++k) (k ? top10 : top1) += mouths[k];
+        top10 += top1;
+        std::cout << "  rivers: land drained from 100,000 km2 or more " << 100 * wide / land_a << " %, of it carrying 100 m3/s "
+                  << 100 * wide_wet / std::max(1.0, wide) << " %; river length " << static_cast<long long>(len4) << " km, large "
+                  << static_cast<long long>(len_large) << " km (Earth 209,000 and 58,000 at HydroRIVERS' finer detail, HYD-7); mouths of "
+                  << "10,000 m3/s or more " << over10k << " (Earth 15); the largest and the ten largest carry " << 100 * top1 / std::max(1.0, to_sea)
+                  << " / " << 100 * top10 / std::max(1.0, to_sea) << " % of what reaches the sea (Earth 15.7 / 34.1, HYD-6)\n";
         // Rain and runoff on land, area-weighted: the mean and where the wettest tenth starts.
         std::vector<std::pair<double, double>> rr;  // (rain, area)
         double area = 0, rain = 0, run = 0;
@@ -190,9 +239,19 @@ int gen_main(int argc, char** argv) {
           if (!p90 && acc >= 0.9 * area) p90 = r;
           if (!p99 && acc >= 0.99 * area) p99 = r;
         }
-        std::cout << "  rain on land: mean " << static_cast<int>(rain / area) << " mm (Earth about 760: 113,000 km3 on 149 M km2), median "
+        std::cout << "  rain on land: mean " << static_cast<int>(rain / area) << " mm (Earth about 790 outside Antarctica, HYD-2), median "
                   << static_cast<int>(p50) << ", wettest tenth from " << static_cast<int>(p90) << ", wettest hundredth from " << static_cast<int>(p99)
-                  << "; runoff mean " << static_cast<int>(run / area) << " mm (Earth about 250: 37,300 km3)\n";
+                  << "; runoff mean " << static_cast<int>(run / area) << " mm (Earth about 280-320 outside the ice, HYD-1, HYD-8)\n";
+        // Runoff by latitude, -90 to +90 in 10-degree bands (Earth from HydroRIVERS, HYD-8).
+        std::array<double, 18> band_a{}, band_r{};
+        for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+          if (!f.land(i)) continue;
+          const int b = std::clamp(static_cast<int>((std::asin(grid.sin_lat(i)) * 57.29578 + 90) / 10), 0, 17);
+          band_a[static_cast<std::size_t>(b)] += grid.area_km2(i), band_r[static_cast<std::size_t>(b)] += grid.area_km2(i) * land.runoff_mm[i];
+        }
+        std::cout << "  runoff by latitude, -90 to +90 (mm):";
+        for (std::size_t b = 0; b < 18; ++b) std::cout << " " << (band_a[b] > 0 ? static_cast<int>(band_r[b] / band_a[b]) : 0);
+        std::cout << " (Earth 0 0 0 844 556 143 112 331 849 670 252 266 168 196 289 291 174 105, HYD-8)\n";
       }
       int rivers = 0, large = 0, lakes = 0;
       double arable = 0, capacity = 0, largest = 0, lake_area = 0, endorheic = 0, forest = 0;

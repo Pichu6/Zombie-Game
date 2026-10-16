@@ -74,11 +74,11 @@ struct Settlement {
 // EM-1 to EM-8; see the spec's amendment); resource_town and lake_w are estimates.
 struct PlacementParams {
   double food_exp = 0.4;
-  double river_w = 1.3, large_river_w = 2.5, lake_w = 1.5, arid_ai = 0.5;  // recalibrated with spec 89 and its second amendment
+  double river_w = 1.3, large_river_w = 3.0, lake_w = 1.5, arid_ai = 0.5;  // recalibrated with spec 89 and its second amendment
   double coast_w = 3.0, coast_km = 25;
-  double height_m = 2200;
-  double lowland_w = 1.8;      // extra weight on the lowest land, fading over 100 m (EM-2: 44 % of people below 100 m)
-  double concentration = 1.8;  // climate and food's term is raised to this power (EM-7: half of people on 3 % of land cells)
+  double height_m = 1600;
+  double lowland_w = 3.0;      // extra weight on the lowest land, fading over 100 m (EM-2: 44 % of people below 100 m)
+  double concentration = 2.2;  // climate and food's term is raised to this power (EM-7: half of people on 3 % of land cells)
   double port_w = 0.0, mouth_w = 0.8, river_w2 = 2.0, confluence_w = 2.0;
   double resource_rel = 3.0, resource_town = 20000;
 };

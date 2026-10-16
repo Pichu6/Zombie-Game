@@ -169,7 +169,7 @@ TEST_CASE("routes: the same seed gives the same routes (A1)") {
   const WorldRoutes again = build_routes(p.grid, p.fields, p.land, p.people);
   CHECK(routes_digest(again) == routes_digest(p.routes));
   MESSAGE("routes digest: " << routes_digest(p.routes));
-  CHECK(routes_digest(p.routes) == 3891703826731268581ULL);  // re-pinned on MSVC, 2026-10-15 (the hydrology fix: wetter tropics, channel losses)
+  CHECK(routes_digest(p.routes) == 10647956213094548317ULL);  // re-pinned on MSVC, 2026-10-16 (hydrology fix 2: moisture over lowland interiors)
 }
 
 TEST_CASE("routes: the one world's grid, its trunk network and circuity, the block's town to its capital (A2)" *

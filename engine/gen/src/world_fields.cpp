@@ -28,7 +28,7 @@ const char* boundary_name(BoundaryKind k) {
 // Spec 83 rule 3: aridity cuts (rain over potential evapotranspiration), calibrated on seeds 1-5 against Earth's
 // biome shares (WMR-1); they started at the UNEP aridity classes (0.2, 0.5) and 0.9.
 namespace {
-constexpr double kAiDesert = 0.31, kAiGrass = 0.55, kAiSavanna = 0.8;  // recalibrated with the hydrology fix (2026-10-15)
+constexpr double kAiDesert = 0.31, kAiGrass = 0.55, kAiSavanna = 1.0;  // recalibrated with the hydrology fix (2026-10-15)
 constexpr double kAiDesertWarm = 0.36;  // a warm land is dry at a higher aridity index (Koppen's dry threshold rises with T)
 }  // namespace
 
@@ -130,20 +130,24 @@ double piecewise(const double (*knots)[2], std::size_t n, double z) {
   return knots[n - 1][1];
 }
 double lat_rain(double z) {
-  static const double knots[][2] = {{0, 2800}, {0.15, 2400}, {0.35, 700}, {0.5, 350},
-                                    {0.7, 1000}, {0.85, 850}, {1.0, 200}};
+  static const double knots[][2] = {{0, 2600}, {0.15, 2100}, {0.35, 700}, {0.5, 350},
+                                    {0.7, 800}, {0.85, 650}, {1.0, 200}};
   return piecewise(knots, 7, z);
 }
 double wet_rain(double z) {  // the 15-35 degree knots raised to the line from 0.15 to 0.7
-  static const double knots[][2] = {{0, 2800}, {0.15, 2400}, {0.7, 1000}, {0.85, 850}, {1.0, 200}};
+  static const double knots[][2] = {{0, 2600}, {0.15, 2100}, {0.7, 800}, {0.85, 650}, {1.0, 200}};
   return piecewise(knots, 5, z);
 }
 
 // Spec 83 rule 2 (estimates, tuned in As built): how much of the subtropical dip a west and an east coast keep;
-// the reach of the moisture carry in the tropics and elsewhere; the onshore reach on a mid-latitude east side.
+// the reach of the moisture carry in the tropics and elsewhere (hydrology fix 2: 6,000 km in the tropics, HYD-8, HYD-9);
+// the onshore reach on a mid-latitude east side.
 constexpr double kDipWest = 1.3, kDipEast = 0.3;
-constexpr double kCarryTropicsKm = 3000, kCarryKm = 1800;
+constexpr double kCarryTropicsKm = 6000, kCarryKm = 1800;
 constexpr double kEastShoreKm = 1200, kEastShoreWeight = 0.7;
+// Hydrology fix 2 (estimates, tuned to HYD-8): the rise per cell the air climbs without losing moisture, and the rise
+// over which it loses all it can (half).
+constexpr double kRiseFreeM = 300, kRiseLossM = 3000;
 constexpr double kFloor = 0.2;  // the share of the profile a cell keeps however far the wind has carried it
 constexpr double kSideWalkKm = 8000;
 
@@ -752,7 +756,9 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       if (wsum <= 0) continue;
       const double up_m = msum / wsum, up_e = esum / wsum;
       rise[i] = std::max(0.0, f.elevation_m[i] - up_e);
-      M[i] = up_m * retain[i] * (1.0 - std::min(0.5, rise[i] / 2000.0));
+      // Hydrology fix 2 (2026-10-16): only a real climb wrings the air out (a range's windward side, not every hill of
+      // the coarse terrain), so the moisture reaches a lowland basin's interior (HYD-9).
+      M[i] = up_m * retain[i] * (1.0 - std::min(0.5, std::max(0.0, rise[i] - kRiseFreeM) / kRiseLossM));
     }
   }
   for (CellId i = 0; i < N; ++i) {
