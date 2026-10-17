@@ -39,6 +39,9 @@ SchoolAges load_school_ages(const std::string& data_dir, const std::string& prof
   a.lower_years = (*row)["lower_years"].value_or(a.lower_years);
   a.upper_entry = (*row)["upper_entry"].value_or(a.upper_entry);
   a.upper_years = (*row)["upper_years"].value_or(a.upper_years);
+  a.out_primary = (*row)["out_primary"].value_or(a.out_primary);
+  a.out_lower = (*row)["out_lower"].value_or(a.out_lower);
+  a.out_upper = (*row)["out_upper"].value_or(a.out_upper);
   return a;
 }
 
@@ -47,6 +50,11 @@ const char* school_stage(const SchoolAges& a, int age) {
   if (age < a.lower_entry) return "elementary_school";
   if (age < a.secondary_end()) return "high_school";
   return "";
+}
+
+double out_of_school(const SchoolAges& a, int age) {
+  if (age < a.primary_entry || age >= a.secondary_end()) return 0;
+  return age < a.lower_entry ? a.out_primary : age < a.upper_entry ? a.out_lower : a.out_upper;
 }
 
 double primary_share(const SchoolAges& a) {

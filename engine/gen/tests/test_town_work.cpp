@@ -83,3 +83,21 @@ TEST_CASE("town work: school stages by the country's official ages (UNESCO UIS),
   CHECK(std::string(school_stage(load_school_ages(data, "", "low"), 5)).empty());  // the low-income base (Ethiopia) starts at 7
   CHECK(primary_share(deu) < primary_share(arg));
 }
+
+TEST_CASE("town work: children out of school at the country's rate (UIS modelled, second amendment)") {
+  const std::string data = zs::tier0::data_dir();
+  const SchoolAges eth = load_school_ages(data, "ETH"), arg = load_school_ages(data, "ARG");
+  CHECK(out_of_school(eth, 16) > 0.4);   // Ethiopia's lower secondary age
+  CHECK(out_of_school(arg, 8) < 0.02);
+  CHECK(out_of_school(arg, 3) == 0);
+  const Catalog cat = load_catalog(data + "/gen");
+  const TownEconomyParams ep = load_town_economy(data + "/gen");
+  const zs::NationDemographics n = zs::load_nation(data + "/setup/nations/base_low.toml");
+  const TownEconomy e = plan_town_economy(cat, n, ep, 20000, {}, false, {}, "Testville", cat.cultures.front().id, 1, {}, {}, eth);
+  std::vector<WorkRow> rows;
+  for (std::uint32_t i = 0; i < 4000; ++i) rows.push_back({zs::census_pop_id(i), 16, true});
+  const zs::WorkTable w = place_in_work(e, cat, {}, load_town_travel(data + "/gen"), rows, rows.size(), 1, eth);
+  int out = 0;
+  for (const auto& x : w) out += !x.placed;
+  CHECK(out / 4000.0 == doctest::Approx(out_of_school(eth, 16)).epsilon(0.08));
+}

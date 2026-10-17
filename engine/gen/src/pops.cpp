@@ -301,6 +301,10 @@ struct Builder {
         p.occupation = p.age < ages.primary_entry ? "small child" : "left school";
         return;
       }
+      if (r.chance(p.id, field::School, out_of_school(ages, p.age), 7)) {  // the country's out-of-school rate (UIS)
+        p.occupation = "out of school";
+        return;
+      }
       p.occupation = "student";
       p.workplace = business_at(stage, p.id, field::School);
       return;

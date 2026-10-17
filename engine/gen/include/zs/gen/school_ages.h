@@ -10,6 +10,8 @@ struct SchoolAges {
   int primary_entry = 6, primary_years = 6;  // the United States' (the default)
   int lower_entry = 12, lower_years = 3;
   int upper_entry = 15, upper_years = 3;
+  // Second amendment: the shares of children of each stage's age out of school (UIS modelled rates; 0 where none).
+  double out_primary = 0, out_lower = 0, out_upper = 0;
   int secondary_end() const { return upper_entry + upper_years; }  // the first age past school
 };
 
@@ -18,6 +20,8 @@ SchoolAges load_school_ages(const std::string& data_dir, const std::string& prof
 
 // "elementary_school", "high_school", or "" (before school, or past it).
 const char* school_stage(const SchoolAges& a, int age);
+// The share of children of this age out of school: their stage's (lower or upper secondary by the age); 0 outside school ages.
+double out_of_school(const SchoolAges& a, int age);
 // Primary's share of the school years (the split of the town's teachers between its two kinds of school).
 double primary_share(const SchoolAges& a);
 

@@ -29,6 +29,10 @@ zs::WorkTable place_in_work(const TownEconomy& economy, const Catalog& cat, cons
       // at home.
       const std::string stage = school_stage(school, r.age);
       if (stage.empty()) continue;
+      if (rnd.chance(r.pop, 2, out_of_school(school, r.age))) {  // second amendment: out of school by the country's rate
+        w.workplace = "out of school";
+        continue;
+      }
       const TownWorkplace* best = nullptr;
       int best_min = 0;
       for (const TownWorkplace& x : economy.workplaces) {

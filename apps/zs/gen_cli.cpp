@@ -476,7 +476,8 @@ int gen_main(int argc, char** argv) {
         const zs::PopWork& w = (*t.work)[i];
         std::cout << "  " << people[i].name << ", " << people[i].age << ": ";
         if (zs::is_dead(people[i].fate) || people[i].fate == zs::Fate::Fled) std::cout << zs::to_string(people[i].fate) << " at the start\n";
-        else if (!w.placed) std::cout << (people[i].age >= 65 ? "retired" : people[i].age < 5 ? "a small child" : "at home") << "\n";
+        else if (!w.placed)
+          std::cout << (!w.workplace.empty() ? w.workplace : people[i].age >= 65 ? "retired" : people[i].age < 18 ? "not at school" : "at home") << "\n";
         else
           std::cout << (w.school ? std::string("pupil") : w.job) << (w.workplace.rfind("around", 0) == 0 ? ", " : " at ") << w.workplace
                     << (w.address.empty() ? "" : ", " + w.address)

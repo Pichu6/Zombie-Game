@@ -6,7 +6,11 @@ Input: data_raw/school/uis_ages_durations.json (UIS API indicators 299905 primar
 years; 2024-2025, the latest year per country).
 Output: data/setup/school/ages.toml, one table per ISO3 and one per base country (from the same countries as the
 calendars: USA, SRB, IND, ETH).
+Second input (optional): data_raw/school/uis_out_of_school.json, UIS modelled out-of-school rates ROFST.MOD.1, .2 and
+.3 (children of primary, lower secondary and upper secondary age not in school, %), 2015-2025, the latest per country:
+written as out_primary, out_lower, out_upper (shares).
 Usage: python -I tools/data/school_ages.py ../data_raw/school/uis_ages_durations.json data/setup/school/ages.toml
+       [../data_raw/school/uis_out_of_school.json]
 """
 import json
 import sys
@@ -17,21 +21,27 @@ FIELDS = {"299905": "primary_entry", "299932": "primary_years", "999975": "lower
 BASE_FROM = {"base_high": "USA", "base_upper_middle": "SRB", "base_lower_middle": "IND", "base_low": "ETH"}
 
 
-def main(src, dst):
+OUT = {"ROFST.MOD.1": "out_primary", "ROFST.MOD.2": "out_lower", "ROFST.MOD.3": "out_upper"}
+
+
+def main(src, dst, out_src=None):
     recs = json.loads(Path(src).read_text(encoding="utf-8"))["records"]
+    if out_src:
+        recs = recs + json.loads(Path(out_src).read_text(encoding="utf-8"))["records"]
     latest = {}
     for r in recs:
-        key = (r["geoUnit"], FIELDS[r["indicatorId"]])
+        key = (r["geoUnit"], FIELDS.get(r["indicatorId"]) or OUT[r["indicatorId"]])
         if r["value"] is None:
             continue
         if key not in latest or r["year"] > latest[key][0]:
-            latest[key] = (r["year"], int(r["value"]))
+            v = r["value"]
+            latest[key] = (r["year"], round(v / 100, 4) if r["indicatorId"] in OUT else int(v))
     countries = sorted({g for g, _ in latest})
-    out = ["# School stages by country (spec 99 amendment). Written by tools/data/school_ages.py from UNESCO UIS (CC BY-SA 3.0 IGO);",
+    out = ["# School stages and out-of-school shares by country (spec 99 amendments). Written by tools/data/school_ages.py from UNESCO UIS (CC BY-SA 3.0 IGO);",
            "# do not edit by hand. Ages are the official entry ages; years the stages' lengths.", ""]
     rows = {}
     for g in countries:
-        row = {f: latest[(g, f)][1] for f in FIELDS.values() if (g, f) in latest}
+        row = {f: latest[(g, f)][1] for f in list(FIELDS.values()) + list(OUT.values()) if (g, f) in latest}
         if all(f in row for f in ("primary_entry", "primary_years", "lower_entry", "lower_years", "upper_entry", "upper_years")):
             rows[g] = row
     for base, iso in BASE_FROM.items():
@@ -47,4 +57,4 @@ def main(src, dst):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
