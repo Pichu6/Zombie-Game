@@ -51,6 +51,7 @@
   test_grid.cpp
   test_fields.cpp
   test_biota.cpp
+  test_living_stocks.cpp
   test_outbreak.cpp
   test_orders.cpp
   test_time.cpp

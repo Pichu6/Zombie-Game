@@ -59,6 +59,7 @@ add_library(zs_sim
   src/players.cpp
   src/food_chain.cpp
   src/fuel_chain.cpp
+  src/living_stocks.cpp
   src/anomalies.cpp
   src/sound_marks.cpp
 )

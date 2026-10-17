@@ -13,6 +13,7 @@
 //   zs gen routes [--seed N] [--freq F] [--bmp FILE]   roads, rivers and sea lanes between towns; the block's town's routes (spec 74)
 //   zs gen food [--seed N] [--freq F] [--border X]   food made, eaten and sent between towns over the routes (spec 76)
 //   zs gen shops [--seed N]                        the block's town's food: shops, distribution centre, pantries (spec 79)
+//   zs gen stocks [--seed N] [--years Y]           the living stocks of the block's town's region, year by year (spec 103)
 //   zs gen cultures                                list the culture packs
 //   zs gen world  [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--bmp FILE]
 //                                                  world fields, land, deposits and countries: summary and a text map
@@ -21,6 +22,7 @@
 #include <cstdio>
 #include <array>
 #include <chrono>
+#include <memory>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
@@ -49,6 +51,7 @@
 #include "zs/gen/town_power.h"
 #include "zs/dead.h"
 #include "zs/gen/place.h"
+#include "zs/gen/region_stocks.h"
 #include "zs/tier0.h"
 #include "modes.h"
 #include "planet_raster.h"
@@ -72,6 +75,7 @@ int usage() {
                "       zs gen plot [--seed N] [--people P] [--country ID] [--plot N | --address A] [--out FILE]   (spec 72)\n"
                "       zs gen routes [--seed N] [--freq F] [--detour X] [--bmp FILE]   (spec 74)\n"
                "       zs gen food [--seed N] [--freq F] [--border X]   (spec 76)\n"
+               "       zs gen stocks [--seed N] [--years Y]   (spec 103)\n"
                "       zs gen cultures\n"
                "       zs gen world [--seed N] [--freq F] [--land S] [--temp C] [--relief R] [--moisture M] [--fragmentation X] [--radius KM] [--fuel X] [--metals X] [--fertility X] [--forest X] [--fish X] [--people X] [--continents N] [--preview] [--bmp FILE [--layer L | --political]] [--layers PREFIX]\n";
   return 2;
@@ -690,6 +694,75 @@ int gen_main(int argc, char** argv) {
                     t.place->snow_depth_cm(*t.world), t.place->frost_depth_cm(*t.world), t.place->wind_ms(*t.world), t.place->wind_from_deg(*t.world),
                     t.place->river_m3s(*t.world));
       }
+      return 0;
+    }
+    if (cmd == "stocks") {  // spec 103: the living stocks of the block's town's region, year by year, and the world's checks
+      const zs::gen::GeneratedWorld world = zs::gen::generate_world(seed, zs::gen::WorldSettings{});
+      const int town = zs::gen::choose_town(world.fields, world.people, seed);
+      if (town < 0) {
+        std::cout << "This world has no town for the block.\n";
+        return 0;
+      }
+      const int years = std::stoi(arg(argc, argv, "--years", "10"));
+      const zs::LivingSetup setup = zs::gen::region_stocks(world, town, seed);
+      const auto& home = world.people.towns[static_cast<std::size_t>(town)];
+      std::printf("The region of town %d (cell %u, %.0f people): %zu cells, %zu stocks (spec 103).\n", town, home.cell, home.people,
+                  zs::gen::region_cells(world, town).size(), setup.stocks.size());
+      zs::World w(seed);
+      auto sys = std::make_unique<zs::LivingSystem>(setup, zs::kDefaultStartDay);
+      sys->setup(w);
+      zs::LivingSystem* living = sys.get();
+      w.add_system(std::move(sys));
+      w.close_setup();
+      std::printf("  %-8s %6s %16s %16s %16s\n", "kind", "stocks", "now", "capacity", "taken a year");
+      for (int k = 0; k < zs::kLivingKinds; ++k) {
+        const auto kind = static_cast<zs::LivingKind>(k);
+        int n = 0;
+        double now = 0, cap = 0, take = 0;
+        for (std::size_t i = 0; i < setup.stocks.size(); ++i) {
+          if (setup.stocks[i].kind != kind) continue;
+          ++n;
+          now += static_cast<double>(living->amount(w, i));
+          cap += setup.stocks[i].peak;
+          take += zs::living::equilibrium_take_year(setup.stocks[i]);
+        }
+        std::printf("  %-8s %6d %14.0f %s %14.0f %s %14.0f %s\n", zs::living_kind_name(kind), n, now, zs::living_unit_name(kind), cap,
+                    zs::living_unit_name(kind), take, zs::living_unit_name(kind));
+      }
+      std::printf("  Taken by year (game, wood, pasture, crops, fish) and the stocks each 1 January:\n");
+      const std::int64_t first = living->month_at(0) / 12 + 1;
+      living->advance(w, living->month_start_tick(first * 12));
+      std::array<std::int64_t, zs::kLivingKinds> before{};
+      std::int64_t driest = -1;
+      double low = 1e300, high = 0;
+      for (std::int64_t y = first; y < first + years; ++y) {
+        for (int k = 0; k < zs::kLivingKinds; ++k) before[static_cast<std::size_t>(k)] = living->taken(w, static_cast<zs::LivingKind>(k));
+        living->advance(w, living->month_start_tick((y + 1) * 12));
+        std::printf("  %lld:", static_cast<long long>(y));
+        for (int k = 0; k < zs::kLivingKinds; ++k)
+          std::printf(" %14lld", static_cast<long long>(living->taken(w, static_cast<zs::LivingKind>(k)) - before[static_cast<std::size_t>(k)]));
+        std::printf("   stocks:");
+        for (int k = 0; k < zs::kLivingKinds; ++k) {
+          double sum = 0;
+          for (std::size_t i = 0; i < setup.stocks.size(); ++i)
+            if (setup.stocks[i].kind == static_cast<zs::LivingKind>(k)) sum += static_cast<double>(living->amount(w, i));
+          std::printf(" %.3g", sum);
+        }
+        std::printf("\n");
+        const double crop = static_cast<double>(living->taken(w, zs::LivingKind::Crops) - before[static_cast<std::size_t>(zs::LivingKind::Crops)]);
+        if (crop < low) low = crop, driest = y;
+        high = std::max(high, crop);
+      }
+      if (driest >= 0 && high > 0)
+        std::printf("  Smallest harvest %lld: %.0f %% of the largest.\n", static_cast<long long>(driest), 100.0 * low / high);
+      const zs::gen::LivingWorldChecks c = zs::gen::living_world_checks(world, seed);
+      std::printf("The world at equilibrium against Earth:\n");
+      std::printf("  wood removed a year: %.2f %% of the growing stock (Earth about 0.7 %%, LS-2)\n",
+                  c.wood_stock_m3 > 0 ? 100.0 * c.wood_removed_m3 / c.wood_stock_m3 : 0.0);
+      std::printf("  fished sea cells overfished: %d of %d, %.1f %% (Earth 37.7 %%, LS-3)\n", c.fish_overfished, c.fish_cells,
+                  c.fish_cells ? 100.0 * c.fish_overfished / c.fish_cells : 0.0);
+      std::printf("  livestock eat %.1f %% of the pasture's peak (NRCS 25 %%, LS-4)\n",
+                  c.grass_peak_kg > 0 ? 100.0 * c.grass_eaten_kg / c.grass_peak_kg : 0.0);
       return 0;
     }
     if (cmd == "work") {  // spec 99: the one world's census in the town's workplaces

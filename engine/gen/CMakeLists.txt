@@ -11,6 +11,7 @@ add_library(zs_gen
   src/place.cpp
   src/world_people.cpp
   src/world_land_use.cpp
+  src/region_stocks.cpp
   src/world_industry.cpp
   src/world_energy.cpp
   src/dwellings.cpp

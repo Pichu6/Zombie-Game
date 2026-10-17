@@ -64,6 +64,16 @@ kind = "image"
 added = 2026-10-13
 
 [[try]]
+id = "living-stocks"
+part = "generators"
+spec = "103"
+title = "Living stocks in the town's region"
+what = "Game, wood, pasture, crops and fish around the block's town as stocks that grow by the season and the year's rain and are hunted, logged, grazed, harvested and fished every month (decision 0083 step 4); ten years of takes with the smallest harvest, and the world's wood cut, overfished seas and grazing against Earth."
+run = ["gen", "stocks", "--seed", "{seed}"]
+kind = "text"
+added = 2026-10-17
+
+[[try]]
 id = "town-layout"
 part = "generators"
 spec = "71"

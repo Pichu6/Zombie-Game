@@ -16,14 +16,14 @@ namespace zs::tier0 {
 namespace {
 Tier0 build(std::uint64_t seed, bool with_dead, int group, bool run, const Place& place = default_place(),
             std::int64_t start_day = kDefaultStartDay, const std::vector<Fragment>& fragments = {}, const FoodSetup& food = {},
-            const FuelSetup& fuel = {});
+            const FuelSetup& fuel = {}, const LivingSetup& living = {});
 }
 
 Tier0 make_world(std::uint64_t seed, bool with_dead, int group) { return build(seed, with_dead, group, false); }
 
 Tier0 make_run(std::uint64_t seed, const Place& place, std::int64_t start_day, const std::vector<Fragment>& fragments,
-               const FoodSetup& food, const FuelSetup& fuel) {
-  return build(seed, true, 1, true, place, start_day, fragments, food, fuel);
+               const FoodSetup& food, const FuelSetup& fuel, const LivingSetup& living) {
+  return build(seed, true, 1, true, place, start_day, fragments, food, fuel, living);
 }
 
 namespace {
@@ -83,7 +83,8 @@ void setup_run(Tier0& t, const std::string& path) {
 }
 
 Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Place& place, std::int64_t start_day,
-            const std::vector<Fragment>& fragments, const FoodSetup& food, const FuelSetup& fuel) {
+            const std::vector<Fragment>& fragments, const FoodSetup& food, const FuelSetup& fuel,
+            const LivingSetup& living) {
   if (group > 0 && !with_dead) throw std::invalid_argument("make_world: a group needs the census");
   Tier0 t;
   t.world = std::make_unique<World>(seed);
@@ -219,6 +220,13 @@ Tier0 build(std::uint64_t seed, bool with_dead, int group, bool is_run, const Pl
       chain->setup(w);
       t.fuel = chain.get();
       w.add_system(std::move(chain));
+    }
+    // Spec 103: the region's living stocks, minted at their equilibrium.
+    if (!living.stocks.empty()) {
+      auto stocks = std::make_unique<LivingSystem>(living, start_day);
+      stocks->setup(w);
+      t.living = stocks.get();
+      w.add_system(std::move(stocks));
     }
   }
   w.close_setup();

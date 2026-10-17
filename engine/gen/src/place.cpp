@@ -1,5 +1,6 @@
 // The block's place on a generated planet. Spec: docs/tier0/specs/42-place.md
 #include "zs/gen/place.h"
+#include "zs/gen/region_stocks.h"
 #include "zs/gen/town_economy.h"
 #include "zs/gen/town_food.h"
 #include "zs/gen/town_fuel.h"
@@ -229,7 +230,9 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
     place.river_mean_m3s = world.land.discharge_m3s[place.cell];
     for (int m = 0; m < 12; ++m) place.river_regime[static_cast<std::size_t>(m)] = world.land.regime[place.cell][static_cast<std::size_t>(m)];
   }
-  zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed), food, fuel);
+  // Spec 103: the living stocks of the town's region.
+  const zs::LivingSetup living = town >= 0 ? region_stocks(world, town, seed) : zs::LivingSetup{};
+  zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed), food, fuel, living);
   if (t.places) t.places->set_source(plot_source(town_rec, seed));
   // Spec 99: the census in the town's workplaces (spec 98), its schedules commuting by the town's streets.
   if (town >= 0 && t.census) *t.work = census_work(world, town, place, *town_rec, *t.census, seed);

@@ -33,7 +33,8 @@
   test_town_work.cpp
   test_world_seasons.cpp
   test_droughts_wind.cpp
-  test_snow_rivers.cpp)
+  test_snow_rivers.cpp
+  test_living_region.cpp)
 add_executable(zs_gen_tests main.cpp ${ZS_ZS_GEN_TESTS_SOURCES})
 target_include_directories(zs_gen_tests PRIVATE ${PROJECT_SOURCE_DIR}/third_party/doctest)
 target_link_libraries(zs_gen_tests PRIVATE zs_gen)

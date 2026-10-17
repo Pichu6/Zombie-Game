@@ -11,6 +11,7 @@
 #include "zs/dead.h"
 #include "zs/food_chain.h"
 #include "zs/fuel_chain.h"
+#include "zs/living_stocks.h"
 #include "zs/work.h"
 #include "zs/grid.h"
 #include "zs/calendar.h"
@@ -92,6 +93,7 @@ struct Tier0 {
   std::shared_ptr<Hands> hands;          // spec 67: how the players reach bodies (the one world only)
   FoodChain* food = nullptr;             // spec 80: the town's food chain (the one world from zs::gen::make_world)
   FuelChain* fuel = nullptr;             // spec 97: the town's fuel stations (the one world from zs::gen::make_world)
+  LivingSystem* living = nullptr;        // spec 103: the town's region's living stocks (the one world from zs::gen::make_world)
   // Spec 99: where each census row works or studies, filled by zs::gen::make_world after the run is built (empty: nobody's
   // workplace is placed); the schedules read it.
   std::shared_ptr<WorkTable> work = std::make_shared<WorkTable>();
@@ -118,8 +120,10 @@ Tier0 make_world(std::uint64_t seed, bool with_dead = false, int group = 0);
 // Spec 70: `fragments` are loaded beside the block (the town's police stations); none by default.
 // Spec 80: `food` is the block's town's food chain (zs::gen::make_world from spec 79); empty outlets: no chain.
 // Spec 97: `fuel` is the block's town's filling stations; no stations: no chain.
+// Spec 103: `living` is the block's town's region's living stocks; none: no system.
 Tier0 make_run(std::uint64_t seed, const Place& place = default_place(), std::int64_t start_day = kDefaultStartDay,
-               const std::vector<Fragment>& fragments = {}, const FoodSetup& food = {}, const FuelSetup& fuel = {});
+               const std::vector<Fragment>& fragments = {}, const FoodSetup& food = {}, const FuelSetup& fuel = {},
+               const LivingSetup& living = {});
 
 // Spec 41: adds the world-scale systems to a run under setup (called by make_run; src/one_world.cpp).
 void add_world_systems(Tier0& t, const Place& place, std::int64_t start_day = kDefaultStartDay);
