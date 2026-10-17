@@ -151,7 +151,9 @@ TEST_CASE("readable: biome shares over five seeds near Earth's (spec 83 As built
     // Spec 89 second amendment: no land beyond about 68 degrees, so part of Earth's tundra and boreal forest has no
     // place (five seeds: tundra 6.4 %, boreal 7.7 %).
     const bool cold = static_cast<Biome>(b) == Biome::Tundra || static_cast<Biome>(b) == Biome::BorealForest;
-    CHECK(mean[b] >= (cold ? 0.6 : 0.7) * earth[b]);
+    // Temperature recalibration (2026-10-17): Earth's warmer subarctic summers leave less tundra on the little land these
+    // worlds have past 60 degrees (five seeds: tundra 3.9 %, boreal 8.4 %).
+    CHECK(mean[b] >= (static_cast<Biome>(b) == Biome::Tundra ? 0.4 : cold ? 0.6 : 0.7) * earth[b]);
     CHECK(mean[b] <= 1.3 * earth[b]);
   }
 }

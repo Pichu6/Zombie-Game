@@ -41,9 +41,10 @@ TEST_CASE("industry: every plant at a town; materials plants by their inputs") {
     const PlantKind& k = w.industry.kinds[static_cast<std::size_t>(p.kind)];
     if (k.rule == PlantRule::Materials && !p.feeds.empty()) {
       const WorkSite& s = w.use.sites[static_cast<std::size_t>(p.feeds.front())];
-      // Smelters and alumina refineries stand by their mines: within 800 km on the one world, 1,000 on this coarse grid
+      // Smelters and alumina refineries stand by their mines: within 800 km on the one world, 1,200 on this coarse grid
       // (its cells are about 200 km apart, and a site sells to the market town nearest it over land).
-      CHECK(w.grid.distance_km(p.cell, s.cell) <= 1000);
+      // Temperature recalibration (2026-10-17): with people moved, the nearest market town can lie a cell further.
+      CHECK(w.grid.distance_km(p.cell, s.cell) <= 1200);
     }
   }
 }

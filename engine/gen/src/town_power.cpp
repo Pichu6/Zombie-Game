@@ -65,9 +65,7 @@ TownFeed town_feed(const WorldGrid& grid, const WorldPeople& people, const World
       for (const auto& [m, km] : adj[c])
         if (auto it = dist.find(m); it == dist.end() || d + km < it->second) dist[m] = d + km, q.push({d + km, m});
     }
-  } else {
-    dist[t.cell] = 0;
-  }
+  }  // off the grid: only the town's own plants (another town in the same cell has its own)
   // Rule 2: the island's plants (on its nodes, and the town's own), its countries and its load.
   std::set<int> countries{t.country};
   out.line_km = -1;

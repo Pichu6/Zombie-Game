@@ -64,7 +64,7 @@ GroupTables load_group_tables(const std::string& data_dir) {
 
 double suitability(const WorldFields& f, CellId c) {
   if (!f.land(c) || f.biome[c] == Biome::Ice) return 0.0;
-  const double t = (f.temp_mean_c[c] - 13.0) / 7.0;
+  const double t = (f.temp_mean_c[c] - 14) / 10;
   const double rain = f.rain_mm[c];
   return detmath::exp(-t * t) * (rain / (rain + 500.0));
 }

@@ -152,5 +152,5 @@ TEST_CASE("land: deterministic, golden pinned (A1)") {
     h = mix64(h, p.land.downstream[i]);
   }
   MESSAGE("land hash: ", h);
-  CHECK(h == 15601104064464184414ULL);  // re-pinned on MSVC, 2026-10-16 (hydrology fix 2: moisture over lowland interiors)
+  CHECK(h == 1502886623173728206ULL);  // re-pinned on MSVC, 2026-10-17 (temperature recalibration)
 }

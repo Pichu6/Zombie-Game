@@ -29,8 +29,9 @@ const char* boundary_name(BoundaryKind k) {
 // Spec 83 rule 3: aridity cuts (rain over potential evapotranspiration), calibrated on seeds 1-5 against Earth's
 // biome shares (WMR-1); they started at the UNEP aridity classes (0.2, 0.5) and 0.9.
 namespace {
-constexpr double kAiDesert = 0.31, kAiGrass = 0.55, kAiSavanna = 1.0;  // recalibrated with the hydrology fix (2026-10-15)
-constexpr double kAiDesertWarm = 0.36;  // a warm land is dry at a higher aridity index (Koppen's dry threshold rises with T)
+constexpr double kAiDesert = 0.31, kAiGrass = 0.55, kAiSavanna = 0.87;  // recalibrated with the hydrology fix (2026-10-15)
+constexpr double kAiDesertWarm = 0.36;
+constexpr double kTropicC = 20;  // temperature recalibration: the annual mean from which a land is tropical (was 18)  // a warm land is dry at a higher aridity index (Koppen's dry threshold rises with T)
 }  // namespace
 
 double pet_mm(double t) { return 58.93 * std::clamp(t, 0.0, 30.0); }
@@ -49,8 +50,8 @@ Biome classify_biome(bool land, double elev, double t, double rain, double range
   const double pet = pet_mm(t);
   const double ai = pet > 0 ? rain / pet : 1e9;
   if (t < 6) return ai >= kAiDesert ? Biome::BorealForest : Biome::Tundra;
-  if (ai < (t >= 18 ? kAiDesertWarm : kAiDesert)) return Biome::Desert;
-  if (t < 18) return ai < kAiGrass ? Biome::Grassland : Biome::TemperateForest;
+  if (ai < (t >= kTropicC ? kAiDesertWarm : kAiDesert)) return Biome::Desert;
+  if (t < kTropicC) return ai < kAiGrass ? Biome::Grassland : Biome::TemperateForest;
   return ai < kAiSavanna ? Biome::Savanna : Biome::TropicalForest;
 }
 
@@ -149,6 +150,10 @@ constexpr double kEastShoreKm = 1200, kEastShoreWeight = 0.7;
 // Hydrology fix 2 (estimates, tuned to HYD-8): the rise per cell the air climbs without losing moisture, and the rise
 // over which it loses all it can (half).
 constexpr double kRiseFreeM = 300, kRiseLossM = 3000;
+// Temperature recalibration (2026-10-17, tuned to SR-6): a continent's interior colder far north; the annual range.
+constexpr double kInlandKm = 1000, kInteriorColdC = 4.0;
+constexpr double kContBase = 0.45, kContInland = 0.85;
+constexpr double kRangeBase = 2.0, kRangeLat = 45.0, kRangeExp = 1.5;
 constexpr double kFloor = 0.2;  // the share of the profile a cell keeps however far the wind has carried it
 constexpr double kSideWalkKm = 8000;
 
@@ -613,6 +618,13 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
   f.sea_cells = g.graph_distance(sea);
 
   // ---- Temperature (rule 6): a latitude profile shifted to the global mean, lapse with height.
+  // The recalibration's land term by sine of latitude (C), and the annual range's terms.
+  auto land_warmth = [](double a) {
+    static const double knots[][2] = {{0, 2.0}, {0.17, 5.5}, {0.34, 7.0}, {0.5, 3.5}, {0.64, 2.0}, {0.77, 1.0}, {0.87, 0.0}, {1.0, 0.0}};
+    for (std::size_t k = 1; k < sizeof(knots) / sizeof(knots[0]); ++k)
+      if (a <= knots[k][0]) return knots[k - 1][1] + (a - knots[k - 1][0]) / (knots[k][0] - knots[k - 1][0]) * (knots[k][1] - knots[k - 1][1]);
+    return 0.0;
+  };
   // Zonal-mean sea-level temperature by sine of latitude (Earth: 26 at the equator, 0 at 60 degrees, -25 at the pole).
   auto profile = [](double z) {
     static const double knots[][2] = {{0, 26}, {0.5, 20}, {0.707, 8}, {0.866, -1}, {0.966, -15}, {1.0, -25}};
@@ -681,8 +693,16 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     }
   }
   const noise::Fbm current_noise{5000, 2, 0.5, 0};  // spec 89 amendment
+  // The recalibration's land term, before the shift, so the planet's sea-level mean stays the setting's.
+  std::vector<double> land_term(N, 0.0);
+  for (CellId i = 0; i < N; ++i) {
+    if (!f.land(i)) continue;
+    const double az = g.sin_lat(i) < 0 ? -g.sin_lat(i) : g.sin_lat(i);
+    const double inland = 1.0 - detmath::exp(-static_cast<double>(f.sea_cells[i]) * spacing / kInlandKm);
+    land_term[i] = land_warmth(az) - kInteriorColdC * inland * std::clamp((az - 0.71) / 0.2, 0.0, 1.0);
+  }
   double mean = 0;
-  for (CellId i = 0; i < N; ++i) mean += profile(g.sin_lat(i)) * g.area_km2(i);
+  for (CellId i = 0; i < N; ++i) mean += (profile(g.sin_lat(i)) + land_term[i]) * g.area_km2(i);
   const double shift = prm.global_temp_c - mean / g.sphere_area_km2();
   for (CellId i = 0; i < N; ++i) {
     const double z = g.sin_lat(i), az = z < 0 ? -z : z;
@@ -700,10 +720,14 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     const double side = detmath::exp(-to_e / kSideKm) - detmath::exp(-to_w / kSideKm);
     const double anomaly = polar * (kSideC * side +
                                     kCurrentC * noise::fbm(prm.seed, field::NoiseIce + 1000, g.centre(i), g.radius_km(), current_noise));
-    f.temp_mean_c[i] = profile(z) + shift + anomaly - 6.5 * h / 1000.0;
+    // Temperature recalibration (2026-10-17, research snow-and-rivers SR-6): land is warmer than the sea at its latitude
+    // in the tropics and subtropics (dry, clear skies: the Sahara, India) and a continent's interior colder far north;
+    // the land term is tuned so the land's mean by band meets WorldClim's.
     const double inland_km = static_cast<double>(f.sea_cells[i]) * spacing;
-    const double continentality = f.land(i) ? 0.5 + 0.8 * (1.0 - detmath::exp(-inland_km / 1200.0)) : 0.35;
-    f.temp_range_c[i] = (3.0 + 32.0 * detmath::pow(az + 1e-9, 1.2)) * continentality;
+    const double inland = 1.0 - detmath::exp(-inland_km / kInlandKm);
+    f.temp_mean_c[i] = profile(z) + shift + anomaly + land_term[i] - 6.5 * h / 1000.0;
+    const double continentality = f.land(i) ? kContBase + kContInland * inland : 0.35;
+    f.temp_range_c[i] = (kRangeBase + kRangeLat * detmath::pow(az + 1e-9, kRangeExp)) * continentality;
   }
 
   // ---- Spec 89 rule 4: sea ice where the sea's annual mean is below the freezing of sea water.

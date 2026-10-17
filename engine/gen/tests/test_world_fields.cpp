@@ -74,7 +74,7 @@ TEST_CASE("fields: golden hash for n = 8, seed 1, is pinned") {
   // Re-pinned on MSVC 2026-10-09 for spec 31's revised terrain (rules 2-4); GCC and Clang must reproduce it.
   const std::uint64_t h = fields_hash(make(g, 1));
   MESSAGE("fields hash: " << h);
-  CHECK(h == 17613845395301627030ull);  // re-pinned on MSVC, 2026-10-16 (hydrology fix 2: moisture over lowland interiors)
+  CHECK(h == 5314216509703152663ull);  // re-pinned on MSVC, 2026-10-17 (temperature recalibration)
 }
 
 TEST_CASE("fields: land share is exact to one cell") {
