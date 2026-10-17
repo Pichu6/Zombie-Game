@@ -29,8 +29,8 @@ struct PlanetRaster {
 // Spec 83 rule 5 (amended 2026-10-14, the user: "different overlays: political, physical, topographic, climatic,
 // geological, urban ... resources, wind", after Cities: Skylines' info views).
 enum class MapLayer { Physical, Political, Topographic, Temperature, Rain, Climate, Wind, Geology, Water, Cover, Resources, People,
-                      Alliances, Industry, Energy, Drought };
-inline constexpr int kMapLayers = 16;
+                      Alliances, Industry, Energy, Drought, Snow };
+inline constexpr int kMapLayers = 17;
 const char* layer_name(MapLayer l);
 bool parse_layer(const std::string& name, MapLayer& out);
 // The legend of a layer, one line per colour, for printing beside the picture.

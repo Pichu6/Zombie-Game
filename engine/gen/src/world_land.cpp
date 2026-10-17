@@ -1,6 +1,7 @@
 // Spec 52 slice 1: runoff, drainage, rivers, lakes, fertility, arable land and capacity.
 // docs/tier0/specs/52-land-water-capacity.md
 #include "zs/gen/world_land.h"
+#include "zs/gen/world_regimes.h"
 
 #include <algorithm>
 #include <functional>
@@ -314,6 +315,7 @@ WorldLand generate_land(const WorldGrid& grid, const WorldFields& f, const LandP
     w.fish_catch_t[i] = std::max(0.0, p.fish_t_per_km2 * grid.area_km2(i) * (coastal ? 1.5 : 1.0) * temp) * p.fish_scale;
     w.fish_k_t[i] = 4.0 * w.fish_catch_t[i] / p.fish_r;  // Schaefer: catch = rK/4
   }
+  fill_regimes(grid, f, w);  // spec 102
   return w;
 }
 

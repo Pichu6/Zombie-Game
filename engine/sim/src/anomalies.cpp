@@ -116,4 +116,25 @@ double wind_from_deg(std::uint64_t seed, std::uint64_t cell, const Climate& c, c
   return d < 0 ? d + 360 : d;
 }
 
+double snow_share(double temp_c) { return std::clamp((kSnowNoneC - temp_c) / (kSnowNoneC - kSnowAllC), 0.0, 1.0); }
+
+std::vector<SnowDay> snow_year(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t year) {
+  std::vector<SnowDay> out(kDaysPerYear);
+  // From the warmest day of the year before (late July north, late January south), when the snow is gone.
+  const int start = c.south ? 20 : 20 + kDaysPerYear / 2;
+  double swe = 0, cold = 0;
+  for (std::int64_t y = year - 1; y <= year; ++y)
+    for (int d = y < year ? start : 0; d < kDaysPerYear; ++d) {
+      const double t = daily_mean_c(seed, cell, c, y, d);
+      const double p = rain_day_mm(seed, cell, c, y, d);
+      const double snow = p * snow_share(t);
+      const double melt = std::min(swe + snow, kMeltMmPerCDay * std::max(0.0, t));
+      swe += snow - melt;
+      const double depth = swe / (10 * kSnowDensity);  // mm of water to cm of snow
+      cold = std::max(0.0, cold + (t < 0 ? -t * detmath::exp(-depth / 20) : -2 * t));
+      if (y == year) out[static_cast<std::size_t>(d)] = {swe, depth, 5 * detmath::sqrt(cold)};
+    }
+  return out;
+}
+
 }  // namespace zs::fields

@@ -1,6 +1,7 @@
 // Spec 52: what the land holds. Slice 1: runoff, rivers, lakes, fresh water, soil fertility, arable land and the
 // people a cell can feed and water. A pure function of (grid, fields, params); saved with the world like the fields.
 #pragma once
+#include <array>
 #include <cstdint>
 #include <limits>
 #include <vector>
@@ -53,6 +54,8 @@ struct WorldLand {
   double channel_loss_m3s = 0;  // hydrology fix: lost from rivers crossing dry land (evaporation, seepage)
   double closed_evap_m3s = 0;  // what closed depressions evaporate (spec 83 rule 4)
   int open_lakes = 0, closed_basins = 0;
+  // Spec 102: land cells' flow by month over its mean (Pardé coefficients, adding to 12) and snow water at each month's end (mm).
+  std::vector<std::array<float, 12>> regime, snow_mm;
 };
 
 WorldLand generate_land(const WorldGrid& grid, const WorldFields& fields, const LandParams& params = {});

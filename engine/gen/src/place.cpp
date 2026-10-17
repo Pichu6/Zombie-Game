@@ -224,6 +224,11 @@ zs::tier0::Tier0 make_world(std::uint64_t seed, const WorldSettings& settings) {
       fuel.stations.push_back({s.name, s.share, s.stock_l, s.generator,
                                s.plot >= 0 && block >= 0 ? plot_minutes(town_rec->layout, block, s.plot, travel) : kNoPlotMinutes});
   }
+  // Spec 102: the river through the block's cell, its mean flow and regime.
+  if (world.land.river[place.cell] > 0) {
+    place.river_mean_m3s = world.land.discharge_m3s[place.cell];
+    for (int m = 0; m < 12; ++m) place.river_regime[static_cast<std::size_t>(m)] = world.land.regime[place.cell][static_cast<std::size_t>(m)];
+  }
   zs::tier0::Tier0 t = zs::tier0::make_run(seed, place, settings.start_day, station_fragments(*town_rec, seed), food, fuel);
   if (t.places) t.places->set_source(plot_source(town_rec, seed));
   // Spec 99: the census in the town's workplaces (spec 98), its schedules commuting by the town's streets.

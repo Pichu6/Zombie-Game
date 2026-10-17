@@ -375,6 +375,89 @@ int gen_main(int argc, char** argv) {
             if (f.land(i)) wl += grid.area_km2(i) * f.wind_ms[i], wa += grid.area_km2(i);
           std::printf("  wind over land: mean %.2f m/s (Earth 2.87, DW-6)\n", wl / std::max(1.0, wa));
         }
+        // Spec 102: snow on the northern land at the end of January and of August, and the large rivers' regimes.
+        {
+          double nh = 0, jan = 0, aug = 0;
+          for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+            if (!f.land(i) || grid.sin_lat(i) < 0) continue;
+            const double a = grid.area_km2(i);
+            nh += a;
+            const bool ice = f.biome[i] == zs::gen::Biome::Ice;
+            if (ice || land.snow_mm[i][0] >= 10) jan += a;
+            if (ice || land.snow_mm[i][7] >= 10) aug += a;
+          }
+          std::printf("  snow (spec 102): northern land snow-covered at the end of January %.1f %%, of August %.1f %% (Earth 47 and 2.7: 47.2 and 2.7 million km2 of about 100, SR-3)\n",
+                      100 * jan / std::max(1.0, nh), 100 * aug / std::max(1.0, nh));
+          // By band: land snow-covered at the local midwinter's end (January north, July south).
+          std::array<double, 15> band_a{}, band_s{};
+          for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+            if (!f.land(i)) continue;
+            const int b = static_cast<int>(std::floor((std::asin(grid.sin_lat(i)) * 57.29578 + 60) / 10));
+            if (b < 0 || b >= 15) continue;
+            const bool covered = f.biome[i] == zs::gen::Biome::Ice || land.snow_mm[i][grid.sin_lat(i) < 0 ? 6 : 0] >= 10;
+            band_a[static_cast<std::size_t>(b)] += grid.area_km2(i), band_s[static_cast<std::size_t>(b)] += covered ? grid.area_km2(i) : 0.0;
+          }
+          std::cout << "  midwinter snow-covered land by band, -60 to +90 (%):";
+          for (std::size_t b = 0; b < 15; ++b) std::printf(" %.0f", band_a[b] > 0 ? 100 * band_s[b] / band_a[b] : 0.0);
+          std::cout << " (Earth 26 14 2 0 0 0 0 0 2 29 74 95 100 100 100, SR-3)\n";
+          // The land's temperature by band: the year's mean, January, July and the range between the warmest and coldest month.
+          std::array<double, 15> ta{}, tj{}, tl{}, tr{}, tw{};
+          for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+            if (!f.land(i)) continue;
+            const int b = static_cast<int>(std::floor((std::asin(grid.sin_lat(i)) * 57.29578 + 60) / 10));
+            if (b < 0 || b >= 15) continue;
+            const auto T = zs::gen::temp_months_c(grid, f, i);
+            const double a = grid.area_km2(i);
+            const auto bb = static_cast<std::size_t>(b);
+            tw[bb] += a, ta[bb] += a * f.temp_mean_c[i], tj[bb] += a * T[0], tl[bb] += a * T[6], tr[bb] += a * f.temp_range_c[i];
+          }
+          std::cout << "  land temperature by band, -60 to +90 (mean / January / July / range, C):";
+          for (std::size_t b = 0; b < 15; ++b)
+            if (tw[b] > 0) std::printf(" %.0f/%.0f/%.0f/%.0f", ta[b] / tw[b], tj[b] / tw[b], tl[b] / tw[b], tr[b] / tw[b]);
+            else std::printf(" -");
+          std::cout << " (Earth 5/10/1/9 9/15/4/12 16/23/9/13 21/26/14/12 23/25/19/6 25/25/24/2 25/25/25/3 27/22/28/9 23/13/29/17 12/0/24/23 "
+                       "6/-9/21/30 0/-17/16/33 -7/-25/12/38 -16/-30/3/34 -17/-29/-1/29, WorldClim, SR-6)\n";
+          struct Big {
+            double q;
+            zs::gen::CellId c;
+          };
+          std::vector<Big> big;
+          for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+            if (!f.land(i)) continue;
+            const zs::gen::CellId d = land.downstream[i];
+            if ((d == zs::gen::kNoCell || !f.land(d)) && land.discharge_m3s[i] >= 1000) big.push_back({land.discharge_m3s[i], i});
+          }
+          std::sort(big.begin(), big.end(), [](const Big& a, const Big& b) { return a.q > b.q; });
+          std::vector<double> ratios;
+          int warm_peak = 0;
+          for (const Big& b : big) {
+            const auto& r = land.regime[b.c];
+            double hi = 0, lo = 1e9;
+            int peak = 0;
+            for (int m = 0; m < 12; ++m) {
+              if (r[static_cast<std::size_t>(m)] > hi) hi = r[static_cast<std::size_t>(m)], peak = m;
+              lo = std::min(lo, static_cast<double>(r[static_cast<std::size_t>(m)]));
+            }
+            ratios.push_back(hi / std::max(lo, 0.01));
+            const bool south = grid.sin_lat(b.c) < 0;
+            warm_peak += south ? (peak <= 2 || peak >= 8) : (peak >= 2 && peak <= 8);
+          }
+          std::sort(ratios.begin(), ratios.end());
+          if (!ratios.empty())
+            std::printf("  river regimes: %zu mouths of 1,000 m3/s or more; the wettest month over the driest: median %.1f, tenth %.1f, ninth tenth %.1f; "
+                        "%.0f %% peak in the warm half (Earth's measured regimes: rain all year 1.2-1.6, monsoon and savanna 3-8, snow-fed 5-17 and more, "
+                        "Mediterranean 10-34, SR-4)\n",
+                        ratios.size(), ratios[ratios.size() / 2], ratios[ratios.size() / 10], ratios[ratios.size() * 9 / 10], 100.0 * warm_peak / ratios.size());
+          static const char* months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+          for (std::size_t k = 0; k < big.size() && k < 6; ++k) {
+            const auto& r = land.regime[big[k].c];
+            const auto P = zs::gen::rain_months_mm(f, big[k].c);
+            std::printf("    %.0f m3/s at %.0f deg (%s):", big[k].q, std::asin(grid.sin_lat(big[k].c)) * 57.29578,
+                        zs::gen::koppen_class(P, zs::gen::temp_months_c(grid, f, big[k].c), grid.sin_lat(big[k].c) < 0).c_str());
+            for (int m = 0; m < 12; ++m) std::printf(" %s %.2f", months[m], r[static_cast<std::size_t>(m)]);
+            std::printf("\n");
+          }
+        }
       }
       int rivers = 0, large = 0, lakes = 0;
       double arable = 0, capacity = 0, largest = 0, lake_area = 0, endorheic = 0, forest = 0;
@@ -587,6 +670,26 @@ int gen_main(int argc, char** argv) {
       }
       std::cout << "legend: '~' large river, ' ' deep sea, '.' shelf, '*' ice, ',' tundra, b boreal, f temperate forest, \" grassland,"
                    " ':' desert, s savanna, T tropical forest, ^ mountain\n";
+      return 0;
+    }
+    if (cmd == "weather") {  // specs 36, 100-102: the block's weather day by day at noon
+      auto t = zs::gen::make_world(seed);
+      t.world->check_every_tick = false;
+      const int days = std::stoi(arg(argc, argv, "--days", "365"));
+      const int every = std::stoi(arg(argc, argv, "--every", "7"));
+      const zs::Place& p = t.place->place();
+      std::printf("The block at %.1f, %.1f (%s, %.0f mm a year, wind %.1f m/s from %.0f; river %.0f m3/s):\n", p.lat_deg, p.lon_deg,
+                  p.biome.c_str(), p.climate.rain_mm, p.climate.wind_mean_ms, p.climate.wind_from_deg, p.river_mean_m3s);
+      double rain = 0;
+      for (int d = 0; d < days; ++d) {
+        t.world->jump(static_cast<std::int64_t>(d) * zs::kTicksPerGameDay + 4 * zs::kTicksPerGameHour);  // noon
+        rain += t.place->today_rain_mm(*t.world);
+        if (d % every) continue;
+        std::printf("  day %3d: %5.1f C (day %5.1f), rain %5.1f mm (%.0f since day 0), snow %4.0f cm, frozen %3.0f cm, wind %4.1f m/s from %3.0f, river %.0f m3/s\n",
+                    d, t.place->outdoor_c(*t.world), t.place->today_mean_c(*t.world), t.place->today_rain_mm(*t.world), rain,
+                    t.place->snow_depth_cm(*t.world), t.place->frost_depth_cm(*t.world), t.place->wind_ms(*t.world), t.place->wind_from_deg(*t.world),
+                    t.place->river_m3s(*t.world));
+      }
       return 0;
     }
     if (cmd == "work") {  // spec 99: the one world's census in the town's workplaces

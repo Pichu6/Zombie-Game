@@ -194,7 +194,7 @@ const RGB kBoundary[7] = {{0, 0, 0}, {200, 30, 30}, {240, 130, 30}, {40, 40, 80}
 const char* layer_name(MapLayer l) {
   static const char* names[kMapLayers] = {"physical", "political", "topographic", "temperature", "rain",   "climate",
                                           "wind",     "geology",   "water",       "cover",       "resources", "people",
-                                          "alliances", "industry", "energy", "drought"};
+                                          "alliances", "industry", "energy", "drought", "snow"};
   return names[static_cast<int>(l)];
 }
 
@@ -233,6 +233,9 @@ std::string layer_legend(MapLayer l) {
     case MapLayer::Wind:
       return "wind (spec 101): the mean speed at 10 m, calm white (1 m/s) through yellow and orange to dark red (10 m/s and "
              "more), with the prevailing wind as arrows (trade easterlies under 30 degrees, westerlies 30-60, polar easterlies beyond)";
+    case MapLayer::Snow:
+      return "snow (spec 102): the snowpack's water at the end of the local midwinter (January north, July south): none beige, "
+             "10 mm pale blue, 100 mm blue, 300 mm and more deep blue; ice sheets white; rivers by discharge";
     case MapLayer::Drought:
       return "drought (spec 101): the year's rain against the cell's normal: under 60 % dark brown, 80 % tan, normal white, 120 % "
              "light green, 140 % and more dark green; sea and ice grey";
@@ -415,6 +418,17 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
           col = ramp({{250, 250, 245}, {250, 230, 120}, {245, 160, 60}, {210, 70, 40}, {130, 20, 20}},
                      std::clamp((f.wind_ms.empty() ? 0.0 : f.wind_ms[c]) - 1.0, 0.0, 9.0) / 9.0);
           break;
+        case MapLayer::Snow: {  // spec 102: the midwinter snowpack
+          if (sea) break;
+          if (f.biome[c] == gen::Biome::Ice) {
+            col = {250, 252, 255};
+            break;
+          }
+          const double swe = land.snow_mm.empty() ? 0.0 : land.snow_mm[c][grid.sin_lat(c) < 0 ? 6 : 0];
+          col = swe < 10 ? RGB{225, 210, 175}
+                         : ramp({{200, 225, 245}, {110, 160, 220}, {30, 60, 150}}, std::clamp(std::log10(swe / 10) / std::log10(30.0), 0.0, 1.0));
+          break;
+        }
         case MapLayer::Drought: {  // spec 101: the year's rain against normal
           if (sea || f.biome[c] == gen::Biome::Ice || f.rain_mm[c] <= 0) {
             col = {150, 155, 160};

@@ -5,6 +5,7 @@
 // Earth (research droughts-and-wind, DW). docs/tier0/specs/101-droughts-and-wind.md.
 #pragma once
 #include <cstdint>
+#include <vector>
 
 #include "zs/fields.h"
 
@@ -31,5 +32,16 @@ double prevailing_from_deg(double lat_deg);
 // land) and the bearing it blows from (the prevailing one turned by a daily draw).
 double wind_ms(std::uint64_t seed, std::uint64_t cell, const Climate& c, const TimeOfYear& t);
 double wind_from_deg(std::uint64_t seed, std::uint64_t cell, const Climate& c, const TimeOfYear& t);
+
+// Spec 102: snow and frozen ground, day by day. Precipitation falls as snow below 3 C, all of it below -1 C (half at
+// 1 C, SR-1); the snowpack melts 4 mm a day for each degree above 0 (SR-2), settled at 0.3 g/cm3; the ground freezes
+// 5 cm for each square root of degree-day below 0, the cold reaching it under snow thinned by exp(-depth / 20 cm), and
+// thaws twice as fast (estimates under SR-5's extreme). The year is followed from the last warmest day before it.
+inline constexpr double kSnowNoneC = 3, kSnowAllC = -1, kMeltMmPerCDay = 4, kSnowDensity = 0.3;
+double snow_share(double temp_c);
+struct SnowDay {
+  double swe_mm = 0, depth_cm = 0, frost_cm = 0;
+};
+std::vector<SnowDay> snow_year(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t year);
 
 }  // namespace zs::fields
