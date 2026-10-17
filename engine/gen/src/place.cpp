@@ -66,6 +66,7 @@ zs::Place place_of(const WorldGrid& grid, const WorldFields& f, CellId cell, std
   p.elevation_m = f.elevation_m[cell];
   p.biome = biome_name(f.biome[cell]);
   p.climate = {f.temp_mean_c[cell], f.temp_range_c[cell], f.rain_mm[cell], c.z < 0};
+  if (!f.rain_kappa.empty()) p.climate.rain_kappa = f.rain_kappa[cell], p.climate.rain_peak = f.rain_peak[cell];  // spec 100
   return p;
 }
 

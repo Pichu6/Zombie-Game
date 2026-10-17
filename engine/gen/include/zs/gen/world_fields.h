@@ -43,6 +43,7 @@ struct WorldFields {
   std::vector<std::uint8_t> crust;           // spec 89: 1 continental, 0 oceanic (from cratons, apart from plates)
   std::vector<std::uint8_t> sea_ice;         // spec 89: sea whose annual mean is below the freezing of sea water
   std::vector<double> west_km, east_km;       // land: km to the sea walking west and east along the parallel (spec 83 rule 1)
+  std::vector<double> rain_kappa, rain_peak;  // spec 100: land: the rain's seasonal curve (strength, peak month 0-12)
   int plate_count = 0;
   double sea_level_raw_m = 0;                 // the pre-shift elevation that became zero
 

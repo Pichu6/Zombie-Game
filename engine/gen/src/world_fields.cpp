@@ -1,6 +1,7 @@
 // World fields (spec 31): plates -> elevation -> sea level -> temperature -> rain -> biome.
 // Keyed draws only; arithmetic is + - * / sqrt and detmath, so a seed gives one world everywhere.
 #include "zs/gen/world_fields.h"
+#include "zs/gen/world_seasons.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -823,6 +824,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
       front.swap(next);
     }
   }
+  fill_rain_seasons(g, f);  // spec 100
   return f;
 }
 

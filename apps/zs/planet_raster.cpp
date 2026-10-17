@@ -1,5 +1,7 @@
 #include "planet_raster.h"
 
+#include "zs/gen/world_seasons.h"
+
 #include "toml.hpp"
 
 #include <cstdio>
@@ -174,17 +176,15 @@ void to_pixel(const gen::Vec3& v, int W, int H, double& x, double& y) {
 
 // Köppen-like main group from the fields (spec 83 rule 5's climate layer): A tropical, B arid (BW desert, BS steppe),
 // C temperate, D continental, E polar; the coldest and warmest months from the mean and the range.
-int climate_group(const gen::WorldFields& f, gen::CellId c) {
-  const double t = f.temp_mean_c[c], cold = t - f.temp_range_c[c] / 2, warm = t + f.temp_range_c[c] / 2;
-  if (warm < 10) return 6;  // E
-  const double pet = gen::pet_mm(t), ai = pet > 0 ? f.rain_mm[c] / pet : 9;
-  if (ai < 0.28) return 1;  // BW
-  if (ai < 0.5) return 2;   // BS
-  if (cold >= 18) return 0;  // A
-  if (cold > -3) return 3;   // C
-  return warm >= 22 ? 4 : 5;  // D hot or cool summers
+// Spec 100: Koppen-Geiger classes with their rain seasons, in the colours of the usual Koppen maps (Beck et al.'s).
+RGB koppen_colour(const std::string& k) {
+  static const std::map<std::string, RGB> c = {
+      {"Af", {0, 0, 255}},     {"Am", {0, 120, 255}},   {"Aw", {70, 170, 250}},  {"BW", {255, 0, 0}},     {"BS", {245, 165, 0}},
+      {"Cs", {255, 255, 0}},   {"Cw", {150, 255, 150}}, {"Cf", {100, 200, 50}},  {"Ds", {255, 0, 255}},   {"Dw", {170, 175, 255}},
+      {"Df", {0, 220, 220}},   {"ET", {178, 178, 178}}, {"EF", {102, 102, 102}}};
+  const auto it = c.find(k);
+  return it == c.end() ? RGB{0, 0, 0} : it->second;
 }
-const RGB kClimate[7] = {{30, 80, 230}, {230, 40, 30}, {245, 165, 60}, {80, 190, 70}, {150, 80, 190}, {60, 170, 200}, {170, 170, 170}};
 
 const RGB kBoundary[7] = {{0, 0, 0}, {200, 30, 30}, {240, 130, 30}, {40, 40, 80}, {150, 60, 170}, {250, 220, 40}, {40, 200, 220}};
 
@@ -225,8 +225,10 @@ std::string layer_legend(MapLayer l) {
     case MapLayer::Temperature: return "temperature: the annual mean, one colour every 10 C: -30 deep blue, -20 blue, -10 pale blue, 0 white, 10 pale yellow, 20 orange, 30 dark red (sea a little greyer)";
     case MapLayer::Rain: return "rain: the annual total on a log scale, 50 mm beige to 4,000 mm dark blue";
     case MapLayer::Climate:
-      return "climate (Koppen-like main groups): A tropical blue, BW desert red, BS steppe orange, C temperate green, D "
-             "continental with hot summers purple, D with cool summers cyan, E polar grey";
+      return "climate (Koppen-Geiger from the monthly normals, spec 100): rainforest Af blue, monsoon Am mid blue, savanna Aw "
+             "light blue (dry winter); desert BW red, steppe BS orange; temperate with dry summer Cs yellow (Mediterranean), dry "
+             "winter Cw pale green, no dry season Cf green; cold with dry summer Ds magenta, dry winter Dw lavender, no dry season "
+             "Df cyan; tundra ET grey, ice EF dark grey";
     case MapLayer::Wind:
       return "wind: the prevailing wind the rain rule uses (trade easterlies under 30 degrees, westerlies 30-60, polar "
              "easterlies beyond) as arrows over the faded physical map; speeds are not modelled";
@@ -461,7 +463,7 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
                                (std::log10(std::max(50.0, f.rain_mm[c])) - std::log10(50.0)) / (std::log10(4000.0) - std::log10(50.0)));
           break;
         case MapLayer::Climate:
-          if (!sea) col = kClimate[climate_group(f, c)];
+          if (!sea) col = koppen_colour(gen::koppen_class(gen::rain_months_mm(f, c), gen::temp_months_c(grid, f, c), grid.sin_lat(c) < 0));
           break;
         case MapLayer::Geology: {
           const std::uint64_t h = gen::mix64(static_cast<std::uint64_t>(f.plate[c]) + 77);

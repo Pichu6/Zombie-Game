@@ -18,6 +18,7 @@
 //                                                  world fields, land, deposits and countries: summary and a text map
 //                                                  (specs 31, 52); --bmp draws rivers and borders, --political a colour per country
 #include <algorithm>
+#include <cstdio>
 #include <array>
 #include <chrono>
 #include <cstdint>
@@ -42,6 +43,7 @@
 #include "zs/gen/world_routes.h"
 #include "zs/gen/world_food.h"
 #include "zs/gen/town_food.h"
+#include "zs/gen/world_seasons.h"
 #include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
 #include "zs/dead.h"
@@ -255,6 +257,38 @@ int gen_main(int argc, char** argv) {
         std::cout << "  runoff by latitude, -90 to +90 (mm):";
         for (std::size_t b = 0; b < 18; ++b) std::cout << " " << (band_a[b] > 0 ? static_cast<int>(band_r[b] / band_a[b]) : 0);
         std::cout << " (Earth 0 0 0 844 556 143 112 331 849 670 252 266 168 196 289 291 174 105, HYD-8)\n";
+        // Spec 100: rainy seasons by latitude (rain-weighted: the share in the local summer half, April-September in the
+        // north; the share in the wettest three months) and Koppen-Geiger classes, against WorldClim 2.1 on Earth (RS).
+        std::array<double, 15> sb_rain{}, sb_summer{}, sb_wet3{};
+        std::map<std::string, double> kg;
+        double kg_all = 0;
+        for (zs::gen::CellId i = 0; i < grid.size(); ++i) {
+          if (!f.land(i)) continue;
+          const auto P = zs::gen::rain_months_mm(f, i);
+          const auto T = zs::gen::temp_months_c(grid, f, i);
+          const bool south = grid.sin_lat(i) < 0;
+          const double a = grid.area_km2(i);
+          kg[zs::gen::koppen_class(P, T, south)] += a;
+          kg_all += a;
+          const double lat = std::asin(grid.sin_lat(i)) * 57.29578;
+          const int b = static_cast<int>(std::floor((lat + 60) / 10));
+          if (b < 0 || b >= 15 || f.rain_mm[i] <= 50) continue;
+          double summer = 0, wet3 = 0;
+          for (int m = 0; m < 12; ++m) summer += (south ? (m <= 2 || m >= 9) : (m >= 3 && m <= 8)) ? P[static_cast<std::size_t>(m)] : 0.0;
+          for (int m = 0; m < 12; ++m)
+            wet3 = std::max(wet3, P[static_cast<std::size_t>(m)] + P[static_cast<std::size_t>((m + 1) % 12)] + P[static_cast<std::size_t>((m + 2) % 12)]);
+          const auto bb = static_cast<std::size_t>(b);
+          sb_rain[bb] += a * f.rain_mm[i], sb_summer[bb] += a * summer, sb_wet3[bb] += a * wet3;
+        }
+        std::cout << "  rain in the summer half by latitude, -60 to +90:";
+        for (std::size_t b = 0; b < 15; ++b) std::printf(" %.2f", sb_rain[b] > 0 ? sb_summer[b] / sb_rain[b] : 0.0);
+        std::cout << " (Earth 0.53 0.44 0.52 0.71 0.83 0.61 0.63 0.79 0.78 0.56 0.58 0.60 0.60 0.54 0.60, RS-2)\n";
+        std::cout << "  rain in the wettest three months:";
+        for (std::size_t b = 0; b < 15; ++b) std::printf(" %.2f", sb_rain[b] > 0 ? sb_wet3[b] / sb_rain[b] : 0.0);
+        std::cout << " (Earth 0.29 0.33 0.36 0.45 0.53 0.39 0.41 0.58 0.56 0.44 0.40 0.41 0.40 0.37 0.41, RS-2)\n";
+        std::cout << "  Koppen-Geiger (% of land):";
+        for (const auto& [k, v] : kg) std::printf(" %s %.1f", k.c_str(), 100 * v / kg_all);
+        std::cout << " (Earth without Antarctica: Af 5.7 Am 3.6 Aw 12.5 BS 11.6 BW 18.9 Cf 7.3 Cs 2.1 Cw 4.5 Df 20.9 Ds 1.8 Dw 4.0 EF 1.4 ET 5.8, RS-1)\n";
       }
       int rivers = 0, large = 0, lakes = 0;
       double arable = 0, capacity = 0, largest = 0, lake_area = 0, endorheic = 0, forest = 0;

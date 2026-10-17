@@ -33,7 +33,11 @@ struct Climate {
   double temp_range_c;  // warmest minus coldest monthly mean
   double rain_mm;       // per year
   bool south = false;   // southern hemisphere: the seasons are shifted half a year
+  // Spec 100: the rain's seasonal curve (von Mises strength, peak month 0-12 from 1 January); 0: no season (spec 36).
+  double rain_kappa = 0, rain_peak = 0;
 };
+// Spec 100: the share of the year's rain in month m (0 = January), adding to 1.
+double rain_month_share(const Climate& c, int month);
 
 struct TimeOfYear {
   std::int64_t year;

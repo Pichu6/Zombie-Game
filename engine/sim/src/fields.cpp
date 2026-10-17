@@ -104,6 +104,31 @@ std::vector<double> year_rain(std::uint64_t seed, std::uint64_t cell, const Clim
   std::vector<double> v(kDaysPerYear, 0.0);
   if (c.rain_mm <= 0) return v;
   const auto key = static_cast<std::uint32_t>(year * 1000003LL);
+  if (c.rain_kappa > 0) {
+    // Spec 100 rule 5: each month takes its share of the year (the cell's seasonal curve); its wet days are drawn with
+    // the year's wet-day share times the month's weight, and scaled so the month sums to its share exactly (A1).
+    const double base = std::clamp(0.15 + 0.35 * (c.rain_mm / 2000.0), 0.1, 0.7);
+    for (int m = 0; m < 12; ++m) {
+      const int d0 = m * kDaysPerYear / 12, d1 = (m + 1) * kDaysPerYear / 12;
+      const double share = rain_month_share(c, m);
+      const double wet = std::clamp(base * 12 * share, 0.02, 0.95);
+      double sum = 0;
+      for (int d = d0; d < d1; ++d) {
+        const auto kd = key + static_cast<std::uint32_t>(d);
+        if (keyed_unit(seed, cell, Field::RainWet, kd) >= wet) continue;
+        const double u = std::max(keyed_unit(seed, cell, Field::RainAmount, kd), 1e-12);
+        v[static_cast<std::size_t>(d)] = -detmath::log(u);
+        sum += v[static_cast<std::size_t>(d)];
+      }
+      const double month_mm = c.rain_mm * share;
+      if (sum <= 0) {  // no wet day drawn this month: its rain falls on its first day
+        v[static_cast<std::size_t>(d0)] = month_mm;
+        continue;
+      }
+      for (int d = d0; d < d1; ++d) v[static_cast<std::size_t>(d)] *= month_mm / sum;
+    }
+    return v;
+  }
   // Wet-day share rises with annual rain: 15 % in a desert, about 50 % at 2,000 mm.
   const double wet_share = std::clamp(0.15 + 0.35 * (c.rain_mm / 2000.0), 0.1, 0.7);
   double sum = 0;
@@ -124,6 +149,17 @@ std::vector<double> year_rain(std::uint64_t seed, std::uint64_t cell, const Clim
 }
 
 }  // namespace
+
+double rain_month_share(const Climate& c, int month) {
+  if (c.rain_kappa <= 0) return 1.0 / 12;
+  double sum = 0, mine = 0;
+  for (int m = 0; m < 12; ++m) {
+    const double w = detmath::exp(c.rain_kappa * detmath::cos(2.0 * detmath::pi * (m + 0.5 - c.rain_peak) / 12.0));
+    sum += w;
+    if (m == month) mine = w;
+  }
+  return mine / sum;
+}
 
 double rain_day_mm(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t year, int day) {
   return year_rain(seed, cell, c, year)[static_cast<std::size_t>(day)];
