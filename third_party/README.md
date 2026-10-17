@@ -17,3 +17,11 @@ Not stored here: CMake downloads them at a pinned commit when the window is buil
 | --- | --- | --- | --- |
 | [SDL3](https://github.com/libsdl-org/SDL) | release-3.4.18 (`829a65d7`) | zlib | Window, input, 2D renderer |
 | [Dear ImGui](https://github.com/ocornut/imgui) | v1.92.9b (`f1cc2ae1`) | MIT | Panels and the map's draw lists |
+
+## Ported code
+
+Code taken from another project and rewritten in our files; its licence travels with it.
+
+| Source | Version (commit) | Licence | Ported to |
+| --- | --- | --- | --- |
+| [God's Eye View](https://github.com/bilawalsidhu/gods-eye-view) | main (`3e5a18f6`) | MIT (`engine/render/shaders/LICENSE.gods-eye-view`) | Thermal and night-vision passes (`engine/render/shaders/thermal.frag`, `night_vision.frag`) |
