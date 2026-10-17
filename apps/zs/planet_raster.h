@@ -29,8 +29,8 @@ struct PlanetRaster {
 // Spec 83 rule 5 (amended 2026-10-14, the user: "different overlays: political, physical, topographic, climatic,
 // geological, urban ... resources, wind", after Cities: Skylines' info views).
 enum class MapLayer { Physical, Political, Topographic, Temperature, Rain, Climate, Wind, Geology, Water, Cover, Resources, People,
-                      Alliances, Industry, Energy };
-inline constexpr int kMapLayers = 15;
+                      Alliances, Industry, Energy, Drought };
+inline constexpr int kMapLayers = 16;
 const char* layer_name(MapLayer l);
 bool parse_layer(const std::string& name, MapLayer& out);
 // The legend of a layer, one line per colour, for printing beside the picture.
@@ -49,6 +49,8 @@ struct MapInputs {
   const gen::WorldLandUse* use = nullptr;  // spec 88: cover shows the land in use; resources the worked sites
   const gen::WorldIndustry* industry = nullptr;  // spec 93: the industry layer's plants
   const gen::WorldEnergy* energy = nullptr;      // spec 94: the energy layer's plants and lines
+  std::uint64_t seed = 0;                        // spec 101: the world's seed, for the drought layer's year
+  std::int64_t year = 2027;                      // spec 101: the year the drought layer shows (the default start's)
 };
 PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& fields, const gen::WorldLand& land,
                           const MapInputs& in, MapLayer layer, int w = 2048, int h = 1024);

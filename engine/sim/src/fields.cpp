@@ -1,6 +1,8 @@
 // Spec: docs/tier0/specs/36-fields-and-weather.md
 #include "zs/fields.h"
 
+#include "zs/anomalies.h"
+
 #include <algorithm>
 #include <cmath>
 
@@ -88,8 +90,20 @@ double seasonal_c(const Climate& c, int day) {
 }  // namespace
 
 double daily_mean_c(std::uint64_t seed, std::uint64_t cell, const Climate& c, std::int64_t year, int day) {
-  const std::vector<double> a = year_anomalies(seed, cell, c, year);
-  return c.temp_mean_c + seasonal_c(c, day) + a[static_cast<std::size_t>(day)];
+  std::vector<double> a = year_anomalies(seed, cell, c, year);
+  if (!c.anomalies) return c.temp_mean_c + seasonal_c(c, day) + a[static_cast<std::size_t>(day)];
+  // Spec 101 rule 3: the day's weather has no monthly mean of its own (each month's daily anomalies sum to zero); the
+  // month's regional anomaly, eased between mid-months, carries the month-to-month variation.
+  const int m = day * 12 / kDaysPerYear;
+  const int d0 = m * kDaysPerYear / 12, d1 = (m + 1) * kDaysPerYear / 12;
+  double mean = 0;
+  for (int d = d0; d < d1; ++d) mean += a[static_cast<std::size_t>(d)];
+  mean /= d1 - d0;
+  const double pos = (day + 0.5) * 12.0 / kDaysPerYear - 0.5;  // months from mid-January
+  const std::int64_t m0 = static_cast<std::int64_t>(std::floor(pos));
+  const double t = pos - static_cast<double>(m0);
+  const double anom = (1 - t) * temp_month_anomaly_c(seed, c, year * 12 + m0) + t * temp_month_anomaly_c(seed, c, year * 12 + m0 + 1);
+  return c.temp_mean_c + seasonal_c(c, day) + a[static_cast<std::size_t>(day)] - mean + anom;
 }
 
 double temperature_c(std::uint64_t seed, std::uint64_t cell, const Climate& c, const TimeOfYear& t) {
@@ -104,7 +118,7 @@ std::vector<double> year_rain(std::uint64_t seed, std::uint64_t cell, const Clim
   std::vector<double> v(kDaysPerYear, 0.0);
   if (c.rain_mm <= 0) return v;
   const auto key = static_cast<std::uint32_t>(year * 1000003LL);
-  if (c.rain_kappa > 0) {
+  if (c.rain_kappa > 0 || c.anomalies) {
     // Spec 100 rule 5: each month takes its share of the year (the cell's seasonal curve); its wet days are drawn with
     // the year's wet-day share times the month's weight, and scaled so the month sums to its share exactly (A1).
     const double base = std::clamp(0.15 + 0.35 * (c.rain_mm / 2000.0), 0.1, 0.7);
@@ -120,7 +134,8 @@ std::vector<double> year_rain(std::uint64_t seed, std::uint64_t cell, const Clim
         v[static_cast<std::size_t>(d)] = -detmath::log(u);
         sum += v[static_cast<std::size_t>(d)];
       }
-      const double month_mm = c.rain_mm * share;
+      // Spec 101 rule 2: the month's regional anomaly (1 without anomalies).
+      const double month_mm = c.rain_mm * share * rain_month_factor(seed, c, year * 12 + m);
       if (sum <= 0) {  // no wet day drawn this month: its rain falls on its first day
         v[static_cast<std::size_t>(d0)] = month_mm;
         continue;

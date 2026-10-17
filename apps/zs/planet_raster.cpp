@@ -1,6 +1,7 @@
 #include "planet_raster.h"
 
 #include "zs/gen/world_seasons.h"
+#include "zs/anomalies.h"
 
 #include "toml.hpp"
 
@@ -193,7 +194,7 @@ const RGB kBoundary[7] = {{0, 0, 0}, {200, 30, 30}, {240, 130, 30}, {40, 40, 80}
 const char* layer_name(MapLayer l) {
   static const char* names[kMapLayers] = {"physical", "political", "topographic", "temperature", "rain",   "climate",
                                           "wind",     "geology",   "water",       "cover",       "resources", "people",
-                                          "alliances", "industry", "energy"};
+                                          "alliances", "industry", "energy", "drought"};
   return names[static_cast<int>(l)];
 }
 
@@ -230,8 +231,11 @@ std::string layer_legend(MapLayer l) {
              "winter Cw pale green, no dry season Cf green; cold with dry summer Ds magenta, dry winter Dw lavender, no dry season "
              "Df cyan; tundra ET grey, ice EF dark grey";
     case MapLayer::Wind:
-      return "wind: the prevailing wind the rain rule uses (trade easterlies under 30 degrees, westerlies 30-60, polar "
-             "easterlies beyond) as arrows over the faded physical map; speeds are not modelled";
+      return "wind (spec 101): the mean speed at 10 m, calm white (1 m/s) through yellow and orange to dark red (10 m/s and "
+             "more), with the prevailing wind as arrows (trade easterlies under 30 degrees, westerlies 30-60, polar easterlies beyond)";
+    case MapLayer::Drought:
+      return "drought (spec 101): the year's rain against the cell's normal: under 60 % dark brown, 80 % tan, normal white, 120 % "
+             "light green, 140 % and more dark green; sea and ice grey";
     case MapLayer::Geology:
       return "geology: a shade per plate (continental warm, oceanic cool); boundaries: collision red, subduction orange, "
              "trench dark blue, island arc purple, ridge yellow, rift cyan";
@@ -407,7 +411,24 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
         case MapLayer::Resources:
         case MapLayer::Energy:
         case MapLayer::Industry:
-        case MapLayer::Wind: break;
+        case MapLayer::Wind:  // spec 101: the mean speed
+          col = ramp({{250, 250, 245}, {250, 230, 120}, {245, 160, 60}, {210, 70, 40}, {130, 20, 20}},
+                     std::clamp((f.wind_ms.empty() ? 0.0 : f.wind_ms[c]) - 1.0, 0.0, 9.0) / 9.0);
+          break;
+        case MapLayer::Drought: {  // spec 101: the year's rain against normal
+          if (sea || f.biome[c] == gen::Biome::Ice || f.rain_mm[c] <= 0) {
+            col = {150, 155, 160};
+            break;
+          }
+          const auto& v = grid.centre(c);
+          fields::Climate cl{f.temp_mean_c[c], f.temp_range_c[c], f.rain_mm[c], grid.sin_lat(c) < 0};
+          cl.rain_kappa = f.rain_kappa[c], cl.rain_peak = f.rain_peak[c], cl.anomalies = true;
+          cl.lat_deg = std::asin(std::clamp(grid.sin_lat(c), -1.0, 1.0)) * 57.29577951308232, cl.lon_deg = std::atan2(v.y, v.x) * 57.29577951308232;
+          double year = 0;
+          for (int m = 0; m < 12; ++m) year += fields::rain_month_share(cl, m) * fields::rain_month_factor(in.seed, cl, in.year * 12 + m);
+          col = ramp({{110, 60, 20}, {210, 170, 110}, {250, 250, 250}, {150, 210, 130}, {30, 110, 50}}, std::clamp((year - 0.6) / 0.8, 0.0, 1.0));
+          break;
+        }
         case MapLayer::Political:
           if (!sea) {
             const int k = r.country[i];
@@ -504,7 +525,7 @@ PlanetRaster render_layer(const gen::WorldGrid& grid, const gen::WorldFields& f,
         col = RGB{222, 233, 242};
       // Spec 89 amendment: an ice sheet is no one's and draws as ice, one cap with the sea ice around it.
       if (!sea && f.biome[c] == gen::Biome::Ice &&
-          (layer == MapLayer::Political || layer == MapLayer::Wind || layer == MapLayer::Water || layer == MapLayer::Cover))
+          (layer == MapLayer::Political || layer == MapLayer::Water || layer == MapLayer::Cover))
         col = RGB{236, 241, 246};
       if (layer == MapLayer::Resources && sea && max_catch > 0) {
         const double t = in.use ? in.use->fish_t[c] : land.fish_catch_t[c];  // spec 88: what is landed

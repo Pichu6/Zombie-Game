@@ -17,6 +17,7 @@
 #include "zs/fields.h"
 #include "zs/gen/stations.h"
 #include "zs/gen/town_layout.h"
+#include "zs/anomalies.h"
 #include "zs/dead.h"
 #include "zs/demographics.h"
 #include "zs/nations.h"
@@ -67,6 +68,11 @@ zs::Place place_of(const WorldGrid& grid, const WorldFields& f, CellId cell, std
   p.biome = biome_name(f.biome[cell]);
   p.climate = {f.temp_mean_c[cell], f.temp_range_c[cell], f.rain_mm[cell], c.z < 0};
   if (!f.rain_kappa.empty()) p.climate.rain_kappa = f.rain_kappa[cell], p.climate.rain_peak = f.rain_peak[cell];  // spec 100
+  // Spec 101: the regional anomalies at the place, and its wind.
+  p.climate.anomalies = true;
+  p.climate.lat_deg = p.lat_deg, p.climate.lon_deg = p.lon_deg;
+  if (!f.wind_ms.empty()) p.climate.wind_mean_ms = f.wind_ms[cell];
+  p.climate.wind_from_deg = zs::fields::prevailing_from_deg(p.lat_deg);
   return p;
 }
 

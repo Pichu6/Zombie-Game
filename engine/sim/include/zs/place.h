@@ -46,6 +46,9 @@ class PlaceSystem : public System {
   double outdoor_c(const World& w) const;
   double today_mean_c(const World& w) const;
   double today_rain_mm(const World& w) const;
+  // Spec 101: the wind now: speed in m/s and the bearing it blows from (0 when the place has no wind field).
+  double wind_ms(const World& w) const;
+  double wind_from_deg(const World& w) const;
   // Rule 5: an unheated building's air.
   double indoor_c(const World& w) const;
 

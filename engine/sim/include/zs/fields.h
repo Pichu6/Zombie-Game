@@ -15,7 +15,8 @@ double keyed_unit(std::uint64_t seed, std::uint64_t id, std::uint32_t field, std
 double keyed_normal(std::uint64_t seed, std::uint64_t id, std::uint32_t field, std::uint32_t k);  // mean 0, sd 1
 
 // Field numbers, append only (a key is (seed, id, field, k)).
-enum Field : std::uint32_t { Variation = 1, DailyTemp = 2, RainWet = 3, RainAmount = 4 };
+enum Field : std::uint32_t { Variation = 1, DailyTemp = 2, RainWet = 3, RainAmount = 4,
+                             RainAnom = 5, TempAnom = 6, WindSpeed = 7, WindTurn = 8 };  // 5-8: spec 101
 
 // ---- The two operators.
 // n keyed values with standard deviation about `amplitude` whose sum is exactly zero: refining a coarse value with
@@ -35,6 +36,10 @@ struct Climate {
   bool south = false;   // southern hemisphere: the seasons are shifted half a year
   // Spec 100: the rain's seasonal curve (von Mises strength, peak month 0-12 from 1 January); 0: no season (spec 36).
   double rain_kappa = 0, rain_peak = 0;
+  // Spec 101: regional anomalies (off: every year the climate's own, spec 36) at the place's position, and its wind.
+  bool anomalies = false;
+  double lat_deg = 0, lon_deg = 0;
+  double wind_mean_ms = 0, wind_from_deg = 0;  // the cell's mean speed at 10 m and its prevailing bearing
 };
 // Spec 100: the share of the year's rain in month m (0 = January), adding to 1.
 double rain_month_share(const Climate& c, int month);

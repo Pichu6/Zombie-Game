@@ -44,6 +44,7 @@
 #include "zs/gen/world_food.h"
 #include "zs/gen/town_food.h"
 #include "zs/gen/world_seasons.h"
+#include "zs/anomalies.h"
 #include "zs/gen/town_fuel.h"
 #include "zs/gen/town_power.h"
 #include "zs/dead.h"
@@ -289,6 +290,91 @@ int gen_main(int argc, char** argv) {
         std::cout << "  Koppen-Geiger (% of land):";
         for (const auto& [k, v] : kg) std::printf(" %s %.1f", k.c_str(), 100 * v / kg_all);
         std::cout << " (Earth without Antarctica: Af 5.7 Am 3.6 Aw 12.5 BS 11.6 BW 18.9 Cf 7.3 Cs 2.1 Cw 4.5 Df 20.9 Ds 1.8 Dw 4.0 EF 1.4 ET 5.8, RS-1)\n";
+        // Spec 101: twenty years of regional anomalies over a sample of land cells, against CRU TS on Earth (DW).
+        {
+          struct Cell {
+            double lat, lon, a;
+            zs::fields::Climate c;
+          };
+          std::vector<Cell> cells;
+          for (zs::gen::CellId i = 0; i < grid.size(); i += 5) {
+            if (!f.land(i) || f.biome[i] == zs::gen::Biome::Ice || f.rain_mm[i] < 25) continue;
+            const auto& v = grid.centre(i);
+            Cell x{std::asin(grid.sin_lat(i)) * 57.29578, std::atan2(v.y, v.x) * 57.29578, grid.area_km2(i), {}};
+            x.c = {f.temp_mean_c[i], f.temp_range_c[i], f.rain_mm[i], grid.sin_lat(i) < 0};
+            x.c.rain_kappa = f.rain_kappa[i], x.c.rain_peak = f.rain_peak[i], x.c.anomalies = true, x.c.lat_deg = x.lat, x.c.lon_deg = x.lon;
+            cells.push_back(x);
+          }
+          const int years = 20;
+          std::vector<std::array<double, 20>> annual(cells.size());
+          std::vector<std::array<double, 240>> monthly(cells.size());
+          for (std::size_t k = 0; k < cells.size(); ++k)
+            for (int y = 0; y < years; ++y) {
+              double t = 0;
+              for (int m = 0; m < 12; ++m) {
+                const double fct = zs::fields::rain_month_factor(seed, cells[k].c, y * 12 + m);
+                monthly[k][static_cast<std::size_t>(y * 12 + m)] = fct - 1;
+                t += zs::fields::rain_month_share(cells[k].c, m) * fct;
+              }
+              annual[k][static_cast<std::size_t>(y)] = t * cells[k].c.rain_mm;
+            }
+          const double bins[8] = {25, 100, 200, 400, 800, 1600, 3200, 1e9};
+          double cvs[7] = {}, cva[7] = {};
+          std::array<double, 20> dry{};
+          double dry_area = 0, twice = 0;
+          for (std::size_t k = 0; k < cells.size(); ++k) {
+            double mean = 0, var = 0;
+            for (double x : annual[k]) mean += x / years;
+            for (double x : annual[k]) var += (x - mean) * (x - mean) / years;
+            for (int b = 0; b < 7; ++b)
+              if (cells[k].c.rain_mm >= bins[b] && cells[k].c.rain_mm < bins[b + 1]) cvs[b] += cells[k].a * std::sqrt(var) / mean, cva[b] += cells[k].a;
+            if (cells[k].c.rain_mm <= 50) continue;
+            dry_area += cells[k].a;
+            bool two = false;
+            for (int y = 0; y < years; ++y) {
+              const bool d = annual[k][static_cast<std::size_t>(y)] < 0.8 * cells[k].c.rain_mm;
+              if (d) dry[static_cast<std::size_t>(y)] += cells[k].a;
+              if (d && y + 1 < years && annual[k][static_cast<std::size_t>(y + 1)] < 0.8 * cells[k].c.rain_mm) two = true;
+            }
+            if (two) twice += cells[k].a;
+          }
+          std::cout << "  anomalies (spec 101): CV of annual rain by mean (25-100 ... >3200 mm):";
+          for (int b = 0; b < 7; ++b) std::printf(" %.3f", cva[b] > 0 ? cvs[b] / cva[b] : 0.0);
+          std::cout << " (Earth 0.215 0.186 0.167 0.144 0.129 0.102 0.092, DW-1)\n";
+          double dmean = 0, dmin = 1, dmax = 0;
+          for (double x : dry) dmean += x / dry_area / years, dmin = std::min(dmin, x / dry_area), dmax = std::max(dmax, x / dry_area);
+          std::printf("  land in drought (a year under 80 %% of normal): mean %.1f %%, years %.1f to %.1f %%; two dry years running %.1f %% (Earth 8.7, 6.1 to 14.9; 21.1, DW-2)\n",
+                      100 * dmean, 100 * dmin, 100 * dmax, 100 * twice / std::max(1.0, dry_area));
+          // Decay with distance: correlation of monthly rain and temperature anomalies between random pairs.
+          const double edges[8] = {0, 300, 600, 1000, 1600, 2500, 4000, 1e9};
+          double rr[7] = {}, tr[7] = {}, nn[7] = {};
+          for (std::size_t q = 0; q < 6000 && cells.size() > 1; ++q) {
+            const std::size_t a = (q * 7919) % cells.size(), b = (q * 104729 + 17) % cells.size();
+            const double la1 = cells[a].lat / 57.29578, la2 = cells[b].lat / 57.29578, dl = (cells[a].lon - cells[b].lon) / 57.29578;
+            const double d = 6371 * std::acos(std::clamp(std::sin(la1) * std::sin(la2) + std::cos(la1) * std::cos(la2) * std::cos(dl), -1.0, 1.0));
+            int bin = 0;
+            while (bin < 6 && d >= edges[bin + 1]) ++bin;
+            auto corr = [](auto&& x, auto&& y, std::size_t n) {
+              double mx = 0, my = 0, sxy = 0, sx = 0, sy = 0;
+              for (std::size_t k = 0; k < n; ++k) mx += x(k) / n, my += y(k) / n;
+              for (std::size_t k = 0; k < n; ++k) sxy += (x(k) - mx) * (y(k) - my), sx += (x(k) - mx) * (x(k) - mx), sy += (y(k) - my) * (y(k) - my);
+              return sxy / std::sqrt(std::max(sx * sy, 1e-30));
+            };
+            rr[bin] += corr([&](std::size_t k) { return monthly[a][k]; }, [&](std::size_t k) { return monthly[b][k]; }, 240);
+            tr[bin] += corr([&](std::size_t k) { return zs::fields::temp_month_anomaly_c(seed, cells[a].c, static_cast<std::int64_t>(k)); },
+                            [&](std::size_t k) { return zs::fields::temp_month_anomaly_c(seed, cells[b].c, static_cast<std::int64_t>(k)); }, 60);
+            nn[bin] += 1;
+          }
+          std::cout << "  anomaly correlation by distance (0-300, -600, -1000, -1600, -2500, -4000 km): rain";
+          for (int b = 0; b < 6; ++b) std::printf(" %.2f", nn[b] > 0 ? rr[b] / nn[b] : 0.0);
+          std::cout << ", temperature";
+          for (int b = 0; b < 6; ++b) std::printf(" %.2f", nn[b] > 0 ? tr[b] / nn[b] : 0.0);
+          std::cout << " (Earth rain 0.83 0.51 0.27 0.08 -0.02 -0.04, 1/e at 600 km; temperature 0.94 0.84 0.70 0.48 0.25 0.05, 1/e at 1,600 km, DW-3, DW-5)\n";
+          double wl = 0, wa = 0;
+          for (zs::gen::CellId i = 0; i < grid.size(); ++i)
+            if (f.land(i)) wl += grid.area_km2(i) * f.wind_ms[i], wa += grid.area_km2(i);
+          std::printf("  wind over land: mean %.2f m/s (Earth 2.87, DW-6)\n", wl / std::max(1.0, wa));
+        }
       }
       int rivers = 0, large = 0, lakes = 0;
       double arable = 0, capacity = 0, largest = 0, lake_area = 0, endorheic = 0, forest = 0;
@@ -469,6 +555,7 @@ int gen_main(int argc, char** argv) {
       mi.use = &gw.use;
       mi.industry = &gw.industry;
       mi.energy = &gw.energy;
+      mi.seed = seed;  // spec 101
       if (arg(argc, argv, "--projection", "") == "equal-earth") mi.projection = zs::atlas::Projection::EqualEarth;  // spec 89 amendment
       if (!bmp.empty()) {
         const bool political = std::any_of(argv, argv + argc, [](const char* a) { return std::string(a) == "--political"; });

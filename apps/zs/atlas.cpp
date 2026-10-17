@@ -280,6 +280,7 @@ struct Planet {
         mi.use = &gw.use;
         mi.industry = &gw.industry;
         mi.energy = &gw.energy;
+        mi.seed = seed;  // spec 101
         mi.projection = Projection::EqualEarth;  // spec 89 amendment: poles as curved edges, not bands
         PlanetRaster r = render_layer(grid, f, land, mi, layer, 1024, 512);
         std::vector<CountryInfo> cs;
@@ -420,6 +421,7 @@ struct Planet {
     mi.use = &data->use;
     mi.industry = &data->industry;
     mi.energy = &data->energy;
+    mi.seed = seed;  // spec 101
     mi.projection = Projection::EqualEarth;
     raster = render_layer(data->grid, data->fields, data->land, mi, layer, 1024, 512);
     if (texture) SDL_DestroyTexture(texture), texture = nullptr;

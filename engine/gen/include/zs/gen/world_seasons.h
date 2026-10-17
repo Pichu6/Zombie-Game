@@ -26,6 +26,10 @@ struct SeasonParams {
 // Rule 1: fills f.rain_kappa and f.rain_peak (land; 0 at sea).
 void fill_rain_seasons(const WorldGrid& grid, WorldFields& f, const SeasonParams& p = {});
 
+// Spec 101 rule 4: every cell's mean wind speed at 10 m: over land Earth's by latitude (WorldClim, DW-6), more on coasts
+// and heights; at sea an estimate by belt.
+void fill_winds(const WorldGrid& grid, WorldFields& f);
+
 // Rule 3: the cell's twelve monthly normals (January first): rain in mm adding to rain_mm; mean temperature by spec 36's
 // seasonal cosine (coldest near 20 January in the north, July in the south; amplitude half the annual range).
 std::array<double, 12> rain_months_mm(const WorldFields& f, CellId i);

@@ -59,6 +59,7 @@ add_library(zs_sim
   src/players.cpp
   src/food_chain.cpp
   src/fuel_chain.cpp
+  src/anomalies.cpp
   src/sound_marks.cpp
 )
 target_include_directories(zs_sim PUBLIC include)

@@ -47,6 +47,34 @@ void fill_rain_seasons(const WorldGrid& g, WorldFields& f, const SeasonParams& p
   }
 }
 
+void fill_winds(const WorldGrid& g, WorldFields& f) {
+  // DW-6: WorldClim's mean speed over land by 10-degree band from -60 (m/s).
+  static const double land[15] = {7.30, 5.82, 3.51, 2.95, 2.19, 1.63, 1.73, 2.59, 2.92, 3.02, 3.27, 3.12, 3.27, 4.72, 3.86};
+  const std::size_t n = g.size();
+  f.wind_ms.assign(n, 0.0);
+  const double spacing = std::sqrt(4 * kPi * g.radius_km() * g.radius_km() / static_cast<double>(n));
+  for (CellId i = 0; i < n; ++i) {
+    const double s = g.sin_lat(i);
+    // The band by the sine's thresholds (detmath), interpolated between band centres.
+    double b = 0;
+    for (int k = 0; k < 15; ++k)
+      if (s >= detmath::sin((-60.0 + 10 * k + 5) * kPi / 180)) b = k;
+    const int k0 = static_cast<int>(b);
+    const int k1 = std::min(14, k0 + 1);
+    const double lo = detmath::sin((-60.0 + 10 * k0 + 5) * kPi / 180), hi = detmath::sin((-60.0 + 10 * k1 + 5) * kPi / 180);
+    const double t = k1 == k0 ? 0.0 : std::clamp((s - lo) / (hi - lo), 0.0, 1.0);
+    const double band = s < detmath::sin(-55.0 * kPi / 180) ? land[0] : land[k0] + t * (land[k1] - land[k0]);
+    if (f.land(i)) {
+      // Coasts and heights windier, interiors and lowlands calmer (estimates, about neutral on average).
+      const double coast = detmath::exp(-static_cast<double>(f.sea_cells[i]) * spacing / 150.0);
+      const double height = std::min(f.elevation_m[i], 4000.0) / 4000.0;
+      f.wind_ms[i] = band * (0.85 + 0.35 * coast + 0.3 * height);
+    } else {
+      f.wind_ms[i] = std::max(5.0, 2.2 * band);  // estimate: the sea about twice the land's wind, never under 5 m/s
+    }
+  }
+}
+
 std::array<double, 12> rain_months_mm(const WorldFields& f, CellId i) {
   std::array<double, 12> out{};
   const double k = f.rain_kappa.empty() ? 0.0 : f.rain_kappa[i], peak = f.rain_peak.empty() ? 0.0 : f.rain_peak[i];

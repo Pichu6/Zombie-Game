@@ -1,6 +1,8 @@
 // The block's place and its weather. Spec: docs/tier0/specs/42-place.md
 #include "zs/place.h"
 
+#include "zs/anomalies.h"
+
 #include "zs/calendar.h"
 #include "zs/clock.h"
 
@@ -26,6 +28,9 @@ void PlaceSystem::save(ArchiveWriter& a) const {
   a.boolean(place_.climate.south);
   a.f64(place_.climate.rain_kappa);  // spec 100
   a.f64(place_.climate.rain_peak);
+  a.boolean(place_.climate.anomalies);  // spec 101 (the position is the place's own)
+  a.f64(place_.climate.wind_mean_ms);
+  a.f64(place_.climate.wind_from_deg);
   a.f64(place_.town_people);  // spec 48
   a.i64(place_.sector);
   a.i64(place_.country);
@@ -48,6 +53,10 @@ void PlaceSystem::load(ArchiveReader& r) {
   place_.climate.south = r.boolean();
   place_.climate.rain_kappa = r.f64();  // spec 100
   place_.climate.rain_peak = r.f64();
+  place_.climate.anomalies = r.boolean();  // spec 101
+  place_.climate.wind_mean_ms = r.f64();
+  place_.climate.wind_from_deg = r.f64();
+  place_.climate.lat_deg = place_.lat_deg, place_.climate.lon_deg = place_.lon_deg;
   place_.town_people = r.f64();
   place_.sector = static_cast<int>(r.i64());
   place_.country = static_cast<int>(r.i64());
@@ -75,6 +84,14 @@ void PlaceSystem::refresh(const World& w) const {
 
 double PlaceSystem::outdoor_c(const World& w) const {
   return fields::temperature_c(place_.world_seed, place_.cell, place_.climate, weather_now(civil_now(w)));
+}
+
+double PlaceSystem::wind_ms(const World& w) const {
+  return fields::wind_ms(place_.world_seed, place_.cell, place_.climate, weather_now(civil_now(w)));
+}
+
+double PlaceSystem::wind_from_deg(const World& w) const {
+  return fields::wind_from_deg(place_.world_seed, place_.cell, place_.climate, weather_now(civil_now(w)));
 }
 
 double PlaceSystem::today_mean_c(const World& w) const {

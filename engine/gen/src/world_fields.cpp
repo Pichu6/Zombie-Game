@@ -825,6 +825,7 @@ WorldFields generate_fields(const WorldGrid& g, const WorldParams& prm) {
     }
   }
   fill_rain_seasons(g, f);  // spec 100
+  fill_winds(g, f);         // spec 101
   return f;
 }
 
